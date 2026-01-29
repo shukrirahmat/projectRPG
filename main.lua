@@ -29,13 +29,15 @@ function love.load()
         sprite = goblin_sprite
     }
 
-    mainMenu = {'FIGHT', 'FLEE'}
-    mainMenuHighlighted = 1;
+    currentPhase = 'mainMenu'
+
+    mainMenu = {current = 1, list = {'FIGHT', 'FLEE'}}
+    characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}}
 end
 
 function love.draw()
 
-    -----------------------------------------------------
+    -----------------------TOP------------------------
     local topBoxX = 10
     local topBoxY = 10
     local topBoxWidth = 150
@@ -58,7 +60,7 @@ function love.draw()
     love.graphics.printf('HP '..character1.maxHp..'', hpX, hpY, hpWidth, 'center')
     love.graphics.printf('MP '..character1.maxMp..'', mpX, mpY, mpWidth, 'center')
 
-    -------------------------------------------
+    ---------------------MIDDLE-------------------
 
     love.graphics.draw(
         enemy1.sprite,
@@ -71,55 +73,80 @@ function love.draw()
         monsterSpriteDimension/1.5
     )
 
-    -------------------------------------------
+    --------------------BOTTOM-----------------------
 
-    local bottomBoxHeight = 180
-    local bottomBoxX = 10
-    local bottomBoxY = windowHeight - bottomBoxHeight - 10
-    local bottomLeftWidth = 200
-    local menuOptionX = bottomBoxX + 10
-    local menuOptionY = bottomBoxY + 10
-    local menuOptionWidth = bottomLeftWidth - 20
-    local menuOptionHeight = (bottomBoxHeight - 20)/4
+    function drawBottomMenu(menu)
 
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.rectangle(
-        'line',
-        bottomBoxX,
-        bottomBoxY,
-        bottomLeftWidth,
-        bottomBoxHeight
-    )
+        local bottomBoxHeight = 180
+        local bottomBoxX = 10
+        local bottomBoxY = windowHeight - bottomBoxHeight - 10
+        local bottomLeftWidth = 200
+        local menuOptionX = bottomBoxX + 10
+        local menuOptionY = bottomBoxY + 10
+        local menuOptionWidth = bottomLeftWidth - 20
+        local menuOptionHeight = (bottomBoxHeight - 20)/4
 
-    love.graphics.setFont(font_medium)
-    for menuIndex, menu in ipairs(mainMenu) do
         love.graphics.setColor(1, 1, 1)
-        love.graphics.printf(
-            mainMenu[menuIndex],
-            menuOptionX,
-            menuOptionY + (menuIndex - 1) * menuOptionHeight,
-            menuOptionWidth,
-            'center', 0, 1, 1, 0, -1 * (menuOptionHeight/4)
+        love.graphics.rectangle(
+            'line',
+            bottomBoxX,
+            bottomBoxY,
+            bottomLeftWidth,
+            bottomBoxHeight
         )
-        if mainMenuHighlighted == menuIndex then
-            love.graphics.setColor(0.25, 0.25, 0.25)
-            love.graphics.rectangle(
-                'line',
-                menuOptionX,
-                menuOptionY + 5 + (menuIndex - 1) * menuOptionHeight,
-                menuOptionWidth,
-                menuOptionHeight - 5
-            )
-        end
 
+        love.graphics.setFont(font_medium)
+        for optionIndex, option in ipairs(menu.list) do
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.printf(
+                option,
+                menuOptionX,
+                menuOptionY + (optionIndex - 1) * menuOptionHeight,
+                menuOptionWidth,
+                'center', 0, 1, 1, 0, -1 * (menuOptionHeight/4)
+            )
+            if menu.current == optionIndex then
+                love.graphics.setColor(0.25, 0.25, 0.25)
+                love.graphics.rectangle(
+                    'line',
+                    menuOptionX,
+                    menuOptionY + 2 + (optionIndex - 1) * menuOptionHeight,
+                    menuOptionWidth,
+                    menuOptionHeight - 4
+                )
+            end
+
+        end
+    end
+
+    if currentPhase == 'mainMenu' then
+        drawBottomMenu(mainMenu)
+    elseif currentPhase == 'characterMenu' then
+        drawBottomMenu(characterMenu)
     end
 
 end
 
 function love.keypressed(key)
-    if key == 'down' and mainMenuHighlighted < #mainMenu then
-        mainMenuHighlighted = mainMenuHighlighted + 1
-    elseif key == 'up' and mainMenuHighlighted > 1 then
-        mainMenuHighlighted = mainMenuHighlighted - 1
+    if currentPhase == 'mainMenu' then
+        if key == 'down' and mainMenu.current < #mainMenu.list then
+            mainMenu.current = mainMenu.current + 1
+        elseif key == 'up' and mainMenu.current > 1 then
+            mainMenu.current = mainMenu.current - 1
+        elseif key == 'z' and mainMenu.current == 1 then
+            currentPhase = 'characterMenu';
+            characterMenu.current = 1;
+        end
+    end
+    
+    if currentPhase == 'characterMenu' then
+        if key == 'down' and characterMenu.current < #characterMenu.list then
+            characterMenu.current = characterMenu.current + 1
+        elseif key == 'up' and characterMenu.current > 1 then
+            characterMenu.current = characterMenu.current - 1
+        elseif key == 'x' then
+            currentPhase = 'mainMenu';
+            mainMenu.current = 1;
+        end
     end
 end

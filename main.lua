@@ -12,24 +12,24 @@ function love.load()
 
     character1 = {
         name = 'HERO',
-        maxHp = 500,
-        currentHp = 500,
-        maxMp = 350,
-        currentMp = 350,
-        attack = 120,
-        defense = 80,
-        speed = 100
+        maxHp = 25,
+        currentHp = 25,
+        maxMp = 0,
+        currentMp = 0,
+        attack = 12,
+        defense = 5,
+        agility = 3
     }
 
     enemy1 = {
         name = 'GOBLIN',
-        maxHp = 250,
-        currentHp = 250,
+        maxHp = 10,
+        currentHp = 10,
         currentMp = 0,
         maxMp = 0,
-        attack = 80,
-        defense = 50,
-        speed = 60,
+        attack = 6,
+        defense = 3,
+        agility = 2,
         sprite = goblin_sprite
     }
 
@@ -37,9 +37,91 @@ function love.load()
 
     mainMenu = {current = 1, list = {'FIGHT', 'FLEE'}}
     characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}}
+
+    textTimer = 0;
+    actionOrder = {}
+    damageToDeal = {};
+    battlelog = {}
+    battleEnded = false;
+
+    function setActionOrder()
+        actionOrder = {}
+        local units = {character1, enemy1}
+        for index, unit in ipairs(units) do
+            local action = {}
+            action.speed = unit.agility + math.floor(math.random(-unit.agility*.25, unit.agility*.25))
+            action.unit = unit
+            table.insert(actionOrder, action)
+        end
+        table.sort(actionOrder, function(action1, action2)
+                return action1.speed > action2.speed
+            end)
+    end
+
 end
 
-function love.update()
+function love.update(dt)
+    local function getTarget(attacker)
+        local target
+        local units = {character1, enemy1}
+        if attacker == character1 then
+            target = enemy1
+        elseif attacker == enemy1 then
+            target = character1
+        end
+        return target
+    end
+
+    local function calculateAttackDamage(attacker, target)
+        local damage = math.floor(attacker.attack/2) - math.floor(target.defense/3)
+        damage = damage + math.floor(math.random(-damage*.2, damage*.2))
+        return math.max(damage, 1)
+    end
+
+    if battleEnded then
+        currentPhase = 'battleEnd';
+        textTimer = textTimer + dt
+        if textTimer > 1 then
+            battlelog = {}
+            table.insert(battlelog, 'Enemy defeated')
+            textTimer = 0
+        end                
+
+    elseif currentPhase == 'playBattle' then
+
+        textTimer = textTimer + dt
+        if textTimer > 1 then
+            if #damageToDeal == 0 and #actionOrder == 0 then
+                battlelog = {}
+                currentPhase = 'mainMenu'
+                mainMenu.current = 1
+            elseif #damageToDeal == 0 then
+                battlelog = {};
+                local attacker = actionOrder[1].unit
+                local target = getTarget(attacker)
+                local totalDamage = calculateAttackDamage(attacker, target)
+                table.insert(battlelog, ''..attacker.name..' attacks '..target.name..'')
+                table.insert(damageToDeal, {damage = totalDamage, target = target})
+                table.remove(actionOrder, 1)
+            elseif #damageToDeal > 0 then
+                local target = damageToDeal[1].target
+                local damage = damageToDeal[1].damage
+                target.currentHp = target.currentHp - damage
+                table.insert(battlelog, ''..target.name..' takes '..damage..' damage!')
+                table.remove(damageToDeal, 1)
+                if target.currentHp < 0 then 
+                    target.currentHp = 0
+                    if target.sprite then
+                        target.sprite = nil
+                    end
+                    battleEnded = true;
+                end
+
+            end
+
+            textTimer = 0;
+        end
+    end
 end
 
 function love.draw()
@@ -69,16 +151,18 @@ function love.draw()
 
     ---------------------MIDDLE-------------------
 
-    love.graphics.draw(
-        enemy1.sprite,
-        windowWidth/2, 
-        windowHeight/2,
-        0,
-        1,
-        1,
-        monsterSpriteDimension/2,
-        monsterSpriteDimension/1.5
-    )
+    if enemy1.sprite then
+        love.graphics.draw(
+            enemy1.sprite,
+            windowWidth/2, 
+            windowHeight/2,
+            0,
+            1,
+            1,
+            monsterSpriteDimension/2,
+            monsterSpriteDimension/1.5
+        )
+    end
 
     --------------------BOTTOM-----------------------
 
@@ -126,10 +210,45 @@ function love.draw()
         end
     end
 
+    function drawBattleLog()
+        local borderX = 10
+        local borderHeight = 180
+        local borderY = windowHeight - borderHeight - 10
+        local borderWidth = windowWidth - borderX * 2
+
+        local textX = borderX + 10
+        local textY = borderY + 10
+        local textLineHeight = 20
+        local textWidth = borderWidth - textX * 2 
+
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle(
+            'line',
+            borderX,
+            borderY,
+            borderWidth,
+            borderHeight
+        )
+
+        love.graphics.setFont(font_medium)
+        for index, text in ipairs(battlelog) do
+            love.graphics.printf(
+                text,
+                textX,
+                textY + (index - 1)*textLineHeight,
+                textWidth
+            )
+        end
+    end
+
+
+
     if currentPhase == 'mainMenu' then
         drawBottomMenu(mainMenu)
     elseif currentPhase == 'characterMenu' then
         drawBottomMenu(characterMenu)
+    elseif currentPhase == 'playBattle' or currentPhase == 'battleEnd' then
+        drawBattleLog()
     end
 
 end
@@ -150,6 +269,7 @@ function love.keypressed(key)
         elseif key == 'up' and characterMenu.current > 1 then
             characterMenu.current = characterMenu.current - 1
         elseif key == 'z' and characterMenu.current == 1 then
+            setActionOrder()
             currentPhase = 'playBattle'
         elseif key == 'x' then
             currentPhase = 'mainMenu';

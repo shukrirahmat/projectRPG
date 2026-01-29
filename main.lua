@@ -13,7 +13,9 @@ function love.load()
     character1 = {
         name = 'HERO',
         maxHp = 500,
+        currentHp = 500,
         maxMp = 350,
+        currentMp = 350,
         attack = 120,
         defense = 80,
         speed = 100
@@ -22,6 +24,8 @@ function love.load()
     enemy1 = {
         name = 'GOBLIN',
         maxHp = 250,
+        currentHp = 250,
+        currentMp = 0,
         maxMp = 0,
         attack = 80,
         defense = 50,
@@ -33,6 +37,9 @@ function love.load()
 
     mainMenu = {current = 1, list = {'FIGHT', 'FLEE'}}
     characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}}
+end
+
+function love.update()
 end
 
 function love.draw()
@@ -57,8 +64,8 @@ function love.draw()
     love.graphics.setFont(font_small)
     love.graphics.printf(character1.name, nameX, nameY, nameWidth, 'center')
     love.graphics.setFont(font_large)
-    love.graphics.printf('HP '..character1.maxHp..'', hpX, hpY, hpWidth, 'center')
-    love.graphics.printf('MP '..character1.maxMp..'', mpX, mpY, mpWidth, 'center')
+    love.graphics.printf('HP '..character1.currentHp..'', hpX, hpY, hpWidth, 'center')
+    love.graphics.printf('MP '..character1.currentMp..'', mpX, mpY, mpWidth, 'center')
 
     ---------------------MIDDLE-------------------
 
@@ -137,13 +144,13 @@ function love.keypressed(key)
             currentPhase = 'characterMenu';
             characterMenu.current = 1;
         end
-    end
-    
-    if currentPhase == 'characterMenu' then
+    elseif currentPhase == 'characterMenu' then
         if key == 'down' and characterMenu.current < #characterMenu.list then
             characterMenu.current = characterMenu.current + 1
         elseif key == 'up' and characterMenu.current > 1 then
             characterMenu.current = characterMenu.current - 1
+        elseif key == 'z' and characterMenu.current == 1 then
+            currentPhase = 'playBattle'
         elseif key == 'x' then
             currentPhase = 'mainMenu';
             mainMenu.current = 1;

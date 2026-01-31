@@ -16,13 +16,15 @@ function love.load()
 
     character1 = {
         name = 'HERO',
+        partyMember = true,
         maxHp = 500,
         currentHp = 500,
         maxMp = 0,
         currentMp = 0,
-        attack = 120,
+        attack = 100,
         defense = 80,
-        agility = 80
+        agility = 180,
+        critRate = 16
     }
 
     enemy1 = {
@@ -36,7 +38,7 @@ function love.load()
         agility = 60,
         sprite = goblin_sprite
     }
-    
+
     enemy2 = {
         name = 'GOBLIN2',
         maxHp = 100,
@@ -48,7 +50,7 @@ function love.load()
         agility = 60,
         sprite = goblin_sprite
     }
-    
+
     enemy3 = {
         name = 'GOBLIN3',
         maxHp = 100,
@@ -72,7 +74,7 @@ function love.load()
         agility = 70,
         sprite = skeleton_sprite
     }
-    
+
     enemy5 = {
         name = 'SKELETON2',
         maxHp = 180,
@@ -109,39 +111,81 @@ function love.load()
         end
         targetSelectionMenu.list = enemyList
     end
-    
-    function normalAttack(user, target)
+
+    function normalAttack(user, target, isSecondAttack)
+
         --FOR NOW NOTHING HAPPEN IF TARGET IS ALREADY DEAD
         local result
         if not target.dead then
-            local damage = calculateAttackDamage(user, target)
-            if target.defending then
+            local damage
+            local crit
+            if user.critRate then
+                crit = math.random(1, user.critRate) == 1
+            else
+                crit = math.random(1, 128) == 1
+            end
+            if crit then
+                damage = calculateCritDamage(user, target)
+            else
+                damage = calculateAttackDamage(user, target)
+            end
+            if target.defending and not crit then
                 damage = math.floor(damage/2)
             end
-            result = { effectType = 'DAMAGE', value = damage, target = target }
-            table.insert(battlelog, ''..user.name..' attacks!')
+            
+            local battleLogText
+
+            if isSecondAttack then
+                battleLogText = ''..user.name..' attacks again!'
+            else
+                battleLogText = ''..user.name..' attacks!'
+            end
+
+            if crit then
+                battleLogText = ''..battleLogText..' Critical hit!';
+            end
+            
+            result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
+            
+            if not isSecondAttack then
+                local secondAttackChance = math.floor((user.agility - target.agility)/2)
+                local secondAttack = math.random(1, 100) < secondAttackChance
+
+                if secondAttack then
+                    result.secondAttack = true
+                end
+            end
+            
+            table.insert(battlelog, battleLogText)
             table.insert(effectList, result)
+
         end
     end
-    
-    function defend(user, target)
+
+    function defend(user)
         user.defending = true
         table.insert(battlelog, ''..user.name..' defends!')
     end
 
-    function addAction(action, user, target, priority)
-        table.insert(actionList, {action = action, user = user, target = target, priority = priority})
+    function addAction(action)
+        if action.actionType == 'DEFEND'
+        or action.actionType == 'SECONDATK' then
+            action.priority = true;
+            table.insert(actionList, 1, action)
+        else
+            table.insert(actionList, action)
+        end
     end
 
     function setEnemyAction(enemies)
         --For now just attack
         for index, enemy in ipairs(enemies) do
             if not enemy.dead then
-                addAction(normalAttack, enemy, character1)
+                addAction({actionType = 'NORMALATK', user = enemy, target = character1})
             end
         end
     end
-    
+
     function chooseNextActionIndex()
         local actionIndex
         local highestSpeed = 0
@@ -169,33 +213,51 @@ function love.load()
     end
 
     function executeAction(action)
-        local toExecute = action
-        toExecute.action(toExecute.user, toExecute.target)
+        if action.actionType == 'NORMALATK' then
+            normalAttack(action.user, action.target, false)
+        elseif action.actionType == 'SECONDATK' then
+            normalAttack(action.user, action.target, true)
+        elseif action.actionType == 'DEFEND' then
+            defend(action.user)
+        end
     end
 
+    function dealDamage(value, target)
+        target.currentHp = target.currentHp - value;
+        table.insert(battlelog, ''..target.name..' takes '..value..' damage.');
+        if target.currentHp <= 0 then 
+            target.currentHp = 0
+            table.insert(battlelog, ''..target.name..' defeated.')
+            for index, enemy in ipairs(enemies) do
+                if enemy.name == target.name then
+                    enemy.dead = true;
+                    removeAction(enemy)
+                end
+            end
+            if checkIfAllEnemiesDead() then
+                allEnemyDead = true
+            end
+        end
+    end
+
+
     function applyEffect(effect)
-        local target = effect.target
         if effect.effectType == 'DAMAGE' then
-            target.currentHp = target.currentHp - effect.value
-            table.insert(battlelog, ''..target.name..' takes '..effect.value..' damage.')
-            if target.currentHp < 0 then 
-                target.currentHp = 0
-                table.insert(battlelog, ''..target.name..' defeated.')
-                for index, enemy in ipairs(enemies) do
-                    if enemy.name == target.name then
-                        enemy.dead = true;
-                        removeAction(enemy)
-                    end
-                end
-                if checkIfAllEnemiesDead() then
-                    allEnemyDead = true
-                end
+            dealDamage(effect.value, effect.target)
+            if effect.secondAttack and not effect.target.dead then
+                addAction({actionType = 'SECONDATK', user = effect.user, target = effect.target})
             end
         end
     end
 
     function calculateAttackDamage(attacker, target)
         local damage = math.floor(attacker.attack/2) - math.floor(target.defense/3)
+        damage = damage + math.floor(math.random(-damage*.2, damage*.2))
+        return math.max(damage, 1)
+    end
+
+    function calculateCritDamage(attacker, target)
+        local damage = math.floor(attacker.attack/2) * 4
         damage = damage + math.floor(math.random(-damage*.2, damage*.2))
         return math.max(damage, 1)
     end
@@ -210,7 +272,7 @@ function love.load()
 
         return totalDead == #enemies;
     end
-    
+
     function playBattle()
         setEnemyAction(enemies)
         currentPhase = 'playBattle'
@@ -243,16 +305,18 @@ function love.update(dt)
                 currentPhase = 'mainMenu'
                 mainMenu.current = 1
             elseif #effectList > 0 then
-                applyEffect(effectList[1])
+                local effect = effectList[1]
                 table.remove(effectList, 1)
+                applyEffect(effect)
                 if allEnemyDead then
                     battleEnded = true
                 end
             elseif #actionList > 0 then
                 battlelog = {};
                 local nextActionIndex = chooseNextActionIndex()
-                executeAction(actionList[nextActionIndex])
+                local action = actionList[nextActionIndex]
                 table.remove(actionList, nextActionIndex)
+                executeAction(action)
             end
 
             textTimer = 0;
@@ -263,7 +327,7 @@ end
 function love.draw()
 
     -----------------------TOP------------------------
-    
+
     local function alignNumber(value)
         local result
         if value/100 > 1 then
@@ -275,7 +339,7 @@ function love.draw()
         end
         return result
     end
-    
+
     local topBoxX = 10
     local topBoxY = 10
     local topBoxWidth = 150
@@ -524,8 +588,8 @@ function love.draw()
         end
         love.graphics.print(
             text,
-            5,
-            windowHeight/2 + (index - 1) * 20
+            windowWidth - 200,
+            5 + (index - 1) * 20
         )
 
     end
@@ -547,13 +611,15 @@ function love.keypressed(key)
             characterMenu.current = characterMenu.current + 1
         elseif key == 'up' and characterMenu.current > 1 then
             characterMenu.current = characterMenu.current - 1
-        elseif key == 'z' and characterMenu.current == 1 then
-            updateSelectionMenu()
-            currentPhase = 'targetSelection'
-            targetSelectionMenu.current = 1;
-        elseif key == 'z' and characterMenu.current == 3 then
-            addAction(defend, character1, nil, true)
-            playBattle()
+        elseif key == 'z' then
+            if characterMenu.current == 1 then
+                updateSelectionMenu()
+                currentPhase = 'targetSelection'
+                targetSelectionMenu.current = 1;
+            elseif characterMenu.current == 3 then
+                addAction({actionType = 'DEFEND', user = character1})
+                playBattle()
+            end
         elseif key == 'x' then
             currentPhase = 'mainMenu';
             mainMenu.current = 1;
@@ -574,7 +640,7 @@ function love.keypressed(key)
                     target = enemy
                 end
             end
-            addAction(normalAttack, character1, target)
+            addAction( {actionType = 'NORMALATK', user = character1, target = target})
             playBattle()
         end
     end

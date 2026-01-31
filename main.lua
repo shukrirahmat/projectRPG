@@ -109,28 +109,37 @@ function love.load()
         end
         targetSelectionMenu.list = enemyList
     end
+    
+    function normalAttack(user, target)
+        --FOR NOW NOTHING HAPPEN IF TARGET IS ALREADY DEAD
+        local result
+        if not target.dead then
+            local damage = calculateAttackDamage(user, target)
+            if target.defending then
+                damage = math.floor(damage/2)
+            end
+            result = { effectType = 'DAMAGE', value = damage, target = target }
+            table.insert(battlelog, ''..user.name..' attacks!')
+            table.insert(effectList, result)
+        end
+    end
+    
+    function defend(user, target)
+        user.defending = true
+        table.insert(battlelog, ''..user.name..' defends!')
+    end
 
-    function addAttackAction(user, target)
-        table.insert(actionList, {name = 'ATTACK', user = user, target = target})
+    function addAction(action, user, target, priority)
+        table.insert(actionList, {action = action, user = user, target = target, priority = priority})
     end
 
     function setEnemyAction(enemies)
         --For now just attack
         for index, enemy in ipairs(enemies) do
             if not enemy.dead then
-                addAttackAction(enemy, character1)
+                addAction(normalAttack, enemy, character1)
             end
         end
-    end
-
-    function setActionOrder()
-        for index, action in ipairs(actionList) do
-            local agi = action.user.agility
-            action.speed = agi + math.floor(math.random(-agi*.25, agi*.25))
-        end
-        table.sort(actionList, function(action1, action2)
-                return action1.speed > action2.speed
-            end)
     end
     
     function chooseNextActionIndex()
@@ -160,16 +169,8 @@ function love.load()
     end
 
     function executeAction(action)
-        local result
-        if action.name == 'ATTACK' then
-            --FOR NOW NOTHING HAPPEN IF TARGET IS ALREADY DEAD
-            if not action.target.dead then
-                local damage = calculateAttackDamage(action.user, action.target)
-                result = { effectType = 'DAMAGE', value = damage, target = action.target }
-                table.insert(battlelog, ''..action.user.name..' attacks!')
-                table.insert(effectList, result)
-            end
-        end
+        local toExecute = action
+        toExecute.action(toExecute.user, toExecute.target)
     end
 
     function applyEffect(effect)
@@ -209,6 +210,11 @@ function love.load()
 
         return totalDead == #enemies;
     end
+    
+    function playBattle()
+        setEnemyAction(enemies)
+        currentPhase = 'playBattle'
+    end
 
 end
 
@@ -228,6 +234,11 @@ function love.update(dt)
         textTimer = textTimer + dt
         if textTimer > 1 then
             if #effectList == 0 and #actionList == 0 then
+                for index, character in ipairs({character1, enemy1, enemy2, enemy3, enemy4, enemy5}) do
+                    if character.defending then
+                        character.defending = false
+                    end
+                end                
                 battlelog = {}
                 currentPhase = 'mainMenu'
                 mainMenu.current = 1
@@ -540,6 +551,9 @@ function love.keypressed(key)
             updateSelectionMenu()
             currentPhase = 'targetSelection'
             targetSelectionMenu.current = 1;
+        elseif key == 'z' and characterMenu.current == 3 then
+            addAction(defend, character1, nil, true)
+            playBattle()
         elseif key == 'x' then
             currentPhase = 'mainMenu';
             mainMenu.current = 1;
@@ -560,9 +574,8 @@ function love.keypressed(key)
                     target = enemy
                 end
             end
-            addAttackAction(character1, target)
-            setEnemyAction(enemies)
-            currentPhase = 'playBattle'
+            addAction(normalAttack, character1, target)
+            playBattle()
         end
     end
 end

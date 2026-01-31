@@ -5,8 +5,11 @@ function love.load()
 
     love.graphics.setBackgroundColor(0,0,0)
     font_small = love.graphics.newFont('fonts/MartianMono-Regular.ttf', 14)
-    font_medium = love.graphics.newFont('fonts/MartianMono-Regular.ttf', 18)
+    font_medium = love.graphics.newFont('fonts/MartianMono-Regular.ttf', 16)
     font_large = love.graphics.newFont('fonts/MartianMono-Regular.ttf', 24)
+    font_small:setFilter("nearest", "nearest")
+    font_medium:setFilter("nearest", "nearest")
+    font_large:setFilter("nearest", "nearest")
     goblin_sprite = love.graphics.newImage('images/goblin.png')
     skeleton_sprite = love.graphics.newImage('images/skeleton.png')
     monsterSpriteDimension = 128
@@ -33,20 +36,8 @@ function love.load()
         agility = 60,
         sprite = goblin_sprite
     }
-
+    
     enemy2 = {
-        name = 'SKELETON',
-        maxHp = 180,
-        currentHp = 180,
-        currentMp = 0,
-        maxMp = 0,
-        attack = 90,
-        defense = 50,
-        agility = 50,
-        sprite = skeleton_sprite
-    }
-
-    enemy3 = {
         name = 'GOBLIN2',
         maxHp = 100,
         currentHp = 100,
@@ -57,8 +48,44 @@ function love.load()
         agility = 60,
         sprite = goblin_sprite
     }
+    
+    enemy3 = {
+        name = 'GOBLIN3',
+        maxHp = 100,
+        currentHp = 100,
+        currentMp = 0,
+        maxMp = 0,
+        attack = 70,
+        defense = 40,
+        agility = 60,
+        sprite = goblin_sprite
+    }
 
-    enemies = {enemy1, enemy2, enemy3}
+    enemy4 = {
+        name = 'SKELETON1',
+        maxHp = 180,
+        currentHp = 180,
+        currentMp = 0,
+        maxMp = 0,
+        attack = 90,
+        defense = 50,
+        agility = 70,
+        sprite = skeleton_sprite
+    }
+    
+    enemy5 = {
+        name = 'SKELETON2',
+        maxHp = 180,
+        currentHp = 180,
+        currentMp = 0,
+        maxMp = 0,
+        attack = 90,
+        defense = 50,
+        agility = 70,
+        sprite = skeleton_sprite
+    }
+
+    enemies = {enemy1, enemy2, enemy3, enemy4, enemy5}
     allEnemyDead = false;
 
     currentPhase = 'mainMenu'
@@ -106,6 +133,24 @@ function love.load()
             end)
     end
     
+    function chooseNextActionIndex()
+        local actionIndex
+        local highestSpeed = 0
+        if actionList[1].priority then
+            actionIndex = 1
+        else
+            for index, action in ipairs(actionList) do
+                local agi = action.user.agility
+                local speed = agi + math.floor(math.random(-agi*.25, agi*.25))
+                if speed > highestSpeed then
+                    highestSpeed = speed
+                    actionIndex = index
+                end
+            end
+        end
+        return actionIndex
+    end
+
     function removeAction(user)
         for index, action in ipairs(actionList) do
             if action.user == user then
@@ -121,7 +166,7 @@ function love.load()
             if not action.target.dead then
                 local damage = calculateAttackDamage(action.user, action.target)
                 result = { effectType = 'DAMAGE', value = damage, target = action.target }
-                table.insert(battlelog, ''..action.user.name..' attacks '..action.target.name..'')
+                table.insert(battlelog, ''..action.user.name..' attacks!')
                 table.insert(effectList, result)
             end
         end
@@ -131,10 +176,10 @@ function love.load()
         local target = effect.target
         if effect.effectType == 'DAMAGE' then
             target.currentHp = target.currentHp - effect.value
-            table.insert(battlelog, ''..target.name..' takes '..effect.value..' damage!')
+            table.insert(battlelog, ''..target.name..' takes '..effect.value..' damage.')
             if target.currentHp < 0 then 
                 target.currentHp = 0
-                table.insert(battlelog, ''..target.name..' defeated')
+                table.insert(battlelog, ''..target.name..' defeated.')
                 for index, enemy in ipairs(enemies) do
                     if enemy.name == target.name then
                         enemy.dead = true;
@@ -186,16 +231,17 @@ function love.update(dt)
                 battlelog = {}
                 currentPhase = 'mainMenu'
                 mainMenu.current = 1
-            elseif #effectList == 0 then
-                battlelog = {};
-                executeAction(actionList[1])
-                table.remove(actionList, 1)
             elseif #effectList > 0 then
                 applyEffect(effectList[1])
                 table.remove(effectList, 1)
                 if allEnemyDead then
                     battleEnded = true
                 end
+            elseif #actionList > 0 then
+                battlelog = {};
+                local nextActionIndex = chooseNextActionIndex()
+                executeAction(actionList[nextActionIndex])
+                table.remove(actionList, nextActionIndex)
             end
 
             textTimer = 0;
@@ -206,6 +252,19 @@ end
 function love.draw()
 
     -----------------------TOP------------------------
+    
+    local function alignNumber(value)
+        local result
+        if value/100 > 1 then
+            result = ''..value..''
+        elseif value/10 > 1 then
+            result = ' '..value..''
+        else
+            result = '  '..value..''
+        end
+        return result
+    end
+    
     local topBoxX = 10
     local topBoxY = 10
     local topBoxWidth = 150
@@ -225,8 +284,8 @@ function love.draw()
     love.graphics.setFont(font_small)
     love.graphics.printf(character1.name, nameX, nameY, nameWidth, 'center')
     love.graphics.setFont(font_large)
-    love.graphics.printf('HP '..character1.currentHp..'', hpX, hpY, hpWidth, 'center')
-    love.graphics.printf('MP '..character1.currentMp..'', mpX, mpY, mpWidth, 'center')
+    love.graphics.printf('HP '..alignNumber(character1.currentHp)..'', hpX, hpY, hpWidth, 'center')
+    love.graphics.printf('MP '..alignNumber(character1.currentMp)..'', mpX, mpY, mpWidth, 'center')
 
     ---------------------MIDDLE-------------------
 
@@ -248,22 +307,22 @@ function love.draw()
     --------------------BOTTOM-----------------------
 
     function createBottomMenu(menu)
-        local bottomBoxHeight = 180
-        local bottomBoxX = 10
-        local bottomBoxY = windowHeight - bottomBoxHeight - 10
-        local bottomLeftWidth = windowWidth/4
-        local menuOptionX = bottomBoxX + 10
-        local menuOptionY = bottomBoxY + 10
-        local menuOptionWidth = bottomLeftWidth - 20
-        local menuOptionHeight = (bottomBoxHeight - 20)/4
+        local borderHeight = 180
+        local borderX = 10
+        local borderY = windowHeight - borderHeight - 10
+        local borderWidth = (windowWidth - 10)/4 - 10
+        local menuOptionX = borderX + 10
+        local menuOptionY = borderY + 10
+        local menuOptionWidth = borderWidth - 20
+        local menuOptionHeight = (borderHeight - 20)/4
 
         love.graphics.setColor(1, 1, 1)
         love.graphics.rectangle(
             'line',
-            bottomBoxX,
-            bottomBoxY,
-            bottomLeftWidth,
-            bottomBoxHeight
+            borderX,
+            borderY,
+            borderWidth,
+            borderHeight
         )
 
         love.graphics.setFont(font_medium)
@@ -279,10 +338,10 @@ function love.draw()
         end
 
         return {
-            bottomBoxHeight = bottomBoxHeight,
-            bottomBoxX = bottomBoxX,
-            bottomBoxY = bottomBoxY,
-            bottomLeftWidth = bottomLeftWidth,
+            borderHeight = borderHeight,
+            borderX = borderX,
+            borderY = borderY,
+            borderWidth = borderWidth,
             menuOptionX = menuOptionX,
             menuOptionY = menuOptionY,
             menuOptionWidth = menuOptionWidth,
@@ -299,7 +358,6 @@ function love.draw()
                 drawMenuIndicator(
                     bottomMenu.menuOptionX,
                     bottomMenu.menuOptionY + (index - 1) * bottomMenu.menuOptionHeight,
-                    bottomMenu.menuOptionWidth,
                     bottomMenu.menuOptionHeight
                 )
 
@@ -310,15 +368,16 @@ function love.draw()
     function drawTargetSelectionMenu(menu)
         local bottomMenu = createBottomMenu(menu)
 
-        local borderX = bottomMenu.bottomBoxX * 2 + bottomMenu.bottomLeftWidth
-        local borderY = bottomMenu.bottomBoxY
-        local borderWidth = windowWidth - bottomMenu.bottomBoxX * 3 - bottomMenu.bottomLeftWidth
-        local borderHeight = bottomMenu.bottomBoxHeight
+        local borderX = bottomMenu.borderX + bottomMenu.borderWidth + 10
+        local borderY = bottomMenu.borderY
+        local borderWidth = (windowWidth - 10)/4 - 10;
+        local borderHeight = bottomMenu.borderHeight
         local targetX = borderX + 10
         local targetY = borderY + 10
-        local targetWidth = borderWidth/2 - 10 * 2
+        local targetWidth = borderWidth - 10 * 2
         local targetHeight = bottomMenu.menuOptionHeight
 
+        love.graphics.setFont(font_medium)
         love.graphics.setColor(1, 1, 1)
         love.graphics.rectangle(
             'line',
@@ -328,34 +387,74 @@ function love.draw()
             borderHeight
         )
 
-        for index, enemyName in ipairs(targetSelectionMenu.list) do
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.printf(
-                enemyName,
-                targetX + 20,
-                targetY + (index - 1) * targetHeight,
-                targetWidth,
-                'left', 0, 1, 1, 0, -1 * (targetHeight/4)
-            )
-            if targetSelectionMenu.current == index then
-                drawMenuIndicator(
-                    targetX,
-                    targetY + (index - 1) * targetHeight,
-                    targetWidth,
-                    targetHeight
+        love.graphics.setColor(1, 1, 1)
+        if targetSelectionMenu.current < 5 then
+            for i = 1, math.min(#targetSelectionMenu.list, 4) do
+                love.graphics.printf(
+                    targetSelectionMenu.list[i],
+                    targetX + 20,
+                    targetY + (i - 1) * targetHeight,
+                    targetWidth - 20,
+                    'left', 0, 1, 1, 0, -1 * (targetHeight/4)
                 )
+                if #targetSelectionMenu.list > 4 then
+                    love.graphics.polygon(
+                        'fill',
+                        borderX + borderWidth/2 - 10,
+                        borderY + borderHeight - 10,
+                        borderX + borderWidth/2 + 10,
+                        borderY + borderHeight - 10,
+                        borderX + borderWidth/2,
+                        borderY + borderHeight - 5
+                    )
+                end
+                if targetSelectionMenu.current == i then
+                    drawMenuIndicator(
+                        targetX,
+                        targetY + (i - 1) * targetHeight,
+                        targetHeight
+                    )
+                end
+            end
+        else
+            for i = 5, #targetSelectionMenu.list do
+                love.graphics.printf(
+                    targetSelectionMenu.list[i],
+                    targetX + 20,
+                    targetY + (i - 5) * targetHeight,
+                    targetWidth - 20,
+                    'left', 0, 1, 1, 0, -1 * (targetHeight/4)
+                )
+                love.graphics.polygon(
+                    'fill',
+                    borderX + borderWidth/2 - 10,
+                    borderY + 10,
+                    borderX + borderWidth/2 + 10,
+                    borderY + 10,
+                    borderX + borderWidth/2,
+                    borderY + 5
+                )
+                if targetSelectionMenu.current == i then
+                    drawMenuIndicator(
+                        targetX,
+                        targetY + (i - 5) * targetHeight,
+                        targetHeight
+                    )
+                end
             end
         end
     end
 
-    function drawMenuIndicator(x, y, width, height)
-        love.graphics.setColor(0.25, 0.25, 0.25)
-        love.graphics.rectangle(
-            'line',
+    function drawMenuIndicator(x, y, height)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.polygon(
+            'fill',
             x,
-            y,
-            width,
-            height
+            y + (height/2) - 10,
+            x,
+            y + (height/2) + 10,
+            x + 10,
+            y + (height/2)
         )
     end
 
@@ -463,7 +562,6 @@ function love.keypressed(key)
             end
             addAttackAction(character1, target)
             setEnemyAction(enemies)
-            setActionOrder()
             currentPhase = 'playBattle'
         end
     end

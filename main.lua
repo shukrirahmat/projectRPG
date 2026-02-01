@@ -17,8 +17,8 @@ function love.load()
     character1 = {
         name = 'KNIGHT',
         partyMember = true,
-        maxHp = 400,
-        currentHp = 400,
+        maxHp = 200,
+        currentHp = 200,
         maxMp = 0,
         currentMp = 0,
         attack = 120,
@@ -26,12 +26,12 @@ function love.load()
         agility = 40,
         critRate = 64
     }
-    
+
     character2 = {
         name = 'FIGHTER',
         partyMember = true,
-        maxHp = 360,
-        currentHp = 360,
+        maxHp = 180,
+        currentHp = 180,
         maxMp = 0,
         currentMp = 0,
         attack = 90,
@@ -39,31 +39,32 @@ function love.load()
         agility = 60,
         critRate = 8
     }
-    
+
     character3 = {
         name = 'HUNTER',
         partyMember = true,
-        maxHp = 320,
-        currentHp = 320,
+        maxHp = 160,
+        currentHp = 160,
         maxMp = 0,
         currentMp = 0,
         attack = 60,
         defense = 50,
         agility = 120,
-        critRate = 64
+        critRate = 64,
+        dead = true
     }
-    
+
     character4 = {
         name = 'MAGE',
         partyMember = true,
-        maxHp = 240,
-        currentHp = 240,
+        maxHp = 120,
+        currentHp = 120,
         maxMp = 150,
         currentMp = 150,
         attack = 30,
         defense = 40,
         agility = 80,
-        critRate = 64
+        critRate = 64,
     }
 
     enemy1 = {
@@ -133,7 +134,7 @@ function love.load()
     currentPhase = 'mainMenu'
 
     mainMenu = {current = 1, list = {'FIGHT', 'FLEE'}}
-    characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}, characterID = 1}
+    characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}, charID = 1}
     targetSelectionMenu = {current = 1}
 
     textTimer = 0;
@@ -141,6 +142,18 @@ function love.load()
     effectList = {};
     battlelog = {}
     battleEnded = false;
+
+    function resetMenu(menu)
+        menu.current = 1
+    end
+
+    function menuDown(menu)
+        menu.current = menu.current + 1
+    end
+
+    function menuUp(menu)
+        menu.current = menu.current - 1
+    end
 
     function updateSelectionMenu()
         local enemyList = {}
@@ -172,7 +185,7 @@ function love.load()
             if target.defending and not crit then
                 damage = math.floor(damage/2)
             end
-            
+
             local battleLogText
 
             if isSecondAttack then
@@ -184,9 +197,9 @@ function love.load()
             if crit then
                 battleLogText = ''..battleLogText..' Critical hit!';
             end
-            
+
             result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
-            
+
             if not isSecondAttack then
                 local secondAttackChance = math.floor((user.agility - target.agility)/2)
                 local secondAttack = math.random(1, 100) < secondAttackChance
@@ -195,7 +208,7 @@ function love.load()
                     result.secondAttack = true
                 end
             end
-            
+
             table.insert(battlelog, battleLogText)
             table.insert(effectList, result)
 
@@ -318,6 +331,49 @@ function love.load()
         currentPhase = 'playBattle'
     end
 
+    function getAbleCharID(currentID, where)
+        local nextID
+        local found = false
+        local outOfBound
+        local id
+
+        if where == 'next' then
+            nextID = currentID + 1
+            outOfBound = nextID > #party 
+        elseif where == 'prev' then
+            nextID = currentID - 1
+            outOfBound = nextID < 1
+        end
+
+        while not found and not outOfBound do
+            if not party[nextID].dead then
+                found = true
+                id = nextID
+            end
+            if where == 'next' then
+                nextID = nextID + 1
+                outOfBound = nextID > #party 
+            elseif where == 'prev' then
+                nextID = nextID - 1
+                outOfBound = nextID < 1
+            end
+        end
+
+        if found then
+            return id
+        else
+            return nil
+        end
+    end
+
+
+    function getNextAbleCharID(currentID)
+        return getAbleCharID(currentID, 'next')
+    end
+
+    function getPrevAbleCharID(currentID)
+        return getAbleCharID(currentID, 'prev')
+    end
 end
 
 function love.update(dt)
@@ -394,9 +450,12 @@ function love.draw()
     local mpY = topBoxY + 25 * 2
     local mpWidth = topBoxWidth - 10
 
-    love.graphics.setColor(1, 1, 1)
-    
     for index, member in ipairs(party) do
+        if member.dead then
+            love.graphics.setColor(0.25, 0.25, 0.25)
+        else
+            love.graphics.setColor(1, 1, 1)
+        end
         love.graphics.rectangle(
             'line',
             topBoxX + (index - 1) * (topBoxWidth + topBoxX),
@@ -439,7 +498,7 @@ function love.draw()
 
     --------------------BOTTOM-----------------------
 
-    function createBottomMenu(menu)
+    function drawBottomMenu(menu)
         local borderHeight = 180
         local borderX = 10
         local borderY = windowHeight - borderHeight - 10
@@ -469,6 +528,17 @@ function love.draw()
                 'center', 0, 1, 1, 0, -1 * (menuOptionHeight/4)
             )
         end
+        
+        for index, option in ipairs(menu.list) do
+            if menu.current == index then
+                drawMenuIndicator(
+                    menuOptionX,
+                    menuOptionY + (index - 1) * menuOptionHeight,
+                    menuOptionHeight
+                )
+
+            end
+        end
 
         return {
             borderHeight = borderHeight,
@@ -480,26 +550,43 @@ function love.draw()
             menuOptionWidth = menuOptionWidth,
             menuOptionHeight = menuOptionHeight
         }
-
     end
-
-    function drawBottomMenu(menu)
-        local bottomMenu = createBottomMenu(menu)
-
-        for index, option in ipairs(menu.list) do
-            if menu.current == index then
-                drawMenuIndicator(
-                    bottomMenu.menuOptionX,
-                    bottomMenu.menuOptionY + (index - 1) * bottomMenu.menuOptionHeight,
-                    bottomMenu.menuOptionHeight
-                )
-
-            end
-        end
+    
+    function drawCharacterMenu()
+        local bottomMenu = drawBottomMenu(characterMenu)
+        
+        local nameBorderHeight = 30
+        local nameBorderX = bottomMenu.borderX
+        local nameBorderY = bottomMenu.borderY - nameBorderHeight
+        local nameBorderWidth = bottomMenu.borderWidth / 2
+        local nameX = nameBorderX + 5
+        local nameY = nameBorderY + 5
+        local nameWidth = nameBorderWidth - 10
+        
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.setFont(font_small)
+        love.graphics.rectangle(
+            'line',
+            nameBorderX,
+            nameBorderY,
+            nameBorderWidth,
+            nameBorderHeight
+        )
+        local charName = party[characterMenu.charID].name
+        love.graphics.printf(
+            charName,
+            nameX,
+            nameY,
+            nameWidth,
+            'center'
+        )
+        
+        return bottomMenu;
     end
+        
 
     function drawTargetSelectionMenu(menu)
-        local bottomMenu = createBottomMenu(menu)
+        local bottomMenu = drawCharacterMenu()
 
         local borderX = bottomMenu.borderX + bottomMenu.borderWidth + 10
         local borderY = bottomMenu.borderY
@@ -627,7 +714,7 @@ function love.draw()
     if currentPhase == 'mainMenu' then
         drawBottomMenu(mainMenu)
     elseif currentPhase == 'characterMenu' then
-        drawBottomMenu(characterMenu)
+        drawCharacterMenu();
     elseif currentPhase == 'targetSelection' then
         drawTargetSelectionMenu(characterMenu)
     elseif currentPhase == 'playBattle' or currentPhase == 'battleEnd' then
@@ -657,40 +744,50 @@ end
 function love.keypressed(key)
     if currentPhase == 'mainMenu' then
         if key == 'down' and mainMenu.current < #mainMenu.list then
-            mainMenu.current = mainMenu.current + 1
+            menuDown(mainMenu)
         elseif key == 'up' and mainMenu.current > 1 then
-            mainMenu.current = mainMenu.current - 1
+            menuUp(mainMenu)
         elseif key == 'z' and mainMenu.current == 1 then
             currentPhase = 'characterMenu';
-            characterMenu.current = 1;
-            characterMenu.characterID = 1;
+            resetMenu(characterMenu)
+            characterMenu.charID = getNextAbleCharID(0)
         end
     elseif currentPhase == 'characterMenu' then
         if key == 'down' and characterMenu.current < #characterMenu.list then
-            characterMenu.current = characterMenu.current + 1
+            menuDown(characterMenu)
         elseif key == 'up' and characterMenu.current > 1 then
-            characterMenu.current = characterMenu.current - 1
+            menuUp(characterMenu)
         elseif key == 'z' then
             if characterMenu.current == 1 then
                 updateSelectionMenu()
                 currentPhase = 'targetSelection'
-                targetSelectionMenu.current = 1;
+                resetMenu(targetSelectionMenu)
             elseif characterMenu.current == 3 then
-                addAction({actionType = 'DEFEND', user = character1})
-                playBattle()
+                addAction({actionType = 'DEFEND', user = party[characterMenu.charID]})
+                if getNextAbleCharID(characterMenu.charID) then
+                    characterMenu.charID = getNextAbleCharID(characterMenu.charID);
+                    resetMenu(characterMenu)
+                else
+                    playBattle()
+                end
             end
         elseif key == 'x' then
-            currentPhase = 'mainMenu';
-            mainMenu.current = 1;
+            if getPrevAbleCharID(characterMenu.charID) then
+                characterMenu.charID = getPrevAbleCharID(characterMenu.charID);
+                resetMenu(characterMenu)
+            else
+                currentPhase = 'mainMenu';
+                mainMenu.current = 1;
+            end
         end
     elseif currentPhase == 'targetSelection' then
         if key == 'down' and targetSelectionMenu.current < #targetSelectionMenu.list then
-            targetSelectionMenu.current = targetSelectionMenu.current + 1
+            menuDown(targetSelectionMenu)
         elseif key == 'up' and targetSelectionMenu.current > 1 then
-            targetSelectionMenu.current = targetSelectionMenu.current - 1
+            menuUp(targetSelectionMenu)
         elseif key == 'x' then
             currentPhase = 'characterMenu'
-            characterMenu.current = 1;
+            resetMenu(characterMenu)
         elseif key == 'z' then
             local target;
             for index, enemy in ipairs(enemies) do
@@ -699,8 +796,14 @@ function love.keypressed(key)
                     target = enemy
                 end
             end
-            addAction( {actionType = 'NORMALATK', user = character1, target = target})
-            playBattle()
+            addAction( {actionType = 'NORMALATK', user = party[characterMenu.charID], target = target})
+            if getNextAbleCharID(characterMenu.charID) then
+                currentPhase = 'characterMenu'
+                characterMenu.charID = getNextAbleCharID(characterMenu.charID);
+                resetMenu(characterMenu)
+            else
+                playBattle()
+            end
         end
     end
 end

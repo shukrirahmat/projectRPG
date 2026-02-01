@@ -51,7 +51,6 @@ function love.load()
         defense = 50,
         agility = 120,
         critRate = 64,
-        dead = true
     }
 
     character4 = {
@@ -165,54 +164,60 @@ function love.load()
         targetSelectionMenu.list = enemyList
     end
 
-    function normalAttack(user, target, isSecondAttack)
-
-        --FOR NOW NOTHING HAPPEN IF TARGET IS ALREADY DEAD
+    function normalAttack(user, selectedTarget, isSecondAttack)
+        
         local result
-        if not target.dead then
-            local damage
-            local crit
-            if user.critRate then
-                crit = math.random(1, user.critRate) == 1
+        local damage
+        local crit
+        local target = selectedTarget
+        
+        if selectedTarget.dead then
+            if selectedTarget.partyMember then
+                target = selectTargetRandomly(party)
             else
-                crit = math.random(1, 128) == 1
+                target = selectTargetRandomly(enemies)
             end
-            if crit then
-                damage = calculateCritDamage(user, target)
-            else
-                damage = calculateAttackDamage(user, target)
-            end
-            if target.defending and not crit then
-                damage = math.floor(damage/2)
-            end
-
-            local battleLogText
-
-            if isSecondAttack then
-                battleLogText = ''..user.name..' attacks again!'
-            else
-                battleLogText = ''..user.name..' attacks!'
-            end
-
-            if crit then
-                battleLogText = ''..battleLogText..' Critical hit!';
-            end
-
-            result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
-
-            if not isSecondAttack then
-                local secondAttackChance = math.floor((user.agility - target.agility)/2)
-                local secondAttack = math.random(1, 100) < secondAttackChance
-
-                if secondAttack then
-                    result.secondAttack = true
-                end
-            end
-
-            table.insert(battlelog, battleLogText)
-            table.insert(effectList, result)
-
         end
+        
+        if user.critRate then
+            crit = math.random(1, user.critRate) == 1
+        else
+            crit = math.random(1, 128) == 1
+        end
+        if crit then
+            damage = calculateCritDamage(user, target)
+        else
+            damage = calculateAttackDamage(user, target)
+        end
+        if target.defending and not crit then
+            damage = math.floor(damage/2)
+        end
+
+        local battleLogText
+
+        if isSecondAttack then
+            battleLogText = ''..user.name..' attacks again!'
+        else
+            battleLogText = ''..user.name..' attacks!'
+        end
+
+        if crit then
+            battleLogText = ''..battleLogText..' Critical hit!';
+        end
+
+        result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
+
+        if not isSecondAttack then
+            local secondAttackChance = math.floor((user.agility - target.agility)/2)
+            local secondAttack = math.random(1, 100) < secondAttackChance
+
+            if secondAttack then
+                result.secondAttack = true
+            end
+        end
+
+        table.insert(battlelog, battleLogText)
+        table.insert(effectList, result)
     end
 
     function defend(user)
@@ -230,11 +235,40 @@ function love.load()
         end
     end
 
+    function selectTargetRandomly(group)
+        local selectedTarget
+        local availableTargets = {}
+
+        for index, member in ipairs(group) do
+            if not member.dead then
+                table.insert(availableTargets, member)
+            end
+        end
+
+        local i = 1
+        while not selectedTarget do
+            if i == #availableTargets then
+                selectedTarget = availableTargets[i]
+            else
+                local chance = math.random(1, 10)
+                if chance < 7 then
+                    selectedTarget = availableTargets[i]
+                else
+                    i = i + 1
+                end
+            end
+        end
+
+        return selectedTarget;
+    end
+
+
     function setEnemyAction(enemies)
         --For now just attack
         for index, enemy in ipairs(enemies) do
             if not enemy.dead then
-                addAction({actionType = 'NORMALATK', user = enemy, target = character1})
+                local target = selectTargetRandomly(party)
+                addAction({actionType = 'NORMALATK', user = enemy, target = target})
             end
         end
     end
@@ -528,7 +562,7 @@ function love.draw()
                 'center', 0, 1, 1, 0, -1 * (menuOptionHeight/4)
             )
         end
-        
+
         for index, option in ipairs(menu.list) do
             if menu.current == index then
                 drawMenuIndicator(
@@ -551,10 +585,10 @@ function love.draw()
             menuOptionHeight = menuOptionHeight
         }
     end
-    
+
     function drawCharacterMenu()
         local bottomMenu = drawBottomMenu(characterMenu)
-        
+
         local nameBorderHeight = 30
         local nameBorderX = bottomMenu.borderX
         local nameBorderY = bottomMenu.borderY - nameBorderHeight
@@ -562,7 +596,7 @@ function love.draw()
         local nameX = nameBorderX + 5
         local nameY = nameBorderY + 5
         local nameWidth = nameBorderWidth - 10
-        
+
         love.graphics.setColor(1, 1, 1)
         love.graphics.setFont(font_small)
         love.graphics.rectangle(
@@ -580,10 +614,10 @@ function love.draw()
             nameWidth,
             'center'
         )
-        
+
         return bottomMenu;
     end
-        
+
 
     function drawTargetSelectionMenu(menu)
         local bottomMenu = drawCharacterMenu()

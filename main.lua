@@ -4,9 +4,9 @@ function love.load()
     windowHeight = 600
 
     love.graphics.setBackgroundColor(0,0,0)
-    font_small = love.graphics.newFont('fonts/MartianMono-Regular.ttf', 14)
-    font_medium = love.graphics.newFont('fonts/MartianMono-Regular.ttf', 16)
-    font_large = love.graphics.newFont('fonts/MartianMono-Regular.ttf', 24)
+    font_small = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 14)
+    font_medium = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 16)
+    font_large = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 18)
     font_small:setFilter("nearest", "nearest")
     font_medium:setFilter("nearest", "nearest")
     font_large:setFilter("nearest", "nearest")
@@ -15,16 +15,55 @@ function love.load()
     monsterSpriteDimension = 128
 
     character1 = {
-        name = 'HERO',
+        name = 'KNIGHT',
         partyMember = true,
-        maxHp = 500,
-        currentHp = 500,
+        maxHp = 400,
+        currentHp = 400,
         maxMp = 0,
         currentMp = 0,
-        attack = 100,
-        defense = 80,
-        agility = 180,
-        critRate = 16
+        attack = 120,
+        defense = 90,
+        agility = 40,
+        critRate = 64
+    }
+    
+    character2 = {
+        name = 'FIGHTER',
+        partyMember = true,
+        maxHp = 360,
+        currentHp = 360,
+        maxMp = 0,
+        currentMp = 0,
+        attack = 90,
+        defense = 70,
+        agility = 60,
+        critRate = 8
+    }
+    
+    character3 = {
+        name = 'HUNTER',
+        partyMember = true,
+        maxHp = 320,
+        currentHp = 320,
+        maxMp = 0,
+        currentMp = 0,
+        attack = 60,
+        defense = 50,
+        agility = 120,
+        critRate = 64
+    }
+    
+    character4 = {
+        name = 'MAGE',
+        partyMember = true,
+        maxHp = 240,
+        currentHp = 240,
+        maxMp = 150,
+        currentMp = 150,
+        attack = 30,
+        defense = 40,
+        agility = 80,
+        critRate = 64
     }
 
     enemy1 = {
@@ -87,13 +126,14 @@ function love.load()
         sprite = skeleton_sprite
     }
 
+    party = {character1, character2, character3, character4}
     enemies = {enemy1, enemy2, enemy3, enemy4, enemy5}
     allEnemyDead = false;
 
     currentPhase = 'mainMenu'
 
     mainMenu = {current = 1, list = {'FIGHT', 'FLEE'}}
-    characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}}
+    characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}, characterID = 1}
     targetSelectionMenu = {current = 1}
 
     textTimer = 0;
@@ -342,8 +382,8 @@ function love.draw()
 
     local topBoxX = 10
     local topBoxY = 10
-    local topBoxWidth = 150
-    local topBoxHeight = 100
+    local topBoxWidth = 120
+    local topBoxHeight = 90
     local nameX = topBoxX + 5
     local nameY = topBoxY + 5
     local nameWidth = topBoxWidth - 10
@@ -355,12 +395,30 @@ function love.draw()
     local mpWidth = topBoxWidth - 10
 
     love.graphics.setColor(1, 1, 1)
-    love.graphics.rectangle('line', topBoxX, topBoxY, topBoxWidth, topBoxHeight)
-    love.graphics.setFont(font_small)
-    love.graphics.printf(character1.name, nameX, nameY, nameWidth, 'center')
-    love.graphics.setFont(font_large)
-    love.graphics.printf('HP '..alignNumber(character1.currentHp)..'', hpX, hpY, hpWidth, 'center')
-    love.graphics.printf('MP '..alignNumber(character1.currentMp)..'', mpX, mpY, mpWidth, 'center')
+    
+    for index, member in ipairs(party) do
+        love.graphics.rectangle(
+            'line',
+            topBoxX + (index - 1) * (topBoxWidth + topBoxX),
+            topBoxY,
+            topBoxWidth,
+            topBoxHeight
+        )
+        love.graphics.setFont(font_small)
+        love.graphics.printf(
+            member.name,
+            nameX + (index - 1) * (topBoxWidth + topBoxX),
+            nameY,
+            nameWidth,
+            'center'
+        )
+        love.graphics.setFont(font_large)
+        local memberHpX = hpX + (index - 1) * (topBoxWidth + topBoxX)
+        local memberMpX = memberHpX
+        love.graphics.setFont(font_large)
+        love.graphics.printf('HP '..alignNumber(member.currentHp)..'', memberHpX, hpY, hpWidth, 'center')
+        love.graphics.printf('MP '..alignNumber(member.currentMp)..'', memberMpX, mpY, mpWidth, 'center')
+    end
 
     ---------------------MIDDLE-------------------
 
@@ -605,6 +663,7 @@ function love.keypressed(key)
         elseif key == 'z' and mainMenu.current == 1 then
             currentPhase = 'characterMenu';
             characterMenu.current = 1;
+            characterMenu.characterID = 1;
         end
     elseif currentPhase == 'characterMenu' then
         if key == 'down' and characterMenu.current < #characterMenu.list then

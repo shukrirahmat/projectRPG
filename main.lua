@@ -235,11 +235,31 @@ function love.load()
         table.insert(battlelog, ''..user.name..' defends!')
     end
 
+    function addPriorityAction(action)
+        local i = 1
+        local stop = false
+
+        while not stop and i <= #actionList do
+            if actionList[i].priority then
+                i = i + 1
+            else
+                stop = true
+            end
+        end
+
+        if stop then
+            table.insert(actionList, i, action)
+        else
+            table.insert(actionList, action)
+        end
+    end
+
+
     function addAction(action)
         if action.actionType == 'DEFEND'
         or action.actionType == 'SECONDATK' then
             action.priority = true;
-            table.insert(actionList, 1, action)
+            addPriorityAction(action)
         else
             table.insert(actionList, action)
         end
@@ -265,8 +285,15 @@ function love.load()
         return group[availableTargets[randomIndex]];
     end
 
+    function setPartyAction()
+        for index, member in ipairs(party) do
+            if not member.dead and member.currentAction then
+                addAction(member.currentAction)
+            end
+        end
+    end
 
-    function setEnemyAction(enemies)
+    function setEnemyAction()
         --For now just attack
         for index, enemy in ipairs(enemies) do
             if not enemy.dead then
@@ -372,6 +399,7 @@ function love.load()
     end
 
     function playBattle()
+        setPartyAction();
         setEnemyAction(enemies)
         textTimer = textSpeed/2
         currentPhase = 'playBattle'
@@ -422,13 +450,14 @@ function love.load()
         return getAbleCharID(currentID, 'prev')
     end
 
-    function createAnimation(character, category, maxTick, value)
+    function createAnimation(character, category, maxTick, speed, value)
         return {
             character=character,
             category=category,
             timer=0,
             tick=0,
             maxTick=maxTick,
+            speed=speed,
             value=value
         }
     end
@@ -458,6 +487,10 @@ function love.update(dt)
                         if member.defending then
                             member.defending = false
                         end
+
+                        if member.currentAction then
+                            member.currentAction = nil
+                        end
                     end
                 end                
                 battlelog = {}
@@ -471,7 +504,7 @@ function love.update(dt)
 
                 --death animation--
                 if not toKill.partyMember then
-                    animation = createAnimation(toKill, 'enemyDied', 8)
+                    animation = createAnimation(toKill, 'enemyDied', 8, 0.05)
                 end
 
                 if partyDied or allEnemyDead then
@@ -487,7 +520,9 @@ function love.update(dt)
                 --starts damage animation--
                 if effect.effectType == 'DAMAGE' then
                     if not effect.target.partyMember then
-                        animation = createAnimation(effect.target, 'enemyDamaged', 10, effect.value)
+                        animation = createAnimation(effect.target, 'enemyDamaged', 10, 0.08, effect.value)
+                    else
+                        animation = createAnimation(effect.target, 'partyDamaged', 10, 0.05)
                     end
                 end
             elseif #actionList > 0 then
@@ -500,7 +535,7 @@ function love.update(dt)
                 --starts attack animation--
                 if not action.user.partyMember then
                     if action.actionType == 'NORMALATK' or action.actionType == 'SECONDATK' then
-                        animation = createAnimation(action.user, 'enemyAttack', 8)
+                        animation = createAnimation(action.user, 'enemyAttack', 8, 0.08)
                     end
                 end
             end
@@ -510,7 +545,7 @@ function love.update(dt)
             animation.timer = animation.timer + dt
             if animation.tick >= animation.maxTick then
                 animation = nil
-            elseif animation.timer > 0.08 then
+            elseif animation.timer > animation.speed then
                 animation.tick = animation.tick + 1
                 animation.timer = 0;
             end
@@ -554,10 +589,22 @@ function love.draw()
         else
             love.graphics.setColor(1, 1, 1)
         end
+
+        local shiftY = 0;
+        if animation and animation.category == 'partyDamaged' and animation.character == member then
+            for i = 0, animation.maxTick, 1 do
+                if animation.tick <= 3 then
+                    shiftY = animation.tick * 4
+                else
+                    shiftY = math.max(0, (16 - (animation.tick) * 2))
+                end
+            end
+        end        
+
         love.graphics.rectangle(
             'line',
             topBoxX + (index - 1) * (topBoxWidth + topBoxX),
-            topBoxY,
+            topBoxY + shiftY,
             topBoxWidth,
             topBoxHeight
         )
@@ -565,7 +612,7 @@ function love.draw()
         love.graphics.printf(
             member.name,
             nameX + (index - 1) * (topBoxWidth + topBoxX),
-            nameY,
+            nameY + shiftY,
             nameWidth,
             'center'
         )
@@ -573,8 +620,8 @@ function love.draw()
         local memberHpX = hpX + (index - 1) * (topBoxWidth + topBoxX)
         local memberMpX = memberHpX
         love.graphics.setFont(font_large)
-        love.graphics.printf('HP '..alignNumber(member.currentHp)..'', memberHpX, hpY, hpWidth, 'center')
-        love.graphics.printf('MP '..alignNumber(member.currentMp)..'', memberMpX, mpY, mpWidth, 'center')
+        love.graphics.printf('HP '..alignNumber(member.currentHp)..'', memberHpX, hpY + shiftY, hpWidth,        'center')
+        love.graphics.printf('MP '..alignNumber(member.currentMp)..'', memberMpX, mpY + shiftY, mpWidth,        'center')
     end
 
     ---------------------MIDDLE-------------------
@@ -883,7 +930,7 @@ function love.draw()
     end
 
     --TEMP
-    love.graphics.setColor(1, 1, 1)
+    --[[love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(font_small)
     for index, enemy in ipairs(enemies) do
         local text
@@ -898,7 +945,7 @@ function love.draw()
             5 + (index - 1) * 20
         )
 
-    end
+    end]]
 
 end
 
@@ -924,7 +971,8 @@ function love.keypressed(key)
                 currentPhase = 'targetSelection'
                 resetMenu(targetSelectionMenu)
             elseif characterMenu.current == 3 then
-                addAction({actionType = 'DEFEND', user = party[characterMenu.charID]})
+                local user = party[characterMenu.charID]
+                user.currentAction = {actionType = 'DEFEND', user = user}
                 if getNextAbleCharID(characterMenu.charID) then
                     characterMenu.charID = getNextAbleCharID(characterMenu.charID);
                     resetMenu(characterMenu)
@@ -957,7 +1005,8 @@ function love.keypressed(key)
                     target = enemy
                 end
             end
-            addAction( {actionType = 'NORMALATK', user = party[characterMenu.charID], target = target})
+            local user = party[characterMenu.charID]
+            user.currentAction = {actionType = 'NORMALATK', user = user, target = target}
             if getNextAbleCharID(characterMenu.charID) then
                 currentPhase = 'characterMenu'
                 characterMenu.charID = getNextAbleCharID(characterMenu.charID);

@@ -37,7 +37,7 @@ function love.load()
         attack = 90,
         defense = 70,
         agility = 60,
-        critRate = 8
+        critRate = 16
     }
 
     character3 = {
@@ -72,7 +72,7 @@ function love.load()
         currentHp = 100,
         currentMp = 0,
         maxMp = 0,
-        attack = 70,
+        attack = 80,
         defense = 40,
         agility = 60,
         sprite = goblin_sprite
@@ -84,7 +84,7 @@ function love.load()
         currentHp = 100,
         currentMp = 0,
         maxMp = 0,
-        attack = 70,
+        attack = 80,
         defense = 40,
         agility = 60,
         sprite = goblin_sprite
@@ -96,7 +96,7 @@ function love.load()
         currentHp = 100,
         currentMp = 0,
         maxMp = 0,
-        attack = 70,
+        attack = 80,
         defense = 40,
         agility = 60,
         sprite = goblin_sprite
@@ -108,7 +108,7 @@ function love.load()
         currentHp = 180,
         currentMp = 0,
         maxMp = 0,
-        attack = 90,
+        attack = 120,
         defense = 50,
         agility = 70,
         sprite = skeleton_sprite
@@ -120,7 +120,7 @@ function love.load()
         currentHp = 180,
         currentMp = 0,
         maxMp = 0,
-        attack = 90,
+        attack = 120,
         defense = 50,
         agility = 70,
         sprite = skeleton_sprite
@@ -128,6 +128,7 @@ function love.load()
 
     party = {character1, character2, character3, character4}
     enemies = {enemy1, enemy2, enemy3, enemy4, enemy5}
+    partyDied = false;
     allEnemyDead = false;
 
     currentPhase = 'mainMenu'
@@ -165,12 +166,12 @@ function love.load()
     end
 
     function normalAttack(user, selectedTarget, isSecondAttack)
-        
+
         local result
         local damage
         local crit
         local target = selectedTarget
-        
+
         if selectedTarget.dead then
             if selectedTarget.partyMember then
                 target = selectTargetRandomly(party)
@@ -178,7 +179,7 @@ function love.load()
                 target = selectTargetRandomly(enemies)
             end
         end
-        
+
         if user.critRate then
             crit = math.random(1, user.critRate) == 1
         else
@@ -236,30 +237,23 @@ function love.load()
     end
 
     function selectTargetRandomly(group)
-        local selectedTarget
         local availableTargets = {}
-
-        for index, member in ipairs(group) do
-            if not member.dead then
-                table.insert(availableTargets, member)
-            end
-        end
-
-        local i = 1
-        while not selectedTarget do
-            if i == #availableTargets then
-                selectedTarget = availableTargets[i]
-            else
-                local chance = math.random(1, 10)
-                if chance < 7 then
-                    selectedTarget = availableTargets[i]
-                else
-                    i = i + 1
+        
+        local counter = 1
+        for i = #group, 1, -1 do
+            if not group[i].dead then
+                local t = 0
+                while t < counter do
+                    table.insert(availableTargets, i)
+                    t = t + 1
                 end
+                counter = counter + 1
             end
         end
+        
+        local randomIndex = math.random(1, #availableTargets)
 
-        return selectedTarget;
+        return group[availableTargets[randomIndex]];
     end
 
 
@@ -308,22 +302,24 @@ function love.load()
             defend(action.user)
         end
     end
+    
+    function handleDeath(target)
+        target.currentHp = 0
+        target.dead = true
+        table.insert(battlelog, ''..target.name..' defeated.')
+        removeAction(target)
+        if target.partyMember and checkIfAllDead(party) then
+            partyDied = true
+        elseif not target.partyMember and checkIfAllDead(enemies) then
+            allEnemyDead = true
+        end
+    end
 
     function dealDamage(value, target)
         target.currentHp = target.currentHp - value;
         table.insert(battlelog, ''..target.name..' takes '..value..' damage.');
         if target.currentHp <= 0 then 
-            target.currentHp = 0
-            table.insert(battlelog, ''..target.name..' defeated.')
-            for index, enemy in ipairs(enemies) do
-                if enemy.name == target.name then
-                    enemy.dead = true;
-                    removeAction(enemy)
-                end
-            end
-            if checkIfAllEnemiesDead() then
-                allEnemyDead = true
-            end
+            handleDeath(target)
         end
     end
 
@@ -349,20 +345,22 @@ function love.load()
         return math.max(damage, 1)
     end
 
-    function checkIfAllEnemiesDead()
+    function checkIfAllDead(group)
         local totalDead = 0
-        for index, enemy in ipairs(enemies) do
-            if enemy.dead then
+        for index, member in ipairs(group) do
+            if member.dead then
                 totalDead = totalDead + 1
             end
         end
 
-        return totalDead == #enemies;
+        return totalDead == #group;
     end
 
     function playBattle()
         setEnemyAction(enemies)
+        textTimer = 2
         currentPhase = 'playBattle'
+
     end
 
     function getAbleCharID(currentID, where)
@@ -417,7 +415,11 @@ function love.update(dt)
         textTimer = textTimer + dt
         if textTimer > 1 then
             battlelog = {}
-            table.insert(battlelog, 'Enemy defeated')
+            if partyDied then
+                table.insert(battlelog, 'Party has been defeated')
+            elseif allEnemyDead then
+                table.insert(battlelog, 'All enemy has been defeated')
+            end
             textTimer = 0
         end                
 
@@ -426,9 +428,11 @@ function love.update(dt)
         textTimer = textTimer + dt
         if textTimer > 1 then
             if #effectList == 0 and #actionList == 0 then
-                for index, character in ipairs({character1, enemy1, enemy2, enemy3, enemy4, enemy5}) do
-                    if character.defending then
-                        character.defending = false
+                for index, group in ipairs({party, enemies}) do
+                    for memberIndex, member in ipairs(group) do
+                        if member.defending then
+                            member.defending = false
+                        end
                     end
                 end                
                 battlelog = {}
@@ -438,7 +442,7 @@ function love.update(dt)
                 local effect = effectList[1]
                 table.remove(effectList, 1)
                 applyEffect(effect)
-                if allEnemyDead then
+                if partyDied or allEnemyDead then
                     battleEnded = true
                 end
             elseif #actionList > 0 then

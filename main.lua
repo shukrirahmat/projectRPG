@@ -56,8 +56,8 @@ function love.load()
     character4 = {
         name = 'MAGE',
         partyMember = true,
-        maxHp = 120,
-        currentHp = 120,
+        maxHp = 1,
+        currentHp = 1,
         maxMp = 150,
         currentMp = 150,
         attack = 30,
@@ -137,11 +137,14 @@ function love.load()
     characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}, charID = 1}
     targetSelectionMenu = {current = 1}
 
-    textTimer = 0;
     actionList = {}
     effectList = {};
     battlelog = {}
     battleEnded = false;
+
+    textTimer = 0
+    textSpeed = 1
+    attackAnimation = {timer=0, tick = 0}
 
     function resetMenu(menu)
         menu.current = 1
@@ -238,7 +241,7 @@ function love.load()
 
     function selectTargetRandomly(group)
         local availableTargets = {}
-        
+
         local counter = 1
         for i = #group, 1, -1 do
             if not group[i].dead then
@@ -250,7 +253,7 @@ function love.load()
                 counter = counter + 1
             end
         end
-        
+
         local randomIndex = math.random(1, #availableTargets)
 
         return group[availableTargets[randomIndex]];
@@ -302,7 +305,7 @@ function love.load()
             defend(action.user)
         end
     end
-    
+
     function handleDeath(target)
         target.currentHp = 0
         target.dead = true
@@ -358,7 +361,7 @@ function love.load()
 
     function playBattle()
         setEnemyAction(enemies)
-        textTimer = 2
+        textTimer = textSpeed/2
         currentPhase = 'playBattle'
 
     end
@@ -413,7 +416,7 @@ function love.update(dt)
     if battleEnded then
         currentPhase = 'battleEnd';
         textTimer = textTimer + dt
-        if textTimer > 1 then
+        if textTimer > textSpeed then
             battlelog = {}
             if partyDied then
                 table.insert(battlelog, 'Party has been defeated')
@@ -426,7 +429,12 @@ function love.update(dt)
     elseif currentPhase == 'playBattle' then
 
         textTimer = textTimer + dt
-        if textTimer > 1 then
+        if textTimer > textSpeed then
+            
+            --stops attack animation--
+            attackAnimation = {timer = 0, tick = 0}
+
+
             if #effectList == 0 and #actionList == 0 then
                 for index, group in ipairs({party, enemies}) do
                     for memberIndex, member in ipairs(group) do
@@ -439,6 +447,7 @@ function love.update(dt)
                 currentPhase = 'mainMenu'
                 mainMenu.current = 1
             elseif #effectList > 0 then
+
                 local effect = effectList[1]
                 table.remove(effectList, 1)
                 applyEffect(effect)
@@ -451,10 +460,24 @@ function love.update(dt)
                 local action = actionList[nextActionIndex]
                 table.remove(actionList, nextActionIndex)
                 executeAction(action)
+
+                --starts attack animation--
+                if not action.user.partyMember then
+                    attackAnimation.user = action.user
+                end
             end
 
             textTimer = 0;
         end
+
+        --start timer if there attack animation
+        if attackAnimation.user then
+            attackAnimation.timer = attackAnimation.timer + dt
+            if attackAnimation.timer > 0.08 then
+                attackAnimation.tick = attackAnimation.tick + 1
+                attackAnimation.timer = 0;
+            end
+        end 
     end
 end
 
@@ -519,18 +542,43 @@ function love.draw()
 
     ---------------------MIDDLE-------------------
 
+    local enemyMovement = { 
+        {x=-5, y=0},
+        {x=-5, y=-5},
+        {x= 0, y=-5},
+        {x=5, y=-5},
+        {x=5, y=0},
+        {x=5, y=5},
+        {x= 0, y=5},
+    }
+    
+    local function drawEnemySprite(enemy, index, shiftX, shiftY)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(
+            enemy.sprite,
+            windowWidth/2 + (index - 1) * monsterSpriteDimension + shiftX,
+            windowHeight/2 + shiftY,
+            0,
+            1,
+            1,
+            (monsterSpriteDimension/2) * #enemies,
+            monsterSpriteDimension/1.5
+        )
+    end
+
     for index, enemy in ipairs(enemies) do
         if not enemy.dead then
-            love.graphics.draw(
-                enemy.sprite,
-                windowWidth/2 + (index - 1) * monsterSpriteDimension, 
-                windowHeight/2,
-                0,
-                1,
-                1,
-                (monsterSpriteDimension/2) * #enemies,
-                monsterSpriteDimension/1.5
-            )
+            if attackAnimation.user == enemy then
+                for moveIndex, movement in ipairs(enemyMovement) do
+                    if attackAnimation.tick == moveIndex then
+                        drawEnemySprite(enemy, index, movement.x, movement.y)
+                    elseif attackAnimation.tick == 0 or attackAnimation.tick > #enemyMovement then
+                        drawEnemySprite(enemy, index, 0, 0)
+                    end
+                end
+            else
+                drawEnemySprite(enemy, index, 0, 0)
+            end
         end
     end
 

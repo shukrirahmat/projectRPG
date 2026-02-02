@@ -56,8 +56,8 @@ function love.load()
     character4 = {
         name = 'MAGE',
         partyMember = true,
-        maxHp = 1,
-        currentHp = 1,
+        maxHp = 120,
+        currentHp = 120,
         maxMp = 150,
         currentMp = 150,
         attack = 30,
@@ -427,14 +427,8 @@ function love.update(dt)
         end                
 
     elseif currentPhase == 'playBattle' then
-
         textTimer = textTimer + dt
-        if textTimer > textSpeed then
-            
-            --stops attack animation--
-            attackAnimation = {timer = 0, tick = 0}
-
-
+        if not attackAnimation.user and textTimer > textSpeed then
             if #effectList == 0 and #actionList == 0 then
                 for index, group in ipairs({party, enemies}) do
                     for memberIndex, member in ipairs(group) do
@@ -466,14 +460,13 @@ function love.update(dt)
                     attackAnimation.user = action.user
                 end
             end
-
             textTimer = 0;
-        end
-
-        --start timer if there attack animation
-        if attackAnimation.user then
+            
+        elseif attackAnimation.user then
             attackAnimation.timer = attackAnimation.timer + dt
-            if attackAnimation.timer > 0.08 then
+            if attackAnimation.tick > 7 then
+                attackAnimation = {timer = 0, tick = 0}
+            elseif attackAnimation.timer > 0.08 then
                 attackAnimation.tick = attackAnimation.tick + 1
                 attackAnimation.timer = 0;
             end

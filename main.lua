@@ -22,7 +22,7 @@ function love.load()
         maxMp = 0,
         currentMp = 0,
         attack = 120,
-        defense = 90,
+        defense = 120,
         agility = 40,
         critRate = 64
     }
@@ -34,10 +34,10 @@ function love.load()
         currentHp = 180,
         maxMp = 0,
         currentMp = 0,
-        attack = 90,
+        attack = 70,
         defense = 70,
         agility = 60,
-        critRate = 16
+        critRate = 8
     }
 
     character3 = {
@@ -264,26 +264,34 @@ function love.load()
             table.insert(actionList, action)
         end
     end
-
+    
     function selectTargetRandomly(group)
         local availableTargets = {}
-
-        local counter = 1
-        for i = #group, 1, -1 do
-            if not group[i].dead then
-                local t = 0
-                while t < counter do
-                    table.insert(availableTargets, i)
-                    t = t + 1
-                end
-                counter = counter + 1
+        
+        for index, target in ipairs(group) do
+            if not target.dead then
+                table.insert(availableTargets, target)
             end
         end
-
-        local randomIndex = math.random(1, #availableTargets)
-
-        return group[availableTargets[randomIndex]];
-    end
+        
+        local selectedTarget
+        local i = 1
+        
+        while not selectedTarget do
+            if i == #availableTargets then
+                selectedTarget = availableTargets[i]
+            else
+                local chance = math.random(1, 10)
+                if chance < 5 then
+                    i = i + 1
+                else
+                    selectedTarget = availableTargets[i]
+                end
+            end
+        end
+        
+        return selectedTarget
+    end    
 
     function setPartyAction()
         for index, member in ipairs(party) do
@@ -382,7 +390,7 @@ function love.load()
     end
 
     function calculateCritDamage(attacker, target)
-        local damage = math.floor(attacker.attack/2) * 4
+        local damage = math.floor(attacker.attack/2 * 4) - math.floor(target.defense/6)
         damage = damage + math.floor(math.random(-damage*.2, damage*.2))
         return math.max(damage, 1)
     end

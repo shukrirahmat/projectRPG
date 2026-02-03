@@ -51,6 +51,7 @@ function love.load()
         defense = 50,
         agility = 120,
         critRate = 64,
+        skills = { 4, 5 }
     }
 
     character4 = {
@@ -64,6 +65,7 @@ function love.load()
         defense = 40,
         agility = 80,
         critRate = 64,
+        skills = { 1, 2, 3 }
     }
 
     enemy1 = {
@@ -130,6 +132,14 @@ function love.load()
         sprite = skeleton_sprite,
         spriteHeight = 0
     }
+    
+    allSkills = {
+        { name = 'Heal', cost= 2, desc = 'Recover 36-44 HP to one ally'},
+        { name = 'Fire', cost= 2, desc = 'Deal 8-12 fire damage to one enemy'},
+        { name = 'Blaze', cost= 4, desc = 'Deal 8-12 fire damage to all enemies'},
+        { name = 'Ice', cost= 3, desc = 'Deal 12-18 Ice damage to one enemy'},
+        { name = 'Hail', cost= 3, desc = 'Deal 4-6 Ice damage to all enemies'},
+    }
 
     party = {character1, character2, character3, character4}
     enemies = {enemy1, enemy2, enemy3, enemy4, enemy5}
@@ -141,6 +151,7 @@ function love.load()
     mainMenu = {current = 1, list = {'FIGHT', 'FLEE'}}
     characterMenu = {current = 1, list = {'ATTACK', 'SKILL', 'GUARD', 'ITEM'}, charID = 1}
     targetSelectionMenu = {current = 1}
+    skillSelectionMenu = {current = 1}
 
     actionList = {}
     effectList = {};
@@ -163,8 +174,20 @@ function love.load()
     function menuUp(menu)
         menu.current = menu.current - 1
     end
+    
+    function updateSkillSelectionMenu(character)
+        local skillList = {}
+        if character.skills and #character.skills > 0 then
+            for index, skill in ipairs(character.skills) do
+                table.insert(skillList, skill)
+            end
+        end
+        
+        skillSelectionMenu.user = character
+        skillSelectionMenu.list = skillList
+    end
 
-    function updateSelectionMenu()
+    function updateTargetSelectionMenu()
         local enemyList = {}
         for index, enemy in ipairs(enemies) do
             if not enemy.dead then
@@ -506,7 +529,6 @@ function love.update(dt)
                 mainMenu.current = 1
             elseif #toKillList > 0 then
                 local toKill = toKillList[1]
-                print(toKill.name)
                 table.remove(toKillList, 1)
                 handleDeath(toKill)
 
@@ -799,9 +821,105 @@ function love.draw()
 
         return bottomMenu;
     end
+    
+    function drawSkillSelectionMenu()
+        local bottomMenu = drawCharacterMenu()
+        
+        local borderX = bottomMenu.borderX + bottomMenu.borderWidth + 10
+        local borderY = bottomMenu.borderY
+        local borderWidth = (windowWidth - 10)/2 - 10
+        local borderHeight = bottomMenu.borderHeight
+        
+        love.graphics.setColor(1,1,1)
+        love.graphics.rectangle(
+            'line',
+            borderX,
+            borderY,
+            borderWidth,
+            borderHeight
+        )
+        
+        if #skillSelectionMenu.list == 0 then
+            local name = skillSelectionMenu.user.name
+            love.graphics.setFont(font_small)
+            love.graphics.printf(
+                ''..name..' have not learned any skills',
+                borderX + 10,
+                borderY + 10,
+                borderWidth - 20,
+                'left'
+            )
+        else
+            love.graphics.setFont(font_medium)
+            for index, id in ipairs(skillSelectionMenu.list) do
+                local skill = allSkills[id]
+                if skillSelectionMenu.user.currentMp < skill.cost then
+                    love.graphics.setColor(0.25, 0.25, 0.25)
+                else
+                    love.graphics.setColor(1,1,1)
+                end
+                
+                local x
+                if index % 2 == 0 then
+                    x = (borderX + 10) * 2
+                else
+                    x = borderX + 10
+                end
+                local y = borderY + 10 + (math.floor((index - 1)/2)) * bottomMenu.menuOptionHeight
+                local height = bottomMenu.menuOptionHeight
+                
+                love.graphics.printf(
+                    skill.name,
+                    x + 20,
+                    y,
+                    borderWidth/2 - 40,
+                    'left', 0, 1, 1, 0, -1 * (height/4)
+                )
+                
+                if skillSelectionMenu.current == index then
+                    drawMenuIndicator(x, y, height)
+                    drawDescriptionText(
+                        borderX + borderWidth + 10,
+                        borderY,
+                        borderHeight,
+                        skill,
+                        height
+                    )
+                end
+            end
+                    
+        end
+    end
+    
+    function drawDescriptionText(x, y, height, skill, menuHeight)
+        local width = (windowWidth - 10)/4 - 10
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle(
+            'line',
+            x,
+            y,
+            width,
+            height
+        )
+        love.graphics.printf(
+            'MP cost: '..skill.cost..'',
+            x + 20,
+            y + 10,
+            width - 20,
+            'left', 0, 1, 1, 0, -1 * (menuHeight/4)
+        )
+        love.graphics.line(x, y + menuHeight + 10, x + width, y + menuHeight + 10)
+        love.graphics.printf(
+            skill.desc,
+            x + 20,
+            y + menuHeight + 10,
+            width - 40,
+            'left', 0, 1, 1, 0, -1 * (menuHeight/4)
+        )
+    end
 
 
-    function drawTargetSelectionMenu(menu)
+    function drawTargetSelectionMenu()
         local bottomMenu = drawCharacterMenu()
 
         local borderX = bottomMenu.borderX + bottomMenu.borderWidth + 10
@@ -931,8 +1049,10 @@ function love.draw()
         drawBottomMenu(mainMenu)
     elseif currentPhase == 'characterMenu' then
         drawCharacterMenu();
+    elseif currentPhase == 'skillSelection' then
+        drawSkillSelectionMenu()
     elseif currentPhase == 'targetSelection' then
-        drawTargetSelectionMenu(characterMenu)
+        drawTargetSelectionMenu()
     elseif currentPhase == 'playBattle' or currentPhase == 'battleEnd' then
         drawBattleLog()
     end
@@ -975,9 +1095,13 @@ function love.keypressed(key)
             menuUp(characterMenu)
         elseif key == 'z' then
             if characterMenu.current == 1 then
-                updateSelectionMenu()
+                updateTargetSelectionMenu()
                 currentPhase = 'targetSelection'
                 resetMenu(targetSelectionMenu)
+            elseif characterMenu.current == 2 then
+                updateSkillSelectionMenu(party[characterMenu.charID])
+                currentPhase = 'skillSelection'
+                resetMenu(skillSelectionMenu)
             elseif characterMenu.current == 3 then
                 local user = party[characterMenu.charID]
                 user.currentAction = {actionType = 'DEFEND', user = user}
@@ -996,6 +1120,25 @@ function love.keypressed(key)
                 currentPhase = 'mainMenu';
                 mainMenu.current = 1;
             end
+        end
+    elseif currentPhase == 'skillSelection' then
+        if key == 'down' and skillSelectionMenu.current + 2 <= #skillSelectionMenu.list then
+            menuDown(skillSelectionMenu)
+            menuDown(skillSelectionMenu)
+        elseif key == 'up' and skillSelectionMenu.current - 2 >= 1 then
+            menuUp(skillSelectionMenu)
+            menuUp(skillSelectionMenu)
+        elseif key == 'right' 
+        and skillSelectionMenu.current % 2 ~= 0 
+        and skillSelectionMenu.current + 1 <= #skillSelectionMenu.list then
+            menuDown(skillSelectionMenu)
+        elseif key == 'left'
+        and skillSelectionMenu.current % 2 == 0
+        and skillSelectionMenu.current - 1 >= 1 then
+            menuUp(skillSelectionMenu)
+        elseif key == 'x' then
+            currentPhase = 'characterMenu'
+            characterMenu.current = 2
         end
     elseif currentPhase == 'targetSelection' then
         if key == 'down' and targetSelectionMenu.current < #targetSelectionMenu.list then

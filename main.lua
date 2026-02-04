@@ -12,7 +12,12 @@ function love.load()
     font_large:setFilter("nearest", "nearest")
     goblin_sprite = love.graphics.newImage('images/goblin.png')
     skeleton_sprite = love.graphics.newImage('images/skeleton.png')
+    fire_sprite1 = love.graphics.newImage('images/fire1.png')
+    fire_sprite2 = love.graphics.newImage('images/fire2.png')
+    fire_sprite3 = love.graphics.newImage('images/fire3.png')
+    fire_sprite4 = love.graphics.newImage('images/fire4.png')
     monsterSpriteDimension = 128
+    skillSpriteDimension = 64
 
     character1 = {
         name = 'KNIGHT',
@@ -163,11 +168,11 @@ function love.load()
 
         return result
     end
-    
+
     function handleResistance(element, target, baseDamage)
         local effect
         local damage = baseDamage
-        
+
         if checkResistance(target, 'immunity', element) then
             effect = {effectType='IMMUNE'}
         elseif checkResistance(target, 'strong', element) then
@@ -176,19 +181,19 @@ function love.load()
         else
             effect = {effectType= 'DAMAGE', value = damage}
         end
-        
+
         return effect
     end
-    
+
     function castBlaze(user, group)
         local text = ''..user.name..' casts Blaze';
         table.insert(battlelog, text)
-        
+
         for index, target in ipairs(group) do
             if not target.dead then
                 local damage = math.random(8, 12)
                 local effect = handleResistance('FIRE', target, damage)
-        
+
                 effect.user = user
                 effect.target = target
                 table.insert(effectList, effect)
@@ -202,7 +207,7 @@ function love.load()
         local damage = math.random(8, 12)
         local text = ''..user.name..' casts Fire';
         local effect = handleResistance('FIRE', target, damage)
-        
+
         effect.user = user
         effect.target = target
 
@@ -235,7 +240,8 @@ function love.load()
             desc = 'Deal 8-12 fire damage to one enemy',
             aim = enemies,
             scope = 'single',
-            execute = castFire
+            execute = castFire,
+            sprite = {fire_sprite1, fire_sprite2, fire_sprite3, fire_sprite4}
         },
         { 
             name = 'Blaze', 
@@ -702,6 +708,12 @@ function love.update(dt)
                     if action.actionType == 'NORMALATK' or action.actionType == 'SECONDATK' then
                         animation = createAnimation(action.user, 'enemyAttack', 8, 0.08)
                     end
+                else
+                    if action.actionType == 'SKILL' 
+                    and action.skill.aim == enemies and action.skill.scope == 'single' then
+                        animation = createAnimation(action.target, 'skillToEnemy', 8, 0.1)
+                        animation.skill = action.skill
+                    end
                 end
             end
             textTimer = 0;
@@ -834,6 +846,19 @@ function love.draw()
                             drawEnemySprite(enemy, index, 0, 0)
                         end
                     end
+                elseif animation.category == 'skillToEnemy' then
+                    love.graphics.setColor(1, 1, 1)
+                    drawEnemySprite(enemy, index, 0, 0)
+                    local spritePos = getSpritePos(enemy, index, 0, 0)
+                        local spriteID = math.floor(animation.tick * 0.5)
+                        if animation.skill.sprite[spriteID] then
+                            love.graphics.draw(
+                                animation.skill.sprite[spriteID],
+                                spritePos.x + monsterSpriteDimension/2 - skillSpriteDimension/2,
+                                spritePos.y + spritePos.height
+                                + monsterSpriteDimension/2 - skillSpriteDimension/2 
+                            )
+                        end
                 elseif animation.category == 'enemyDamaged' 
                 or animation.category == 'enemyResisted' then
                     for i = 0, animation.maxTick, 1 do

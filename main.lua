@@ -21,8 +21,8 @@ function love.load()
         currentHp = 200,
         maxMp = 0,
         currentMp = 0,
-        attack = 120,
-        defense = 90,
+        attack = 80,
+        defense = 80,
         agility = 60,
         critRate = 64
     }
@@ -35,7 +35,7 @@ function love.load()
         maxMp = 0,
         currentMp = 0,
         attack = 70,
-        defense = 70,
+        defense = 50,
         agility = 100,
         critRate = 16
     }
@@ -109,8 +109,8 @@ function love.load()
 
     enemy4 = {
         name = 'SKELETON1',
-        maxHp = 180,
-        currentHp = 180,
+        maxHp = 150,
+        currentHp = 150,
         currentMp = 0,
         maxMp = 0,
         attack = 120,
@@ -123,8 +123,8 @@ function love.load()
 
     enemy5 = {
         name = 'SKELETON2',
-        maxHp = 180,
-        currentHp = 180,
+        maxHp = 150,
+        currentHp = 150,
         currentMp = 0,
         maxMp = 0,
         attack = 120,
@@ -163,22 +163,48 @@ function love.load()
 
         return result
     end
+    
+    function handleResistance(element, target, baseDamage)
+        local effect
+        local damage = baseDamage
+        
+        if checkResistance(target, 'immunity', element) then
+            effect = {effectType='IMMUNE'}
+        elseif checkResistance(target, 'strong', element) then
+            damage = math.floor(baseDamage / 2 )
+            effect = {effectType='STRONGRES', value = damage}
+        else
+            effect = {effectType= 'DAMAGE', value = damage}
+        end
+        
+        return effect
+    end
+    
+    function castBlaze(user, group)
+        local text = ''..user.name..' casts Blaze';
+        table.insert(battlelog, text)
+        
+        for index, target in ipairs(group) do
+            if not target.dead then
+                local damage = math.random(8, 12)
+                local effect = handleResistance('FIRE', target, damage)
+        
+                effect.user = user
+                effect.target = target
+                table.insert(effectList, effect)
+            end
+        end
+    end
 
 
     function castFire(user, selectedTarget)
         local target = reselectTargetWhenDead(selectedTarget)
         local damage = math.random(8, 12)
         local text = ''..user.name..' casts Fire';
-        local effect
-
-        if checkResistance(target, 'immunity', 'FIRE') then
-            effect = {effectType='IMMUNE', user = user, target = target}
-        elseif checkResistance(target, 'strong', 'FIRE') then
-            damage = math.floor(damage / 2 )
-            effect = {effectType='STRONGRES', value = damage, user = user, target = target}
-        else
-            effect = {effectType= 'DAMAGE', value = damage, user = user, target = target}
-        end
+        local effect = handleResistance('FIRE', target, damage)
+        
+        effect.user = user
+        effect.target = target
 
         table.insert(battlelog, text)
         table.insert(effectList, effect)
@@ -188,7 +214,7 @@ function love.load()
         local target = reselectTargetWhenDead(selectedTarget)
         local amount = math.random(36, 44)
         local text = ''..user.name..' casts Heal';
-        
+
         local effect = {effectType='RECOVERY', value = amount, user = user, target = target}
         table.insert(battlelog, text)
         table.insert(effectList, effect)
@@ -479,7 +505,7 @@ function love.load()
             table.insert(toKillList, target)
         end
     end
-    
+
     function recover(value, target)
         target.currentHp = target.currentHp + value;
         if target.currentHp > target.maxHp then
@@ -1282,6 +1308,21 @@ function love.keypressed(key)
                     updateTargetSelectionMenu(skillSelectionMenu, skillToUse.aim)
                     currentPhase = 'targetSelection'
                     resetMenu(targetSelectionMenu)
+                elseif skillToUse.scope == 'all' then
+                    local user = party[characterMenu.charID]
+                    user.currentAction = {
+                        actionType = 'SKILL',
+                        user = user, 
+                        target = enemies, 
+                        skill = skillToUse
+                    }
+                    if getNextAbleCharID(characterMenu.charID) then
+                        currentPhase = 'characterMenu'
+                        characterMenu.charID = getNextAbleCharID(characterMenu.charID);
+                        resetMenu(characterMenu)
+                    else
+                        playBattle()
+                    end
                 end
             end
         end

@@ -22,8 +22,8 @@ function love.load()
         maxMp = 0,
         currentMp = 0,
         attack = 120,
-        defense = 120,
-        agility = 40,
+        defense = 90,
+        agility = 60,
         critRate = 64
     }
 
@@ -36,22 +36,22 @@ function love.load()
         currentMp = 0,
         attack = 70,
         defense = 70,
-        agility = 60,
-        critRate = 8
+        agility = 100,
+        critRate = 16
     }
 
     character3 = {
-        name = 'HUNTER',
+        name = 'PRIEST',
         partyMember = true,
         maxHp = 160,
         currentHp = 160,
-        maxMp = 0,
-        currentMp = 0,
+        maxMp = 90,
+        currentMp = 90,
         attack = 60,
         defense = 50,
-        agility = 120,
+        agility = 80,
         critRate = 64,
-        skills = { 4, 5 }
+        skills = {1, 4, 5 }
     }
 
     character4 = {
@@ -65,7 +65,7 @@ function love.load()
         defense = 40,
         agility = 80,
         critRate = 64,
-        skills = { 1, 2, 3 }
+        skills = { 2, 3 }
     }
 
     enemy1 = {
@@ -132,7 +132,7 @@ function love.load()
         sprite = skeleton_sprite,
         spriteHeight = 0
     }
-    
+
     allSkills = {
         { name = 'Heal', cost= 2, desc = 'Recover 36-44 HP to one ally'},
         { name = 'Fire', cost= 2, desc = 'Deal 8-12 fire damage to one enemy'},
@@ -174,7 +174,7 @@ function love.load()
     function menuUp(menu)
         menu.current = menu.current - 1
     end
-    
+
     function updateSkillSelectionMenu(character)
         local skillList = {}
         if character.skills and #character.skills > 0 then
@@ -182,7 +182,7 @@ function love.load()
                 table.insert(skillList, skill)
             end
         end
-        
+
         skillSelectionMenu.user = character
         skillSelectionMenu.list = skillList
     end
@@ -203,54 +203,54 @@ function love.load()
         local damage
         local crit
         local target = selectedTarget
+        
+            if selectedTarget.dead then
+                if selectedTarget.partyMember then
+                    target = selectTargetRandomly(party)
+                else
+                    target = selectTargetRandomly(enemies)
+                end
+            end
 
-        if selectedTarget.dead then
-            if selectedTarget.partyMember then
-                target = selectTargetRandomly(party)
+            if user.critRate then
+                crit = math.random(1, user.critRate) == 1
             else
-                target = selectTargetRandomly(enemies)
+                crit = math.random(1, 128) == 1
             end
-        end
-
-        if user.critRate then
-            crit = math.random(1, user.critRate) == 1
-        else
-            crit = math.random(1, 128) == 1
-        end
-        if crit then
-            damage = calculateCritDamage(user, target)
-        else
-            damage = calculateAttackDamage(user, target)
-        end
-        if target.defending and not crit then
-            damage = math.floor(damage/2)
-        end
-
-        local battleLogText
-
-        if isSecondAttack then
-            battleLogText = ''..user.name..' attacks again!'
-        else
-            battleLogText = ''..user.name..' attacks!'
-        end
-
-        if crit then
-            battleLogText = ''..battleLogText..' Critical hit!';
-        end
-
-        result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
-
-        if not isSecondAttack then
-            local secondAttackChance = math.floor((user.agility - target.agility)/2)
-            local secondAttack = math.random(1, 100) < secondAttackChance
-
-            if secondAttack then
-                result.secondAttack = true
+            if crit then
+                damage = calculateCritDamage(user, target)
+            else
+                damage = calculateAttackDamage(user, target)
             end
-        end
+            if target.defending and not crit then
+                damage = math.floor(damage/2)
+            end
 
-        table.insert(battlelog, battleLogText)
-        table.insert(effectList, result)
+            local battleLogText
+
+            if isSecondAttack then
+                battleLogText = ''..user.name..' attacks again!'
+            else
+                battleLogText = ''..user.name..' attacks!'
+            end
+
+            if crit then
+                battleLogText = ''..battleLogText..' Critical hit!';
+            end
+
+            result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
+
+            if not isSecondAttack then
+                local secondAttackChance = math.floor((user.agility - target.agility)/2)
+                local secondAttack = math.random(1, 100) < secondAttackChance
+
+                if secondAttack then
+                    addAction({actionType = 'SECONDATK', user = user, target = target})
+                end
+            end
+
+            table.insert(battlelog, battleLogText)
+            table.insert(effectList, result)
     end
 
     function defend(user)
@@ -287,19 +287,19 @@ function love.load()
             table.insert(actionList, action)
         end
     end
-    
+
     function selectTargetRandomly(group)
         local availableTargets = {}
-        
+
         for index, target in ipairs(group) do
             if not target.dead then
                 table.insert(availableTargets, target)
             end
         end
-        
+
         local selectedTarget
         local i = 1
-        
+
         while not selectedTarget do
             if i == #availableTargets then
                 selectedTarget = availableTargets[i]
@@ -312,7 +312,7 @@ function love.load()
                 end
             end
         end
-        
+
         return selectedTarget
     end    
 
@@ -375,7 +375,7 @@ function love.load()
         target.dead = true
         table.insert(battlelog, ''..target.name..' defeated.')
         removeAction(target)
-
+        
         if actionList[1] and actionList[1].actionType == 'SECONDATK' then
             table.remove(actionList, 1)
         end
@@ -400,9 +400,6 @@ function love.load()
     function applyEffect(effect)
         if effect.effectType == 'DAMAGE' then
             dealDamage(effect.value, effect.target)
-            if effect.secondAttack and not effect.target.dead then
-                addAction({actionType = 'SECONDATK', user = effect.user, target = effect.target})
-            end
         end
     end
 
@@ -821,15 +818,15 @@ function love.draw()
 
         return bottomMenu;
     end
-    
+
     function drawSkillSelectionMenu()
         local bottomMenu = drawCharacterMenu()
-        
+
         local borderX = bottomMenu.borderX + bottomMenu.borderWidth + 10
         local borderY = bottomMenu.borderY
         local borderWidth = (windowWidth - 10)/2 - 10
         local borderHeight = bottomMenu.borderHeight
-        
+
         love.graphics.setColor(1,1,1)
         love.graphics.rectangle(
             'line',
@@ -838,7 +835,7 @@ function love.draw()
             borderWidth,
             borderHeight
         )
-        
+
         if #skillSelectionMenu.list == 0 then
             local name = skillSelectionMenu.user.name
             love.graphics.setFont(font_small)
@@ -858,7 +855,7 @@ function love.draw()
                 else
                     love.graphics.setColor(1,1,1)
                 end
-                
+
                 local x
                 if index % 2 == 0 then
                     x = (borderX + 10) * 2
@@ -867,7 +864,7 @@ function love.draw()
                 end
                 local y = borderY + 10 + (math.floor((index - 1)/2)) * bottomMenu.menuOptionHeight
                 local height = bottomMenu.menuOptionHeight
-                
+
                 love.graphics.printf(
                     skill.name,
                     x + 20,
@@ -875,7 +872,7 @@ function love.draw()
                     borderWidth/2 - 40,
                     'left', 0, 1, 1, 0, -1 * (height/4)
                 )
-                
+
                 if skillSelectionMenu.current == index then
                     drawMenuIndicator(x, y, height)
                     drawDescriptionText(
@@ -887,10 +884,10 @@ function love.draw()
                     )
                 end
             end
-                    
+
         end
     end
-    
+
     function drawDescriptionText(x, y, height, skill, menuHeight)
         local width = (windowWidth - 10)/4 - 10
         love.graphics.setColor(1, 1, 1)

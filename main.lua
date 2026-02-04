@@ -51,7 +51,7 @@ function love.load()
         attack = 70,
         defense = 50,
         agility = 100,
-        critRate = 16
+        critRate = 4
     }
 
     character3 = {
@@ -85,7 +85,7 @@ function love.load()
     enemy1 = {
         name = 'GOBLIN1',
         maxHp = 30,
-        currentHp = 1,
+        currentHp = 30,
         currentMp = 0,
         maxMp = 0,
         attack = 60,
@@ -98,7 +98,7 @@ function love.load()
     enemy2 = {
         name = 'GOBLIN2',
         maxHp = 30,
-        currentHp = 1,
+        currentHp = 30,
         currentMp = 0,
         maxMp = 0,
         attack = 60,
@@ -111,7 +111,7 @@ function love.load()
     enemy3 = {
         name = 'GOBLIN3',
         maxHp = 30,
-        currentHp = 1,
+        currentHp = 30,
         currentMp = 0,
         maxMp = 0,
         attack = 60,
@@ -124,7 +124,7 @@ function love.load()
     enemy4 = {
         name = 'SKELETON1',
         maxHp = 50,
-        currentHp = 1,
+        currentHp = 50,
         currentMp = 0,
         maxMp = 0,
         attack = 90,
@@ -138,7 +138,7 @@ function love.load()
     enemy5 = {
         name = 'SKELETON2',
         maxHp = 50,
-        currentHp = 1,
+        currentHp = 50,
         currentMp = 0,
         maxMp = 0,
         attack = 90,
@@ -856,18 +856,6 @@ function love.draw()
         love.graphics.draw(enemy.sprite, x, y)
         love.graphics.setColor(1, 1, 1)
     end
-    
-    if animation and animation.category == 'skillToEnemyAll' then
-        for index, frame in ipairs(blaze_frames) do
-            if animation.tick == index then
-                love.graphics.draw(
-                    blaze_sheet, 
-                    blaze_frames[index], 
-                    0, 
-                    windowHeight/2 - monsterSpriteDimension/2)
-            end
-        end
-    end
 
     for index, enemy in ipairs(enemies) do
         if not enemy.dead then
@@ -930,6 +918,18 @@ function love.draw()
             for i = 0, animation.maxTick, 1 do
                 local tint = math.max(0, 1 - animation.tick/5)
                 drawEnemySprite(enemy, index, 0, 0, tint)
+            end
+        end
+    end
+    
+    if animation and animation.category == 'skillToEnemyAll' then
+        for index, frame in ipairs(blaze_frames) do
+            if animation.tick == index then
+                love.graphics.draw(
+                    blaze_sheet, 
+                    blaze_frames[index], 
+                    0, 
+                    windowHeight/2 - monsterSpriteDimension/2)
             end
         end
     end

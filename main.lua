@@ -45,8 +45,8 @@ function love.load()
         partyMember = true,
         maxHp = 160,
         currentHp = 160,
-        maxMp = 2,
-        currentMp = 2,
+        maxMp = 50,
+        currentMp = 50,
         attack = 60,
         defense = 50,
         agility = 80,
@@ -135,6 +135,11 @@ function love.load()
         strongAgainst = {'FIRE'}
     }
 
+    party = {character1, character2, character3, character4}
+    enemies = {enemy1, enemy2, enemy3, enemy4, enemy5}
+    partyDied = false;
+    allEnemyDead = false;
+
     function checkResistance(target, category, element)
         local listToCheck
         if category == 'immunity' then
@@ -181,18 +186,40 @@ function love.load()
 
     function castHeal(user, selectedTarget)
         local target = reselectTargetWhenDead(selectedTarget)
+        local amount = math.random(36, 44)
+        local text = ''..user.name..' casts Heal';
+        
+        local effect = {effectType='RECOVERY', value = amount, user = user, target = target}
+        table.insert(battlelog, text)
+        table.insert(effectList, effect)
     end
 
     allSkills = {
-        { name = 'Heal', cost= 2, desc = 'Recover 36-44 HP to one ally'},
-        { name = 'Fire', cost= 6, desc = 'Deal 80-120 fire damage to one enemy', execute = castFire},
-        { name = 'Blaze', cost= 10, desc = 'Deal 48-72 fire damage to all enemies'},
+        { 
+            name = 'Heal',
+            cost = 2, 
+            desc = 'Recover 36-44 HP to one ally',
+            aim = party,
+            scope = 'single',
+            execute = castHeal
+        },
+        { 
+            name = 'Fire', 
+            cost= 2, 
+            desc = 'Deal 8-12 fire damage to one enemy',
+            aim = enemies,
+            scope = 'single',
+            execute = castFire
+        },
+        { 
+            name = 'Blaze', 
+            cost= 4, 
+            desc = 'Deal 8-12 fire damage to all enemies',
+            aim = enemies,
+            scope = 'all',
+            execute = castBlaze
+        },
     }
-
-    party = {character1, character2, character3, character4}
-    enemies = {enemy1, enemy2, enemy3, enemy4, enemy5}
-    partyDied = false;
-    allEnemyDead = false;
 
     currentPhase = 'mainMenu'
 
@@ -235,14 +262,14 @@ function love.load()
         skillSelectionMenu.list = skillList
     end
 
-    function updateTargetSelectionMenu(fromMenu)
-        local enemyList = {}
-        for index, enemy in ipairs(enemies) do
-            if not enemy.dead then
-                table.insert(enemyList, enemy.name)
+    function updateTargetSelectionMenu(fromMenu, group)
+        local targetList = {}
+        for index, target in ipairs(group) do
+            if not target.dead then
+                table.insert(targetList, target.name)
             end
         end
-        targetSelectionMenu.list = enemyList
+        targetSelectionMenu.list = targetList
         targetSelectionMenu.fromMenu = fromMenu
     end
 
@@ -452,6 +479,14 @@ function love.load()
             table.insert(toKillList, target)
         end
     end
+    
+    function recover(value, target)
+        target.currentHp = target.currentHp + value;
+        if target.currentHp > target.maxHp then
+            target.currentHp = target.maxHp
+        end
+        table.insert(battlelog, ''..target.name..' recover '..value..' HP.');
+    end
 
 
     function applyEffect(effect)
@@ -459,6 +494,8 @@ function love.load()
             dealDamage(effect.value, effect.target)
         elseif effect.effectType == 'IMMUNE' then
             table.insert(battlelog, 'But it did not affect '..effect.target.name..'');
+        elseif effect.effectType == 'RECOVERY' then
+            recover(effect.value, effect.target)
         end
     end
 
@@ -1194,7 +1231,7 @@ function love.keypressed(key)
             menuUp(characterMenu)
         elseif key == 'z' then
             if characterMenu.current == 1 then
-                updateTargetSelectionMenu(characterMenu)
+                updateTargetSelectionMenu(characterMenu, enemies)
                 currentPhase = 'targetSelection'
                 resetMenu(targetSelectionMenu)
             elseif characterMenu.current == 2 then
@@ -1241,9 +1278,11 @@ function love.keypressed(key)
         elseif key == 'z' then
             local skillToUse = allSkills[skillSelectionMenu.list[skillSelectionMenu.current]]
             if skillSelectionMenu.user.currentMp >= skillToUse.cost then
-                updateTargetSelectionMenu(skillSelectionMenu)
-                currentPhase = 'targetSelection'
-                resetMenu(targetSelectionMenu)
+                if skillToUse.scope == 'single' then
+                    updateTargetSelectionMenu(skillSelectionMenu, skillToUse.aim)
+                    currentPhase = 'targetSelection'
+                    resetMenu(targetSelectionMenu)
+                end
             end
         end
     elseif currentPhase == 'targetSelection' then
@@ -1260,10 +1299,12 @@ function love.keypressed(key)
             end
         elseif key == 'z' then
             local target;
-            for index, enemy in ipairs(enemies) do
-                if not enemy.dead 
-                and enemy.name == targetSelectionMenu.list[targetSelectionMenu.current] then
-                    target = enemy
+            for index, group in ipairs({party, enemies}) do
+                for groupIndex, member in ipairs(group) do
+                    if not member.dead 
+                    and member.name == targetSelectionMenu.list[targetSelectionMenu.current] then
+                        target = member
+                    end
                 end
             end
             local user = party[characterMenu.charID]

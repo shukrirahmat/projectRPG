@@ -16,6 +16,15 @@ function love.load()
     fire_sprite2 = love.graphics.newImage('images/fire2.png')
     fire_sprite3 = love.graphics.newImage('images/fire3.png')
     fire_sprite4 = love.graphics.newImage('images/fire4.png')
+
+    blaze_sheet = love.graphics.newImage('images/blaze.png')
+
+    blaze_frames = {}
+    for i = 0, 8, 1 do
+        local quad = love.graphics.newQuad(0, i*128, 800, 128, 800, 1152)
+        table.insert(blaze_frames, quad)
+    end
+
     monsterSpriteDimension = 128
     skillSpriteDimension = 64
 
@@ -75,11 +84,11 @@ function love.load()
 
     enemy1 = {
         name = 'GOBLIN1',
-        maxHp = 100,
-        currentHp = 100,
+        maxHp = 30,
+        currentHp = 1,
         currentMp = 0,
         maxMp = 0,
-        attack = 80,
+        attack = 60,
         defense = 40,
         agility = 60,
         sprite = goblin_sprite,
@@ -88,11 +97,11 @@ function love.load()
 
     enemy2 = {
         name = 'GOBLIN2',
-        maxHp = 100,
-        currentHp = 100,
+        maxHp = 30,
+        currentHp = 1,
         currentMp = 0,
         maxMp = 0,
-        attack = 80,
+        attack = 60,
         defense = 40,
         agility = 60,
         sprite = goblin_sprite,
@@ -101,11 +110,11 @@ function love.load()
 
     enemy3 = {
         name = 'GOBLIN3',
-        maxHp = 100,
-        currentHp = 100,
+        maxHp = 30,
+        currentHp = 1,
         currentMp = 0,
         maxMp = 0,
-        attack = 80,
+        attack = 60,
         defense = 40,
         agility = 60,
         sprite = goblin_sprite,
@@ -114,13 +123,13 @@ function love.load()
 
     enemy4 = {
         name = 'SKELETON1',
-        maxHp = 150,
-        currentHp = 150,
+        maxHp = 50,
+        currentHp = 1,
         currentMp = 0,
         maxMp = 0,
-        attack = 120,
+        attack = 90,
         defense = 50,
-        agility = 70,
+        agility = 40,
         sprite = skeleton_sprite,
         spriteHeight = 0,
         strongAgainst = {'FIRE'}
@@ -128,13 +137,13 @@ function love.load()
 
     enemy5 = {
         name = 'SKELETON2',
-        maxHp = 150,
-        currentHp = 150,
+        maxHp = 50,
+        currentHp = 1,
         currentMp = 0,
         maxMp = 0,
-        attack = 120,
+        attack = 90,
         defense = 50,
-        agility = 70,
+        agility = 40,
         sprite = skeleton_sprite,
         spriteHeight = 0,
         strongAgainst = {'FIRE'}
@@ -187,7 +196,7 @@ function love.load()
 
     function castBlaze(user, group)
         local text = ''..user.name..' casts Blaze';
-        table.insert(battlelog, text)
+        battleLogAdd(text)
 
         for index, target in ipairs(group) do
             if not target.dead then
@@ -202,8 +211,7 @@ function love.load()
     end
 
 
-    function castFire(user, selectedTarget)
-        local target = reselectTargetWhenDead(selectedTarget)
+    function castFire(user, target)
         local damage = math.random(8, 12)
         local text = ''..user.name..' casts Fire';
         local effect = handleResistance('FIRE', target, damage)
@@ -211,17 +219,16 @@ function love.load()
         effect.user = user
         effect.target = target
 
-        table.insert(battlelog, text)
+        battleLogAdd(text)
         table.insert(effectList, effect)
     end
 
-    function castHeal(user, selectedTarget)
-        local target = reselectTargetWhenDead(selectedTarget)
+    function castHeal(user, target)
         local amount = math.random(36, 44)
         local text = ''..user.name..' casts Heal';
 
         local effect = {effectType='RECOVERY', value = amount, user = user, target = target}
-        table.insert(battlelog, text)
+        battleLogAdd(text)
         table.insert(effectList, effect)
     end
 
@@ -269,6 +276,14 @@ function love.load()
     textTimer = 0
     textSpeed = 1
     animation = nil
+    
+    function battleLogAdd(text)
+        if #battlelog >= 8 then
+            table.remove(battlelog, 1)
+        end
+        
+        table.insert(battlelog, text)
+    end
 
     function resetMenu(menu)
         menu.current = 1
@@ -317,13 +332,11 @@ function love.load()
         return target
     end
 
-    function normalAttack(user, selectedTarget, isSecondAttack)
+    function normalAttack(user, target, isSecondAttack)
 
         local result
         local damage
         local crit
-
-        local target = reselectTargetWhenDead(selectedTarget)
 
         if user.critRate then
             crit = math.random(1, user.critRate) == 1
@@ -362,13 +375,13 @@ function love.load()
             end
         end
 
-        table.insert(battlelog, battleLogText)
+        battleLogAdd(battleLogText)
         table.insert(effectList, result)
     end
 
     function defend(user)
         user.defending = true
-        table.insert(battlelog, ''..user.name..' defends!')
+        battleLogAdd(''..user.name..' defends!')
     end
 
     function addPriorityAction(action)
@@ -489,7 +502,7 @@ function love.load()
     function handleDeath(target)
         target.currentHp = 0
         target.dead = true
-        table.insert(battlelog, ''..target.name..' defeated.')
+        battleLogAdd(''..target.name..' defeated.')
         removeAction(target)
 
         if actionList[1] and actionList[1].actionType == 'SECONDATK' then
@@ -505,7 +518,7 @@ function love.load()
 
     function dealDamage(value, target)
         target.currentHp = target.currentHp - value;
-        table.insert(battlelog, ''..target.name..' takes '..value..' damage.');
+        battleLogAdd(''..target.name..' takes '..value..' damage.');
         if target.currentHp <= 0 then
             target.currentHp = 0;
             table.insert(toKillList, target)
@@ -517,7 +530,7 @@ function love.load()
         if target.currentHp > target.maxHp then
             target.currentHp = target.maxHp
         end
-        table.insert(battlelog, ''..target.name..' recover '..value..' HP.');
+        battleLogAdd(''..target.name..' recover '..value..' HP.');
     end
 
 
@@ -525,7 +538,7 @@ function love.load()
         if effect.effectType == 'DAMAGE' or effect.effectType == 'STRONGRES' then
             dealDamage(effect.value, effect.target)
         elseif effect.effectType == 'IMMUNE' then
-            table.insert(battlelog, 'But it did not affect '..effect.target.name..'');
+            battleLogAdd('But it did not affect '..effect.target.name..'');
         elseif effect.effectType == 'RECOVERY' then
             recover(effect.value, effect.target)
         end
@@ -627,9 +640,9 @@ function love.update(dt)
         if textTimer > textSpeed then
             battlelog = {}
             if partyDied then
-                table.insert(battlelog, 'Party has been defeated')
+                battleLogAdd('Party has been defeated')
             elseif allEnemyDead then
-                table.insert(battlelog, 'All enemy has been defeated')
+                battleLogAdd('All enemy has been defeated')
             end
             textTimer = 0
         end                
@@ -701,6 +714,11 @@ function love.update(dt)
                 local nextActionIndex = chooseNextActionIndex()
                 local action = actionList[nextActionIndex]
                 table.remove(actionList, nextActionIndex)
+
+                if action.target
+                and action.target ~= party and action.target ~= enemies then
+                    action.target = reselectTargetWhenDead(action.target)
+                end
                 executeAction(action)
 
                 --starts attack animation--
@@ -709,10 +727,14 @@ function love.update(dt)
                         animation = createAnimation(action.user, 'enemyAttack', 8, 0.08)
                     end
                 else
-                    if action.actionType == 'SKILL' 
-                    and action.skill.aim == enemies and action.skill.scope == 'single' then
-                        animation = createAnimation(action.target, 'skillToEnemy', 8, 0.1)
-                        animation.skill = action.skill
+                    if action.actionType == 'SKILL' and action.skill.aim == enemies then
+                        if action.skill.scope == 'single' then
+                            animation = createAnimation(action.target, 'skillToEnemy', 10, 0.1)
+                            animation.skill = action.skill
+                        elseif action.skill.scope == 'all' then
+                            animation = createAnimation(action.target, 'skillToEnemyAll', 10, 0.08)
+                            animation.skill = action.skill
+                        end
                     end
                 end
             end
@@ -834,6 +856,18 @@ function love.draw()
         love.graphics.draw(enemy.sprite, x, y)
         love.graphics.setColor(1, 1, 1)
     end
+    
+    if animation and animation.category == 'skillToEnemyAll' then
+        for index, frame in ipairs(blaze_frames) do
+            if animation.tick == index then
+                love.graphics.draw(
+                    blaze_sheet, 
+                    blaze_frames[index], 
+                    0, 
+                    windowHeight/2 - monsterSpriteDimension/2)
+            end
+        end
+    end
 
     for index, enemy in ipairs(enemies) do
         if not enemy.dead then
@@ -850,15 +884,15 @@ function love.draw()
                     love.graphics.setColor(1, 1, 1)
                     drawEnemySprite(enemy, index, 0, 0)
                     local spritePos = getSpritePos(enemy, index, 0, 0)
-                        local spriteID = math.floor(animation.tick * 0.5)
-                        if animation.skill.sprite[spriteID] then
-                            love.graphics.draw(
-                                animation.skill.sprite[spriteID],
-                                spritePos.x + monsterSpriteDimension/2 - skillSpriteDimension/2,
-                                spritePos.y + spritePos.height
-                                + monsterSpriteDimension/2 - skillSpriteDimension/2 
-                            )
-                        end
+                    local spriteID = math.floor(animation.tick * 0.5)
+                    if animation.skill.sprite[spriteID] then
+                        love.graphics.draw(
+                            animation.skill.sprite[spriteID],
+                            spritePos.x + monsterSpriteDimension/2 - skillSpriteDimension/2,
+                            spritePos.y + spritePos.height
+                            + monsterSpriteDimension/2 - skillSpriteDimension/2 
+                        )
+                    end
                 elseif animation.category == 'enemyDamaged' 
                 or animation.category == 'enemyResisted' then
                     for i = 0, animation.maxTick, 1 do

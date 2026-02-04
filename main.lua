@@ -45,13 +45,13 @@ function love.load()
         partyMember = true,
         maxHp = 160,
         currentHp = 160,
-        maxMp = 90,
-        currentMp = 90,
+        maxMp = 2,
+        currentMp = 2,
         attack = 60,
         defense = 50,
         agility = 80,
         critRate = 64,
-        skills = {1, 4, 5 }
+        skills = {1}
     }
 
     character4 = {
@@ -117,7 +117,8 @@ function love.load()
         defense = 50,
         agility = 70,
         sprite = skeleton_sprite,
-        spriteHeight = 0
+        spriteHeight = 0,
+        strongAgainst = {'FIRE'}
     }
 
     enemy5 = {
@@ -130,15 +131,62 @@ function love.load()
         defense = 50,
         agility = 70,
         sprite = skeleton_sprite,
-        spriteHeight = 0
+        spriteHeight = 0,
+        strongAgainst = {'FIRE'}
     }
+
+    function checkResistance(target, category, element)
+        local listToCheck
+        if category == 'immunity' then
+            listToCheck = target.immunity
+        elseif category == 'strong' then
+            listToCheck = target.strongAgainst
+        end
+
+        local result = false
+
+        if listToCheck and #listToCheck > 0 then
+            local i = 1;
+            while i <= #listToCheck and result == false do
+                if listToCheck[i] == element then
+                    result = true
+                else
+                    i = i + 1
+                end
+            end
+        end
+
+        return result
+    end
+
+
+    function castFire(user, selectedTarget)
+        local target = reselectTargetWhenDead(selectedTarget)
+        local damage = math.random(8, 12)
+        local text = ''..user.name..' casts Fire';
+        local effect
+
+        if checkResistance(target, 'immunity', 'FIRE') then
+            effect = {effectType='IMMUNE', user = user, target = target}
+        elseif checkResistance(target, 'strong', 'FIRE') then
+            damage = math.floor(damage / 2 )
+            effect = {effectType='STRONGRES', value = damage, user = user, target = target}
+        else
+            effect = {effectType= 'DAMAGE', value = damage, user = user, target = target}
+        end
+
+        table.insert(battlelog, text)
+        table.insert(effectList, effect)
+    end
+
+    function castHeal(user, selectedTarget)
+        local target = reselectTargetWhenDead(selectedTarget)
+    end
 
     allSkills = {
         { name = 'Heal', cost= 2, desc = 'Recover 36-44 HP to one ally'},
-        { name = 'Fire', cost= 2, desc = 'Deal 8-12 fire damage to one enemy'},
-        { name = 'Blaze', cost= 4, desc = 'Deal 8-12 fire damage to all enemies'},
-        { name = 'Ice', cost= 3, desc = 'Deal 12-18 Ice damage to one enemy'},
-        { name = 'Hail', cost= 3, desc = 'Deal 4-6 Ice damage to all enemies'},
+        { name = 'Fire', cost= 6, desc = 'Deal 80-120 fire damage to one enemy', execute = castFire},
+        { name = 'Blaze', cost= 10, desc = 'Deal 48-72 fire damage to all enemies'},
     }
 
     party = {character1, character2, character3, character4}
@@ -187,7 +235,7 @@ function love.load()
         skillSelectionMenu.list = skillList
     end
 
-    function updateTargetSelectionMenu()
+    function updateTargetSelectionMenu(fromMenu)
         local enemyList = {}
         for index, enemy in ipairs(enemies) do
             if not enemy.dead then
@@ -195,6 +243,19 @@ function love.load()
             end
         end
         targetSelectionMenu.list = enemyList
+        targetSelectionMenu.fromMenu = fromMenu
+    end
+
+    function reselectTargetWhenDead(selectedTarget)
+        local target = selectedTarget
+        if selectedTarget.dead then
+            if selectedTarget.partyMember then
+                target = selectTargetRandomly(party)
+            else
+                target = selectTargetRandomly(enemies)
+            end
+        end
+        return target
     end
 
     function normalAttack(user, selectedTarget, isSecondAttack)
@@ -202,55 +263,48 @@ function love.load()
         local result
         local damage
         local crit
-        local target = selectedTarget
-        
-            if selectedTarget.dead then
-                if selectedTarget.partyMember then
-                    target = selectTargetRandomly(party)
-                else
-                    target = selectTargetRandomly(enemies)
-                end
+
+        local target = reselectTargetWhenDead(selectedTarget)
+
+        if user.critRate then
+            crit = math.random(1, user.critRate) == 1
+        else
+            crit = math.random(1, 128) == 1
+        end
+        if crit then
+            damage = calculateCritDamage(user, target)
+        else
+            damage = calculateAttackDamage(user, target)
+        end
+        if target.defending and not crit then
+            damage = math.floor(damage/2)
+        end
+
+        local battleLogText
+
+        if isSecondAttack then
+            battleLogText = ''..user.name..' attacks again!'
+        else
+            battleLogText = ''..user.name..' attacks!'
+        end
+
+        if crit then
+            battleLogText = ''..battleLogText..' Critical hit!';
+        end
+
+        result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
+
+        if not isSecondAttack then
+            local secondAttackChance = math.floor((user.agility - target.agility)/2)
+            local secondAttack = math.random(1, 100) < secondAttackChance
+
+            if secondAttack then
+                addAction({actionType = 'SECONDATK', user = user, target = target})
             end
+        end
 
-            if user.critRate then
-                crit = math.random(1, user.critRate) == 1
-            else
-                crit = math.random(1, 128) == 1
-            end
-            if crit then
-                damage = calculateCritDamage(user, target)
-            else
-                damage = calculateAttackDamage(user, target)
-            end
-            if target.defending and not crit then
-                damage = math.floor(damage/2)
-            end
-
-            local battleLogText
-
-            if isSecondAttack then
-                battleLogText = ''..user.name..' attacks again!'
-            else
-                battleLogText = ''..user.name..' attacks!'
-            end
-
-            if crit then
-                battleLogText = ''..battleLogText..' Critical hit!';
-            end
-
-            result = { effectType = 'DAMAGE', value = damage, user = user, target = target }
-
-            if not isSecondAttack then
-                local secondAttackChance = math.floor((user.agility - target.agility)/2)
-                local secondAttack = math.random(1, 100) < secondAttackChance
-
-                if secondAttack then
-                    addAction({actionType = 'SECONDATK', user = user, target = target})
-                end
-            end
-
-            table.insert(battlelog, battleLogText)
-            table.insert(effectList, result)
+        table.insert(battlelog, battleLogText)
+        table.insert(effectList, result)
     end
 
     function defend(user)
@@ -367,6 +421,9 @@ function love.load()
             normalAttack(action.user, action.target, true)
         elseif action.actionType == 'DEFEND' then
             defend(action.user)
+        elseif action.actionType == 'SKILL' then
+            action.user.currentMp = math.max(0, action.user.currentMp - action.skill.cost)
+            action.skill.execute(action.user, action.target)
         end
     end
 
@@ -375,7 +432,7 @@ function love.load()
         target.dead = true
         table.insert(battlelog, ''..target.name..' defeated.')
         removeAction(target)
-        
+
         if actionList[1] and actionList[1].actionType == 'SECONDATK' then
             table.remove(actionList, 1)
         end
@@ -398,8 +455,10 @@ function love.load()
 
 
     function applyEffect(effect)
-        if effect.effectType == 'DAMAGE' then
+        if effect.effectType == 'DAMAGE' or effect.effectType == 'STRONGRES' then
             dealDamage(effect.value, effect.target)
+        elseif effect.effectType == 'IMMUNE' then
+            table.insert(battlelog, 'But it did not affect '..effect.target.name..'');
         end
     end
 
@@ -545,9 +604,25 @@ function love.update(dt)
                 applyEffect(effect)
 
                 --starts damage animation--
-                if effect.effectType == 'DAMAGE' then
+                if effect.effectType == 'DAMAGE' or effect.effectType == 'STRONGRES' then
                     if not effect.target.partyMember then
-                        animation = createAnimation(effect.target, 'enemyDamaged', 10, 0.08, effect.value)
+                        if effect.effectType == 'DAMAGE' then
+                            animation = createAnimation(
+                                effect.target,
+                                'enemyDamaged',
+                                10,
+                                0.08,
+                                effect.value
+                            )
+                        elseif effect.effectType == 'STRONGRES' then
+                            animation = createAnimation(
+                                effect.target,
+                                'enemyResisted',
+                                10,
+                                0.08,
+                                effect.value
+                            )
+                        end
                     else
                         animation = createAnimation(effect.target, 'partyDamaged', 10, 0.05)
                     end
@@ -696,7 +771,8 @@ function love.draw()
                             drawEnemySprite(enemy, index, 0, 0)
                         end
                     end
-                elseif animation.category == 'enemyDamaged' then
+                elseif animation.category == 'enemyDamaged' 
+                or animation.category == 'enemyResisted' then
                     for i = 0, animation.maxTick, 1 do
                         if animation.tick % 2 == 0 and animation.tick <= 4 then
                             drawEnemySprite(enemy, index, 0, 0)
@@ -708,7 +784,11 @@ function love.draw()
 
                         if animation.tick > 1 then
                             local spritePos = getSpritePos(enemy, index, 0, 0)
-                            love.graphics.setColor(1,1,1)
+                            if animation.category == 'enemyResisted' then
+                                love.graphics.setColor(0.5,0.5,0.5)
+                            else
+                                love.graphics.setColor(1,1,1)
+                            end
                             love.graphics.setFont(font_large)
                             love.graphics.printf(
                                 ''..animation.value..'',
@@ -819,7 +899,7 @@ function love.draw()
         return bottomMenu;
     end
 
-    function drawSkillSelectionMenu()
+    function drawSkillSelectionMenu(isTargeting)
         local bottomMenu = drawCharacterMenu()
 
         local borderX = bottomMenu.borderX + bottomMenu.borderWidth + 10
@@ -875,13 +955,24 @@ function love.draw()
 
                 if skillSelectionMenu.current == index then
                     drawMenuIndicator(x, y, height)
-                    drawDescriptionText(
-                        borderX + borderWidth + 10,
-                        borderY,
-                        borderHeight,
-                        skill,
-                        height
-                    )
+
+                    if isTargeting then
+                        drawTargetSelectionMenu(
+                            borderX, 
+                            borderY, 
+                            borderWidth, 
+                            borderHeight, 
+                            bottomMenu.menuOptionHeight
+                        )
+                    else 
+                        drawDescriptionText(
+                            borderX + borderWidth + 10,
+                            borderY,
+                            borderHeight,
+                            skill,
+                            height
+                        )
+                    end
                 end
             end
 
@@ -915,18 +1006,27 @@ function love.draw()
         )
     end
 
-
-    function drawTargetSelectionMenu()
+    function drawAttackSelectionMenu()
         local bottomMenu = drawCharacterMenu()
+        drawTargetSelectionMenu(
+            bottomMenu.borderX,
+            bottomMenu.borderY,
+            bottomMenu.borderWidth,
+            bottomMenu.borderHeight,
+            bottomMenu.menuOptionHeight
+        )
+    end
 
-        local borderX = bottomMenu.borderX + bottomMenu.borderWidth + 10
-        local borderY = bottomMenu.borderY
+
+    function drawTargetSelectionMenu(refX, refY, refWidth, refHeight, refOptionHeight)
+        local borderX = refX + refWidth + 10
+        local borderY = refY
         local borderWidth = (windowWidth - 10)/4 - 10;
-        local borderHeight = bottomMenu.borderHeight
+        local borderHeight = refHeight
         local targetX = borderX + 10
         local targetY = borderY + 10
         local targetWidth = borderWidth - 10 * 2
-        local targetHeight = bottomMenu.menuOptionHeight
+        local targetHeight = refOptionHeight
 
         love.graphics.setFont(font_medium)
         love.graphics.setColor(1, 1, 1)
@@ -1040,16 +1140,18 @@ function love.draw()
         end
     end
 
-
-
     if currentPhase == 'mainMenu' then
         drawBottomMenu(mainMenu)
     elseif currentPhase == 'characterMenu' then
         drawCharacterMenu();
     elseif currentPhase == 'skillSelection' then
-        drawSkillSelectionMenu()
+        drawSkillSelectionMenu(false)
     elseif currentPhase == 'targetSelection' then
-        drawTargetSelectionMenu()
+        if targetSelectionMenu.fromMenu == characterMenu then
+            drawAttackSelectionMenu()
+        elseif targetSelectionMenu.fromMenu == skillSelectionMenu then
+            drawSkillSelectionMenu(true)
+        end
     elseif currentPhase == 'playBattle' or currentPhase == 'battleEnd' then
         drawBattleLog()
     end
@@ -1092,7 +1194,7 @@ function love.keypressed(key)
             menuUp(characterMenu)
         elseif key == 'z' then
             if characterMenu.current == 1 then
-                updateTargetSelectionMenu()
+                updateTargetSelectionMenu(characterMenu)
                 currentPhase = 'targetSelection'
                 resetMenu(targetSelectionMenu)
             elseif characterMenu.current == 2 then
@@ -1136,6 +1238,13 @@ function love.keypressed(key)
         elseif key == 'x' then
             currentPhase = 'characterMenu'
             characterMenu.current = 2
+        elseif key == 'z' then
+            local skillToUse = allSkills[skillSelectionMenu.list[skillSelectionMenu.current]]
+            if skillSelectionMenu.user.currentMp >= skillToUse.cost then
+                updateTargetSelectionMenu(skillSelectionMenu)
+                currentPhase = 'targetSelection'
+                resetMenu(targetSelectionMenu)
+            end
         end
     elseif currentPhase == 'targetSelection' then
         if key == 'down' and targetSelectionMenu.current < #targetSelectionMenu.list then
@@ -1143,8 +1252,12 @@ function love.keypressed(key)
         elseif key == 'up' and targetSelectionMenu.current > 1 then
             menuUp(targetSelectionMenu)
         elseif key == 'x' then
-            currentPhase = 'characterMenu'
-            resetMenu(characterMenu)
+            if targetSelectionMenu.fromMenu == characterMenu then
+                currentPhase = 'characterMenu'
+                resetMenu(characterMenu)
+            elseif targetSelectionMenu.fromMenu == skillSelectionMenu then
+                currentPhase = 'skillSelection'
+            end
         elseif key == 'z' then
             local target;
             for index, enemy in ipairs(enemies) do
@@ -1154,7 +1267,19 @@ function love.keypressed(key)
                 end
             end
             local user = party[characterMenu.charID]
-            user.currentAction = {actionType = 'NORMALATK', user = user, target = target}
+
+            if targetSelectionMenu.fromMenu == characterMenu then
+                user.currentAction = {actionType = 'NORMALATK', user = user, target = target}
+            elseif targetSelectionMenu.fromMenu == skillSelectionMenu then
+                local skill = allSkills[skillSelectionMenu.list[skillSelectionMenu.current]]
+                user.currentAction = {
+                    actionType = 'SKILL',
+                    user = user, 
+                    target = target, 
+                    skill = skill
+                }
+            end
+
             if getNextAbleCharID(characterMenu.charID) then
                 currentPhase = 'characterMenu'
                 characterMenu.charID = getNextAbleCharID(characterMenu.charID);

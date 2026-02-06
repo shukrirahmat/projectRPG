@@ -10,8 +10,8 @@ local function createController(_menu)
         menu.moveDown()
     end
     
-    local function executeForward()
-        menu.proceed()
+    local function executeConfirm()
+        menu.confirm()
     end
     
     local function executeBack()
@@ -24,7 +24,7 @@ local function createController(_menu)
         elseif key == 'down' then
             executeDown()
         elseif key == 'z' then
-            executeForward()
+            executeConfirm()
         elseif key == 'x' then
             executeBack()
         end

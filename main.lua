@@ -1,23 +1,24 @@
+require('globals')
+require('helperFunction')
+local createTopWindow = require('createTopWindow')
+local createEnemySprites = require('createEnemySprites')
+local createMenu = require('createMenu')
+local createController = require('createController')
+local characterSheet = require('characterSheet')
+local createCharacter = require('createCharacter')
+local createBattle = require('createBattle')
+
 function love.load()
-    
-    require('globals')
-    local createTopWindow = require('createTopWindow')
-    local createEnemySprites = require('createEnemySprites')
-    local createMenu = require('createMenu')
-    local createController = require('createController')
-    local characterSheet = require('characterSheet')
-    local createCharacter = require('createCharacter')
-    local createBattle = require('createBattle')
-    
+
     local partySheet = characterSheet.party
     local monsterSheet = characterSheet.monsters
-    
+
     local partyMembers = {}
     for i, sheet in ipairs(partySheet) do
         local member = createCharacter(sheet.name, true, sheet)
         table.insert(partyMembers, member)
     end
-    
+
     local enemies = {}
     local goblinSheet = monsterSheet['goblin']
     local skeletonSheet = monsterSheet['skeleton']
@@ -26,8 +27,8 @@ function love.load()
     table.insert(enemies, createCharacter(''..skeletonSheet.name..'1', false, skeletonSheet))
     table.insert(enemies, createCharacter(''..skeletonSheet.name..'2', false, skeletonSheet))
     table.insert(enemies, createCharacter(''..skeletonSheet.name..'3', false, skeletonSheet))
-    
-    local battle = createBattle(partyMembers, enemies)
+
+    battle = createBattle(partyMembers, enemies)
     topWindow = createTopWindow(battle.getParty())
     enemySprites = createEnemySprites(battle.getEnemies())
     menu = createMenu(battle)
@@ -36,21 +37,32 @@ end
 
 function love.update(dt)
     
+    if battle.isRunning() then
+        battle.setTimer(battle.getTimer() + dt)
+    end
+    
+    if battle.getTimer() > battle.getSpeed() then
+        battle.playQueue(menu)
+        battle.setTimer(0)
+    end
+
 end
 
 function love.draw()
-    
+
     ---------------------------------TOP-----------------------------------
-    
+
     topWindow.draw()
-    
+
     --------------------------------MIDDLE---------------------------------
-    
+
     enemySprites.draw()
-    
+
     --------------------------------BOTTOM---------------------------------
     
-    menu.draw()
+    if not battle.isRunning() then
+        menu.draw()
+    end
 end
 
 function love.keypressed(key)

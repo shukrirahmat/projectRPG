@@ -1,3 +1,5 @@
+local createAction = require('createAction')
+
 local function createMenu(_battle)
 
     local battle = _battle
@@ -15,7 +17,7 @@ local function createMenu(_battle)
         menu.current = 1
     end
 
-    function updateTargetSelectionMenu(prevMenu, group)
+    local function updateTargetSelectionMenu(prevMenu, group)
         local targetList = {}
         for index, target in ipairs(group) do
             if not target.getStat('dead') then
@@ -60,23 +62,28 @@ local function createMenu(_battle)
             return nil
         end
     end
-
-    local function getNextAbleCharID(currentID)
-        return getAbleCharID(currentID, 'next')
-    end
-
-    local function getPrevAbleCharID(currentID)
-        return getAbleCharID(currentID, 'prev')
-    end
-
+    
     local function proceed()
+        local initial        
+        if currentMenu == mainMenu then
+            initial = 0
+        else
+            initial = characterMenu.charID
+        end
+        
+        local nextID = getAbleCharID(initial, 'next')
+        if nextID then
+            currentMenu = characterMenu
+            characterMenu.charID = nextID
+            reset(characterMenu)
+        else
+            battle.run()
+        end
+    end
+
+    local function confirm()
         if currentMenu == mainMenu and mainMenu.current == 1 then
-            local nextID = getNextAbleCharID(0)
-            if nextID then
-                currentMenu = characterMenu
-                currentMenu.charID = nextID
-                reset(characterMenu)
-            end
+            proceed()
         elseif currentMenu == characterMenu then
             if characterMenu.current == 1 then
                 updateTargetSelectionMenu(characterMenu, battle.getEnemies())
@@ -84,19 +91,19 @@ local function createMenu(_battle)
                 reset(targetSelectionMenu)
             end
         elseif currentMenu == targetSelectionMenu then
-            --DO SOMETHING
-            local nextID = getNextAbleCharID(characterMenu.charID)
-            if nextID then
-                currentMenu = characterMenu
-                currentMenu.charID = nextID
-                reset(characterMenu)
+            if targetSelectionMenu.prevMenu == characterMenu then
+                local user = battle.getParty()[characterMenu.charID]
+                local target = targetSelectionMenu.list[targetSelectionMenu.current]
+                local action = createAction('normalAtk', user, target)
+                user.setCurrentAction(action)
+                proceed()
             end
         end
     end
 
     local function back()
         if currentMenu == characterMenu then
-            local prevID = getPrevAbleCharID(characterMenu.charID)
+            local prevID = getAbleCharID(characterMenu.charID, 'prev')
             if prevID then
                 currentMenu.charID = prevID
                 reset(characterMenu)
@@ -225,7 +232,7 @@ local function createMenu(_battle)
         return leftMenu;
     end
 
-    function drawTargetSelectionMenu(refX, refY, refWidth, refHeight, refOptionHeight)
+    local function drawTargetSelectionMenu(refX, refY, refWidth, refHeight, refOptionHeight)
         local borderX = refX + refWidth + 10
         local borderY = refY
         local borderWidth = fullWidth/4 - 10;
@@ -322,6 +329,11 @@ local function createMenu(_battle)
             leftMenu.optionHeight
         )
     end
+    
+    local function nextRound()
+        currentMenu = mainMenu
+        reset(mainMenu)
+    end
 
 
     local function draw()
@@ -340,8 +352,9 @@ local function createMenu(_battle)
         draw = draw,
         moveUp = moveUp,
         moveDown = moveDown,
-        proceed = proceed,
-        back = back
+        confirm = confirm,
+        back = back,
+        nextRound = nextRound
     }
 
 end

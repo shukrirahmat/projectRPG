@@ -15,8 +15,7 @@ local party = {
         atk = 70,
         def = 50,
         agi = 100,
-        critRate = 8,
-        dead = true
+        critRate = 8
     },
     {
         name = 'PRIEST',

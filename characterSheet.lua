@@ -1,6 +1,6 @@
 local party = {
     {
-        name = 'Knight',
+        name = 'KNIGHT',
         hp = 200,
         mp = 0,
         atk = 80,
@@ -9,7 +9,7 @@ local party = {
         critRate = 64
     },
     {
-        name = 'Fighter',
+        name = 'FIGHTER',
         hp = 180,
         mp = 0,
         atk = 70,
@@ -19,7 +19,7 @@ local party = {
         dead = true
     },
     {
-        name = 'Priest',
+        name = 'PRIEST',
         hp = 160,
         mp = 50,
         atk = 60,
@@ -30,7 +30,7 @@ local party = {
     },
 
     {
-        name = 'Mage',
+        name = 'MAGE',
         hp = 120,
         mp = 150,
         atk = 30,
@@ -47,7 +47,7 @@ local skeleton_sprite = love.graphics.newImage('images/skeleton.png')
 local monsters = {
 
     ['goblin'] = {
-        name = 'Goblin',
+        name = 'GOBLIN',
         hp = 30,
         mp = 0,
         atk = 60,
@@ -58,7 +58,7 @@ local monsters = {
     },
 
     ['skeleton'] = {
-        name = 'Skeleton',
+        name = 'SKELETON',
         hp = 50,
         mp = 0,
         atk = 90,

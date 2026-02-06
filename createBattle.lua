@@ -1,5 +1,5 @@
 local function createBattle(_party, _enemies)
-    
+
     local party = _party
     local enemies = _enemies
     local partyDefeated = false
@@ -9,13 +9,18 @@ local function createBattle(_party, _enemies)
         return party
     end
     
+    local function getPartyMember(id)
+        return party[id]
+    end
+    
     local function getEnemies()
         return enemies
     end
 
     return {
         getParty = getParty,
-        getEnemies = getEnemies
+        getPartyMember = getPartyMember,
+        getEnemies = getEnemies,
     }
 end
 

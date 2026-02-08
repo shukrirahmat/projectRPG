@@ -19,7 +19,6 @@ function love.load()
         enemy.new('skeleton', 'SKELETON1'),
         enemy.new('skeleton', 'SKELETON2')
     }
-    
     battle.load(party, enemies)
 end
 

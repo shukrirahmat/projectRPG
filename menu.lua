@@ -2,7 +2,7 @@ local state = require('state')
 
 local menu = {}
 
-local height = 180
+local height = state.bottomHeight
 local itemHeight = (height - 20)/4
 
 local function drawMenuIndicator(x, y, height)
@@ -19,12 +19,14 @@ local function drawMenuIndicator(x, y, height)
 end
 
 local function drawLeftMenu(m)
+    local borderHeight = height
     local borderX = 10
-    local borderY = windowHeight - height - 10
+    local borderY = windowHeight - borderHeight - 10
     local borderWidth = (windowWidth - 10)/4 - 10
     local itemX = borderX + 10
     local itemY = borderY + 10
     local itemWidth = borderWidth - 20
+    local itemHeight = itemHeight
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle(
@@ -32,7 +34,7 @@ local function drawLeftMenu(m)
         borderX,
         borderY,
         borderWidth,
-        height
+        borderHeight
     )
 
     love.graphics.setColor(1, 1, 1)
@@ -85,7 +87,7 @@ local function drawCharacterMenu()
         borderHeight
     )
 
-    
+
     local id = state.characterMenu.charID
     local charName = state.party[id].name
     love.graphics.printf(
@@ -99,11 +101,103 @@ local function drawCharacterMenu()
     return leftMenu;
 end
 
+function drawTargetMenu(refX, refY, refWidth)
+    local borderX = refX + refWidth + 10
+    local borderY = refY
+    local borderWidth = (windowWidth - 10)/4 - 10;
+    local borderHeight = height
+    local targetX = borderX + 10
+    local targetY = borderY + 10
+    local targetWidth = borderWidth - 10 * 2
+    local targetHeight = itemHeight
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle(
+        'line',
+        borderX,
+        borderY,
+        borderWidth,
+        borderHeight
+    )
+
+    local firstPage = {}
+    local secondPage = {}
+    local currentPage
+
+    for i = 1, #state.targetMenu.list, 1 do
+        if i < 5 then
+            table.insert(firstPage, state.targetMenu.list[i])
+        else
+            table.insert(secondPage, state.targetMenu.list[i])
+        end
+    end
+
+    if state.targetMenu.position < 5 then
+        currentPage = firstPage
+    else
+        currentPage = secondPage
+    end
+
+    love.graphics.setFont(font_medium)
+    love.graphics.setColor(1, 1, 1)
+    for i, target in ipairs(currentPage) do
+        love.graphics.printf(
+            target.name,
+            targetX + 20,
+            targetY + (i - 1) * targetHeight,
+            targetWidth - 20,
+            'left', 0, 1, 1, 0, -1 * (targetHeight/4)
+        )
+        local pointer
+        if currentPage == firstPage then
+            pointer = i
+        else
+            pointer = i + 4
+        end
+        if state.targetMenu.position == pointer then
+            drawMenuIndicator(
+                targetX,
+                targetY + (i - 1) * targetHeight,
+                targetHeight
+            )
+        end
+    end
+
+    if #secondPage > 0 then
+        if currentPage == firstPage then
+            love.graphics.polygon(
+                'fill',
+                borderX + borderWidth/2 - 10,
+                borderY + borderHeight - 10,
+                borderX + borderWidth/2 + 10,
+                borderY + borderHeight - 10,
+                borderX + borderWidth/2,
+                borderY + borderHeight - 5
+            )
+        else
+            love.graphics.polygon(
+                'fill',
+                borderX + borderWidth/2 - 10,
+                borderY + 10,
+                borderX + borderWidth/2 + 10,
+                borderY + 10,
+                borderX + borderWidth/2,
+                borderY + 5
+            )
+        end
+    end
+end
+
 function menu.draw()
     if state.currentMenu == state.mainMenu then
         drawLeftMenu(state.mainMenu)
     elseif state.currentMenu == state.characterMenu then
         drawCharacterMenu()
+    elseif state.currentMenu == state.targetMenu then
+        if state.targetMenu.prevMenu == state.characterMenu then
+            local leftMenu = drawCharacterMenu()
+            drawTargetMenu(leftMenu.borderX, leftMenu.borderY, leftMenu.borderWidth)
+        end
     end
 end
 

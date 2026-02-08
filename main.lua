@@ -1,28 +1,30 @@
 require('globals')
+local battle = require('battle')
+local partyMember = require('partyMember')
+local enemy = require('enemy')
 
 function love.load()
     
-    local partyData = require('partyData')
-    local enemyData = require('enemyData')
-    local party = {
-        createCharacter(partyData[1]),
-        createCharacter(partyData[2]),
-        createCharacter(partyData[3]),
-        createCharacter(partyData[4])
+    party = { 
+        partyMember.new(1), 
+        partyMember.new(2), 
+        partyMember.new(3), 
+        partyMember.new(4)
     }
-    local enemies = {
-        createCharacter(enemyData['goblin'], 'GOBLIN1'),
-        createCharacter(enemyData['goblin'], 'GOBLIN2'),
-        createCharacter(enemyData['goblin'], 'GOBLIN3'),
-        createCharacter(enemyData['skeleton'], 'SKELETON1'),
-        createCharacter(enemyData['skeleton'], 'SKELETON2')
+    
+    enemies = { 
+        enemy.new('goblin', 'GOBLIN1'),
+        enemy.new('goblin', 'GOBLIN2'),
+        enemy.new('goblin', 'GOBLIN3'),
+        enemy.new('skeleton', 'SKELETON1'),
+        enemy.new('skeleton', 'SKELETON2')
     }
-    battle = createBattle(party, enemies)
-    controller = createController(battle)
+    
+    battle.load(party, enemies)
 end
 
 function love.update(dt)
-    
+    battle.update(dt)
 end
 
 function love.draw()
@@ -30,5 +32,5 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    controller.execute(key)
+    battle.keypressed(key)
 end

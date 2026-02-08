@@ -1,6 +1,8 @@
 windowWidth = 800
 windowHeight = 600
+
 love.graphics.setBackgroundColor(0,0,0)
+
 font_small = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 14)
 font_medium = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 16)
 font_large = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 18)
@@ -10,9 +12,5 @@ font_large:setFilter("nearest", "nearest")
 monsterSpriteDimension = 128
 skillSpriteDimension = 64
 
-createCharacter = require('createCharacter')
-createBattle = require('createBattle')
-createHud = require('createHud')
-createEnemySprites = require('createEnemySprites')
-createMenu = require('createMenu')
-createController = require('createController')
+goblin_sprite = love.graphics.newImage('images/goblin.png')
+skeleton_sprite = love.graphics.newImage('images/skeleton.png')

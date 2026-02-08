@@ -1,7 +1,6 @@
-local partyData = { 
+local dataSheet = {
     {
         name = 'KNIGHT',
-        partyMember = true,
         hp = 200,
         mp = 0,
         atk = 80,
@@ -11,7 +10,6 @@ local partyData = {
     },
     {
         name = 'FIGHTER',
-        partyMember = true,
         hp = 180,
         mp = 0,
         atk = 70,
@@ -21,18 +19,15 @@ local partyData = {
     },
     {
         name = 'PRIEST',
-        partyMember = true,
         hp = 160,
         mp = 50,
         atk = 60,
         def = 50,
         agi = 80,
         critRate = 64,
-        dead = true
-    },
+    }, 
     {
         name = 'MAGE',
-        partyMember = true,
         hp = 120,
         mp = 150,
         atk = 30,
@@ -42,4 +37,27 @@ local partyData = {
     }
 }
 
-return partyData;
+local P = {}
+partyMember = P
+
+function P.new(index)
+    local data = dataSheet[index]
+    local p = {}
+
+    p.isPartyMember = true
+    p.isDead = false
+
+    p.name = data.name
+    p.maxHp = data.hp
+    p.currentHp = data.hp
+    p.maxMp = data.mp
+    p.currentMp = data.mp
+    p.atk = data.atk
+    p.def = data.def
+    p.agi = data.agi
+    p.critRate = data.critRate or 128
+
+    return p
+end
+
+return P

@@ -1,7 +1,6 @@
 local state = require('state')
-local action = require('action')
 
-U = {}
+local U = {}
 
 utils = U
 
@@ -70,11 +69,19 @@ end
 
 ------------HANDLING BATTLES----------------
 
+function U.battleLogAdd(text)
+    if #state.battleLog >= 8 then
+        table.remove(state.battleLog, 1)
+    end
+
+    table.insert(state.battleLog, text)
+end
+
 function U.selectTargetRandomly(group)
     local availableTargets = {}
 
     for index, target in ipairs(group) do
-        if not target.dead then
+        if not target.isDead then
             table.insert(availableTargets, target)
         end
     end
@@ -98,40 +105,78 @@ function U.selectTargetRandomly(group)
     return selectedTarget
 end
 
-local function setPartyAction()
-    for index, member in ipairs(state.party) do
-        if not member.dead and member.currentAction then
-            local action = member.currentAction
-            table.insert(state.actionList, action)
-            member.currentAction = nil
+function U.chooseNextActionIndex()
+    local actionIndex
+    local highestSpeed = 0
+    for index, action in ipairs(state.actionList) do
+        local agi = action.user.agi
+        local speed = agi + math.floor(math.random(-agi*0.5, agi*0.5))
+        if speed > highestSpeed then
+            highestSpeed = speed
+            actionIndex = index
+        end
+    end
+    return actionIndex
+end
+
+function U.reselectTargetWhenDead(selectedTarget)
+    local target
+    if selectedTarget.isPartyMember then
+        target = U.selectTargetRandomly(state.party)
+    else
+        target = U.selectTargetRandomly(state.enemies)
+    end
+    return target
+end
+
+local function checkIfAllDead(group)
+    local totalDead = 0
+    for index, member in ipairs(group) do
+        if member.isDead then
+            totalDead = totalDead + 1
+        end
+    end
+    return totalDead == #group;
+end
+
+local function removeAction(user)
+    for index, action in ipairs(state.actionList) do
+        if action.user == user then
+            table.remove(state.actionList, index)
         end
     end
 end
 
-local function setEnemyAction()
-    --For now just attack
-    for index, enemy in ipairs(state.enemies) do
-        if not enemy.dead then
-            local target = U.selectTargetRandomly(party)
-            local action = action.new('normalatk', enemy, target)
-            table.insert(state.actionList, action)
-        end
+function U.handleDeath(target)
+    target.currentHp = 0
+    target.isDead = true
+    U.battleLogAdd(''..target.name..' defeated.')
+    removeAction(target)
+
+    --[[
+    if actionList[1] and actionList[1].actionType == 'SECONDATK' then
+        table.remove(actionList, 1)
+    end]]
+
+    if target.isPartyMember and checkIfAllDead(party) then
+        partyDied = true
+    elseif not target.isPartyMember and checkIfAllDead(enemies) then
+        allEnemyDead = true
     end
 end
 
-function U.runBattle()
-    setPartyAction()
-    setEnemyAction()
-    state.battleRunning = true
-    state.textTimer = 0.5
-    
-    ---TEMPORARY---
-    for i, action in ipairs(state.actionList) do
-        print(action.user.name)
-        print('attacks')
-        print(action.target.name)
-        print('....')
-    end
+---------------CALCULATOR----------------
+
+function U.calculateAttackDamage(attacker, target)
+    local damage = math.floor(attacker.atk/2) - math.floor(target.def/3)
+    damage = damage + math.floor(math.random(-damage*.2, damage*.2))
+    return math.max(damage, 1)
+end
+
+function U.calculateCritDamage(attacker, target)
+    local damage = math.floor(attacker.atk/2 * 3) - math.floor(target.def/6)
+    damage = damage + math.floor(math.random(-damage*.2, damage*.2))
+    return math.max(damage, 1)
 end
 
 return U

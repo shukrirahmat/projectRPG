@@ -188,6 +188,37 @@ function drawTargetMenu(refX, refY, refWidth)
     end
 end
 
+function menu.drawBattleLog()
+    local borderX = 10
+    local borderHeight = height
+    local borderY = windowHeight - borderHeight - 10
+    local borderWidth = windowWidth - borderX * 2
+
+    local textX = borderX + 10
+    local textY = borderY + 10
+    local textLineHeight = 20
+    local textWidth = borderWidth - textX * 2 
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle(
+        'line',
+        borderX,
+        borderY,
+        borderWidth,
+        borderHeight
+    )
+
+    love.graphics.setFont(font_medium)
+    for index, text in ipairs(state.battleLog) do
+        love.graphics.printf(
+            text,
+            textX,
+            textY + (index - 1)*textLineHeight,
+            textWidth
+        )
+    end
+end
+
 function menu.draw()
     if state.currentMenu == state.mainMenu then
         drawLeftMenu(state.mainMenu)

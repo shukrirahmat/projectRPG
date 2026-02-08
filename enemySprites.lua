@@ -25,7 +25,9 @@ end
 
 function E.draw()
     for i, enemy in ipairs(state.enemies) do
-        drawEnemySprite(enemy, i, 0, 0)
+        if not enemy.isDead then
+            drawEnemySprite(enemy, i, 0, 0)
+        end
     end
 end
 

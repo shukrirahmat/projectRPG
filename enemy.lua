@@ -1,24 +1,20 @@
 local dataSheet = {
     ['goblin'] = {
-        maxHp = 30,
-        currentHp = 30,
-        currentMp = 0,
-        maxMp = 0,
-        attack = 60,
-        defense = 40,
-        agility = 60,
+        hp = 30,
+        mp = 0,
+        atk = 60,
+        def = 40,
+        agi = 60,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4
     },
 
     ['skeleton'] = {
-        maxHp = 50,
-        currentHp = 50,
-        currentMp = 0,
-        maxMp = 0,
-        attack = 90,
-        defense = 50,
-        agility = 40,
+        hp = 50,
+        mp = 0,
+        atk = 90,
+        def = 50,
+        agi = 40,
         sprite = skeleton_sprite,
         spriteHeight = 0,
     }

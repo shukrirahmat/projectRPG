@@ -3,6 +3,8 @@ local hud = require('hud')
 local enemySprites = require('enemySprites')
 local menu = require('menu')
 local input = require('input')
+local utils = require('utils')
+local loop = require('loop')
 
 local battle = {}
 
@@ -13,6 +15,13 @@ end
 
 function battle.update(dt)
 
+    if state.battleRunning or state.battleEnded then
+        state.textTimer = state.textTimer + dt
+        if state.textTimer > state.textSpeed then
+            loop.run()
+            state.textTimer = 0
+        end
+    end
 end
 
 function battle.draw()
@@ -20,6 +29,26 @@ function battle.draw()
     enemySprites.draw()
     if not state.battleRunning then
         menu.draw()
+    elseif state.battleRunning and #state.battleLog > 0 then
+        menu.drawBattleLog()
+    end
+
+    --TEMPORARY
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.setFont(font_small)
+    for index, enemy in ipairs(state.enemies) do
+        local text
+        if enemy.isDead then
+            text = 'DEAD'
+        else
+            text = ''..enemy.name..' '..enemy.currentHp..''
+        end
+        love.graphics.print(
+            text,
+            windowWidth - 200,
+            5 + (index - 1) * 20
+        )
+
     end
 end
 

@@ -13,6 +13,10 @@ state.effectList = {}
 state.killList = {}
 state.textTimer = 0
 state.textSpeed = 1
+state.battleLog = {}
 state.bottomHeight = 180
+state.partyDied = false
+state.allEnemyDead = false
+state.battleEnded = false
 
 return state;

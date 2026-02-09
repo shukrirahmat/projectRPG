@@ -58,7 +58,7 @@ function hud.draw()
         )
         love.graphics.setFont(font_large)
         local memberHpX = hpX + (index - 1) * (borderWidth + borderX)
-        local memberMpX = memberHpX
+        local memberMpX = mpX + (index - 1) * (borderWidth + borderX)
         love.graphics.setFont(font_large)
         love.graphics.printf('HP '..alignNumber(member.currentHp)..'', memberHpX, hpY + shiftY, hpWidth,        'center')
         love.graphics.printf('MP '..alignNumber(member.currentMp)..'', memberMpX, mpY + shiftY, mpWidth,        'center')

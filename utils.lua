@@ -2,13 +2,11 @@ local state = require('state')
 
 local U = {}
 
-utils = U
-
 -----MENU RELATED HELPERS-----
 
 function U.updateTargetMenu(prevMenu, group)
     local targetList = {}
-    for index, target in ipairs(group) do
+    for _, target in ipairs(group) do
         if not target.isDead then
             table.insert(targetList, target)
         end
@@ -80,7 +78,7 @@ end
 function U.selectTargetRandomly(group)
     local availableTargets = {}
 
-    for index, target in ipairs(group) do
+    for _, target in ipairs(group) do
         if not target.isDead then
             table.insert(availableTargets, target)
         end
@@ -131,7 +129,7 @@ end
 
 local function checkIfAllDead(group)
     local totalDead = 0
-    for index, member in ipairs(group) do
+    for _, member in ipairs(group) do
         if member.isDead then
             totalDead = totalDead + 1
         end
@@ -158,11 +156,37 @@ function U.handleDeath(target)
         table.remove(actionList, 1)
     end]]
 
-    if target.isPartyMember and checkIfAllDead(party) then
-        partyDied = true
-    elseif not target.isPartyMember and checkIfAllDead(enemies) then
-        allEnemyDead = true
+    if target.isPartyMember and checkIfAllDead(state.party) then
+        state.partyDied = true
+    elseif not target.isPartyMember and checkIfAllDead(state.enemies) then
+        state.allEnemyDead = true
     end
+end
+
+local function setPartyAction()
+    for _, member in ipairs(state.party) do
+        if not member.isDead and member.currentAction then
+            local action = member.currentAction
+            table.insert(state.actionList, action)
+            member.currentAction = nil
+        end
+    end
+end
+
+local function setEnemyAction()
+    for _, enemy in ipairs(state.enemies) do
+        if not enemy.isDead then
+            local action = enemy.chooseAction(enemy)
+            table.insert(state.actionList, action)
+        end
+    end
+end
+
+function U.runBattle()
+    setPartyAction()
+    setEnemyAction()
+    state.battleRunning = true
+    state.textTimer = 0.5
 end
 
 ---------------CALCULATOR----------------

@@ -1,20 +1,24 @@
+utils = require('utils')
+action = require('action')
+state = require('state')
+
 local dataSheet = {
     ['goblin'] = {
-        hp = 30,
+        hp = 60,
         mp = 0,
-        atk = 60,
-        def = 40,
-        agi = 60,
+        atk = 80,
+        def = 60,
+        agi = 80,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4
     },
 
     ['skeleton'] = {
-        hp = 50,
+        hp = 100,
         mp = 0,
-        atk = 90,
-        def = 50,
-        agi = 40,
+        atk = 100,
+        def = 70,
+        agi = 60,
         sprite = skeleton_sprite,
         spriteHeight = 0,
     }
@@ -40,6 +44,12 @@ function enemy.new(species, name)
     e.critRate = data.critRate or 128
     e.sprite = data.sprite
     e.spriteHeight = data.spriteHeight
+    
+    function e.chooseAction(self)
+        local target = utils.selectTargetRandomly(state.party)
+        local action = action.new('normalAtk', self, target)
+        return action
+    end
     
     return e
 end

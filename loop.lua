@@ -7,9 +7,9 @@ function loop.run()
 
     if state.battleEnded then
         state.battleLog = {}
-        if partyDied then
+        if state.partyDied then
             utils.battleLogAdd('Party has been defeated')
-        elseif allEnemyDead then
+        elseif state.allEnemyDead then
             utils.battleLogAdd('All enemy has been defeated')
         end
         state.textTimer = 0
@@ -18,7 +18,7 @@ function loop.run()
         table.remove(state.killList, 1)
         utils.handleDeath(toKill)
 
-        if partyDied or allEnemyDead then
+        if state.partyDied or state.allEnemyDead then
             state.battleEnded = true
         end
 

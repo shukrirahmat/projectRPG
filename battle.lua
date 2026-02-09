@@ -3,7 +3,6 @@ local hud = require('hud')
 local enemySprites = require('enemySprites')
 local menu = require('menu')
 local input = require('input')
-local utils = require('utils')
 local loop = require('loop')
 
 local battle = {}

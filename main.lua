@@ -5,14 +5,14 @@ local enemy = require('enemy')
 
 function love.load()
     
-    party = { 
+    local party = { 
         partyMember.new(1), 
         partyMember.new(2), 
         partyMember.new(3), 
         partyMember.new(4)
     }
     
-    enemies = { 
+    local enemies = { 
         enemy.new('goblin', 'GOBLIN1'),
         enemy.new('goblin', 'GOBLIN2'),
         enemy.new('goblin', 'GOBLIN3'),

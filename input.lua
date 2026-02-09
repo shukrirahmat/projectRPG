@@ -4,34 +4,6 @@ local action = require('action')
 
 local input = {}
 
-local function setPartyAction()
-    for index, member in ipairs(state.party) do
-        if not member.isDead and member.currentAction then
-            local action = member.currentAction
-            table.insert(state.actionList, action)
-            member.currentAction = nil
-        end
-    end
-end
-
-local function setEnemyAction()
-    --For now just attack
-    for index, enemy in ipairs(state.enemies) do
-        if not enemy.isDead then
-            local target = utils.selectTargetRandomly(party)
-            local action = action.new('normalAtk', enemy, target)
-            table.insert(state.actionList, action)
-        end
-    end
-end
-
-local function runBattle()
-    setPartyAction()
-    setEnemyAction()
-    state.battleRunning = true
-    state.textTimer = 0.5
-end
-
 function input.executeUp()
     utils.menuUp(state.currentMenu)
 end
@@ -67,7 +39,7 @@ function input.executeConfirm()
             state.characterMenu.charID = nextID
             utils.menuReset(state.characterMenu)
         else
-            runBattle()
+            utils.runBattle()
         end
             
     end

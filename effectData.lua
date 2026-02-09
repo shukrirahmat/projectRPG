@@ -4,7 +4,7 @@ local utils = require('utils')
 local effectData = {}
 
 
-local function dealDamage(user, target, value)
+local function dealDamage(_, target, value)
     target.currentHp = target.currentHp - value;
     utils.battleLogAdd(''..target.name..' takes '..value..' damage.');
     if target.currentHp <= 0 then

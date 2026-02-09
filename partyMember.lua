@@ -1,16 +1,16 @@
 local dataSheet = {
     {
         name = 'KNIGHT',
-        hp = 200,
+        hp = 180,
         mp = 0,
         atk = 80,
-        def = 80,
+        def = 70,
         agi = 60,
         critRate = 64
     },
     {
         name = 'FIGHTER',
-        hp = 180,
+        hp = 160,
         mp = 0,
         atk = 70,
         def = 50,
@@ -19,7 +19,7 @@ local dataSheet = {
     },
     {
         name = 'PRIEST',
-        hp = 160,
+        hp = 140,
         mp = 50,
         atk = 60,
         def = 50,
@@ -28,7 +28,7 @@ local dataSheet = {
     }, 
     {
         name = 'MAGE',
-        hp = 120,
+        hp = 100,
         mp = 150,
         atk = 30,
         def = 40,
@@ -38,7 +38,6 @@ local dataSheet = {
 }
 
 local P = {}
-partyMember = P
 
 function P.new(index)
     local data = dataSheet[index]

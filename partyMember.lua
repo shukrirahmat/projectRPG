@@ -14,7 +14,7 @@ local dataSheet = {
         mp = 0,
         atk = 70,
         def = 50,
-        agi = 100,
+        agi = 120,
         critRate = 4
     },
     {

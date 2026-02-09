@@ -150,11 +150,10 @@ function U.handleDeath(target)
     target.isDead = true
     U.battleLogAdd(''..target.name..' defeated.')
     removeAction(target)
-
-    --[[
-    if actionList[1] and actionList[1].actionType == 'SECONDATK' then
-        table.remove(actionList, 1)
-    end]]
+    
+    if state.priorityList[1] and state.priorityList[1].ref == 'secondAtk' then
+        table.remove(state.priorityList, 1)
+    end
 
     if target.isPartyMember and checkIfAllDead(state.party) then
         state.partyDied = true

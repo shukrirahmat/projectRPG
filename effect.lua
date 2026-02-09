@@ -11,8 +11,7 @@ function effect.new(ref, user, target, value)
     e.value = target
 
     function e.apply()
-        local effect = effectData[ref]
-        effect.apply(user, target, value)
+        effectData[ref].apply(user, target, value)
     end
     
     return e

@@ -30,18 +30,21 @@ local function normalAttack(user, target, isSecondAttack)
     end
 
     utils.battleLogAdd(text)
+    result = effect.new('damage', user, target, damage)
+    table.insert(state.effectList, result)
 
-    --[[if not isSecondAttack then
-        local secondAttackChance = math.floor((user.agility - target.agility)/2)
+    if not isSecondAttack then
+        local secondAttackChance = math.floor((user.agi - target.agi)/2)
         local secondAttack = math.random(1, 100) < secondAttackChance
 
         if secondAttack then
-            addAction({actionType = 'SECONDATK', user = user, target = target})
+            return 'secondAtk'
         end
-    end]]
+    end
+end
 
-    result = effect.new('damage', user, target, damage)
-    table.insert(state.effectList, result)
+function secondAttack(user, target)
+    normalAttack(user, target, true)
 end
 
 function defend(user, _)
@@ -50,7 +53,7 @@ function defend(user, _)
 end
 
 actionData['normalAtk'] = { execute = normalAttack, cost = 0 }
+actionData['secondAtk'] = { execute = secondAttack, cost = 0, priority = true}
 actionData['defend'] = { execute = defend, cost = 0, priority = true}
-
 
 return actionData;

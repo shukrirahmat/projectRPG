@@ -18,6 +18,9 @@ local function dealDamage(_, target, value)
 end
 
 
-effectData['damage'] = { apply = dealDamage }
+effectData['damage'] = { 
+    apply = dealDamage , 
+    partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05}
+}
 
 return effectData

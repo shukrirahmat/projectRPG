@@ -6,11 +6,13 @@ love.graphics.setBackgroundColor(0,0,0)
 font_small = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 14)
 font_medium = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 16)
 font_large = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 18)
+font_bold = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-ExtraBold.ttf', 18)
 font_small:setFilter("nearest", "nearest")
 font_medium:setFilter("nearest", "nearest")
 font_large:setFilter("nearest", "nearest")
 monsterSpriteDimension = 128
 skillSpriteDimension = 64
 
+background_image = love.graphics.newImage('images/background_mod.png')
 goblin_sprite = love.graphics.newImage('images/goblin.png')
 skeleton_sprite = love.graphics.newImage('images/skeleton.png')

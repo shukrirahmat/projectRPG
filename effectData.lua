@@ -20,7 +20,8 @@ end
 
 effectData['damage'] = { 
     apply = dealDamage , 
-    partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05}
+    partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
+    enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08}
 }
 
 return effectData

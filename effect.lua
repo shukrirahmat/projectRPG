@@ -18,6 +18,10 @@ function effect.new(ref, user, target, value)
             local data = effectData[e.ref].partyAnimation
             local animation = animation.new(e.target, data.ref, data.maxTick, data.speed, e.value)
             state.animation = animation
+        elseif not e.target.isPartyMember and effectData[e.ref].enemyAnimation then
+            local data = effectData[e.ref].enemyAnimation
+            local animation = animation.new(e.target, data.ref, data.maxTick, data.speed, e.value)
+            state.animation = animation
         end
     end
     

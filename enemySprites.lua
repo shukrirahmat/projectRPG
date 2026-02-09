@@ -43,9 +43,39 @@ local function drawAttackAnimation(enemy, index)
     end
 end
 
+local function drawDamagedAnimation(enemy, index)
+    if state.animation.tick % 2 == 0 and state.animation.tick <= 4 then
+        drawEnemySprite(enemy, index, 0, 0)
+    elseif state.animation.tick > 4 then
+        drawEnemySprite(enemy, index, 0, 0)
+    else
+        drawEnemySprite(enemy, index, 0, 0, 0.1)
+    end
+
+    if state.animation.tick > 1 then
+        local spritePos = getSpritePos(enemy, index, 0, 0)
+        love.graphics.setColor(1,1,1)
+        love.graphics.setFont(font_bold)
+        love.graphics.printf(
+            ''..state.animation.value..'',
+            spritePos.x,
+            spritePos.y + spritePos.height - 20 - state.animation.tick * 2,
+            monsterSpriteDimension,
+            'center'
+        )
+    end
+end
+
+local function drawDeathAnimation(enemy, index)
+        local tint = math.max(0, 1 - state.animation.tick/8)
+        drawEnemySprite(enemy, index, 0, 0, tint)
+end
+
 local function drawEnemyAnimation(enemy, index)
     if state.animation.ref == 'enemyAtk' then
         drawAttackAnimation(enemy, index)
+    elseif state.animation.ref == 'enemyDamaged' then
+        drawDamagedAnimation(enemy, index)
     end
 end
 
@@ -57,6 +87,9 @@ function E.draw()
             else
                 drawEnemySprite(enemy, i, 0, 0)
             end
+        elseif enemy.isDead 
+        and state.animation and state.animation.user == enemy then
+            drawDeathAnimation(enemy,i)
         end
     end
 end

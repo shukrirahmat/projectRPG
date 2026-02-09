@@ -77,8 +77,16 @@ local function drawCharacterMenu()
     local nameY = borderY + 5
     local nameWidth = borderWidth - 10
 
-    love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(font_small)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.rectangle(
+        'fill',
+        borderX,
+        borderY,
+        borderWidth,
+        borderHeight
+    )
+    love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle(
         'line',
         borderX,

@@ -33,6 +33,7 @@ function battle.update(dt)
 end
 
 function battle.draw()
+    love.graphics.draw(background_image, 0, 115)
     hud.draw()
     enemySprites.draw()
     if not state.battleRunning then

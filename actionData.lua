@@ -52,8 +52,21 @@ function defend(user, _)
     utils.battleLogAdd(''..user.name..' defends!')
 end
 
-actionData['normalAtk'] = { execute = normalAttack, cost = 0 }
-actionData['secondAtk'] = { execute = secondAttack, cost = 0, priority = true}
-actionData['defend'] = { execute = defend, cost = 0, priority = true}
+actionData['normalAtk'] = { 
+    execute = normalAttack, 
+    cost = 0,
+    enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
+}
+actionData['secondAtk'] = {
+    execute = secondAttack, 
+    cost = 0, 
+    priority = true,
+    enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
+}
+actionData['defend'] = { 
+    execute = defend, 
+    cost = 0, 
+    priority = true
+}
 
 return actionData;

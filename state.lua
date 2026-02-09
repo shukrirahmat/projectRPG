@@ -18,5 +18,6 @@ state.bottomHeight = 180
 state.partyDied = false
 state.allEnemyDead = false
 state.battleEnded = false
+state.animation = nil
 
 return state;

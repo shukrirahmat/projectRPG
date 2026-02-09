@@ -1,4 +1,5 @@
 local actionData = require('actionData')
+local animation = require('animation')
 local utils = require('utils')
 
 local action = {}
@@ -11,6 +12,12 @@ function action.new(ref, user, target)
 
     function a.execute()
         local followUp = actionData[a.ref].execute(a.user, a.target)
+        
+        if not a.user.isPartyMember and actionData[a.ref].enemyAnimation then
+            local data = actionData[a.ref].enemyAnimation
+            local animation = animation.new(a.user, data.ref, data.maxTick, data.speed)
+            state.animation = animation
+        end
         
         if followUp then
             local newAction = action.new(followUp, a.user, a.target)

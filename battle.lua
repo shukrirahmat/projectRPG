@@ -16,11 +16,20 @@ function battle.update(dt)
 
     if state.battleRunning or state.battleEnded then
         state.textTimer = state.textTimer + dt
-        if state.textTimer > state.textSpeed then
+        if state.animation then
+            state.animation.timer = state.animation.timer + dt
+            if state.animation.tick >= state.animation.maxTick then
+                state.animation = nil
+            elseif state.animation.timer > state.animation.speed then
+                state.animation.tick = state.animation.tick + 1
+                state.animation.timer = 0;
+            end
+        elseif state.textTimer > state.textSpeed then
             loop.run()
             state.textTimer = 0
         end
     end
+    
 end
 
 function battle.draw()
@@ -42,6 +51,13 @@ function battle.draw()
         else
             text = ''..enemy.name..' '..enemy.currentHp..''
         end
+        
+        if state.animation and state.animation.user == enemy then
+            text = 'ANI '..text..''
+        else
+            text = '--- '..text..''
+        end
+        
         love.graphics.print(
             text,
             windowWidth - 200,

@@ -2,16 +2,20 @@ local actionData = require('actionData')
 
 local action = {}
 
-function action.new(ref, user, target, priority)
+function action.new(ref, user, target)
     local a = {}
     a.ref = ref
     a.user = user
     a.target = target or nil
-    a.priority = priority or false
 
     function a.execute()
         local action = actionData[a.ref]
         action.execute(a.user, a.target)
+    end
+    
+    function a.checkPriority()
+        local action = actionData[a.ref]
+        return action.priority
     end
 
     return a

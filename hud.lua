@@ -4,9 +4,9 @@ local hud = {}
 
 local function alignNumber(value)
         local result
-        if value/100 > 1 then
+        if value/100 >= 1 then
             result = ''..value..''
-        elseif value/10 > 1 then
+        elseif value/10 >= 1 then
             result = ' '..value..''
         else
             result = '  '..value..''

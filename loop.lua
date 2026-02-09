@@ -26,6 +26,17 @@ function loop.run()
         local effect = state.effectList[1]
         table.remove(state.effectList, 1)
         effect.apply()
+        
+    elseif #state.priorityList > 0 then
+        state.battleLog = {};
+        local action = state.priorityList[1]
+        table.remove(state.priorityList, 1)
+        
+        if action.target and action.target.isDead then
+            action.target = utils.reselectTargetWhenDead(action.target)
+        end
+        
+        action.execute()
 
     elseif #state.actionList > 0 then
         state.battleLog = {};
@@ -39,6 +50,7 @@ function loop.run()
 
         action.execute()
     else
+        utils.clearTemporaryStatus()
         state.battleRunning = false
         state.textTimer = 0
         state.battleLog = {}

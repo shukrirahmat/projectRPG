@@ -12,17 +12,11 @@ local function normalAttack(user, target, isSecondAttack)
     local text
 
     crit = math.random(1, user.critRate) == 1
-    
-    --CHECK CRIT
+
     if crit then
         damage = utils.calculateCritDamage(user, target)
     else
         damage = utils.calculateAttackDamage(user, target)
-    end
-    
-    --CHECK DEFENDING
-    if target.defending and not crit then
-        damage = math.floor(damage/2)
     end
 
     if isSecondAttack then
@@ -34,7 +28,7 @@ local function normalAttack(user, target, isSecondAttack)
     if crit then
         text = ''..text..' Critical hit!';
     end
-    
+
     utils.battleLogAdd(text)
 
     --[[if not isSecondAttack then
@@ -50,6 +44,13 @@ local function normalAttack(user, target, isSecondAttack)
     table.insert(state.effectList, result)
 end
 
+function defend(user, _)
+    user.isDefending = true
+    utils.battleLogAdd(''..user.name..' defends!')
+end
+
 actionData['normalAtk'] = { execute = normalAttack, cost = 0 }
+actionData['defend'] = { execute = defend, cost = 0, priority = true}
+
 
 return actionData;

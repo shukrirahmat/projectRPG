@@ -4,6 +4,18 @@ local action = require('action')
 
 local input = {}
 
+local function nextCharacter(currentID)
+    local nextID = utils.getAbleCharID(currentID, 'next')
+    if nextID then
+        state.currentMenu = state.characterMenu
+        state.characterMenu.charID = nextID
+        utils.menuReset(state.characterMenu)
+    else
+        utils.runBattle()
+    end
+end
+
+
 function input.executeUp()
     utils.menuUp(state.currentMenu)
 end
@@ -14,15 +26,17 @@ end
 
 function input.executeConfirm()
     if state.currentMenu == state.mainMenu then
-        local nextID = utils.getAbleCharID(0, 'next')
-        state.currentMenu = state.characterMenu
-        state.characterMenu.charID = nextID
-        utils.menuReset(state.characterMenu)
+        nextCharacter(0)
     elseif state.currentMenu == state.characterMenu then
         if state.characterMenu.position == 1 then
             utils.updateTargetMenu(state.characterMenu, state.enemies)
             state.currentMenu = state.targetMenu
             utils.menuReset(state.targetMenu)
+        elseif state.characterMenu.position == 3 then
+            local user = state.party[state.characterMenu.charID]
+            user.currentAction = action.new('defend', user)
+            local currentID = state.characterMenu.charID
+            nextCharacter(currentID)
         end
     elseif state.currentMenu == state.targetMenu then
         if state.targetMenu.prevMenu == state.characterMenu then
@@ -31,17 +45,8 @@ function input.executeConfirm()
             local action = action.new('normalAtk', user, target)
             user.currentAction = action
         end
-        
         local currentID = state.characterMenu.charID
-        local nextID = utils.getAbleCharID(currentID, 'next')
-        if nextID then
-            state.currentMenu = state.characterMenu
-            state.characterMenu.charID = nextID
-            utils.menuReset(state.characterMenu)
-        else
-            utils.runBattle()
-        end
-            
+        nextCharacter(currentID)
     end
 end
 

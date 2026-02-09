@@ -163,11 +163,29 @@ function U.handleDeath(target)
     end
 end
 
+function U.clearTemporaryStatus()
+    for _, group in ipairs({state.party, state.enemies}) do
+        for _, character in ipairs(group) do
+            if character.isDefending then
+                character.isDefending = false
+            end
+        end
+    end
+end
+
+function U.sentActionIntoQueue(action)
+    if action.checkPriority() then
+        table.insert(state.priorityList, action)
+    else
+        table.insert(state.actionList, action)
+    end
+end
+
 local function setPartyAction()
     for _, member in ipairs(state.party) do
         if not member.isDead and member.currentAction then
             local action = member.currentAction
-            table.insert(state.actionList, action)
+            U.sentActionIntoQueue(action)
             member.currentAction = nil
         end
     end
@@ -177,7 +195,7 @@ local function setEnemyAction()
     for _, enemy in ipairs(state.enemies) do
         if not enemy.isDead then
             local action = enemy.chooseAction(enemy)
-            table.insert(state.actionList, action)
+            U.sentActionIntoQueue(action)
         end
     end
 end

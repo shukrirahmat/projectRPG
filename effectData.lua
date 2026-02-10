@@ -17,11 +17,24 @@ local function dealDamage(_, target, value)
     end
 end
 
+local function noEffect(_, target, value)
+    utils.battleLogAdd('It had no effect on '..target.name..'');
+end
+
 
 effectData['damage'] = { 
     apply = dealDamage , 
     partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
     enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08}
+}
+effectData['resisted'] = { 
+    apply = dealDamage , 
+    partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
+    enemyAnimation = {ref='enemyResisted', maxTick=10, speed=0.08}
+}
+effectData['immune'] = { 
+    apply = noEffect , 
+    enemyAnimation = {ref='enemyImmune', maxTick=10, speed=0.08}
 }
 
 return effectData

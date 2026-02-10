@@ -4,7 +4,7 @@ local effect = require('effect')
 
 local actionData = {}
 
-local function normalAttack(user, target, isSecondAttack)
+local function normalAttack(self, user, target, isSecondAttack)
 
     local result
     local damage
@@ -43,14 +43,39 @@ local function normalAttack(user, target, isSecondAttack)
     end
 end
 
-function secondAttack(user, target)
-    normalAttack(user, target, true)
+local function secondAttack(self, user, target)
+    normalAttack(self, user, target, true)
 end
 
-function defend(user, _)
+local function defend(self, user, _)
     user.isDefending = true
     utils.battleLogAdd(''..user.name..' defends!')
 end
+
+local function damageMagicSingle(self, user, target)
+    local var = self.variance or 0.2
+    local mod = math.floor(self.baseDamage * var)
+    local damage = self.baseDamage + math.random(-mod, mod)
+    local text = ''..user.name..' casts '..self.name..'';
+    local resistance = utils.checkResistance(self.element, target)
+    local ref
+    
+    if resistance == 2 then 
+        ref = 'immune'
+    elseif resistance == 1 then
+        ref = 'resisted'
+        damage = math.floor(damage/2)
+    else
+        ref = 'damage'
+    end
+    
+    print(resistance)
+
+    utils.battleLogAdd(text)
+    local effect = effect.new(ref, user, target, damage)
+    table.insert(state.effectList, effect)
+end
+
 
 actionData['normalAtk'] = { 
     execute = normalAttack, 
@@ -67,6 +92,54 @@ actionData['defend'] = {
     execute = defend, 
     cost = 0, 
     priority = true
+}
+
+actionData['fire'] = {
+    name = 'Fire', 
+    skill = true,
+    cost = 2, 
+    desc = 'Deal 8-12 fire damage to one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = damageMagicSingle,
+    element = 'FIRE',
+    baseDamage = 10
+}
+
+actionData['midFire'] = {
+    name = 'MidFire', 
+    skill = true,
+    cost = 4, 
+    desc = 'Deal 32-48 fire damage to one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = damageMagicSingle,
+    element = 'FIRE',
+    baseDamage = 40
+}
+
+actionData['ice'] = {
+    name = 'Ice', 
+    skill = true,
+    cost = 3, 
+    desc = 'Deal 12-18 ice damage to one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = damageMagicSingle,
+    element = 'ICE',
+    baseDamage = 15
+}
+
+actionData['midIce'] = {
+    name = 'MidIce', 
+    skill = true,
+    cost = 5, 
+    desc = 'Deal 40-60 ice damage to one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = damageMagicSingle,
+    element = 'ICE',
+    baseDamage = 50
 }
 
 return actionData;

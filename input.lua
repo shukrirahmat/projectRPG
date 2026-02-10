@@ -1,6 +1,7 @@
 local state = require('state')
 local utils = require('utils')
 local action = require('action')
+local actionData = require('actionData')
 
 local input = {}
 
@@ -15,13 +16,48 @@ local function nextCharacter(currentID)
     end
 end
 
+function input.executeLeft()
+    if state.currentMenu == state.skillMenu then
+        if state.skillMenu.position % 2 == 0
+        and state.skillMenu.position - 1 >= 1 then
+            utils.menuUp(state.skillMenu)
+        end
+    end
+end
 
-function input.executeUp()
-    utils.menuUp(state.currentMenu)
+function input.executeRight()
+    if state.currentMenu == state.skillMenu then
+        if state.skillMenu.position % 2 ~= 0
+        and state.skillMenu.position + 1 <= #state.skillMenu.list then
+            utils.menuDown(state.skillMenu)
+        end
+    end
 end
 
 function input.executeDown()
-    utils.menuDown(state.currentMenu)
+    if state.currentMenu == state.skillMenu then
+        if state.skillMenu.position + 2 <= #state.skillMenu.list then
+            utils.menuDown(state.skillMenu)
+            utils.menuDown(state.skillMenu)
+        end
+    else
+        if state.currentMenu.position < #state.currentMenu.list then
+            utils.menuDown(state.currentMenu)
+        end
+    end
+end
+
+function input.executeUp()
+    if state.currentMenu == state.skillMenu then
+        if state.skillMenu.position - 2 >= 1 then
+            utils.menuUp(state.skillMenu)
+            utils.menuUp(state.skillMenu)
+        end
+    else
+        if state.currentMenu.position > 1 then
+            utils.menuUp(state.currentMenu)
+        end
+    end
 end
 
 function input.executeConfirm()
@@ -32,17 +68,44 @@ function input.executeConfirm()
             utils.updateTargetMenu(state.characterMenu, state.enemies)
             state.currentMenu = state.targetMenu
             utils.menuReset(state.targetMenu)
+        elseif state.characterMenu.position == 2 then
+            utils.updateSkillMenu(state.party[state.characterMenu.charID])
+            state.currentMenu = state.skillMenu
+            utils.menuReset(state.skillMenu)
         elseif state.characterMenu.position == 3 then
             local user = state.party[state.characterMenu.charID]
             user.currentAction = action.new('defend', user)
             local currentID = state.characterMenu.charID
             nextCharacter(currentID)
         end
+    elseif state.currentMenu == state.skillMenu
+    and #state.skillMenu.list > 0 then
+        local ref = state.skillMenu.list[state.skillMenu.position]
+        local data = actionData[ref]
+        if state.skillMenu.user.currentMp >= data.cost then
+            if data.scope == 'single' then
+                local group
+                if data.aim == 'enemies' then
+                    group = state.enemies
+                elseif data.aim == 'party' then
+                    group = state.party
+                end
+                utils.updateTargetMenu(state.skillMenu, group)
+                state.currentMenu = state.targetMenu
+                utils.menuReset(state.targetMenu)
+            end
+        end
     elseif state.currentMenu == state.targetMenu then
         if state.targetMenu.prevMenu == state.characterMenu then
             local target = state.targetMenu.list[state.targetMenu.position]
             local user = state.party[state.characterMenu.charID]
             local action = action.new('normalAtk', user, target)
+            user.currentAction = action
+        elseif state.targetMenu.prevMenu == state.skillMenu then
+            local target = state.targetMenu.list[state.targetMenu.position]
+            local user = state.party[state.characterMenu.charID]
+            local ref = state.skillMenu.list[state.skillMenu.position]
+            local action = action.new(ref, user, target)
             user.currentAction = action
         end
         local currentID = state.characterMenu.charID
@@ -63,6 +126,9 @@ function input.executeCancel()
         end
     elseif state.currentMenu == state.targetMenu then
         state.currentMenu  = state.targetMenu.prevMenu
+    elseif state.currentMenu == state.skillMenu then
+        state.currentMenu = state.characterMenu
+        state.characterMenu.position = 2
     end
 end
 

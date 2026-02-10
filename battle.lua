@@ -33,7 +33,6 @@ function battle.update(dt)
 end
 
 function battle.draw()
-    love.graphics.draw(background_image, 0, 115)
     hud.draw()
     enemySprites.draw()
     if not state.battleRunning then
@@ -74,6 +73,10 @@ function battle.keypressed(key)
             input.executeUp()
         elseif key == 'down' then
             input.executeDown()
+        elseif key == 'left' then
+            input.executeLeft()
+        elseif key == 'right' then
+            input.executeRight()
         elseif key == 'z' then
             input.executeConfirm()
         elseif key == 'x' then

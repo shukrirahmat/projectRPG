@@ -1,4 +1,5 @@
 local state = require('state')
+local actionData = require('actionData')
 
 local menu = {}
 
@@ -196,13 +197,114 @@ function drawTargetMenu(refX, refY, refWidth)
     end
 end
 
+function drawDescriptionText(x, y, skill)
+    local width = (windowWidth - 10)/4 - 10
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle(
+        'line',
+        x,
+        y,
+        width,
+        height
+    )
+    love.graphics.printf(
+        'MP cost: '..skill.cost..'',
+        x + 20,
+        y + 10,
+        width - 20,
+        'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+    )
+    love.graphics.line(x, y + itemHeight + 10, x + width, y + itemHeight + 10)
+    love.graphics.printf(
+        skill.desc,
+        x + 20,
+        y + itemHeight + 10,
+        width - 40,
+        'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+    )
+end
+
+function drawSkillMenu(isTargeting)
+    local leftMenu = drawCharacterMenu()
+
+    local borderX = leftMenu.borderX + leftMenu.borderWidth + 10
+    local borderY = leftMenu.borderY
+    local borderWidth = (windowWidth - 10)/2 - 10
+    local borderHeight = height
+
+    love.graphics.setColor(1,1,1)
+    love.graphics.rectangle(
+        'line',
+        borderX,
+        borderY,
+        borderWidth,
+        borderHeight
+    )
+
+    if #state.skillMenu.list == 0 then
+        local name = state.skillMenu.user.name
+        love.graphics.setFont(font_small)
+        love.graphics.printf(
+            ''..name..' have not learned any skills',
+            borderX + 10,
+            borderY + 10,
+            borderWidth - 20,
+            'left'
+        )
+    else
+        love.graphics.setFont(font_medium)
+        for index, ref in ipairs(state.skillMenu.list) do
+            local skill = actionData[ref]
+            if state.skillMenu.user.currentMp < skill.cost then
+                love.graphics.setColor(0.25, 0.25, 0.25)
+            else
+                love.graphics.setColor(1,1,1)
+            end
+
+            local x
+            if index % 2 == 0 then
+                x = borderX + borderWidth/2 + 10
+            else
+                x = borderX + 10
+            end
+            local y = borderY + 10 + (math.floor((index - 1)/2)) * itemHeight
+
+            love.graphics.printf(
+                skill.name,
+                x + 20,
+                y,
+                borderWidth/2 - 40,
+                'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+            )
+
+            if state.skillMenu.position == index then
+                drawMenuIndicator(x, y, itemHeight)
+                if isTargeting then
+                    drawTargetMenu(
+                        borderX, 
+                        borderY, 
+                        borderWidth
+                    )
+                else 
+                    drawDescriptionText(
+                        borderX + borderWidth + 10,
+                        borderY,
+                        skill
+                    )
+                end
+            end
+        end
+
+    end
+end
+
 function menu.drawBattleLog()
     local borderX = 10
     local borderHeight = height
     local borderY = windowHeight - borderHeight - 10
     local borderWidth = windowWidth - borderX * 2
 
-    local textX = borderX + 10
+    local textX = borderX + 20
     local textY = borderY + 10
     local textLineHeight = 20
     local textWidth = borderWidth - textX * 2 
@@ -216,7 +318,7 @@ function menu.drawBattleLog()
         borderHeight
     )
 
-    love.graphics.setFont(font_medium)
+    love.graphics.setFont(font_text)
     for index, text in ipairs(state.battleLog) do
         love.graphics.printf(
             text,
@@ -236,7 +338,11 @@ function menu.draw()
         if state.targetMenu.prevMenu == state.characterMenu then
             local leftMenu = drawCharacterMenu()
             drawTargetMenu(leftMenu.borderX, leftMenu.borderY, leftMenu.borderWidth)
+        elseif state.targetMenu.prevMenu == state.skillMenu then
+            drawSkillMenu(true)
         end
+    elseif state.currentMenu == state.skillMenu then
+        drawSkillMenu(false)
     end
 end
 

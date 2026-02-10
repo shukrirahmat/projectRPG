@@ -11,20 +11,26 @@ function action.new(ref, user, target)
     a.target = target or nil
 
     function a.execute()
-        local followUp = actionData[a.ref].execute(a.user, a.target)
+        local toAct = actionData[a.ref]
         
-        if not a.user.isPartyMember and actionData[a.ref].enemyAnimation then
-            local data = actionData[a.ref].enemyAnimation
+        if toAct.cost then
+            a.user.currentMp = a.user.currentMp - toAct.cost
+        end
+        
+        local followUp = toAct.execute(toAct, a.user, a.target)
+
+        if not a.user.isPartyMember and toAct.enemyAnimation then
+            local data = toAct.enemyAnimation
             local animation = animation.new(a.user, data.ref, data.maxTick, data.speed)
             state.animation = animation
         end
-        
+
         if followUp then
             local newAction = action.new(followUp, a.user, a.target)
             utils.sentActionIntoQueue(newAction)
         end
     end
-    
+
     function a.checkPriority()
         local toCheck = actionData[a.ref]
         return toCheck.priority

@@ -15,20 +15,27 @@ function U.updateTargetMenu(prevMenu, group)
     state.targetMenu.prevMenu = prevMenu
 end
 
+function U.updateSkillMenu(user)
+    local skillList = {}
+    if user.skills and #user.skills > 0 then
+        for _, skill in ipairs(user.skills) do
+            table.insert(skillList, skill)
+        end
+    end
+    state.skillMenu.user = user
+    state.skillMenu.list = skillList
+end
+
 function U.menuReset(menu)
     menu.position = 1
 end
 
 function U.menuUp(menu)
-    if menu.position > 1 then
-        menu.position = menu.position - 1
-    end
+    menu.position = menu.position - 1
 end
 
 function U.menuDown(menu)
-    if menu.position < #menu.list then
-        menu.position = menu.position + 1
-    end
+    menu.position = menu.position + 1
 end
 
 function U.getAbleCharID(currentID, where)
@@ -108,7 +115,8 @@ function U.chooseNextActionIndex()
     local highestSpeed = 0
     for index, action in ipairs(state.actionList) do
         local agi = action.user.agi
-        local speed = agi + math.floor(math.random(-agi*0.5, agi*0.5))
+        local mod = math.floor(agi*0.5)
+        local speed = agi + (math.random(-mod, mod))
         if speed > highestSpeed then
             highestSpeed = speed
             actionIndex = index
@@ -150,7 +158,7 @@ function U.handleDeath(target)
     target.isDead = true
     U.battleLogAdd(''..target.name..' defeated.')
     removeAction(target)
-    
+
     if state.priorityList[1] and state.priorityList[1].ref == 'secondAtk' then
         table.remove(state.priorityList, 1)
     end
@@ -210,14 +218,22 @@ end
 
 function U.calculateAttackDamage(attacker, target)
     local damage = math.floor(attacker.atk/2) - math.floor(target.def/3)
-    damage = damage + math.floor(math.random(-damage*.2, damage*.2))
+    local mod = math.floor(damage*0.2)
+    damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)
 end
 
 function U.calculateCritDamage(attacker, target)
     local damage = math.floor(attacker.atk/2 * 3) - math.floor(target.def/6)
-    damage = damage + math.floor(math.random(-damage*.2, damage*.2))
+    local mod = math.floor(damage*0.2)
+    damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)
+end
+
+function U.checkResistance(element, target)
+    if target.immune[element] then return 2 end
+    if target.strong[element] then return 1 end
+    return 0
 end
 
 return U

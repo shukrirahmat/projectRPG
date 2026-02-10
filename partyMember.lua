@@ -14,8 +14,8 @@ local dataSheet = {
         mp = 0,
         atk = 70,
         def = 50,
-        agi = 120,
-        critRate = 2
+        agi = 180,
+        critRate = 8
     },
     {
         name = 'PRIEST',
@@ -29,11 +29,12 @@ local dataSheet = {
     {
         name = 'MAGE',
         hp = 100,
-        mp = 150,
+        mp = 80,
         atk = 30,
         def = 40,
         agi = 80,
         critRate = 64,
+        skills = {'fire', 'midFire', 'ice', 'midIce'}
     }
 }
 
@@ -55,6 +56,7 @@ function P.new(index)
     p.def = data.def
     p.agi = data.agi
     p.critRate = data.critRate or 128
+    p.skills = data.skills or {}
 
     return p
 end

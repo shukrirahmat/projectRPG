@@ -21,6 +21,10 @@ local function noEffect(_, target, value)
     utils.battleLogAdd('It had no effect on '..target.name..'');
 end
 
+local function noMp(user)
+    utils.battleLogAdd('But '..user.name..' do not have enough mana!');
+end
+
 
 effectData['damage'] = { 
     apply = dealDamage , 
@@ -35,6 +39,10 @@ effectData['resisted'] = {
 effectData['immune'] = { 
     apply = noEffect , 
     enemyAnimation = {ref='enemyImmune', maxTick=10, speed=0.08}
+}
+
+effectData['noMp'] = { 
+    apply = noMp , 
 }
 
 return effectData

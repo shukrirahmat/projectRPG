@@ -16,6 +16,12 @@ local function nextCharacter(currentID)
     end
 end
 
+local function addAttackAction(target)
+    local user = state.party[state.characterMenu.charID]
+    local action = action.new('normalAtk', user, target)
+    user.currentAction = action
+end
+
 function input.executeLeft()
     if state.currentMenu == state.skillMenu then
         if state.skillMenu.position % 2 == 0
@@ -66,8 +72,15 @@ function input.executeConfirm()
     elseif state.currentMenu == state.characterMenu then
         if state.characterMenu.position == 1 then
             utils.updateTargetMenu(state.characterMenu, state.enemies)
-            state.currentMenu = state.targetMenu
-            utils.menuReset(state.targetMenu)
+            if #state.targetMenu.list == 1 then
+                local target = state.enemies[1]
+                addAttackAction(target)
+                local currentID = state.characterMenu.charID
+                nextCharacter(currentID)
+            elseif #state.targetMenu.list > 1 then
+                state.currentMenu = state.targetMenu
+                utils.menuReset(state.targetMenu)
+            end
         elseif state.characterMenu.position == 2 then
             utils.updateSkillMenu(state.party[state.characterMenu.charID])
             state.currentMenu = state.skillMenu
@@ -91,8 +104,18 @@ function input.executeConfirm()
             end
             if data.scope == 'single' then
                 utils.updateTargetMenu(state.skillMenu, group)
-                state.currentMenu = state.targetMenu
-                utils.menuReset(state.targetMenu)
+                if #state.targetMenu.list == 1 then
+                    local target = group[1]
+                    local user = state.party[state.characterMenu.charID]
+                    local ref = state.skillMenu.list[state.skillMenu.position]
+                    local action = action.new(ref, user, target)
+                    user.currentAction = action
+                    local currentID = state.characterMenu.charID
+                    nextCharacter(currentID)
+                elseif #state.targetMenu.list > 1 then
+                    state.currentMenu = state.targetMenu
+                    utils.menuReset(state.targetMenu)
+                end
             elseif data.scope == 'all' then
                 local user = state.party[state.characterMenu.charID]
                 local ref = state.skillMenu.list[state.skillMenu.position]
@@ -105,9 +128,7 @@ function input.executeConfirm()
     elseif state.currentMenu == state.targetMenu then
         if state.targetMenu.prevMenu == state.characterMenu then
             local target = state.targetMenu.list[state.targetMenu.position]
-            local user = state.party[state.characterMenu.charID]
-            local action = action.new('normalAtk', user, target)
-            user.currentAction = action
+            addAttackAction(target)
         elseif state.targetMenu.prevMenu == state.skillMenu then
             local target = state.targetMenu.list[state.targetMenu.position]
             local user = state.party[state.characterMenu.charID]

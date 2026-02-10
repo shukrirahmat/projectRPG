@@ -12,22 +12,30 @@ function action.new(ref, user, target)
 
     function a.execute()
         local toAct = actionData[a.ref]
-        
+        local haveMP = true
+
         if toAct.cost then
-            a.user.currentMp = a.user.currentMp - toAct.cost
-        end
-        
-        local followUp = toAct.execute(toAct, a.user, a.target)
-
-        if not a.user.isPartyMember and toAct.enemyAnimation then
-            local data = toAct.enemyAnimation
-            local animation = animation.new(a.user, data.ref, data.maxTick, data.speed)
-            state.animation = animation
+            if a.user.currentMp >= toAct.cost then
+                a.user.currentMp = a.user.currentMp - toAct.cost
+            else
+                haveMP = false
+            end
         end
 
-        if followUp then
-            local newAction = action.new(followUp, a.user, a.target)
-            utils.sentActionIntoQueue(newAction)
+        if haveMP then
+            local followUp = toAct.execute(toAct, a.user, a.target)
+            if not a.user.isPartyMember and toAct.enemyAnimation then
+                local data = toAct.enemyAnimation
+                local animation = animation.new(a.user, data.ref, data.maxTick, data.speed)
+                state.animation = animation
+            end
+            if followUp then
+                local newAction = action.new(followUp, a.user, a.target)
+                utils.sentActionIntoQueue(newAction)
+            end
+        else
+            local noMpAction = actionData['noMp']
+            noMpAction.execute(noMpAction, a.user, a.target, toAct)
         end
     end
 

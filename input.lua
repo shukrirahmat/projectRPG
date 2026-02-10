@@ -83,16 +83,23 @@ function input.executeConfirm()
         local ref = state.skillMenu.list[state.skillMenu.position]
         local data = actionData[ref]
         if state.skillMenu.user.currentMp >= data.cost then
+            local group
+            if data.aim == 'enemies' then
+                group = state.enemies
+            elseif data.aim == 'party' then
+                group = state.party
+            end
             if data.scope == 'single' then
-                local group
-                if data.aim == 'enemies' then
-                    group = state.enemies
-                elseif data.aim == 'party' then
-                    group = state.party
-                end
                 utils.updateTargetMenu(state.skillMenu, group)
                 state.currentMenu = state.targetMenu
                 utils.menuReset(state.targetMenu)
+            elseif data.scope == 'all' then
+                local user = state.party[state.characterMenu.charID]
+                local ref = state.skillMenu.list[state.skillMenu.position]
+                local action = action.new(ref, user, group)
+                user.currentAction = action
+                local currentID = state.characterMenu.charID
+                nextCharacter(currentID)
             end
         end
     elseif state.currentMenu == state.targetMenu then

@@ -16,6 +16,7 @@ function love.load()
         enemy.new('goblin', 'GOBLIN1'),
         enemy.new('goblin', 'GOBLIN2'),
         enemy.new('goblin', 'GOBLIN3'),
+        enemy.new('dragon', 'DRAGON1'),
         enemy.new('skeleton', 'SKELETON1'),
         enemy.new('skeleton', 'SKELETON2')
     }

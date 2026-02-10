@@ -215,6 +215,7 @@ function drawDescriptionText(x, y, skill)
         'left', 0, 1, 1, 0, -1 * (itemHeight/4)
     )
     love.graphics.line(x, y + itemHeight + 10, x + width, y + itemHeight + 10)
+    love.graphics.setFont(font_small)
     love.graphics.printf(
         skill.desc,
         x + 20,
@@ -252,8 +253,8 @@ function drawSkillMenu(isTargeting)
             'left'
         )
     else
-        love.graphics.setFont(font_medium)
         for index, ref in ipairs(state.skillMenu.list) do
+            love.graphics.setFont(font_medium)
             local skill = actionData[ref]
             if state.skillMenu.user.currentMp < skill.cost then
                 love.graphics.setColor(0.25, 0.25, 0.25)

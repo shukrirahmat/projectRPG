@@ -12,7 +12,7 @@ local dataSheet = {
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4,
         strong = { ['FIRE'] = true },
-        immune = { ['ICE'] = true }
+        immune = {}
     },
 
     ['skeleton'] = {
@@ -25,6 +25,18 @@ local dataSheet = {
         spriteHeight = 0,
         strong = {},
         immune = { ['ICE'] = true } 
+    },
+    
+    ['dragon'] = {
+        hp = 250,
+        mp = 0,
+        atk = 120,
+        def = 100,
+        agi = 50,
+        sprite = dragon_sprite,
+        spriteHeight = 0,
+        strong = {['FIRE'] = true, ['ICE'] = true},
+        immune = {} 
     }
 }
 

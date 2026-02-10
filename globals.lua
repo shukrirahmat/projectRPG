@@ -16,3 +16,4 @@ skillSpriteDimension = 64
 
 goblin_sprite = love.graphics.newImage('images/goblin.png')
 skeleton_sprite = love.graphics.newImage('images/skeleton.png')
+dragon_sprite = love.graphics.newImage('images/dragon.png')

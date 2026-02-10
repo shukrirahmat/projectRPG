@@ -176,6 +176,13 @@ function U.clearTemporaryStatus()
             if character.isDefending then
                 character.isDefending = false
             end
+            
+            if character.isAuraCharged then
+                character.isAuraCharged.counter = character.isAuraCharged.counter - 1
+                if character.isAuraCharged.counter <= 0 then
+                    character.isAuraCharged = nil
+                end
+            end
         end
     end
 end

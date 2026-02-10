@@ -2,21 +2,22 @@ local dataSheet = {
     {
         name = 'KNIGHT',
         hp = 180,
-        mp = 0,
+        mp = 20,
         str = 80,
         def = 70,
         agi = 60,
-        critRate = 64
+        critRate = 64,
+        skills = {'drain', 'greatDrain'}
     },
     {
         name = 'FIGHTER',
         hp = 160,
         mp = 0,
-        str = 120,
+        str = 70,
         def = 50,
         agi = 180,
         critRate = 8,
-        skills = {'aura', 'midAura', 'greatAura', 'auraBeam', 'greatAuraBeam'}
+        skills = {'aura', 'midAura', 'greatAura', 'auraBeam', 'greatAuraBeam', 'auraCharge'}
     },
     {
         name = 'PRIEST',

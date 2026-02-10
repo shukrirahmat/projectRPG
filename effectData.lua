@@ -17,6 +17,11 @@ local function dealDamage(_, target, value)
     end
 end
 
+local function recovery(_, target, value)
+    target.currentHp = math.min(target.maxHp, target.currentHp + value)
+    utils.battleLogAdd(''..target.name..' recovers '..value..' HP.');
+end
+
 local function noEffect(_, target, value)
     utils.battleLogAdd('It had no effect on '..target.name..'');
 end
@@ -43,6 +48,10 @@ effectData['immune'] = {
 
 effectData['noMp'] = { 
     apply = noMp , 
+}
+
+effectData['recover'] = {
+    apply = recovery
 }
 
 return effectData

@@ -5,8 +5,6 @@ local effect = require('effect')
 local actionData = {}
 
 local function normalAttack(self, user, target, isSecondAttack)
-
-    local result
     local damage
     local crit
     local text
@@ -30,8 +28,8 @@ local function normalAttack(self, user, target, isSecondAttack)
     end
 
     utils.battleLogAdd(text)
-    result = effect.new('damage', user, target, damage)
-    table.insert(state.effectList, result)
+    local damageEffect = effect.new('damage', user, target, damage)
+    table.insert(state.effectList, damageEffect)
 
     if not isSecondAttack then
         local secondAttackChance = math.floor((user.agi - target.agi)/2)
@@ -60,8 +58,8 @@ local function noMp(self, user, target, skill)
         text = ''..user.name..' used '..skill.name..'';
     end
     utils.battleLogAdd(text)
-    local effect = effect.new('noMp', user, target)
-    table.insert(state.effectList, effect)
+    local noMPeffect = effect.new('noMp', user, target)
+    table.insert(state.effectList, noMPeffect)
 end
     
 
@@ -81,8 +79,8 @@ local function damageMagic(self, user, target)
         ref = 'damage'
     end
 
-    local effect = effect.new(ref, user, target, damage)
-    table.insert(state.effectList, effect)
+    local damageEffect = effect.new(ref, user, target, damage)
+    table.insert(state.effectList, damageEffect)
 end
 
 local function damageMagicSingle(self, user, target)
@@ -105,6 +103,11 @@ local function auraCast(self, user, target)
     local baseDamage = math.floor(user.str * self.auraRatio)
     local mod = math.floor(baseDamage * 0.2)
     local damage = baseDamage + math.random(-mod, mod)
+    
+    if user.isAuraCharged then
+        damage = math.floor(damage * 2.5)
+    end
+    
     local resistance = utils.checkResistance(self.element, target)
     local ref
     if resistance == 2 then 
@@ -115,8 +118,8 @@ local function auraCast(self, user, target)
     else
         ref = 'damage'
     end
-    local effect = effect.new(ref, user, target, damage)
-    table.insert(state.effectList, effect)
+    local damageEffect = effect.new(ref, user, target, damage)
+    table.insert(state.effectList, damageEffect)
 end
 
 local function auraCastSingle(self, user, target)
@@ -132,6 +135,43 @@ local function auraCastAll(self, user, group)
         if not target.isDead then
             auraCast(self, user, target)
         end
+    end
+end
+
+local function auraCharge(self, user)
+    local text = ''..user.name..' charged itself';
+    utils.battleLogAdd(text)
+    user.isAuraCharged = { counter = 2 }
+end
+
+local function castDrain(self, user, target)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    
+    local hpBonus = math.floor(user.maxHp * self.drainBonus)
+    local baseDamage = self.baseDamage + hpBonus
+    local mod = math.floor(baseDamage * 0.2)
+    
+    local damage = baseDamage + math.random(-mod, mod)
+    local resistance = utils.checkResistance(self.element, target)
+    local ref
+
+    if resistance == 2 then 
+        ref = 'immune'
+    elseif resistance == 1 then
+        ref = 'resisted'
+        damage = math.floor(damage/2)
+    else
+        ref = 'damage'
+    end
+
+    local damageEffect = effect.new(ref, user, target, damage)
+    table.insert(state.effectList, damageEffect)
+    
+    if ref ~= 'immune' then
+        local amount = math.min(damage, target.currentHp)
+        local recoverEffect = effect.new('recover', user, user, amount)
+        table.insert(state.effectList, recoverEffect)
     end
 end
 
@@ -495,7 +535,7 @@ actionData['midAura'] = {
     scope = 'all',
     execute = auraCastAll,
     element = 'AURA',
-    auraRatio = 0.25
+    auraRatio = 0.2
 }
 
 actionData['greatAura'] = {
@@ -507,7 +547,7 @@ actionData['greatAura'] = {
     scope = 'all',
     execute = auraCastAll,
     element = 'AURA',
-    auraRatio = 0.5
+    auraRatio = 0.4
 }
 
 actionData['auraBeam'] = {
@@ -532,6 +572,42 @@ actionData['greatAuraBeam'] = {
     execute = auraCastSingle,
     element = 'AURA',
     auraRatio = 1.5
+}
+
+actionData['auraCharge'] = {
+    name = 'AuraCharge', 
+    tech = true,
+    cost = 0, 
+    desc = 'Next aura magic will deal 2.5 more damage',
+    aim = 'party',
+    scope = 'self',
+    execute = auraCharge,
+}
+
+actionData['drain'] = {
+    name = 'Drain', 
+    magic = true,
+    cost = 4, 
+    desc = 'Deals damage to one enemy and recovers the same amount',
+    aim = 'enemies',
+    scope = 'single',
+    execute = castDrain,
+    element = 'DRAIN',
+    baseDamage = 20,
+    drainBonus = 0.1
+}
+
+actionData['greatDrain'] = {
+    name = 'GreatDrain', 
+    magic = true,
+    cost = 8, 
+    desc = 'Deals large damage to one enemy and recovers the same amount',
+    aim = 'enemies',
+    scope = 'single',
+    execute = castDrain,
+    element = 'DRAIN',
+    baseDamage = 60,
+    drainBonus = 0.25
 }
 
 

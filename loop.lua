@@ -6,7 +6,7 @@ local loop = {}
 
 function loop.run()
 
-    if state.battleEnded then
+    if state.battleEnded and #state.killList == 0 and #state.effectList == 0 then
         state.battleLog = {}
         if state.partyDied then
             utils.battleLogAdd('Party has been defeated')

@@ -123,6 +123,13 @@ function input.executeConfirm()
                 user.currentAction = action
                 local currentID = state.characterMenu.charID
                 nextCharacter(currentID)
+            elseif data.scope == 'self' then
+                local user = state.party[state.characterMenu.charID]
+                local ref = state.skillMenu.list[state.skillMenu.position]
+                local action = action.new(ref, user)
+                user.currentAction = action
+                local currentID = state.characterMenu.charID
+                nextCharacter(currentID)
             end
         end
     elseif state.currentMenu == state.targetMenu then

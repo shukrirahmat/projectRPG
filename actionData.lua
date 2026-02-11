@@ -700,5 +700,4 @@ actionData['greatDracoBomb'] = {
     baseDamage = 300
 }
 
-
 return actionData;

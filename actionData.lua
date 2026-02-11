@@ -202,6 +202,23 @@ local function castManaBurn(self, user, group)
     end
 end
 
+local function castDracoBomb(self, user, target)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    
+    local damage;
+    
+    if target.specialType == 'DRAGON' then
+        local mod = math.floor(self.baseDamage * 0.2)
+        damage = self.baseDamage + math.random(-mod, mod)
+    else
+        damage = 1
+    end
+        
+    local damageEffect = effect.new('damage', user, target, damage)
+    table.insert(state.effectList, damageEffect)
+end
+
 actionData['normalAtk'] = { 
     execute = normalAttack, 
     cost = 0,
@@ -659,6 +676,28 @@ actionData['greatManaBurn'] = {
     execute = castManaBurn,
     element = 'MANABURN',
     baseDamage = 25,
+}
+
+actionData['dracoBomb'] = {
+    name = 'DracoBomb', 
+    magic = true,
+    cost = 4, 
+    desc = 'Deals large damage to dragons',
+    aim = 'enemies',
+    scope = 'single',
+    execute = castDracoBomb,
+    baseDamage = 120
+}
+
+actionData['greatDracoBomb'] = {
+    name = 'GreatDracoBomb', 
+    magic = true,
+    cost = 8, 
+    desc = 'Deals very large damage to dragons',
+    aim = 'enemies',
+    scope = 'single',
+    execute = castDracoBomb,
+    baseDamage = 300
 }
 
 

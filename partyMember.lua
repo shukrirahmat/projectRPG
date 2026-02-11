@@ -7,7 +7,7 @@ local dataSheet = {
         def = 70,
         agi = 60,
         critRate = 64,
-        skills = {'drain', 'greatDrain'}
+        skills = {'drain', 'greatDrain', 'dracoBomb', 'greatDracoBomb'}
     },
     {
         name = 'FIGHTER',

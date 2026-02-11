@@ -36,7 +36,8 @@ local dataSheet = {
         sprite = dragon_sprite,
         spriteHeight = 0,
         strong = {['FIRE'] = true, ['ICE'] = true},
-        immune = {} 
+        immune = {},
+        specialType = 'DRAGON'
     }
 }
 
@@ -62,6 +63,7 @@ function enemy.new(species, name)
     e.spriteHeight = data.spriteHeight
     e.strong = data.strong or {}
     e.immune = data.immune or {}
+    e.specialType = data.specialType
     
     function e.chooseAction(self)
         local target = utils.selectTargetRandomly(state.party)

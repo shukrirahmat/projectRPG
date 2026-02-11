@@ -52,7 +52,8 @@ function U.getAbleCharID(currentID, where)
     end
 
     while not found and not outOfBound do
-        if not state.party[nextID].isDead then
+        local char = state.party[nextID]
+        if not char.isDead and not char.status['STUN'] then
             found = true
         else
             if where == 'next' then
@@ -197,7 +198,11 @@ end
 
 local function setPartyAction()
     for _, member in ipairs(state.party) do
-        if not member.isDead and member.currentAction then
+        if not member.isDead and member.status['STUN'] then
+            local action = member.makeStunAction(member)
+            U.sentActionIntoQueue(action)
+            member.currentAction = nil
+        elseif not member.isDead and member.currentAction then
             local action = member.currentAction
             U.sentActionIntoQueue(action)
             member.currentAction = nil

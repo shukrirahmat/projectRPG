@@ -70,6 +70,7 @@ function input.executeConfirm()
     if state.currentMenu == state.mainMenu then
         nextCharacter(0)
     elseif state.currentMenu == state.characterMenu then
+        local char = state.party[state.characterMenu.charID]
         if state.characterMenu.position == 1 then
             utils.updateTargetMenu(state.characterMenu, state.enemies)
             if #state.targetMenu.list == 1 then
@@ -81,12 +82,12 @@ function input.executeConfirm()
                 state.currentMenu = state.targetMenu
                 utils.menuReset(state.targetMenu)
             end
-        elseif state.characterMenu.position == 2 then
-            utils.updateSkillMenu(state.party[state.characterMenu.charID])
+        elseif state.characterMenu.position == 2 and not char.status['SEAL'] then
+            utils.updateSkillMenu(char)
             state.currentMenu = state.skillMenu
             utils.menuReset(state.skillMenu)
         elseif state.characterMenu.position == 3 then
-            local user = state.party[state.characterMenu.charID]
+            local user = char
             user.currentAction = action.new('defend', user)
             local currentID = state.characterMenu.charID
             nextCharacter(currentID)

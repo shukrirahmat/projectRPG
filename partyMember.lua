@@ -1,3 +1,5 @@
+local action = require('action')
+
 local dataSheet = {
     {
         name = 'KNIGHT',
@@ -12,12 +14,12 @@ local dataSheet = {
     {
         name = 'FIGHTER',
         hp = 160,
-        mp = 0,
+        mp = 35,
         str = 70,
         def = 50,
         agi = 180,
         critRate = 8,
-        skills = {'aura', 'midAura', 'greatAura', 'auraBeam', 'greatAuraBeam', 'auraCharge'}
+        skills = {'auraBeam', 'greatAuraBeam', 'auraCharge', 'sandstorm', 'greatSandstorm'}
     },
     {
         name = 'PRIEST',
@@ -27,7 +29,7 @@ local dataSheet = {
         def = 50,
         agi = 80,
         critRate = 64,
-        skills = {'typhoon', 'midTyphoon', 'greatTyphoon', 'chaosIceFrost', 'exorcism', 'greatExorcism'}
+        skills = {'typhoon', 'midTyphoon', 'greatTyphoon', 'silence', 'greatSilence'}
     }, 
     {
         name = 'MAGE',
@@ -37,7 +39,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'lightning', 'midLightning', 'greatLightning', 'death', 'midDeath', 'greatDeath'}
+        skills = {'lightning', 'midLightning', 'greatLightning', 'tremor', 'greatTremor'}
     }
 }
 
@@ -61,6 +63,12 @@ function P.new(index)
     p.agi = data.agi
     p.critRate = data.critRate or 128
     p.skills = data.skills or {}
+    p.status = {}
+    
+    function p.makeStunAction(self)
+        local action = action.new('stunned', self, target)
+        return action
+    end
 
     return p
 end

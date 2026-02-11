@@ -35,8 +35,12 @@ local function noEffect(_, target, value)
     utils.battleLogAdd('It had no effect on '..target.name..'');
 end
 
-local function noMp(user)
-    utils.battleLogAdd('But '..user.name..' do not have enough mana!');
+local function skillCanceled(user)
+    if user.status['SEAL'] then
+        utils.battleLogAdd('But '..user.name..' abilities were sealed!');
+    else
+        utils.battleLogAdd('But '..user.name..' do not have enough mana!');
+    end
 end
 
 local function instakill(_, target)
@@ -47,6 +51,30 @@ end
 
 local function missed(_, target)
     utils.battleLogAdd('It missed '..target.name..'!');
+end
+
+local function addStatus(_, target, status)
+    if status == 'BLIND' then
+        if target.status['BLIND'] then
+            utils.battleLogAdd(""..target.name.." is already blinded");
+        else
+            utils.battleLogAdd("Sand got into "..target.name.."'s eyes!");
+        end
+    elseif status == 'SEAL' then
+        if target.status['SEAL'] then
+            utils.battleLogAdd(""..target.name.." is already sealed");
+        else
+            utils.battleLogAdd(""..target.name.."'s abilities are sealed!");
+        end
+    elseif status == 'STUN' then
+        if target.status['STUN'] then
+            utils.battleLogAdd(""..target.name.." is already stunned");
+        else
+            utils.battleLogAdd(""..target.name.." is stunned!");
+        end
+    end
+
+    target.status[status] = true;
 end
 
 
@@ -66,8 +94,8 @@ effectData['immune'] = {
     enemyAnimation = {ref='enemyImmune', maxTick=10, speed=0.08}
 }
 
-effectData['noMp'] = { 
-    apply = noMp , 
+effectData['skillCanceled'] = { 
+    apply = skillCanceled , 
 }
 
 effectData['recover'] = {
@@ -91,6 +119,10 @@ effectData['instakill'] = {
 effectData['missed'] = { 
     apply = missed , 
     enemyAnimation = {ref='enemyDodged', maxTick=10, speed=0.08}
+}
+
+effectData['addStatus'] = { 
+    apply = addStatus , 
 }
 
 return effectData

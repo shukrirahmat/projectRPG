@@ -6,16 +6,8 @@ local actionData = {}
 
 local function normalAttack(self, user, target, isSecondAttack)
     local damage
-    local crit
     local text
-
-    crit = math.random(1, user.critRate) == 1
-
-    if crit then
-        damage = utils.calculateCritDamage(user, target)
-    else
-        damage = utils.calculateAttackDamage(user, target)
-    end
+    local miss
 
     if isSecondAttack then
         text = ''..user.name..' attacks again!'
@@ -23,21 +15,40 @@ local function normalAttack(self, user, target, isSecondAttack)
         text = ''..user.name..' attacks!'
     end
 
-    if crit then
-        text = ''..text..' Critical hit!';
+    if user.status['BLIND'] then
+        local rand = math.random(1, 100)
+        if rand <= 75 then
+            miss = true
+        end
     end
 
-    utils.battleLogAdd(text)
-    local damageEffect = effect.new('damage', user, target, damage)
-    table.insert(state.effectList, damageEffect)
+    if not miss then
 
-    if not isSecondAttack then
-        local secondAttackChance = math.floor((user.agi - target.agi)/2)
-        local secondAttack = math.random(1, 100) < secondAttackChance
+        local crit = math.random(1, user.critRate) == 1
 
-        if secondAttack then
-            return 'secondAtk'
+        if crit then
+            damage = utils.calculateCritDamage(user, target)
+            text = ''..text..' Critical hit!';
+        else
+            damage = utils.calculateAttackDamage(user, target)
         end
+
+        utils.battleLogAdd(text)
+        local damageEffect = effect.new('damage', user, target, damage)
+        table.insert(state.effectList, damageEffect)
+
+        if not isSecondAttack then
+            local secondAttackChance = math.floor((user.agi - target.agi)/2)
+            local secondAttack = math.random(1, 100) < secondAttackChance
+
+            if secondAttack then
+                return 'secondAtk'
+            end
+        end
+    else
+        utils.battleLogAdd(text)
+        local missedEffect = effect.new('missed', user, target)
+        table.insert(state.effectList, missedEffect)
     end
 end
 
@@ -50,16 +61,21 @@ local function defend(self, user, _)
     utils.battleLogAdd(''..user.name..' defends!')
 end
 
-local function noMp(self, user, target, skill)
+local function skillCanceled(self, user, target, skill)
     local text
     if skill.magic then
         text = ''..user.name..' casts '..skill.name..'';
     else
-        text = ''..user.name..' used '..skill.name..'';
+        text = ''..user.name..' tried to used '..skill.name..'';
     end
     utils.battleLogAdd(text)
-    local noMPeffect = effect.new('noMp', user, target)
-    table.insert(state.effectList, noMPeffect)
+    local noSkilleffect = effect.new('skillCanceled', user, target)
+    table.insert(state.effectList, noSkilleffect)
+end
+
+local function stunned(self, user)
+    local text = ''..user.name..' is stunned and could not move!';
+    utils.battleLogAdd(text)
 end
 
 
@@ -256,25 +272,30 @@ local function statusEffect(self, user, target)
     local accuracy = self.accuracy
     local resistance = utils.checkResistance(self.element, target)
 
-    if resistance == 2 then 
-        local immuneEffect = effect.new('immune', user, target)
-        table.insert(state.effectList, immuneEffect)
+    if target.status[self.element] then
+        local statusEffect = effect.new('addStatus', user, target, self.element)
+        table.insert(state.effectList, statusEffect)
     else
-        if resistance == 1 then
-            accuracy = math.floor(accuracy / 2)
-        end
-        local chance = math.random(1, 100)
-        if chance <= accuracy then
-            if self.element == 'DEATH' then
-                local killEffect = effect.new('instakill', user, target)
-                table.insert(state.effectList, killEffect)
-            else
-                local statusEffect = effect.new('addStatus', user, target, self.element)
-                table.insert(state.effectList, statusEffect)
-            end
+        if resistance == 2 then 
+            local immuneEffect = effect.new('immune', user, target)
+            table.insert(state.effectList, immuneEffect)
         else
-            local missEffect = effect.new('missed', user, target)
-            table.insert(state.effectList, missEffect)
+            if resistance == 1 then
+                accuracy = math.floor(accuracy / 2)
+            end
+            local chance = math.random(1, 100)
+            if chance <= accuracy then
+                if self.element == 'DEATH' then
+                    local killEffect = effect.new('instakill', user, target)
+                    table.insert(state.effectList, killEffect)
+                else
+                    local statusEffect = effect.new('addStatus', user, target, self.element)
+                    table.insert(state.effectList, statusEffect)
+                end
+            else
+                local missEffect = effect.new('missed', user, target)
+                table.insert(state.effectList, missEffect)
+            end
         end
     end
 end
@@ -314,8 +335,12 @@ actionData['defend'] = {
     priority = true
 }
 
-actionData['noMp'] = { 
-    execute = noMp
+actionData['skillCanceled'] = { 
+    execute = skillCanceled
+}
+
+actionData['stunned'] = {
+    execute = stunned
 }
 
 actionData['fire'] = {
@@ -828,12 +853,85 @@ actionData['greatDeath'] = {
     name = 'GreatDeath', 
     magic = true,
     cost = 15, 
-    desc = 'Higher chance to instantly kill all enemies',
+    desc = 'high chance to instantly kill all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = statusEffectAll,
     element = 'DEATH',
     accuracy = 50
 }
+
+actionData['sandstorm'] = {
+    name = 'Sandstorm', 
+    magic = true,
+    cost = 3, 
+    desc = 'Low chance to blind all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'BLIND',
+    accuracy = 50
+}
+
+actionData['greatSandstorm'] = {
+    name = 'GreatSandstorm', 
+    magic = true,
+    cost = 5, 
+    desc = 'high chance to blind all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'BLIND',
+    accuracy = 80
+}
+
+actionData['silence'] = {
+    name = 'Silence', 
+    magic = true,
+    cost = 3, 
+    desc = 'Low chance to seal abilities of all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'SEAL',
+    accuracy = 50
+}
+
+actionData['greatSilence'] = {
+    name = 'GreatSilence', 
+    magic = true,
+    cost = 5, 
+    desc = 'high chance to seal abilities of all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'SEAL',
+    accuracy = 80
+}
+
+actionData['tremor'] = {
+    name = 'Tremor', 
+    magic = true,
+    cost = 5, 
+    desc = 'Low chance to stun of all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'STUN',
+    accuracy = 30
+}
+
+actionData['greatTremor'] = {
+    name = 'GreatTremor', 
+    magic = true,
+    cost = 8, 
+    desc = 'high chance to stun of all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'STUN',
+    accuracy = 60
+}
+
 
 return actionData;

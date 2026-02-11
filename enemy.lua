@@ -11,7 +11,7 @@ local dataSheet = {
         agi = 80,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4,
-        strong = { ['FIRE'] = true, ['DEATH'] = true },
+        strong = { ['FIRE'] = true, ['DEATH'] = true},
         immune = {}
     },
 
@@ -23,7 +23,7 @@ local dataSheet = {
         agi = 60,
         sprite = skeleton_sprite,
         spriteHeight = 0,
-        strong = {},
+        strong = {['BLIND'] = true},
         immune = { ['ICE'] = true , ['DEATH'] = true },
         specialType = 'UNDEAD'
     },
@@ -37,7 +37,7 @@ local dataSheet = {
         sprite = dragon_sprite,
         spriteHeight = 0,
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
-        immune = {},
+        immune = {['STUN'] = true, ['SEAL'] = true},
         specialType = 'DRAGON'
     }
 }
@@ -65,6 +65,7 @@ function enemy.new(species, name)
     e.strong = data.strong or {}
     e.immune = data.immune or {}
     e.specialType = data.specialType
+    e.status = {}
     
     function e.chooseAction(self)
         local target = utils.selectTargetRandomly(state.party)

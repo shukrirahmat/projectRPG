@@ -41,6 +41,13 @@ local function drawLeftMenu(m)
     love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(font_medium)
     for i, item in ipairs(m.list) do
+        if m == state.characterMenu
+        and state.party[state.characterMenu.charID].status['SEAL']
+        and i == 2 then
+            love.graphics.setColor(0.25, 0.25, 0.25)
+        else
+            love.graphics.setColor(1, 1, 1)
+        end
         love.graphics.printf(
             item,
             itemX,

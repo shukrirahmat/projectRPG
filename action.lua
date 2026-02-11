@@ -12,17 +12,23 @@ function action.new(ref, user, target)
 
     function a.execute()
         local toAct = actionData[a.ref]
-        local haveMP = true
+        local canAct = true
+        local stunned = false
+        
+        if a.user.status['STUN'] then
+            canAct = false
+            stunned = true
+        end
 
-        if toAct.cost then
-            if a.user.currentMp >= toAct.cost then
+        if toAct.magic or toAct.tech then
+            if a.user.currentMp >= toAct.cost and not a.user.status['SEAL'] then
                 a.user.currentMp = a.user.currentMp - toAct.cost
             else
-                haveMP = false
+                canAct = false
             end
         end
 
-        if haveMP then
+        if canAct then
             local followUp = toAct.execute(toAct, a.user, a.target)
             if not a.user.isPartyMember and toAct.enemyAnimation then
                 local data = toAct.enemyAnimation
@@ -33,9 +39,12 @@ function action.new(ref, user, target)
                 local newAction = action.new(followUp, a.user, a.target)
                 utils.sentActionIntoQueue(newAction)
             end
+        elseif stunned then
+            local stunAct = actionData['stunned']
+            stunAct.execute(skillCanceled, a.user, a.target)
         else
-            local noMpAction = actionData['noMp']
-            noMpAction.execute(noMpAction, a.user, a.target, toAct)
+            local skillCanceled = actionData['skillCanceled']
+            skillCanceled.execute(skillCanceled, a.user, a.target, toAct)
         end
     end
 

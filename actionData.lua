@@ -205,19 +205,97 @@ end
 local function castDracoBomb(self, user, target)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
-    
+
     local damage;
-    
-    if target.specialType == 'DRAGON' then
+
+    if target.specialType and target.specialType == 'DRAGON' then
         local mod = math.floor(self.baseDamage * 0.2)
         damage = self.baseDamage + math.random(-mod, mod)
     else
         damage = 1
     end
-        
+
     local damageEffect = effect.new('damage', user, target, damage)
     table.insert(state.effectList, damageEffect)
 end
+
+local function castExorcism(self, user, target)
+
+    if target.specialType and target.specialType == 'UNDEAD' then
+        local chance = math.random(1, 100)
+        if chance <= self.accuracy then
+            local killEffect = effect.new('instakill', user, target)
+            table.insert(state.effectList, killEffect)
+        else
+            local missEffect = effect.new('missed', user, target)
+            table.insert(state.effectList, missEffect)
+        end
+    else
+        local immuneEffect = effect.new('immune', user, target)
+        table.insert(state.effectList, immuneEffect)
+    end
+end
+
+local function castExorcismSingle(self, user, target)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    castExorcism(self, user, target)
+end
+
+local function castExorcismAll(self, user, group)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    for i, target in ipairs(group) do
+        if not target.isDead then
+            castExorcism(self, user, target)
+        end
+    end
+end
+
+local function statusEffect(self, user, target)
+    local accuracy = self.accuracy
+    local resistance = utils.checkResistance(self.element, target)
+
+    if resistance == 2 then 
+        local immuneEffect = effect.new('immune', user, target)
+        table.insert(state.effectList, immuneEffect)
+    else
+        if resistance == 1 then
+            accuracy = math.floor(accuracy / 2)
+        end
+        local chance = math.random(1, 100)
+        if chance <= accuracy then
+            if self.element == 'DEATH' then
+                local killEffect = effect.new('instakill', user, target)
+                table.insert(state.effectList, killEffect)
+            else
+                local statusEffect = effect.new('addStatus', user, target, self.element)
+                table.insert(state.effectList, statusEffect)
+            end
+        else
+            local missEffect = effect.new('missed', user, target)
+            table.insert(state.effectList, missEffect)
+        end
+    end
+end
+
+local function statusEffectSingle(self, user, target)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    statusEffect(self, user, target)
+end
+
+local function statusEffectAll(self, user, group)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(group) do
+        if not target.isDead then
+            statusEffect(self, user, target)
+        end
+    end
+end
+
 
 actionData['normalAtk'] = { 
     execute = normalAttack, 
@@ -686,7 +764,7 @@ actionData['dracoBomb'] = {
     aim = 'enemies',
     scope = 'single',
     execute = castDracoBomb,
-    baseDamage = 120
+    baseDamage = 150
 }
 
 actionData['greatDracoBomb'] = {
@@ -698,6 +776,64 @@ actionData['greatDracoBomb'] = {
     scope = 'single',
     execute = castDracoBomb,
     baseDamage = 300
+}
+
+actionData['exorcism'] = {
+    name = 'Exorcism', 
+    magic = true,
+    cost = 4, 
+    desc = 'High chance to instantly kill an undead enemies',
+    aim = 'enemies',
+    scope = 'single',
+    execute = castExorcismSingle,
+    accuracy = 80
+}
+
+actionData['greatExorcism'] = {
+    name = 'GreatExorcism', 
+    magic = true,
+    cost = 8, 
+    desc = 'High chance to instantly kill all undead enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = castExorcismAll,
+    accuracy = 80
+}
+
+actionData['death'] = {
+    name = 'Death', 
+    magic = true,
+    cost = 5, 
+    desc = 'Low chance to instantly kill one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'DEATH',
+    accuracy = 25
+}
+
+actionData['midDeath'] = {
+    name = 'MidDeath', 
+    magic = true,
+    cost = 10, 
+    desc = 'Low chance to instantly kill all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'DEATH',
+    accuracy = 25
+}
+
+actionData['greatDeath'] = {
+    name = 'GreatDeath', 
+    magic = true,
+    cost = 15, 
+    desc = 'Higher chance to instantly kill all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'DEATH',
+    accuracy = 50
 }
 
 return actionData;

@@ -55,7 +55,7 @@ local function drawDamagedAnimation(enemy, index, color)
     if state.animation.tick > 1 then
         local spritePos = getSpritePos(enemy, index, 0, 0)
         if color and color == 'grey' then
-            love.graphics.setColor(0.5,0.5,0.5)
+            love.graphics.setColor(0.6,0.6,0.6)
         elseif color and color == 'blue' then
             love.graphics.setColor(0.4,0.2,0.6)
         else
@@ -80,6 +80,14 @@ local function drawImmuneAnimation(enemy, index)
     end
 end
 
+local function drawDodgeAnimation(enemy, index)
+    if state.animation.tick == 1 or state.animation.tick == 2 then
+        drawEnemySprite(enemy, index, 5, 0)
+    else
+        drawEnemySprite(enemy, index, 0, 0)
+    end
+end
+
 
 local function drawDeathAnimation(enemy, index)
     local tint = math.max(0, 1 - state.animation.tick/8)
@@ -97,6 +105,8 @@ local function drawEnemyAnimation(enemy, index)
         drawDamagedAnimation(enemy, index, 'blue')
     elseif state.animation.ref == 'enemyImmune' then
         drawImmuneAnimation(enemy, index)
+    elseif state.animation.ref == 'enemyDodged' then
+        drawDodgeAnimation(enemy, index)
     end
 end
 

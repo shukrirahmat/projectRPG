@@ -39,12 +39,23 @@ local function noMp(user)
     utils.battleLogAdd('But '..user.name..' do not have enough mana!');
 end
 
+local function instakill(_, target)
+    utils.battleLogAdd(''..target.name..' is instantly killed!');
+    target.currentHp = 0;
+    table.insert(state.killList, target)
+end
+
+local function missed(_, target)
+    utils.battleLogAdd('It missed '..target.name..'!');
+end
+
 
 effectData['damage'] = { 
     apply = dealDamage , 
     partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
     enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08}
 }
+
 effectData['resisted'] = { 
     apply = dealDamage , 
     partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
@@ -71,6 +82,15 @@ effectData['mpDamage'] = {
 effectData['mpResisted'] = {
     apply = dealMPDamage,
     enemyAnimation = {ref='enemyManaBurned', maxTick=10, speed=0.08}
+}
+
+effectData['instakill'] = { 
+    apply = instakill , 
+}
+
+effectData['missed'] = { 
+    apply = missed , 
+    enemyAnimation = {ref='enemyDodged', maxTick=10, speed=0.08}
 }
 
 return effectData

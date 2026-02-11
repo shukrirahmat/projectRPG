@@ -27,7 +27,7 @@ local dataSheet = {
         def = 50,
         agi = 80,
         critRate = 64,
-        skills = {'typhoon', 'midTyphoon', 'greatTyphoon', 'chaosIceFrost'}
+        skills = {'typhoon', 'midTyphoon', 'greatTyphoon', 'chaosIceFrost', 'exorcism', 'greatExorcism'}
     }, 
     {
         name = 'MAGE',
@@ -37,7 +37,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'lightning', 'midLightning', 'greatLightning', 'manaBurn', 'greatManaBurn'}
+        skills = {'lightning', 'midLightning', 'greatLightning', 'death', 'midDeath', 'greatDeath'}
     }
 }
 

@@ -61,7 +61,7 @@ local function noMp(self, user, target, skill)
     local noMPeffect = effect.new('noMp', user, target)
     table.insert(state.effectList, noMPeffect)
 end
-    
+
 
 local function damageMagic(self, user, target)
     local var = self.variance or 0.2
@@ -103,11 +103,11 @@ local function auraCast(self, user, target)
     local baseDamage = math.floor(user.str * self.auraRatio)
     local mod = math.floor(baseDamage * 0.2)
     local damage = baseDamage + math.random(-mod, mod)
-    
+
     if user.isAuraCharged then
         damage = math.floor(damage * 2.5)
     end
-    
+
     local resistance = utils.checkResistance(self.element, target)
     local ref
     if resistance == 2 then 
@@ -147,11 +147,11 @@ end
 local function castDrain(self, user, target)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
-    
+
     local hpBonus = math.floor(user.maxHp * self.drainBonus)
     local baseDamage = self.baseDamage + hpBonus
     local mod = math.floor(baseDamage * 0.2)
-    
+
     local damage = baseDamage + math.random(-mod, mod)
     local resistance = utils.checkResistance(self.element, target)
     local ref
@@ -167,11 +167,38 @@ local function castDrain(self, user, target)
 
     local damageEffect = effect.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
-    
+
     if ref ~= 'immune' then
         local amount = math.min(damage, target.currentHp)
         local recoverEffect = effect.new('recover', user, user, amount)
         table.insert(state.effectList, recoverEffect)
+    end
+end
+
+local function castManaBurn(self, user, group)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(group) do
+        if not target.isDead then
+
+            local mod = math.floor(self.baseDamage * 0.2)
+            local burnAmount = self.baseDamage + math.random(-mod, mod)
+            local resistance = utils.checkResistance(self.element, target)
+            local ref
+
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'mpResisted'
+                burnAmount = math.floor(burnAmount/2)
+            else
+                ref = 'mpDamage'
+            end
+
+            local damageEffect = effect.new(ref, user, target, burnAmount)
+            table.insert(state.effectList, damageEffect)
+        end
     end
 end
 
@@ -200,7 +227,7 @@ actionData['fire'] = {
     name = 'Fire', 
     magic = true,
     cost = 2, 
-    desc = 'Deals 8-12 fire damage to one enemy',
+    desc = 'Deals small fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -212,7 +239,7 @@ actionData['midFire'] = {
     name = 'MidFire', 
     magic = true,
     cost = 4, 
-    desc = 'Deals 32-48 fire damage to one enemy',
+    desc = 'Deals medium fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -224,7 +251,7 @@ actionData['greatFire'] = {
     name = 'GreatFire', 
     magic = true,
     cost = 8, 
-    desc = 'Deals 80-120 fire damage to one enemy',
+    desc = 'Deals large fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -236,7 +263,7 @@ actionData['chaosFire'] = {
     name = 'ChaosFire', 
     magic = true,
     cost = 15, 
-    desc = 'Deals 200-300 fire damage to one enemy',
+    desc = 'Deals very large fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -248,7 +275,7 @@ actionData['ice'] = {
     name = 'Ice', 
     magic = true,
     cost = 3, 
-    desc = 'Deals 12-18 ice damage to one enemy',
+    desc = 'Deals small ice damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -260,7 +287,7 @@ actionData['midIce'] = {
     name = 'MidIce', 
     magic = true,
     cost = 5, 
-    desc = 'Deals 40-60 ice damage to one enemy',
+    desc = 'Deals medium ice damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -272,7 +299,7 @@ actionData['greatIce'] = {
     name = 'GreatIce', 
     magic = true,
     cost = 10, 
-    desc = 'Deals 96-144 ice damage to one enemy',
+    desc = 'Deals large ice damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -284,7 +311,7 @@ actionData['holy'] = {
     name = 'Holy', 
     magic = true,
     cost = 4, 
-    desc = 'Deals 16-24 holy damage to one enemy',
+    desc = 'Deals small holy damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -296,7 +323,7 @@ actionData['midHoly'] = {
     name = 'MidHoly', 
     magic = true,
     cost = 6, 
-    desc = 'Deals 64-96 holy damage to one enemy',
+    desc = 'Deals medium holy damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -308,7 +335,7 @@ actionData['greatHoly'] = {
     name = 'GreatHoly', 
     magic = true,
     cost = 12, 
-    desc = 'Deals 144-216 holy damage to one enemy',
+    desc = 'Deals large holy damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -320,7 +347,7 @@ actionData['void'] = {
     name = 'Void', 
     magic = true,
     cost = 4, 
-    desc = 'Deals 12-28 void damage to one enemy',
+    desc = 'Deals small void damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -333,7 +360,7 @@ actionData['midVoid'] = {
     name = 'MidVoid', 
     magic = true,
     cost = 6, 
-    desc = 'Deals 48-112 void damage to one enemy',
+    desc = 'Deals medium void damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -346,7 +373,7 @@ actionData['greatVoid'] = {
     name = 'GreatVoid', 
     magic = true,
     cost = 12, 
-    desc = 'Deals 108-252 void damage to one enemy',
+    desc = 'Deals large void damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = damageMagicSingle,
@@ -359,7 +386,7 @@ actionData['fireBlast'] = {
     name = 'FireBlast', 
     magic = true,
     cost = 4, 
-    desc = 'Deals 8-12 fire damage to all enemies',
+    desc = 'Deals small fire damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -371,7 +398,7 @@ actionData['midFireBlast'] = {
     name = 'MidFireBlast', 
     magic = true,
     cost = 8, 
-    desc = 'Deals 24-36 fire damage to all enemies',
+    desc = 'Deals medium fire damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -383,7 +410,7 @@ actionData['greatFireBlast'] = {
     name = 'GreatFireBlast', 
     magic = true,
     cost = 12, 
-    desc = 'Deals 64-96 fire damage to all enemies',
+    desc = 'Deals large fire damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -395,7 +422,7 @@ actionData['iceFrost'] = {
     name = 'IceFrost', 
     magic = true,
     cost = 3, 
-    desc = 'Deals 7-9 ice damage to all enemies',
+    desc = 'Deals small ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -407,7 +434,7 @@ actionData['midIceFrost'] = {
     name = 'MidIceFrost', 
     magic = true,
     cost = 6, 
-    desc = 'Deals 16-24 ice damage to all enemies',
+    desc = 'Deals medium ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -419,7 +446,7 @@ actionData['greatIceFrost'] = {
     name = 'GreatIceFrost', 
     magic = true,
     cost = 10, 
-    desc = 'Deals 48-72 ice damage to all enemies',
+    desc = 'Deals large ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -431,7 +458,7 @@ actionData['chaosIceFrost'] = {
     name = 'ChaosIceFrost', 
     magic = true,
     cost = 20, 
-    desc = 'Deals 120-180 ice damage to all enemies',
+    desc = 'Deals very large ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -443,7 +470,7 @@ actionData['typhoon'] = {
     name = 'Typhoon', 
     magic = true,
     cost = 5, 
-    desc = 'Deals 12-18 wind damage to all enemies',
+    desc = 'Deals small wind damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -455,7 +482,7 @@ actionData['midTyphoon'] = {
     name = 'MidTyphoon', 
     magic = true,
     cost = 9, 
-    desc = 'Deals 40-60 wind damage to all enemies',
+    desc = 'Deals medium wind damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -467,7 +494,7 @@ actionData['greatTyphoon'] = {
     name = 'GreatTyphoon', 
     magic = true,
     cost = 14, 
-    desc = 'Deals 80-120 wind damage to all enemies',
+    desc = 'Deals large wind damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -479,7 +506,7 @@ actionData['lightning'] = {
     name = 'Lightning', 
     magic = true,
     cost = 5, 
-    desc = 'Deals 9-21 bolt damage to all enemies',
+    desc = 'Deals small bolt damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -492,7 +519,7 @@ actionData['midLightning'] = {
     name = 'MidLightning', 
     magic = true,
     cost = 9, 
-    desc = 'Deals 30-70 bolt damage to all enemies',
+    desc = 'Deals medium bolt damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -505,7 +532,7 @@ actionData['greatLightning'] = {
     name = 'GreatLightning', 
     magic = true,
     cost = 14, 
-    desc = 'Deals 60-140 bolt damage to all enemies',
+    desc = 'Deals large bolt damage to all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = damageMagicAll,
@@ -608,6 +635,30 @@ actionData['greatDrain'] = {
     element = 'DRAIN',
     baseDamage = 60,
     drainBonus = 0.25
+}
+
+actionData['manaBurn'] = {
+    name = 'ManaBurn', 
+    magic = true,
+    cost = 2, 
+    desc = 'Reduce small amount of all enemies MP',
+    aim = 'enemies',
+    scope = 'all',
+    execute = castManaBurn,
+    element = 'MANABURN',
+    baseDamage = 10,
+}
+
+actionData['greatManaBurn'] = {
+    name = 'GreatManaBurn', 
+    magic = true,
+    cost = 5, 
+    desc = 'Reduce large amount of all enemies MP',
+    aim = 'enemies',
+    scope = 'all',
+    execute = castManaBurn,
+    element = 'MANABURN',
+    baseDamage = 25,
 }
 
 

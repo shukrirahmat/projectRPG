@@ -37,7 +37,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'lightning', 'midLightning', 'greatLightning'}
+        skills = {'lightning', 'midLightning', 'greatLightning', 'manaBurn', 'greatManaBurn'}
     }
 }
 

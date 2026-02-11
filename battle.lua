@@ -49,7 +49,7 @@ function battle.draw()
         if enemy.isDead then
             text = 'DEAD'
         else
-            text = ''..enemy.name..' '..enemy.currentHp..''
+            text = ''..enemy.name..' '..enemy.currentHp..'|'..enemy.currentMp..''
         end
         
         if state.animation and state.animation.user == enemy then

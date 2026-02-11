@@ -43,7 +43,7 @@ local function drawAttackAnimation(enemy, index)
     end
 end
 
-local function drawDamagedAnimation(enemy, index, resisted)
+local function drawDamagedAnimation(enemy, index, color)
     if state.animation.tick % 2 == 0 and state.animation.tick <= 4 then
         drawEnemySprite(enemy, index, 0, 0)
     elseif state.animation.tick > 4 then
@@ -54,8 +54,10 @@ local function drawDamagedAnimation(enemy, index, resisted)
 
     if state.animation.tick > 1 then
         local spritePos = getSpritePos(enemy, index, 0, 0)
-        if resisted then
+        if color and color == 'grey' then
             love.graphics.setColor(0.5,0.5,0.5)
+        elseif color and color == 'blue' then
+            love.graphics.setColor(0.4,0.2,0.6)
         else
             love.graphics.setColor(1,1,1)
         end
@@ -88,9 +90,11 @@ local function drawEnemyAnimation(enemy, index)
     if state.animation.ref == 'enemyAtk' then
         drawAttackAnimation(enemy, index)
     elseif state.animation.ref == 'enemyDamaged' then
-        drawDamagedAnimation(enemy, index, false)
+        drawDamagedAnimation(enemy, index)
     elseif state.animation.ref == 'enemyResisted' then
-        drawDamagedAnimation(enemy, index, true)
+        drawDamagedAnimation(enemy, index, 'grey')
+    elseif state.animation.ref == 'enemyManaBurned' then
+        drawDamagedAnimation(enemy, index, 'blue')
     elseif state.animation.ref == 'enemyImmune' then
         drawImmuneAnimation(enemy, index)
     end

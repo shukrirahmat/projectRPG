@@ -17,7 +17,7 @@ local dataSheet = {
 
     ['skeleton'] = {
         hp = 100,
-        mp = 0,
+        mp = 40,
         atk = 100,
         def = 70,
         agi = 60,
@@ -29,7 +29,7 @@ local dataSheet = {
     
     ['dragon'] = {
         hp = 250,
-        mp = 0,
+        mp = 100,
         atk = 120,
         def = 100,
         agi = 50,

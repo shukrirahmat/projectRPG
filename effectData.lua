@@ -17,6 +17,15 @@ local function dealDamage(_, target, value)
     end
 end
 
+local function dealMPDamage(_, target, value)
+    local burnAmount = value
+    target.currentMp = target.currentMp - burnAmount;
+    utils.battleLogAdd(''..target.name..' loses '..burnAmount..' MP.');
+    if target.currentMp <= 0 then
+        target.currentMp = 0;
+    end
+end
+
 local function recovery(_, target, value)
     target.currentHp = math.min(target.maxHp, target.currentHp + value)
     utils.battleLogAdd(''..target.name..' recovers '..value..' HP.');
@@ -52,6 +61,16 @@ effectData['noMp'] = {
 
 effectData['recover'] = {
     apply = recovery
+}
+
+effectData['mpDamage'] = {
+    apply = dealMPDamage,
+    enemyAnimation = {ref='enemyManaBurned', maxTick=10, speed=0.08}
+}
+
+effectData['mpResisted'] = {
+    apply = dealMPDamage,
+    enemyAnimation = {ref='enemyManaBurned', maxTick=10, speed=0.08}
 }
 
 return effectData

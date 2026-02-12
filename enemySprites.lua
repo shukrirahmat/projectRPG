@@ -1,4 +1,5 @@
 local state = require('state')
+local hud = require('hud')
 
 local E = {}
 enemySprites = E
@@ -110,6 +111,36 @@ local function drawEnemyAnimation(enemy, index)
     end
 end
 
+local function drawStatusEffect(enemy, index)
+    local spritePos = getSpritePos(enemy, index, 0, 0)
+    
+    local borderX = spritePos.x + 15
+    local borderHeight = 65
+    local borderY = spritePos.y + monsterSpriteDimension - borderHeight/2
+    local borderWidth = monsterSpriteDimension - 30
+    love.graphics.setColor(0, 0, 0, 0.85)
+    love.graphics.rectangle('fill', borderX, borderY, borderWidth, borderHeight)
+    
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(font_tiny)
+    local i = 0
+    local j = 0
+    for k,v in pairs(enemy.status) do
+        love.graphics.printf(
+            string.sub(k, 1, 3),
+            borderX + (i * (borderWidth  /3)),
+            borderY + (j * 15),
+            borderWidth /3,
+            'center'
+        )
+        i = i + 1
+        if i > 3 then
+            i = 0
+            j = j + 1
+        end
+    end
+end
+
 function E.draw()
     for i, enemy in ipairs(state.enemies) do
         if not enemy.isDead then
@@ -118,6 +149,11 @@ function E.draw()
             else
                 drawEnemySprite(enemy, i, 0, 0)
             end
+
+            if state.infoMode then
+                drawStatusEffect(enemy, i)
+            end
+            
         elseif enemy.isDead 
         and state.animation and state.animation.user == enemy then
             drawDeathAnimation(enemy,i)

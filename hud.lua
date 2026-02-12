@@ -14,6 +14,35 @@ local function alignNumber(value)
     return result
 end
 
+local function drawStatusEffect(x, y, width, index, char)
+    local borderX = x + (index - 1) * (width + x) + 10
+    local borderY = y + 5
+    local borderWidth = width - 20
+    local borderHeight = 65
+    love.graphics.setColor(0, 0, 0, 0.85)
+    love.graphics.rectangle('fill', borderX, borderY, borderWidth, borderHeight)
+    
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(font_tiny)
+    local i = 0
+    local j = 0
+    for k,v in pairs(char.status) do
+        love.graphics.printf(
+            string.sub(k, 1, 3),
+            borderX + (i * (borderWidth  /3)),
+            borderY + (j * 15),
+            borderWidth /3,
+            'center'
+        )
+        i = i + 1
+        if i > 3 then
+            i = 0
+            j = j + 1
+        end
+    end
+end
+    
+
 function hud.draw()
 
     local borderX = 10
@@ -48,7 +77,7 @@ function hud.draw()
             else
                 shiftY = math.max(0, (16 - (state.animation.tick) * 2))
             end
-            
+
             local hpDrop = math.min(state.animation.value, member.currentHp)
             local dropPerTick = math.floor(hpDrop/state.animation.maxTick)
             if state.animation.tick < state.animation.maxTick then
@@ -57,7 +86,21 @@ function hud.draw()
                 hpBit = 0
             end
         end
+        
+        if state.infoMode then
+            drawStatusEffect(borderX, borderY + borderHeight, borderWidth, index, state.party[index])
+        end
+        
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.rectangle(
+            'fill',
+            borderX + (index - 1) * (borderWidth + borderX),
+            borderY + shiftY,
+            borderWidth,
+            borderHeight
+        )
 
+        love.graphics.setColor(1, 1, 1)
         love.graphics.rectangle(
             'line',
             borderX + (index - 1) * (borderWidth + borderX),
@@ -65,6 +108,7 @@ function hud.draw()
             borderWidth,
             borderHeight
         )
+            
 
         love.graphics.setFont(font_small)
         love.graphics.printf(
@@ -78,8 +122,21 @@ function hud.draw()
         local memberHpX = hpX + (index - 1) * (borderWidth + borderX)
         local memberMpX = mpX + (index - 1) * (borderWidth + borderX)
         love.graphics.setFont(font_large)
-        love.graphics.printf('HP '..alignNumber(member.currentHp + hpBit)..'', memberHpX, hpY + shiftY, hpWidth,        'center')
-        love.graphics.printf('MP '..alignNumber(member.currentMp)..'', memberMpX, mpY + shiftY, mpWidth,        'center')
+        if not state.infoMode then
+            love.graphics.printf(
+                'HP '..alignNumber(member.currentHp + hpBit)..'', 
+                memberHpX, hpY + shiftY, hpWidth,'center')
+            love.graphics.printf(
+                'MP '..alignNumber(member.currentMp)..'', 
+                memberMpX, mpY + shiftY, mpWidth,'center')
+        else
+            love.graphics.printf(
+                ''..alignNumber(member.currentHp + hpBit)..'/'..alignNumber(member.maxHp)..'', 
+                memberHpX, hpY + shiftY, hpWidth, 'center')
+            love.graphics.printf(
+                ''..alignNumber(member.currentMp)..'/'..alignNumber(member.maxMp)..'', 
+                memberMpX, mpY + shiftY, mpWidth, 'center')
+        end
     end
 end
 

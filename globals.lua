@@ -3,6 +3,7 @@ windowHeight = 600
 
 love.graphics.setBackgroundColor(0,0,0)
 
+font_tiny = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-MediumItalic.ttf', 12)
 font_small = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 14)
 font_medium = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 16)
 font_text = love.graphics.newFont('fonts/AtkinsonHyperlegibleMono-Medium.ttf', 16)

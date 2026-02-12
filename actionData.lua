@@ -347,6 +347,32 @@ local function healAll(self, user, group)
     end
 end
 
+local function removeStatus(self, user, target)
+    if target.status[self.status] then
+        local clear = effect.new('clearStatus', user, target, self.status)
+        table.insert(state.effectList, clear)
+    else
+        local immuneEffect = effect.new('immune', user, target)
+        table.insert(state.effectList, immuneEffect)
+    end
+end
+
+local function removeStatusSingle(self, user, target)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    removeStatus(self, user, target)
+end
+
+local function removeStatusAll(self, user, group)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    for i, target in ipairs(group) do
+        if not target.isDead then
+            removeStatus(self, user, target)
+        end
+    end
+end
+
 
 actionData['normalAtk'] = { 
     execute = normalAttack, 
@@ -1122,6 +1148,61 @@ actionData['greatHealAll'] = {
     scope = 'all',
     execute = healAll,
     healAmount = 250
+}
+
+actionData['neutralize'] = {
+    name = 'Neutralize', 
+    magic = true,
+    cost = 2, 
+    desc = 'Remove poison from one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = removeStatusSingle,
+    status = 'POISON'
+}
+
+actionData['neutralizeAll'] = {
+    name = 'NeutralizeAll', 
+    magic = true,
+    cost = 5, 
+    desc = 'Remove poison from all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = removeStatusAll,
+    status = 'POISON'
+}
+
+actionData['purify'] = {
+    name = 'Purify', 
+    magic = true,
+    cost = 3, 
+    desc = 'Remove curse from one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = removeStatusSingle,
+    status = 'CURSE'
+}
+
+actionData['purifyAll'] = {
+    name = 'PurifyAll', 
+    magic = true,
+    cost = 6, 
+    desc = 'Remove curse from all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = removeStatusAll,
+    status = 'CURSE'
+}
+
+actionData['mend'] = {
+    name = 'Mend', 
+    magic = true,
+    cost = 8, 
+    desc = 'Remove wound from all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = removeStatusAll,
+    status = 'WOUND'
 }
 
 

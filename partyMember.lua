@@ -29,7 +29,7 @@ local dataSheet = {
         def = 50,
         agi = 80,
         critRate = 64,
-        skills = {'midTyphoon', 'heal', 'midHeal', 'greatHeal', 'fullHeal', 'healAll', 'greatHealAll'}
+        skills = {'healAll', 'greatHealAll', 'neutralize', 'neutralizeAll', 'mend', 'purify', 'purifyAll'}
     }, 
     {
         name = 'MAGE',

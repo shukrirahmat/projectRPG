@@ -61,14 +61,33 @@ end
 
 local function clearStatus(user, target, status)
     if status == 'BLIND' then
-        user.status['BLIND'] = nil
+        target.status['BLIND'] = nil
         utils.battleLogAdd(""..target.name.." cleared the sand from their eyes")
     elseif status == 'SEAL' then
-        user.status['SEAL'] = nil
+        target.status['SEAL'] = nil
         utils.battleLogAdd(""..target.name.." abilites is no longer sealed")
     elseif status == 'STUN' then
-        user.status['STUN'] = nil
+        target.status['STUN'] = nil
         utils.battleLogAdd(""..target.name.." is no longer stunned")
+    elseif status == 'WOUND' then
+        target.status['WOUND'] = nil
+        utils.battleLogAdd(""..target.name.."'s wound has been mended")
+    elseif status == 'POISON' then
+        target.status['POISON'] = nil
+        for i, effect in ipairs(state.effectList) do
+            if effect.ref == 'poisonDamage' then
+                table.remove(state.effectList, i)
+            end
+        end
+        utils.battleLogAdd(""..target.name.." recovered from poisoned")
+    elseif status == 'CURSE' then
+        target.status['CURSE'] = nil
+        for i, effect in ipairs(state.effectList) do
+            if effect.ref == 'curseEffect' then
+                table.remove(state.effectList, i)
+            end
+        end
+        utils.battleLogAdd("The curse have been removed from "..target.name.."")
     end
 end
 

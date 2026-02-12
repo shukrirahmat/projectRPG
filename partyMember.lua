@@ -24,12 +24,12 @@ local dataSheet = {
     {
         name = 'PRIEST',
         hp = 140,
-        mp = 50,
+        mp = 150,
         str = 60,
         def = 50,
         agi = 80,
         critRate = 64,
-        skills = {'typhoon', 'midTyphoon', 'greatTyphoon', 'silence', 'greatSilence'}
+        skills = {'midTyphoon', 'heal', 'midHeal', 'greatHeal', 'fullHeal', 'healAll', 'greatHealAll'}
     }, 
     {
         name = 'MAGE',
@@ -39,7 +39,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'lightning', 'midLightning', 'greatLightning', 'tremor', 'greatTremor'}
+        skills = {'toxin', 'midToxin', 'greatToxin', 'hex', 'midHex', 'greatHex'}
     }
 }
 
@@ -64,6 +64,8 @@ function P.new(index)
     p.critRate = data.critRate or 128
     p.skills = data.skills or {}
     p.status = {}
+    p.strong = data.strong or {}
+    p.immune = data.immune or {}
     
     function p.makeStunAction(self)
         local action = action.new('stunned', self, target)

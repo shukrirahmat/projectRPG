@@ -27,8 +27,14 @@ local function dealMPDamage(_, target, value)
 end
 
 local function recovery(_, target, value)
-    target.currentHp = math.min(target.maxHp, target.currentHp + value)
-    utils.battleLogAdd(''..target.name..' recovers '..value..' HP.');
+    local amount = math.min(target.maxHp - target.currentHp, value)
+    
+    if target.status['WOUND'] then
+        amount = math.floor(amount * 0.5)
+    end
+    
+    target.currentHp = math.min(target.maxHp, target.currentHp + amount)
+    utils.battleLogAdd(''..target.name..' recovers '..amount..' HP.');
 end
 
 local function noEffect(_, target, value)
@@ -85,12 +91,45 @@ local function addStatus(_, target, status)
         else
             utils.battleLogAdd(""..target.name.." is stunned!");
         end
+    elseif status == 'WOUND' then
+        if target.status['WOUND'] then
+            utils.battleLogAdd(""..target.name.." is already wounded");
+        else
+            utils.battleLogAdd(""..target.name.." is wounded. Healing is reduced!");
+        end
+    elseif status == 'POISON' then
+        if target.status['POISON'] then
+            utils.battleLogAdd(""..target.name.." is already poisoned");
+        else
+            utils.battleLogAdd(""..target.name.." is poisoned!");
+        end
+    elseif status == 'CURSE' then
+        if target.status['CURSE'] then
+            utils.battleLogAdd(""..target.name.." is already cursed");
+        else
+            utils.battleLogAdd(""..target.name.." is cursed!");
+        end
     end
 
     target.status[status] = true;
 end
 
+local function poisonDamage(_, target, value)
+    local damage = value
+    target.currentHp = target.currentHp - damage;
+    utils.battleLogAdd(''..target.name..' loses '..damage..' HP to poison.');
+    if target.currentHp <= 0 then
+        target.currentHp = 0;
+        table.insert(state.killList, target)
+    end
+end
 
+local function curseEffect(_, target)
+    utils.battleLogAdd(''..target.name..' died from the curse');
+    target.currentHp = 0;
+    table.insert(state.killList, target)
+end
+    
 
 
 effectData['damage'] = { 
@@ -142,6 +181,16 @@ effectData['addStatus'] = {
 
 effectData['clearStatus'] = {
     apply = clearStatus
+}
+
+effectData['poisonDamage'] = { 
+    apply = poisonDamage , 
+    partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
+    enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08}
+}
+
+effectData['curseEffect'] = { 
+    apply = curseEffect
 }
 
 return effectData

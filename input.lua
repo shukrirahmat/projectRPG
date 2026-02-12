@@ -100,7 +100,7 @@ function input.executeConfirm()
             local group
             if data.aim == 'enemies' then
                 group = state.enemies
-            elseif data.aim == 'party' then
+            elseif data.aim == 'allies' then
                 group = state.party
             end
             if data.scope == 'single' then

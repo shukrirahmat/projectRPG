@@ -27,17 +27,17 @@ local dataSheet = {
         immune = { ['ICE'] = true , ['DEATH'] = true },
         specialType = 'UNDEAD'
     },
-    
+
     ['dragon'] = {
         hp = 250,
-        mp = 100,
+        mp = 20,
         atk = 120,
         def = 100,
         agi = 50,
         sprite = dragon_sprite,
         spriteHeight = 0,
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
-        immune = {['STUN'] = true, ['SEAL'] = true},
+        immune = {['STUN'] = true},
         specialType = 'DRAGON'
     }
 }
@@ -45,12 +45,13 @@ local dataSheet = {
 local enemy = {}
 
 function enemy.new(species, name)
-    
+
     local data = dataSheet[species]
     local e = {}
 
     e.isDead = false
 
+    e.species = species
     e.name = name
     e.maxHp = data.hp
     e.currentHp = data.hp
@@ -66,15 +67,21 @@ function enemy.new(species, name)
     e.immune = data.immune or {}
     e.specialType = data.specialType
     e.status = {}
-    
+
     function e.chooseAction(self)
-        local target = utils.selectTargetRandomly(state.party)
-        local action = action.new('normalAtk', self, target)
-        return action
+
+        ---TEMPORARY TEST---
+        local toAct
+        if e.species == 'dragon' then
+            toAct = action.new('midLightning', self, state.party)
+        else
+            local target = utils.selectTargetRandomly(state.party)
+            toAct = action.new('normalAtk', self, target)
+        end
+        return toAct
     end
-    
+
     return e
 end
 
 return enemy
-    

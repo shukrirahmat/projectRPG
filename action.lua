@@ -20,6 +20,26 @@ function action.new(ref, user, target)
         end
     end
 
+    local function handlePoison()
+        local amount = math.floor(user.maxHp * 0.05)
+        local poisonEffect = effect.new('poisonDamage', a.user, a.user, amount)
+        table.insert(state.effectList, poisonEffect)
+    end
+
+    local function handleCurse()
+        local max
+        if a.user.isPartyMember then
+            max = 20
+        else
+            max = 4
+        end
+        local roll = math.random(1, max)
+        if roll == 1 then
+            local curseEffect = effect.new('curseEffect', a.user, a.user)
+            table.insert(state.effectList, curseEffect)
+        end
+    end
+
     function a.execute()
         local toAct = actionData[a.ref]
         local canAct = true
@@ -30,7 +50,7 @@ function action.new(ref, user, target)
             stunned = true
         end
 
-        if toAct.magic or toAct.tech then
+        if not stunned and toAct.magic or toAct.tech then
             if a.user.currentMp >= toAct.cost and not a.user.status['SEAL'] then
                 a.user.currentMp = a.user.currentMp - toAct.cost
             else
@@ -60,13 +80,21 @@ function action.new(ref, user, target)
         if a.user.status['BLIND'] then
             clearStatus('BLIND', 20)
         end
-        
+
         if a.user.status['SEAL'] then
             clearStatus('SEAL', 20)
         end
-        
+
         if a.user.status['STUN'] then
             clearStatus('STUN', 50)
+        end
+
+        if not a.user.isDead and a.user.status['POISON'] then
+            handlePoison()
+        end
+
+        if not a.user.isDead and a.user.status['CURSE'] then
+            handleCurse()
         end
     end
 

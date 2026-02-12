@@ -317,6 +317,36 @@ local function statusEffectAll(self, user, group)
     end
 end
 
+local function heal(self, user, target)
+    local amount
+    if self.name == 'FullHeal' then
+        amount = target.maxHp - target.currentHp
+    else
+        amount = self.healAmount
+        local mod = math.floor(amount*0.2)
+        amount = amount + math.random(-mod, mod)
+    end
+    
+    local recoverEffect = effect.new('recover', user, target, amount)
+    table.insert(state.effectList, recoverEffect)
+end
+
+local function healSingle(self, user, target)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    heal(self, user, target)
+end
+
+local function healAll(self, user, group)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+    for i, target in ipairs(group) do
+        if not target.isDead then
+            heal(self, user, target)
+        end
+    end
+end
+
 
 actionData['normalAtk'] = { 
     execute = normalAttack, 
@@ -726,7 +756,7 @@ actionData['auraCharge'] = {
     tech = true,
     cost = 0, 
     desc = 'Next aura magic will deal 2.5 more damage',
-    aim = 'party',
+    aim = 'allies',
     scope = 'self',
     execute = auraCharge,
 }
@@ -853,7 +883,7 @@ actionData['greatDeath'] = {
     name = 'GreatDeath', 
     magic = true,
     cost = 15, 
-    desc = 'high chance to instantly kill all enemies',
+    desc = 'High chance to instantly kill all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = statusEffectAll,
@@ -877,7 +907,7 @@ actionData['greatSandstorm'] = {
     name = 'GreatSandstorm', 
     magic = true,
     cost = 5, 
-    desc = 'high chance to blind all enemies',
+    desc = 'High chance to blind all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = statusEffectAll,
@@ -901,7 +931,7 @@ actionData['greatSilence'] = {
     name = 'GreatSilence', 
     magic = true,
     cost = 5, 
-    desc = 'high chance to seal abilities of all enemies',
+    desc = 'High chance to seal abilities of all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = statusEffectAll,
@@ -918,19 +948,180 @@ actionData['tremor'] = {
     scope = 'all',
     execute = statusEffectAll,
     element = 'STUN',
-    accuracy = 30
+    accuracy = 25
 }
 
 actionData['greatTremor'] = {
     name = 'GreatTremor', 
     magic = true,
     cost = 8, 
-    desc = 'high chance to stun of all enemies',
+    desc = 'High chance to stun of all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = statusEffectAll,
     element = 'STUN',
-    accuracy = 60
+    accuracy = 50
+}
+
+actionData['wound'] = {
+    name = 'Wound', 
+    magic = true,
+    cost = 3, 
+    desc = 'Low chance to leave all enemies wounded',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'WOUND',
+    accuracy = 50
+}
+
+actionData['greatWound'] = {
+    name = 'GreatWound', 
+    magic = true,
+    cost = 5, 
+    desc = 'High chance to leave all enemies wounded',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'WOUND',
+    accuracy = 80
+}
+
+actionData['toxin'] = {
+    name = 'Toxin', 
+    magic = true,
+    cost = 2, 
+    desc = 'Low chance to poison one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'POISON',
+    accuracy = 50
+}
+
+actionData['midToxin'] = {
+    name = 'MidToxin', 
+    magic = true,
+    cost = 3, 
+    desc = 'Low chance to poison all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'POISON',
+    accuracy = 50
+}
+
+actionData['greatToxin'] = {
+    name = 'GreatToxin', 
+    magic = true,
+    cost = 5, 
+    desc = 'High chance to poison all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'POISON',
+    accuracy = 80
+}
+
+actionData['hex'] = {
+    name = 'Hex', 
+    magic = true,
+    cost = 3, 
+    desc = 'Low chance to put a curse one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'CURSE',
+    accuracy = 40
+}
+
+actionData['midHex'] = {
+    name = 'MidHex', 
+    magic = true,
+    cost = 5, 
+    desc = 'Low chance to put a curse on all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'CURSE',
+    accuracy = 40
+}
+
+actionData['greatHex'] = {
+    name = 'GreatHex', 
+    magic = true,
+    cost = 8, 
+    desc = 'Low chance to put a curse on all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'CURSE',
+    accuracy = 70
+}
+
+actionData['heal'] = {
+    name = 'Heal', 
+    magic = true,
+    cost = 2, 
+    desc = 'Recover small amount of HP to one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = healSingle,
+    healAmount = 40
+}
+
+actionData['midHeal'] = {
+    name = 'MidHeal', 
+    magic = true,
+    cost = 4, 
+    desc = 'Recover medium amount of HP to one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = healSingle,
+    healAmount = 100
+}
+
+actionData['greatHeal'] = {
+    name = 'GreatHeal', 
+    magic = true,
+    cost = 6, 
+    desc = 'Recover large amount of HP to one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = healSingle,
+    healAmount = 300
+}
+
+actionData['fullHeal'] = {
+    name = 'FullHeal', 
+    magic = true,
+    cost = 10, 
+    desc = 'Recover HP of one ally to full',
+    aim = 'allies',
+    scope = 'single',
+    execute = healSingle
+}
+
+actionData['healAll'] = {
+    name = 'HealAll', 
+    magic = true,
+    cost = 12, 
+    desc = 'Recover medium amount of HP to all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = healAll,
+    healAmount = 80
+}
+
+actionData['greatHealAll'] = {
+    name = 'GreatHealAll', 
+    magic = true,
+    cost = 20, 
+    desc = 'Recover large amount of HP to all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = healAll,
+    healAmount = 250
 }
 
 

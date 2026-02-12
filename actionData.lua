@@ -460,7 +460,7 @@ actionData['greatHoly'] = {
     scope = 'single',
     execute = damageMagicSingle,
     element = 'HOLY',
-    baseDamage = 180
+    baseDamage = 160
 }
 
 actionData['void'] = {
@@ -498,7 +498,7 @@ actionData['greatVoid'] = {
     scope = 'single',
     execute = damageMagicSingle,
     element = 'VOID',
-    baseDamage = 180,
+    baseDamage = 160,
     variance = 0.4
 }
 

@@ -54,11 +54,6 @@ function loop.run()
         end
 
         action.execute()
-        --TEMP
-        if action.user == state.party[2] then
-            action.user.status['STUN'] = true
-        end
-        --
     else
         utils.clearTemporaryStatus()
         state.battleRunning = false

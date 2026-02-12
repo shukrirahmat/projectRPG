@@ -78,6 +78,11 @@ local function stunned(self, user)
     utils.battleLogAdd(text)
 end
 
+local function paralyzed(self, user)
+    local text = "Paralysis disrupted "..user.name.."'s action!";
+    utils.battleLogAdd(text)
+end
+
 
 local function damageMagic(self, user, target)
     local var = self.variance or 0.2
@@ -397,6 +402,10 @@ actionData['skillCanceled'] = {
 
 actionData['stunned'] = {
     execute = stunned
+}
+
+actionData['paralyzed'] = {
+    execute = paralyzed
 }
 
 actionData['fire'] = {
@@ -1077,11 +1086,47 @@ actionData['greatHex'] = {
     name = 'GreatHex', 
     magic = true,
     cost = 8, 
-    desc = 'Low chance to put a curse on all enemies',
+    desc = 'High chance to put a curse on all enemies',
     aim = 'enemies',
     scope = 'all',
     execute = statusEffectAll,
     element = 'CURSE',
+    accuracy = 70
+}
+
+actionData['paralyze'] = {
+    name = 'Paralyze', 
+    magic = true,
+    cost = 3, 
+    desc = 'Low chance to apply paralysis to one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'PARALYSIS',
+    accuracy = 40
+}
+
+actionData['midParalyze'] = {
+    name = 'MidParalyze', 
+    magic = true,
+    cost = 5, 
+    desc = 'Low chance to apply paralysis to all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'PARALYSIS',
+    accuracy = 40
+}
+
+actionData['greatParalyze'] = {
+    name = 'GreatParalyze', 
+    magic = true,
+    cost = 8, 
+    desc = 'High chance to apply paralysis on all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'PARALYSIS',
     accuracy = 70
 }
 
@@ -1192,6 +1237,28 @@ actionData['purifyAll'] = {
     scope = 'all',
     execute = removeStatusAll,
     status = 'CURSE'
+}
+
+actionData['dispel'] = {
+    name = 'Dispel', 
+    magic = true,
+    cost = 3, 
+    desc = 'Remove paralysis from one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = removeStatusSingle,
+    status = 'PARALYSIS'
+}
+
+actionData['dispelAll'] = {
+    name = 'DispelAll', 
+    magic = true,
+    cost = 6, 
+    desc = 'Remove paralysis from all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = removeStatusAll,
+    status = 'PARALYSIS'
 }
 
 actionData['mend'] = {

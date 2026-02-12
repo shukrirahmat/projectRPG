@@ -73,7 +73,7 @@ function enemy.new(species, name)
         ---TEMPORARY TEST---
         local toAct
         if e.species == 'dragon' then
-            toAct = action.new('greatToxin', self, state.party)
+            toAct = action.new('greatParalyze', self, state.party)
         else
             local target = utils.selectTargetRandomly(state.party)
             toAct = action.new('normalAtk', self, target)

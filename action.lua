@@ -21,7 +21,9 @@ function action.new(ref, user, target)
     end
 
     local function handlePoison()
-        local amount = math.floor(user.maxHp * 0.05)
+        local rand = math.random(5, 20)
+        local ratio = rand * 0.01
+        local amount = math.floor(user.maxHp * ratio)
         local poisonEffect = effect.new('poisonDamage', a.user, a.user, amount)
         table.insert(state.effectList, poisonEffect)
     end
@@ -40,24 +42,40 @@ function action.new(ref, user, target)
         end
     end
 
+    local function handleParalysis()
+        local roll = math.random(1, 4)
+        if roll == 1 then 
+            return true
+        else 
+            return false
+        end
+    end
+
     function a.execute()
         local toAct = actionData[a.ref]
         local canAct = true
         local stunned = false
+        local paralyzed = false
 
         if a.user.status['STUN'] then
             canAct = false
             stunned = true
+        elseif a.user.status['PARALYSIS'] then
+            if handleParalysis() then
+                canAct = false
+                paralyzed = true
+            end
         end
 
-        if not stunned and toAct.magic or toAct.tech then
+        if canAct and toAct.magic or toAct.tech then
             if a.user.currentMp >= toAct.cost and not a.user.status['SEAL'] then
                 a.user.currentMp = a.user.currentMp - toAct.cost
             else
                 canAct = false
             end
         end
-
+        
+        ---THE ACTUAL EXECUTION---
         if canAct then
             local followUp = toAct.execute(toAct, a.user, a.target)
             if not a.user.isPartyMember and toAct.enemyAnimation then
@@ -71,7 +89,10 @@ function action.new(ref, user, target)
             end
         elseif stunned then
             local stunAct = actionData['stunned']
-            stunAct.execute(skillCanceled, a.user, a.target)
+            stunAct.execute(stunAct, a.user, a.target)
+        elseif paralyzed then
+            local paraAct = actionData['paralyzed']
+            paraAct.execute(paraAct, a.user, a.target)
         else
             local skillCanceled = actionData['skillCanceled']
             skillCanceled.execute(skillCanceled, a.user, a.target, toAct)

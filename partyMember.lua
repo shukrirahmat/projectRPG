@@ -9,7 +9,7 @@ local dataSheet = {
         def = 70,
         agi = 60,
         critRate = 64,
-        skills = {'drain', 'greatDrain', 'dracoBomb', 'greatDracoBomb'}
+        skills = {'drain', 'greatDrain', 'dracoBomb', 'greatDracoBomb', 'dispel', 'dispelAll'}
     },
     {
         name = 'FIGHTER',
@@ -39,7 +39,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'toxin', 'midToxin', 'greatToxin', 'hex', 'midHex', 'greatHex'}
+        skills = {'toxin', 'midToxin', 'greatToxin', 'paralyze', 'midParalyze', 'greatParalyze'}
     }
 }
 

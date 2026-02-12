@@ -72,6 +72,9 @@ local function clearStatus(user, target, status)
     elseif status == 'WOUND' then
         target.status['WOUND'] = nil
         utils.battleLogAdd(""..target.name.."'s wound has been mended")
+    elseif status == 'PARALYSIS' then
+        target.status['PARALYSIS'] = nil
+        utils.battleLogAdd(""..target.name.." is no longer paralyzed")
     elseif status == 'POISON' then
         target.status['POISON'] = nil
         for i, effect in ipairs(state.effectList) do
@@ -127,6 +130,12 @@ local function addStatus(_, target, status)
             utils.battleLogAdd(""..target.name.." is already cursed");
         else
             utils.battleLogAdd(""..target.name.." is cursed!");
+        end
+    elseif status == 'PARALYSIS' then
+        if target.status['PARALYSIS'] then
+            utils.battleLogAdd(""..target.name.." is already paralyzed");
+        else
+            utils.battleLogAdd(""..target.name.." is paralyzed!");
         end
     end
 

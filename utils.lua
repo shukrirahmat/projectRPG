@@ -157,6 +157,7 @@ end
 function U.handleDeath(target)
     target.currentHp = 0
     target.isDead = true
+    target.status = {}
     U.battleLogAdd(''..target.name..' defeated.')
     removeAction(target)
 

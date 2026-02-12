@@ -53,6 +53,19 @@ local function missed(_, target)
     utils.battleLogAdd('It missed '..target.name..'!');
 end
 
+local function clearStatus(user, target, status)
+    if status == 'BLIND' then
+        user.status['BLIND'] = nil
+        utils.battleLogAdd(""..target.name.." cleared the sand from their eyes")
+    elseif status == 'SEAL' then
+        user.status['SEAL'] = nil
+        utils.battleLogAdd(""..target.name.." abilites is no longer sealed")
+    elseif status == 'STUN' then
+        user.status['STUN'] = nil
+        utils.battleLogAdd(""..target.name.." is no longer stunned")
+    end
+end
+
 local function addStatus(_, target, status)
     if status == 'BLIND' then
         if target.status['BLIND'] then
@@ -76,6 +89,8 @@ local function addStatus(_, target, status)
 
     target.status[status] = true;
 end
+
+
 
 
 effectData['damage'] = { 
@@ -123,6 +138,10 @@ effectData['missed'] = {
 
 effectData['addStatus'] = { 
     apply = addStatus , 
+}
+
+effectData['clearStatus'] = {
+    apply = clearStatus
 }
 
 return effectData

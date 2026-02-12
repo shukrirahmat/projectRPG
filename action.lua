@@ -1,6 +1,8 @@
 local actionData = require('actionData')
 local animation = require('animation')
 local utils = require('utils')
+local effect = require('effect')
+local state = require('state')
 
 local action = {}
 
@@ -10,11 +12,19 @@ function action.new(ref, user, target)
     a.user = user
     a.target = target or nil
 
+    local function clearStatus(status, chance)
+        local roll = math.random(0, 100)
+        if roll <= chance then
+            local clear = effect.new('clearStatus', a.user, a.user, status)
+            table.insert(state.effectList, clear)
+        end
+    end
+
     function a.execute()
         local toAct = actionData[a.ref]
         local canAct = true
         local stunned = false
-        
+
         if a.user.status['STUN'] then
             canAct = false
             stunned = true
@@ -45,6 +55,18 @@ function action.new(ref, user, target)
         else
             local skillCanceled = actionData['skillCanceled']
             skillCanceled.execute(skillCanceled, a.user, a.target, toAct)
+        end
+
+        if a.user.status['BLIND'] then
+            clearStatus('BLIND', 20)
+        end
+        
+        if a.user.status['SEAL'] then
+            clearStatus('SEAL', 20)
+        end
+        
+        if a.user.status['STUN'] then
+            clearStatus('STUN', 50)
         end
     end
 

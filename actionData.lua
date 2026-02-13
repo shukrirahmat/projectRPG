@@ -83,6 +83,16 @@ local function paralyzed(self, user)
     utils.battleLogAdd(text)
 end
 
+local function sleeping(self, user)
+    local text = ''..user.name..' is sleeping soundly!';
+    utils.battleLogAdd(text)
+end
+
+local function confused(self, user)
+    local text = ''..user.name..' is confused!';
+    utils.battleLogAdd(text)
+end
+
 
 local function damageMagic(self, user, target)
     local var = self.variance or 0.2
@@ -412,6 +422,14 @@ actionData['stunned'] = {
 
 actionData['paralyzed'] = {
     execute = paralyzed
+}
+
+actionData['confused'] = {
+    execute = confused
+}
+
+actionData['sleeping'] = {
+    execute = sleeping
 }
 
 actionData['fire'] = {
@@ -1134,6 +1152,78 @@ actionData['greatParalyze'] = {
     execute = statusEffectAll,
     element = 'PARALYSIS',
     accuracy = 70
+}
+
+actionData['slumber'] = {
+    name = 'Slumber', 
+    magic = true,
+    cost = 4, 
+    desc = 'Low chance to put one enemy to sleep',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'SLEEP',
+    accuracy = 20
+}
+
+actionData['midSlumber'] = {
+    name = 'MidSlumber', 
+    magic = true,
+    cost = 7, 
+    desc = 'Low chance to put one all enemies to sleep',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'SLEEP',
+    accuracy = 20
+}
+
+actionData['greatSlumber'] = {
+    name = 'GreatSlumber', 
+    magic = true,
+    cost = 10, 
+    desc = 'High chance to put one all enemies to sleep',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'SLEEP',
+    accuracy = 40
+}
+
+actionData['confusion'] = {
+    name = 'Confusion', 
+    magic = true,
+    cost = 4, 
+    desc = 'Low chance to confuse one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'CONFUSE',
+    accuracy = 20
+}
+
+actionData['midConfusion'] = {
+    name = 'MidConfusion', 
+    magic = true,
+    cost = 7, 
+    desc = 'Low chance to confuse all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'CONFUSE',
+    accuracy = 20
+}
+
+actionData['greatConfusion'] = {
+    name = 'GreatConfusion', 
+    magic = true,
+    cost = 10, 
+    desc = 'High chance to confuse all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'CONFUSE',
+    accuracy = 40
 }
 
 actionData['heal'] = {

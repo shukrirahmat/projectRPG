@@ -5,6 +5,13 @@ local actionData = require('actionData')
 
 local input = {}
 
+local function runBattle()
+    action.setPartyAction()
+    action.setEnemyAction()
+    state.battleRunning = true
+    state.textTimer = 0.5
+end
+
 local function nextCharacter(currentID)
     local nextID = utils.getAbleCharID(currentID, 'next')
     if nextID then
@@ -12,7 +19,7 @@ local function nextCharacter(currentID)
         state.characterMenu.charID = nextID
         utils.menuReset(state.characterMenu)
     else
-        utils.runBattle()
+        runBattle()
     end
 end
 

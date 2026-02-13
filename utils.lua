@@ -53,7 +53,10 @@ function U.getAbleCharID(currentID, where)
 
     while not found and not outOfBound do
         local char = state.party[nextID]
-        if not char.isDead and not char.status['STUN'] then
+        if not char.isDead 
+        and not char.status['STUN']
+        and not char.status['SLEEP']
+        and not char.status['CONFUSE'] then
             found = true
         else
             if where == 'next' then
@@ -199,8 +202,9 @@ end
 
 local function setPartyAction()
     for _, member in ipairs(state.party) do
-        if not member.isDead and member.status['STUN'] then
-            local action = member.makeStunAction(member)
+        if not member.isDead 
+        and (member.status['STUN'] or member.status['SLEEP'] or member.status['CONFUSE']) then
+            local action = member.makeDisabledAction(member)
             U.sentActionIntoQueue(action)
             member.currentAction = nil
         elseif not member.isDead and member.currentAction then
@@ -218,13 +222,6 @@ local function setEnemyAction()
             U.sentActionIntoQueue(action)
         end
     end
-end
-
-function U.runBattle()
-    setPartyAction()
-    setEnemyAction()
-    state.battleRunning = true
-    state.textTimer = 0.5
 end
 
 ---------------CALCULATOR----------------

@@ -5,14 +5,15 @@ state = require('state')
 local dataSheet = {
     ['goblin'] = {
         hp = 60,
-        mp = 0,
+        mp = 10,
         atk = 80,
         def = 60,
         agi = 80,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4,
         strong = { ['FIRE'] = true, ['DEATH'] = true},
-        immune = {}
+        immune = {},
+        skills = {'toxin'}
     },
 
     ['skeleton'] = {
@@ -25,7 +26,8 @@ local dataSheet = {
         spriteHeight = 0,
         strong = {['BLIND'] = true},
         immune = { ['ICE'] = true , ['DEATH'] = true },
-        specialType = 'UNDEAD'
+        specialType = 'UNDEAD',
+        skills = {'midFire', 'fireBlast', 'hex', 'greatHex'}
     },
 
     ['dragon'] = {
@@ -38,7 +40,8 @@ local dataSheet = {
         spriteHeight = 0,
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
         immune = {['STUN'] = true},
-        specialType = 'DRAGON'
+        specialType = 'DRAGON',
+        skills = {'greatSandstorm', 'greatSilence', 'greatTremor'}
     }
 }
 
@@ -67,25 +70,7 @@ function enemy.new(species, name)
     e.immune = data.immune or {}
     e.specialType = data.specialType
     e.status = {}
-
-    function e.chooseAction(self)
-
-        ---TEMPORARY TEST---
-        local toAct
-        if e.species == 'dragon' then
-            if e.currentMp >= 20 then
-                toAct = action.new('greatParalyze', self, state.party)
-            elseif e.currentMp >=10 then
-                toAct = action.new('greatToxin', self, state.party)
-            else
-                toAct = action.new('greatSandstorm', self, state.party)
-            end
-        else
-            local target = utils.selectTargetRandomly(state.party)
-            toAct = action.new('normalAtk', self, target)
-        end
-        return toAct
-    end
+    e.skills = data.skills or {} 
 
     return e
 end

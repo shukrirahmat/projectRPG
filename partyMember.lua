@@ -39,7 +39,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'toxin', 'midToxin', 'greatToxin', 'paralyze', 'midParalyze', 'greatParalyze'}
+        skills = {'slumber', 'midSlumber', 'greatSlumber', 'confusion', 'midConfusion', 'greatConfusion'}
     }
 }
 
@@ -66,11 +66,6 @@ function P.new(index)
     p.status = {}
     p.strong = data.strong or {}
     p.immune = data.immune or {}
-    
-    function p.makeStunAction(self)
-        local action = action.new('stunned', self, target)
-        return action
-    end
 
     return p
 end

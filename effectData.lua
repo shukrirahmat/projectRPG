@@ -28,11 +28,11 @@ end
 
 local function recovery(_, target, value)
     local amount = math.min(target.maxHp - target.currentHp, value)
-    
+
     if target.status['WOUND'] then
         amount = math.floor(amount * 0.5)
     end
-    
+
     target.currentHp = math.min(target.maxHp, target.currentHp + amount)
     utils.battleLogAdd(''..target.name..' recovers '..amount..' HP.');
 end
@@ -107,12 +107,6 @@ local function addStatus(_, target, status)
         else
             utils.battleLogAdd(""..target.name.."'s abilities are sealed!");
         end
-    elseif status == 'STUN' then
-        if target.status['STUN'] then
-            utils.battleLogAdd(""..target.name.." is already stunned");
-        else
-            utils.battleLogAdd(""..target.name.." is stunned!");
-        end
     elseif status == 'WOUND' then
         if target.status['WOUND'] then
             utils.battleLogAdd(""..target.name.." is already wounded");
@@ -137,6 +131,30 @@ local function addStatus(_, target, status)
         else
             utils.battleLogAdd(""..target.name.." is paralyzed!");
         end
+    elseif status == 'STUN' then
+        if target.status['STUN'] then
+            utils.battleLogAdd(""..target.name.." is already stunned");
+        else
+            utils.battleLogAdd(""..target.name.." is stunned!");
+            target.status['CONFUSE'] = nil
+            target.status['SLEEP'] = nil
+        end
+    elseif status == 'SLEEP' then
+        if target.status['SLEEP'] then
+            utils.battleLogAdd(""..target.name.." is already asleep");
+        else
+            utils.battleLogAdd(""..target.name.." is put to sleep!");
+            target.status['STUN'] = nil
+            target.status['CONFUSE'] = nil
+        end
+    elseif status == 'CONFUSE' then
+        if target.status['CONFUSE'] then
+            utils.battleLogAdd(""..target.name.." is already confused");
+        else
+            utils.battleLogAdd(""..target.name.." is confused!");
+            target.status['STUN'] = nil
+            target.status['SLEEP'] = nil
+        end
     end
 
     target.status[status] = true;
@@ -157,7 +175,7 @@ local function curseEffect(_, target)
     target.currentHp = 0;
     table.insert(state.killList, target)
 end
-    
+
 
 
 effectData['damage'] = { 

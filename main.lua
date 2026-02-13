@@ -4,6 +4,7 @@ local partyMember = require('partyMember')
 local enemy = require('enemy')
 
 function love.load()
+    math.randomseed(os.time())
     
     local party = { 
         partyMember.new(1), 

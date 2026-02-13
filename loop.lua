@@ -1,8 +1,79 @@
 local state = require('state')
 local utils = require('utils')
 local animation = require('animation')
+local actionCreator = require('action')
+local effect = require('effect')
 
 local loop = {}
+
+local function statusPass(action)
+    local result = action
+    if action.user.status['STUN'] then
+        result = actionCreator.new('stunned', action.user)
+    elseif action.user.status['SLEEP'] then
+        result = actionCreator.new('sleeping', action.user)
+    elseif action.user.status['CONFUSE'] then
+        result = actionCreator.new('confused', action.user)
+    elseif action.user.status['PARALYSIS'] then
+        local roll = math.random(1, 4)
+        if roll == 1 then 
+            result = actionCreator.new('paralyzed', action.user)
+        end
+    end
+    return result
+end
+
+local function statusApply(action)
+    local user = action.user
+
+    if user.status['POISON'] then
+        local rand = math.random(5, 20)
+        local ratio = rand * 0.01
+        local amount = math.floor(user.maxHp * ratio)
+        local poisonEffect = effect.new('poisonDamage', user, user, amount)
+        table.insert(state.effectList, poisonEffect)
+    end
+
+    if user.status['CURSE'] then
+        local max
+        if user.isPartyMember then
+            max = 20
+        else
+            max = 4
+        end
+        local roll = math.random(1, max)
+        if roll == 1 then
+            local curseEffect = effect.new('curseEffect', user, user)
+            table.insert(state.effectList, curseEffect)
+        end
+    end
+end
+
+local function statusClear(user, status, chance)
+    local roll = math.random(0, 100)
+    if roll <= chance then
+        local clear = effect.new('clearStatus', user, user, status)
+        table.insert(state.effectList, clear)
+    end
+end
+
+local function statusClearAll(action)
+    local user = action.user
+    
+    if user.status['BLIND'] then
+        statusClear(user,'BLIND', 20)
+    end
+
+    if user.status['SEAL'] then
+        statusClear(user,'SEAL', 20)
+    end
+
+    if user.status['STUN'] then
+        statusClear(user,'STUN', 50)
+    end
+end
+
+--------------------------------------------
 
 function loop.run()
 
@@ -41,7 +112,10 @@ function loop.run()
             action.target = utils.reselectTargetWhenDead(action.target)
         end
 
+        action = statusPass(action)
         action.execute()
+        statusApply(action)
+        statusClearAll(action)
 
     elseif #state.actionList > 0 then
         state.battleLog = {};
@@ -53,7 +127,10 @@ function loop.run()
             action.target = utils.reselectTargetWhenDead(action.target)
         end
 
+        action = statusPass(action)
         action.execute()
+        statusApply(action)
+        statusClearAll(action)
     else
         utils.clearTemporaryStatus()
         state.battleRunning = false

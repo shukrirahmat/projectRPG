@@ -1,6 +1,6 @@
-local animation = {}
+local animationCreator = {}
 
-function animation.new(user, ref, maxTick, speed, value)
+function animationCreator.new(user, ref, maxTick, speed, value)
     
     local animation = {
         
@@ -16,4 +16,4 @@ function animation.new(user, ref, maxTick, speed, value)
     return animation
 end
 
-return animation
+return animationCreator

@@ -1,6 +1,6 @@
 local state = require('state')
 local utils = require('utils')
-local effect = require('effect')
+local effectCreator = require('effectCreator')
 
 local actionData = {}
 
@@ -34,7 +34,7 @@ local function normalAttack(self, user, target, isSecondAttack)
         end
 
         utils.battleLogAdd(text)
-        local damageEffect = effect.new('damage', user, target, damage)
+        local damageEffect = effectCreator.new('damage', user, target, damage)
         table.insert(state.effectList, damageEffect)
 
         if not isSecondAttack then
@@ -47,7 +47,7 @@ local function normalAttack(self, user, target, isSecondAttack)
         end
     else
         utils.battleLogAdd(text)
-        local missedEffect = effect.new('missed', user, target)
+        local missedEffect = effectCreator.new('missed', user, target)
         table.insert(state.effectList, missedEffect)
     end
 end
@@ -69,7 +69,7 @@ local function skillCanceled(self, user, target, skill)
         text = ''..user.name..' tried to used '..skill.name..'';
     end
     utils.battleLogAdd(text)
-    local noSkilleffect = effect.new('skillCanceled', user, target)
+    local noSkilleffect = effectCreator.new('skillCanceled', user, target)
     table.insert(state.effectList, noSkilleffect)
 end
 
@@ -110,7 +110,7 @@ local function damageMagic(self, user, target)
         ref = 'damage'
     end
 
-    local damageEffect = effect.new(ref, user, target, damage)
+    local damageEffect = effectCreator.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
 end
 
@@ -149,7 +149,7 @@ local function auraCast(self, user, target)
     else
         ref = 'damage'
     end
-    local damageEffect = effect.new(ref, user, target, damage)
+    local damageEffect = effectCreator.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
 end
 
@@ -196,12 +196,12 @@ local function castDrain(self, user, target)
         ref = 'damage'
     end
 
-    local damageEffect = effect.new(ref, user, target, damage)
+    local damageEffect = effectCreator.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
 
     if ref ~= 'immune' then
         local amount = math.min(damage, target.currentHp)
-        local recoverEffect = effect.new('recover', user, user, amount)
+        local recoverEffect = effectCreator.new('recover', user, user, amount)
         table.insert(state.effectList, recoverEffect)
     end
 end
@@ -227,7 +227,7 @@ local function castManaBurn(self, user, group)
                 ref = 'mpDamage'
             end
 
-            local damageEffect = effect.new(ref, user, target, burnAmount)
+            local damageEffect = effectCreator.new(ref, user, target, burnAmount)
             table.insert(state.effectList, damageEffect)
         end
     end
@@ -246,7 +246,7 @@ local function castDracoBomb(self, user, target)
         damage = 1
     end
 
-    local damageEffect = effect.new('damage', user, target, damage)
+    local damageEffect = effectCreator.new('damage', user, target, damage)
     table.insert(state.effectList, damageEffect)
 end
 
@@ -255,14 +255,14 @@ local function castExorcism(self, user, target)
     if target.specialType and target.specialType == 'UNDEAD' then
         local chance = math.random(1, 100)
         if chance <= self.accuracy then
-            local killEffect = effect.new('instakill', user, target)
+            local killEffect = effectCreator.new('instakill', user, target)
             table.insert(state.effectList, killEffect)
         else
-            local missEffect = effect.new('missed', user, target)
+            local missEffect = effectCreator.new('missed', user, target)
             table.insert(state.effectList, missEffect)
         end
     else
-        local immuneEffect = effect.new('immune', user, target)
+        local immuneEffect = effectCreator.new('immune', user, target)
         table.insert(state.effectList, immuneEffect)
     end
 end
@@ -288,11 +288,11 @@ local function statusEffect(self, user, target)
     local resistance = utils.checkResistance(self.element, target)
 
     if target.status[self.element] then
-        local statusEffect = effect.new('addStatus', user, target, self.element)
+        local statusEffect = effectCreator.new('addStatus', user, target, self.element)
         table.insert(state.effectList, statusEffect)
     else
         if resistance == 2 then 
-            local immuneEffect = effect.new('immune', user, target)
+            local immuneEffect = effectCreator.new('immune', user, target)
             table.insert(state.effectList, immuneEffect)
         else
             if resistance == 1 then
@@ -302,18 +302,18 @@ local function statusEffect(self, user, target)
             local chance = math.random(1, 100)
             if chance <= accuracy then
                 if self.element == 'DEATH' then
-                    local killEffect = effect.new('instakill', user, target)
+                    local killEffect = effectCreator.new('instakill', user, target)
                     table.insert(state.effectList, killEffect)
                 else
-                    local statusEffect = effect.new('addStatus', user, target, self.element)
+                    local statusEffect = effectCreator.new('addStatus', user, target, self.element)
                     table.insert(state.effectList, statusEffect)
                 end
             else
                 local missEffect
                 if resistance == 1 then
-                    missEffect = effect.new('missedResist', user, target)
+                    missEffect = effectCreator.new('missedResist', user, target)
                 else
-                    missEffect = effect.new('missed', user, target)
+                    missEffect = effectCreator.new('missed', user, target)
                 end
                 table.insert(state.effectList, missEffect)
             end
@@ -348,7 +348,7 @@ local function heal(self, user, target)
         amount = amount + math.random(-mod, mod)
     end
     
-    local recoverEffect = effect.new('recover', user, target, amount)
+    local recoverEffect = effectCreator.new('recover', user, target, amount)
     table.insert(state.effectList, recoverEffect)
 end
 
@@ -370,10 +370,10 @@ end
 
 local function removeStatus(self, user, target)
     if target.status[self.status] then
-        local clear = effect.new('clearStatus', user, target, self.status)
+        local clear = effectCreator.new('clearStatus', user, target, self.status)
         table.insert(state.effectList, clear)
     else
-        local immuneEffect = effect.new('immune', user, target)
+        local immuneEffect = effectCreator.new('immune', user, target)
         table.insert(state.effectList, immuneEffect)
     end
 end

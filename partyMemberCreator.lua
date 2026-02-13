@@ -1,5 +1,3 @@
-local action = require('action')
-
 local dataSheet = {
     {
         name = 'KNIGHT',

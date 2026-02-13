@@ -1,25 +1,25 @@
 require('globals')
 local battle = require('battle')
-local partyMember = require('partyMember')
-local enemy = require('enemy')
+local partyMemberCreator = require('partyMemberCreator')
+local enemyCreator = require('enemyCreator')
 
 function love.load()
     math.randomseed(os.time())
     
     local party = { 
-        partyMember.new(1), 
-        partyMember.new(2), 
-        partyMember.new(3), 
-        partyMember.new(4)
+        partyMemberCreator.new(1), 
+        partyMemberCreator.new(2), 
+        partyMemberCreator.new(3), 
+        partyMemberCreator.new(4)
     }
     
     local enemies = { 
-        enemy.new('goblin', 'GOBLIN1'),
-        enemy.new('goblin', 'GOBLIN2'),
-        enemy.new('goblin', 'GOBLIN3'),
-        enemy.new('dragon', 'DRAGON1'),
-        enemy.new('skeleton', 'SKELETON1'),
-        enemy.new('skeleton', 'SKELETON2')
+        enemyCreator.new('goblin', 'GOBLIN1'),
+        enemyCreator.new('goblin', 'GOBLIN2'),
+        enemyCreator.new('goblin', 'GOBLIN3'),
+        enemyCreator.new('dragon', 'DRAGON1'),
+        enemyCreator.new('skeleton', 'SKELETON1'),
+        enemyCreator.new('skeleton', 'SKELETON2')
     }
     battle.load(party, enemies)
 end

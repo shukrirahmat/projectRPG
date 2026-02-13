@@ -1,5 +1,4 @@
 utils = require('utils')
-action = require('action')
 state = require('state')
 
 local dataSheet = {
@@ -45,9 +44,9 @@ local dataSheet = {
     }
 }
 
-local enemy = {}
+local enemyCreator = {}
 
-function enemy.new(species, name)
+function enemyCreator.new(species, name)
 
     local data = dataSheet[species]
     local e = {}
@@ -75,4 +74,4 @@ function enemy.new(species, name)
     return e
 end
 
-return enemy
+return enemyCreator

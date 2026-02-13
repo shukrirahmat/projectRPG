@@ -1,13 +1,13 @@
 local state = require('state')
 local utils = require('utils')
-local action = require('action')
+local actionCreator = require('actionCreator')
 local actionData = require('actionData')
 
 local input = {}
 
 local function runBattle()
-    action.setPartyAction()
-    action.setEnemyAction()
+    actionCreator.setPartyAction()
+    actionCreator.setEnemyAction()
     state.battleRunning = true
     state.textTimer = 0.5
 end
@@ -25,7 +25,7 @@ end
 
 local function addAttackAction(target)
     local user = state.party[state.characterMenu.charID]
-    local action = action.new('normalAtk', user, target)
+    local action = actionCreator.new('normalAtk', user, target)
     user.currentAction = action
 end
 
@@ -95,7 +95,7 @@ function input.executeConfirm()
             utils.menuReset(state.skillMenu)
         elseif state.characterMenu.position == 3 then
             local user = char
-            user.currentAction = action.new('defend', user)
+            user.currentAction = actionCreator.new('defend', user)
             local currentID = state.characterMenu.charID
             nextCharacter(currentID)
         end
@@ -116,7 +116,7 @@ function input.executeConfirm()
                     local target = group[1]
                     local user = state.party[state.characterMenu.charID]
                     local ref = state.skillMenu.list[state.skillMenu.position]
-                    local action = action.new(ref, user, target)
+                    local action = actionCreator.new(ref, user, target)
                     user.currentAction = action
                     local currentID = state.characterMenu.charID
                     nextCharacter(currentID)
@@ -127,14 +127,14 @@ function input.executeConfirm()
             elseif data.scope == 'all' then
                 local user = state.party[state.characterMenu.charID]
                 local ref = state.skillMenu.list[state.skillMenu.position]
-                local action = action.new(ref, user, group)
+                local action = actionCreator.new(ref, user, group)
                 user.currentAction = action
                 local currentID = state.characterMenu.charID
                 nextCharacter(currentID)
             elseif data.scope == 'self' then
                 local user = state.party[state.characterMenu.charID]
                 local ref = state.skillMenu.list[state.skillMenu.position]
-                local action = action.new(ref, user)
+                local action = actionCreator.new(ref, user)
                 user.currentAction = action
                 local currentID = state.characterMenu.charID
                 nextCharacter(currentID)
@@ -148,7 +148,7 @@ function input.executeConfirm()
             local target = state.targetMenu.list[state.targetMenu.position]
             local user = state.party[state.characterMenu.charID]
             local ref = state.skillMenu.list[state.skillMenu.position]
-            local action = action.new(ref, user, target)
+            local action = actionCreator.new(ref, user, target)
             user.currentAction = action
         end
         local currentID = state.characterMenu.charID

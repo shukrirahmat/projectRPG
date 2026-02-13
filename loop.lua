@@ -1,8 +1,8 @@
 local state = require('state')
 local utils = require('utils')
-local animation = require('animation')
-local actionCreator = require('action')
-local effect = require('effect')
+local animationCreator = require('animationCreator')
+local actionCreator = require('actionCreator')
+local effectCreator = require('effectCreator')
 
 local loop = {}
 
@@ -30,7 +30,7 @@ local function statusApply(action)
         local rand = math.random(5, 20)
         local ratio = rand * 0.01
         local amount = math.floor(user.maxHp * ratio)
-        local poisonEffect = effect.new('poisonDamage', user, user, amount)
+        local poisonEffect = effectCreator.new('poisonDamage', user, user, amount)
         table.insert(state.effectList, poisonEffect)
     end
 
@@ -43,7 +43,7 @@ local function statusApply(action)
         end
         local roll = math.random(1, max)
         if roll == 1 then
-            local curseEffect = effect.new('curseEffect', user, user)
+            local curseEffect = effectCreator.new('curseEffect', user, user)
             table.insert(state.effectList, curseEffect)
         end
     end
@@ -52,7 +52,7 @@ end
 local function statusClear(user, status, chance)
     local roll = math.random(0, 100)
     if roll <= chance then
-        local clear = effect.new('clearStatus', user, user, status)
+        local clear = effectCreator.new('clearStatus', user, user, status)
         table.insert(state.effectList, clear)
     end
 end
@@ -91,7 +91,7 @@ function loop.run()
         utils.handleDeath(toKill)
 
         if not toKill.isPartyMember then
-            state.animation = animation.new(toKill, 'enemyDied', 8, 0.05)
+            state.animation = animationCreator.new(toKill, 'enemyDied', 8, 0.05)
         end
 
         if state.partyDied or state.allEnemyDead then

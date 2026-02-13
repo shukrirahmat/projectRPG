@@ -44,6 +44,25 @@ local function drawAttackAnimation(enemy, index)
     end
 end
 
+local function drawTextOnEnemy(enemy, index, text, font, color)
+    local spritePos = getSpritePos(enemy, index, 0, 0)
+    if color and color == 'grey' then
+        love.graphics.setColor(0.6,0.6,0.6)
+    elseif color and color == 'blue' then
+        love.graphics.setColor(0.4,0.2,0.6)
+    else
+        love.graphics.setColor(1,1,1)
+    end
+    love.graphics.setFont(font)
+    love.graphics.printf(
+        text,
+        spritePos.x,
+        spritePos.y + spritePos.height - 20 - state.animation.tick * 2,
+        monsterSpriteDimension,
+        'center'
+    )
+end
+
 local function drawDamagedAnimation(enemy, index, color)
     if state.animation.tick % 2 == 0 and state.animation.tick <= 4 then
         drawEnemySprite(enemy, index, 0, 0)
@@ -54,22 +73,7 @@ local function drawDamagedAnimation(enemy, index, color)
     end
 
     if state.animation.tick > 1 then
-        local spritePos = getSpritePos(enemy, index, 0, 0)
-        if color and color == 'grey' then
-            love.graphics.setColor(0.6,0.6,0.6)
-        elseif color and color == 'blue' then
-            love.graphics.setColor(0.4,0.2,0.6)
-        else
-            love.graphics.setColor(1,1,1)
-        end
-        love.graphics.setFont(font_bold)
-        love.graphics.printf(
-            ''..state.animation.value..'',
-            spritePos.x,
-            spritePos.y + spritePos.height - 20 - state.animation.tick * 2,
-            monsterSpriteDimension,
-            'center'
-        )
+        drawTextOnEnemy(enemy, index, state.animation.value, font_bold, color)
     end
 end
 
@@ -81,11 +85,15 @@ local function drawImmuneAnimation(enemy, index)
     end
 end
 
-local function drawDodgeAnimation(enemy, index)
+local function drawDodgeAnimation(enemy, index, color)
     if state.animation.tick == 1 or state.animation.tick == 2 then
         drawEnemySprite(enemy, index, 5, 0)
     else
         drawEnemySprite(enemy, index, 0, 0)
+    end
+    
+    if state.animation.tick > 1 then
+        drawTextOnEnemy(enemy, index, 'MISS', font_small, color)
     end
 end
 
@@ -108,19 +116,21 @@ local function drawEnemyAnimation(enemy, index)
         drawImmuneAnimation(enemy, index)
     elseif state.animation.ref == 'enemyDodged' then
         drawDodgeAnimation(enemy, index)
+    elseif state.animation.ref == 'enemyDodgedResist' then
+        drawDodgeAnimation(enemy, index, 'grey')
     end
 end
 
 local function drawStatusEffect(enemy, index)
     local spritePos = getSpritePos(enemy, index, 0, 0)
-    
+
     local borderX = spritePos.x + 15
     local borderHeight = 65
     local borderY = spritePos.y + monsterSpriteDimension - borderHeight/2
     local borderWidth = monsterSpriteDimension - 30
     love.graphics.setColor(0, 0, 0, 0.85)
     love.graphics.rectangle('fill', borderX, borderY, borderWidth, borderHeight)
-    
+
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(font_tiny)
     local i = 0
@@ -153,7 +163,7 @@ function E.draw()
             if state.infoMode then
                 drawStatusEffect(enemy, i)
             end
-            
+
         elseif enemy.isDead 
         and state.animation and state.animation.user == enemy then
             drawDeathAnimation(enemy,i)

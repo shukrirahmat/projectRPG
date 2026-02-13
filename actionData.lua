@@ -288,6 +288,7 @@ local function statusEffect(self, user, target)
             if resistance == 1 then
                 accuracy = math.floor(accuracy / 2)
             end
+            
             local chance = math.random(1, 100)
             if chance <= accuracy then
                 if self.element == 'DEATH' then
@@ -298,7 +299,12 @@ local function statusEffect(self, user, target)
                     table.insert(state.effectList, statusEffect)
                 end
             else
-                local missEffect = effect.new('missed', user, target)
+                local missEffect
+                if resistance == 1 then
+                    missEffect = effect.new('missedResist', user, target)
+                else
+                    missEffect = effect.new('missed', user, target)
+                end
                 table.insert(state.effectList, missEffect)
             end
         end

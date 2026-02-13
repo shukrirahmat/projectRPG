@@ -203,8 +203,13 @@ effectData['missed'] = {
     enemyAnimation = {ref='enemyDodged', maxTick=10, speed=0.08}
 }
 
+effectData['missedResist'] = { 
+    apply = missed , 
+    enemyAnimation = {ref='enemyDodgedResist', maxTick=10, speed=0.08}
+}
+
 effectData['addStatus'] = { 
-    apply = addStatus , 
+    apply = addStatus
 }
 
 effectData['clearStatus'] = {

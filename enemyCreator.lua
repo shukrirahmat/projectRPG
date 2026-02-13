@@ -4,7 +4,7 @@ state = require('state')
 local dataSheet = {
     ['goblin'] = {
         hp = 60,
-        mp = 10,
+        mp = 20,
         atk = 80,
         def = 60,
         agi = 80,
@@ -12,7 +12,7 @@ local dataSheet = {
         spriteHeight = monsterSpriteDimension/4,
         strong = { ['FIRE'] = true, ['DEATH'] = true},
         immune = {},
-        skills = {'toxin'}
+        skills = {'greatConfusion'}
     },
 
     ['skeleton'] = {
@@ -40,7 +40,7 @@ local dataSheet = {
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
         immune = {['STUN'] = true},
         specialType = 'DRAGON',
-        skills = {'greatSandstorm', 'greatSilence', 'greatTremor'}
+        skills = {}
     }
 }
 

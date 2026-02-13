@@ -1,16 +1,19 @@
 local state = require('state')
 local utils = require('utils')
 local effectCreator = require('effectCreator')
+local actionCreator = require('actionCreator')
 
 local actionData = {}
 
-local function normalAttack(self, user, target, isSecondAttack)
+local function normalAttack(self, user, target, special)
     local damage
     local text
     local miss
 
-    if isSecondAttack then
+    if special == 'secondAttack' then
         text = ''..user.name..' attacks again!'
+    elseif special == 'confused' then
+        text = ''..user.name..' attacks while being confused'
     else
         text = ''..user.name..' attacks!'
     end
@@ -37,12 +40,13 @@ local function normalAttack(self, user, target, isSecondAttack)
         local damageEffect = effectCreator.new('damage', user, target, damage)
         table.insert(state.effectList, damageEffect)
 
-        if not isSecondAttack then
+        if not special then
             local secondAttackChance = math.floor((user.agi - target.agi)/2)
             local secondAttack = math.random(1, 100) < secondAttackChance
 
             if secondAttack then
-                return 'secondAtk'
+                local nextAction = actionCreator.new('secondAtk', user, target)
+                table.insert(state.priorityList, nextAction)
             end
         end
     else
@@ -53,7 +57,7 @@ local function normalAttack(self, user, target, isSecondAttack)
 end
 
 local function secondAttack(self, user, target)
-    normalAttack(self, user, target, true)
+    normalAttack(self, user, target, 'secondAttack')
 end
 
 local function defend(self, user, _)
@@ -89,8 +93,27 @@ local function sleeping(self, user)
 end
 
 local function confused(self, user)
-    local text = ''..user.name..' is confused!';
-    utils.battleLogAdd(text)
+    
+    local textList = {
+        'is rolling on the ground laughing.',
+        'is dancing happily.',
+        'is crying at himself.',
+        'pretends to be dead.',
+    }
+    
+    local target
+    local roll = math.random(1,3)
+    if roll == 1 then
+        target = utils.selectTargetRandomly(state.party)
+        normalAttack(self, user, target, 'confused')
+    elseif roll == 2 then
+        target = utils.selectTargetRandomly(state.enemies)
+        normalAttack(self, user, target, 'confused')
+    elseif roll == 3 then
+        local textRoll = math.random(1, #textList)
+        local text = ''..user.name..' '..textList[textRoll]..'';
+        utils.battleLogAdd(text)
+    end
 end
 
 
@@ -298,7 +321,7 @@ local function statusEffect(self, user, target)
             if resistance == 1 then
                 accuracy = math.floor(accuracy / 2)
             end
-            
+
             local chance = math.random(1, 100)
             if chance <= accuracy then
                 if self.element == 'DEATH' then
@@ -347,7 +370,7 @@ local function heal(self, user, target)
         local mod = math.floor(amount*0.2)
         amount = amount + math.random(-mod, mod)
     end
-    
+
     local recoverEffect = effectCreator.new('recover', user, target, amount)
     table.insert(state.effectList, recoverEffect)
 end
@@ -918,12 +941,12 @@ actionData['death'] = {
     name = 'Death', 
     magic = true,
     cost = 5, 
-    desc = 'Low chance to instantly kill one enemy',
+    desc = 'Chance to instantly kill one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = statusEffectSingle,
     element = 'DEATH',
-    accuracy = 25
+    accuracy = 30
 }
 
 actionData['midDeath'] = {
@@ -935,7 +958,7 @@ actionData['midDeath'] = {
     scope = 'all',
     execute = statusEffectAll,
     element = 'DEATH',
-    accuracy = 25
+    accuracy = 15
 }
 
 actionData['greatDeath'] = {
@@ -947,7 +970,7 @@ actionData['greatDeath'] = {
     scope = 'all',
     execute = statusEffectAll,
     element = 'DEATH',
-    accuracy = 50
+    accuracy = 30
 }
 
 actionData['sandstorm'] = {
@@ -1050,12 +1073,12 @@ actionData['toxin'] = {
     name = 'Toxin', 
     magic = true,
     cost = 2, 
-    desc = 'Low chance to poison one enemy',
+    desc = 'Chance to poison one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = statusEffectSingle,
     element = 'POISON',
-    accuracy = 50
+    accuracy = 80
 }
 
 actionData['midToxin'] = {
@@ -1086,12 +1109,12 @@ actionData['hex'] = {
     name = 'Hex', 
     magic = true,
     cost = 3, 
-    desc = 'Low chance to put a curse one enemy',
+    desc = 'Chance to put a curse one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = statusEffectSingle,
     element = 'CURSE',
-    accuracy = 40
+    accuracy = 70
 }
 
 actionData['midHex'] = {
@@ -1122,12 +1145,12 @@ actionData['paralyze'] = {
     name = 'Paralyze', 
     magic = true,
     cost = 3, 
-    desc = 'Low chance to apply paralysis to one enemy',
+    desc = 'Chance to apply paralysis to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = statusEffectSingle,
     element = 'PARALYSIS',
-    accuracy = 40
+    accuracy = 70
 }
 
 actionData['midParalyze'] = {
@@ -1158,12 +1181,12 @@ actionData['slumber'] = {
     name = 'Slumber', 
     magic = true,
     cost = 4, 
-    desc = 'Low chance to put one enemy to sleep',
+    desc = 'Chance to put one enemy to sleep',
     aim = 'enemies',
     scope = 'single',
     execute = statusEffectSingle,
     element = 'SLEEP',
-    accuracy = 20
+    accuracy = 40
 }
 
 actionData['midSlumber'] = {
@@ -1194,12 +1217,12 @@ actionData['confusion'] = {
     name = 'Confusion', 
     magic = true,
     cost = 4, 
-    desc = 'Low chance to confuse one enemy',
+    desc = 'Chance to confuse one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = statusEffectSingle,
     element = 'CONFUSE',
-    accuracy = 20
+    accuracy = 40
 }
 
 actionData['midConfusion'] = {

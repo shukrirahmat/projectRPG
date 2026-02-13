@@ -89,17 +89,13 @@ function executeAction(action)
     end
 
     if canAct then
-        local followUp = toAct.execute(toAct, action.user, action.target)
+        toAct.execute(toAct, action.user, action.target)
         if not action.user.isPartyMember and toAct.enemyAnimation then
             local aniData = toAct.enemyAnimation
             local animation = animationCreator.new(
                 action.user, aniData.ref, aniData.maxTick, aniData.speed
                 )
             state.animation = animation
-        end
-        if followUp then
-            local followUpAction = actionCreator.new(followUp, action.user, action.target)
-            input.sendActionIntoQueue(followUpAction)
         end
     else
         local skillCanceled = actionData['skillCanceled']

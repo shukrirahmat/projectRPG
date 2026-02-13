@@ -1,5 +1,6 @@
 local state = require('state')
 local utils = require('utils')
+local effectCreator = require('effectCreator')
 
 local effectData = {}
 
@@ -14,6 +15,16 @@ local function dealDamage(_, target, value)
     if target.currentHp <= 0 then
         target.currentHp = 0;
         table.insert(state.killList, target)
+    end
+
+    for _, statusEf in ipairs({'SLEEP', 'CONFUSE'}) do
+        if target.status[statusEf] then
+            local roll = math.random(1,4)
+            if roll == 1 then
+                local clearEffect = effectCreator.new('clearStatus', user, target, statusEf)
+                table.insert(state.effectList, clearEffect)
+            end
+        end
     end
 end
 
@@ -75,6 +86,12 @@ local function clearStatus(user, target, status)
     elseif status == 'PARALYSIS' then
         target.status['PARALYSIS'] = nil
         utils.battleLogAdd(""..target.name.." is no longer paralyzed")
+    elseif status == 'SLEEP' then
+        target.status['SLEEP'] = nil
+        utils.battleLogAdd(""..target.name.." is woken from sleep")
+    elseif status == 'CONFUSE' then
+        target.status['CONFUSE'] = nil
+        utils.battleLogAdd(""..target.name.." is not confused anymore")
     elseif status == 'POISON' then
         target.status['POISON'] = nil
         for i, effect in ipairs(state.effectList) do

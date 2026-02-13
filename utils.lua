@@ -192,14 +192,6 @@ function U.clearTemporaryStatus()
     end
 end
 
-function U.sentActionIntoQueue(action)
-    if action.checkPriority() then
-        table.insert(state.priorityList, action)
-    else
-        table.insert(state.actionList, action)
-    end
-end
-
 ---------------CALCULATOR----------------
 
 function U.calculateAttackDamage(attacker, target)

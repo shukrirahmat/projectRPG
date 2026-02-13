@@ -1,6 +1,3 @@
-local effectData = require('effectData')
-local animationCreator = require('animationCreator')
-
 local effectCreator = {}
 
 function effectCreator.new(ref, user, target, value)

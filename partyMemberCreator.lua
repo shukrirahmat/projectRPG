@@ -15,7 +15,7 @@ local dataSheet = {
         mp = 35,
         str = 70,
         def = 50,
-        agi = 180,
+        agi = 120,
         critRate = 8,
         skills = {'auraBeam', 'greatAuraBeam', 'auraCharge', 'sandstorm', 'greatSandstorm'}
     },

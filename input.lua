@@ -6,7 +6,6 @@ local actionData = require('actionData')
 local input = {}
 
 function input.sendActionIntoQueue(action)
-    
     local actionDetails = actionData[action.ref]    
     if actionDetails.priority then
         table.insert(state.priorityList, action)

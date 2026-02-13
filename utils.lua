@@ -200,30 +200,6 @@ function U.sentActionIntoQueue(action)
     end
 end
 
-local function setPartyAction()
-    for _, member in ipairs(state.party) do
-        if not member.isDead 
-        and (member.status['STUN'] or member.status['SLEEP'] or member.status['CONFUSE']) then
-            local action = member.makeDisabledAction(member)
-            U.sentActionIntoQueue(action)
-            member.currentAction = nil
-        elseif not member.isDead and member.currentAction then
-            local action = member.currentAction
-            U.sentActionIntoQueue(action)
-            member.currentAction = nil
-        end
-    end
-end
-
-local function setEnemyAction()
-    for _, enemy in ipairs(state.enemies) do
-        if not enemy.isDead then
-            local action = enemy.chooseAction(enemy)
-            U.sentActionIntoQueue(action)
-        end
-    end
-end
-
 ---------------CALCULATOR----------------
 
 function U.calculateAttackDamage(attacker, target)

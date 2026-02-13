@@ -2,7 +2,10 @@ local state = require('state')
 local utils = require('utils')
 local animationCreator = require('animationCreator')
 local actionCreator = require('actionCreator')
+local actionData = require('actionData')
 local effectCreator = require('effectCreator')
+local effectData = require('effectData')
+local input = require('input')
 
 local loop = {}
 
@@ -59,7 +62,7 @@ end
 
 local function statusClearAll(action)
     local user = action.user
-    
+
     if user.status['BLIND'] then
         statusClear(user,'BLIND', 20)
     end
@@ -70,6 +73,56 @@ local function statusClearAll(action)
 
     if user.status['STUN'] then
         statusClear(user,'STUN', 50)
+    end
+end
+
+function executeAction(action)
+    local toAct = actionData[action.ref]
+    local canAct = true
+
+    if toAct.magic or toAct.tech then
+        if action.user.currentMp >= toAct.cost and not action.user.status['SEAL'] then
+            action.user.currentMp = action.user.currentMp - toAct.cost
+        else
+            canAct = false
+        end
+    end
+
+    if canAct then
+        local followUp = toAct.execute(toAct, action.user, action.target)
+        if not action.user.isPartyMember and toAct.enemyAnimation then
+            local aniData = toAct.enemyAnimation
+            local animation = animationCreator.new(
+                action.user, aniData.ref, aniData.maxTick, aniData.speed
+                )
+            state.animation = animation
+        end
+        if followUp then
+            local followUpAction = actionCreator.new(followUp, action.user, action.target)
+            input.sendActionIntoQueue(followUpAction)
+        end
+    else
+        local skillCanceled = actionData['skillCanceled']
+        skillCanceled.execute(skillCanceled, action.user, action.target, toAct)
+    end
+end
+
+function applyEffect(effect)
+    effectData[effect.ref].apply(effect.user, effect.target, effect.value)
+
+    if effect.target and effect.target.isPartyMember and effectData[effect.ref].partyAnimation then
+        local data = effectData[effect.ref].partyAnimation
+        local animation = animationCreator.new(
+            effect.target, data.ref, data.maxTick, data.speed, effect.value
+        )
+        state.animation = animation
+    elseif effect.target 
+    and not effect.target.isPartyMember and effectData[effect.ref].enemyAnimation then
+        local data = effectData[effect.ref].enemyAnimation
+        local animation = animationCreator.new(
+            effect.target, data.ref, data.maxTick, data.speed, effect.value
+        )
+        state.animation = animation
     end
 end
 
@@ -101,7 +154,7 @@ function loop.run()
     elseif #state.effectList > 0 then
         local effect = state.effectList[1]
         table.remove(state.effectList, 1)
-        effect.apply()
+        applyEffect(effect)
 
     elseif #state.priorityList > 0 then
         state.battleLog = {};
@@ -113,7 +166,7 @@ function loop.run()
         end
 
         action = statusPass(action)
-        action.execute()
+        executeAction(action)
         statusApply(action)
         statusClearAll(action)
 
@@ -128,7 +181,7 @@ function loop.run()
         end
 
         action = statusPass(action)
-        action.execute()
+        executeAction(action)
         statusApply(action)
         statusClearAll(action)
     else

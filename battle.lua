@@ -47,7 +47,7 @@ function battle.draw()
         menu.drawBattleLog()
     end
 
-    --[[TEMPORARY
+    --TEMPORARY
     love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(font_small)
     for index, enemy in ipairs(state.enemies) do
@@ -70,7 +70,7 @@ function battle.draw()
             5 + (index - 1) * 20
         )
 
-    end]]
+    end
 end
 
 function battle.keypressed(key)

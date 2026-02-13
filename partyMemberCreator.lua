@@ -37,7 +37,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'slumber', 'midSlumber', 'greatSlumber', 'confusion', 'midConfusion', 'greatConfusion'}
+        skills = {'slumber', 'midSlumber', 'greatSlumber', 'confusion', 'midConfusion', 'greatConfusion',                   'greatTremor'}
     }
 }
 
@@ -48,7 +48,7 @@ function P.new(index)
     local p = {}
 
     p.isPartyMember = true
-    p.isDead = false
+    p.isDead = data.isDead or false
 
     p.name = data.name
     p.maxHp = data.hp

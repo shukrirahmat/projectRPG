@@ -5,9 +5,75 @@ local actionData = require('actionData')
 
 local input = {}
 
+function input.sendActionIntoQueue(action)
+    
+    local actionDetails = actionData[action.ref]    
+    if actionDetails.priority then
+        table.insert(state.priorityList, action)
+    else
+        table.insert(state.actionList, action)
+    end
+end
+
+local function setPartyAction()
+    for _, member in ipairs(state.party) do
+        if not member.isDead then
+            local action
+            if member.status['STUN'] or member.status['SLEEP'] or member.status['CONFUSE'] then
+                local target = utils.selectTargetRandomly(state.enemies)
+                action = actionCreator.new('normalAtk', member, target)
+            elseif member.currentAction then
+                action = member.currentAction
+            end
+            input.sendActionIntoQueue(action)
+            member.currentAction = nil
+        end
+    end
+end
+
+local function setEnemyAction()
+    for _, enemy in ipairs(state.enemies) do
+        if not enemy.isDead then
+            local action
+            if enemy.status['STUN'] or enemy.status['SLEEP'] or enemy.status['CONFUSE'] then
+                local target = utils.selectTargetRandomly(state.party)
+                action = actionCreator.new('normalAtk', enemy, target)
+            else
+                local choices = {unpack(enemy.skills)}
+                local target = utils.selectTargetRandomly(state.party)
+
+                local min = (#choices or 0) * -1
+
+                local rand = math.random(min, #choices or 0)
+                if rand <= 0 then
+                    action = actionCreator.new('normalAtk', enemy, target)
+                else
+                    local skillRef = choices[rand]
+                    local skill = actionData[skillRef]
+                    local targetGroup;
+                    if skill.aim == 'allies' then 
+                        targetGroup = state.enemies
+                    elseif skill.aim == 'enemies' then
+                        targetGroup = state.party
+                    end
+                    if skill.scope == 'single' then
+                        local target = utils.selectTargetRandomly(targetGroup)
+                        action = actionCreator.new(skillRef, enemy, target)
+                    elseif skill.scope == 'all' then
+                        action = actionCreator.new(skillRef, enemy, targetGroup)
+                    elseif skill.scope == 'self' then
+                        action = actionCreator(skillRef, enemy, enemy)
+                    end
+                end
+            end
+            input.sendActionIntoQueue(action)
+        end
+    end
+end
+
 local function runBattle()
-    actionCreator.setPartyAction()
-    actionCreator.setEnemyAction()
+    setPartyAction()
+    setEnemyAction()
     state.battleRunning = true
     state.textTimer = 0.5
 end

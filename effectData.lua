@@ -62,7 +62,7 @@ end
 local function clearStatus(user, target, status)
     if status == 'BLIND' then
         target.status['BLIND'] = nil
-        utils.battleLogAdd(""..target.name.." cleared the sand from their eyes")
+        utils.battleLogAdd("Sand has been cleared in "..target.name.."'s eyes")
     elseif status == 'SEAL' then
         target.status['SEAL'] = nil
         utils.battleLogAdd(""..target.name.." abilites is no longer sealed")

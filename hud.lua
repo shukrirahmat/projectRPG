@@ -60,11 +60,6 @@ function hud.draw()
     local mpWidth = borderWidth - 10
 
     for index, member in ipairs(state.party) do
-        if member.isDead then
-            love.graphics.setColor(0.25, 0.25, 0.25)
-        else
-            love.graphics.setColor(1, 1, 1)
-        end
 
         --MOVE DOWNWARD FOR ANIMATION
         local shiftY = 0
@@ -100,7 +95,11 @@ function hud.draw()
             borderHeight
         )
 
-        love.graphics.setColor(1, 1, 1)
+        if member.isDead then
+            love.graphics.setColor(0.25, 0.25, 0.25)
+        else
+            love.graphics.setColor(1, 1, 1)
+        end
         love.graphics.rectangle(
             'line',
             borderX + (index - 1) * (borderWidth + borderX),

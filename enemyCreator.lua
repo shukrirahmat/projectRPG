@@ -12,7 +12,7 @@ local dataSheet = {
         spriteHeight = monsterSpriteDimension/4,
         strong = { ['FIRE'] = true, ['DEATH'] = true},
         immune = {},
-        skills = {'greatConfusion'}
+        skills = {'confusion'}
     },
 
     ['skeleton'] = {
@@ -40,7 +40,7 @@ local dataSheet = {
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
         immune = {['STUN'] = true},
         specialType = 'DRAGON',
-        skills = {}
+        skills = {'greatSlumber'}
     }
 }
 

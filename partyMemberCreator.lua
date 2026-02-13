@@ -27,7 +27,7 @@ local dataSheet = {
         def = 50,
         agi = 80,
         critRate = 64,
-        skills = {'healAll', 'greatHealAll', 'neutralize', 'neutralizeAll', 'mend', 'purify', 'purifyAll'}
+        skills = {'healAll', 'greatHealAll', 'alarm', 'alarmAll', 'sooth', 'soothAll', 'cleanse'}
     }, 
     {
         name = 'MAGE',

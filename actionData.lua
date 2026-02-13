@@ -93,14 +93,14 @@ local function sleeping(self, user)
 end
 
 local function confused(self, user)
-    
+
     local textList = {
         'is rolling on the ground laughing.',
         'is dancing happily.',
         'is crying at himself.',
         'pretends to be dead.',
     }
-    
+
     local target
     local roll = math.random(1,3)
     if roll == 1 then
@@ -413,6 +413,19 @@ local function removeStatusAll(self, user, group)
     for i, target in ipairs(group) do
         if not target.isDead then
             removeStatus(self, user, target)
+        end
+    end
+end
+
+local function castCleanse(self, user, target)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, status in ipairs({'POISON', 'CURSE', 'WOUND', 'SLEEP', 'CONFUSE', 'PARALYSIS'}) do
+        if target.status[status] then
+
+            local clear = effectCreator.new('clearStatus', user, target, status)
+            table.insert(state.effectList, clear)
         end
     end
 end
@@ -1389,6 +1402,82 @@ actionData['mend'] = {
     scope = 'all',
     execute = removeStatusAll,
     status = 'WOUND'
+}
+
+actionData['dispel'] = {
+    name = 'Dispel', 
+    magic = true,
+    cost = 3, 
+    desc = 'Remove paralysis from one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = removeStatusSingle,
+    status = 'PARALYSIS'
+}
+
+actionData['dispelAll'] = {
+    name = 'DispelAll', 
+    magic = true,
+    cost = 6, 
+    desc = 'Remove paralysis from all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = removeStatusAll,
+    status = 'PARALYSIS'
+}
+
+actionData['alarm'] = {
+    name = 'Alarm', 
+    magic = true,
+    cost = 3, 
+    desc = 'Awake one ally from sleep',
+    aim = 'allies',
+    scope = 'single',
+    execute = removeStatusSingle,
+    status = 'SLEEP'
+}
+
+actionData['alarmAll'] = {
+    name = 'AlarmAll', 
+    magic = true,
+    cost = 6, 
+    desc = 'Awake all allies from sleep',
+    aim = 'allies',
+    scope = 'all',
+    execute = removeStatusAll,
+    status = 'SLEEP'
+}
+
+actionData['sooth'] = {
+    name = 'Sooth', 
+    magic = true,
+    cost = 3, 
+    desc = 'Remove confusion from one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = removeStatusSingle,
+    status = 'CONFUSE'
+}
+
+actionData['soothAll'] = {
+    name = 'SoothAll', 
+    magic = true,
+    cost = 6, 
+    desc = 'Remove confusion from all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = removeStatusAll,
+    status = 'CONFUSE'
+}
+
+actionData['cleanse'] = {
+    name = 'Cleanse', 
+    magic = true,
+    cost = 10, 
+    desc = 'Remove poison, curse, wound, paralysis, sleep and confusion from one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = castCleanse,
 }
 
 

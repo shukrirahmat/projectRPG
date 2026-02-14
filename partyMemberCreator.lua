@@ -3,9 +3,9 @@ local dataSheet = {
         name = 'KNIGHT',
         hp = 180,
         mp = 20,
-        str = 80,
+        str = 130,
         def = 70,
-        agi = 60,
+        agi = 80,
         critRate = 64,
         skills = {'drain', 'greatDrain', 'dracoBomb', 'greatDracoBomb', 'greatParalyze'}
     },
@@ -25,7 +25,7 @@ local dataSheet = {
         mp = 150,
         str = 60,
         def = 50,
-        agi = 80,
+        agi = 100,
         critRate = 64,
         skills = {'healAll', 'greatHealAll', 'alarm', 'alarmAll', 'steel', 'steelAll', 'cleanse'}
     }, 
@@ -35,7 +35,7 @@ local dataSheet = {
         mp = 80,
         str = 30,
         def = 40,
-        agi = 80,
+        agi = 90,
         critRate = 64,
         skills = {'slumber', 'midSlumber', 'greatSlumber', 'lighten', 'lightenAll'}
     }

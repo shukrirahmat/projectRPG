@@ -98,7 +98,7 @@ function executeAction(action)
             local aniData = toAct.enemyAnimation
             local animation = animationCreator.new(
                 action.user, aniData.ref, aniData.maxTick, aniData.speed
-                )
+            )
             state.animation = animation
         end
     else
@@ -156,6 +156,15 @@ function loop.run()
         table.remove(state.effectList, 1)
         applyEffect(effect)
 
+    elseif state.followUp then
+        local action = state.followUp
+        state.battleLog = {};
+        
+        executeAction(action)
+        statusApply(action)
+        statusClearAll(action)
+        state.followUp = nil
+
     elseif #state.priorityList > 0 then
         state.battleLog = {};
         local action = state.priorityList[1]
@@ -164,11 +173,14 @@ function loop.run()
         if action.target and action.target.isDead then
             action.target = utils.reselectTargetWhenDead(action.target)
         end
-        
+
         action = statusPass(action)
         executeAction(action)
-        statusApply(action)
-        statusClearAll(action)
+
+        if not state.followUp then
+            statusApply(action)
+            statusClearAll(action)
+        end
 
     elseif #state.actionList > 0 then
         state.battleLog = {};
@@ -182,9 +194,12 @@ function loop.run()
 
         action = statusPass(action)
         executeAction(action)
-        statusApply(action)
-        statusClearAll(action)
         
+        if not state.followUp then
+            statusApply(action)
+            statusClearAll(action)
+        end
+
     else
         utils.clearTemporaryStatus()
         state.battleRunning = false

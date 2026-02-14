@@ -12,6 +12,8 @@ function U.shortenStatusName(status)
     elseif status == 'PARALYSIS' then return 'PRLS'
     elseif status == 'SLEEP' then return 'SLPT'
     elseif status == 'CONFUSE' then return 'CNFS'
+    elseif status == 'DEFUP' then return 'DEF+'
+    elseif status == 'AGIUP' then return 'AGI+'
     else return status
     end
 end
@@ -167,6 +169,12 @@ local function removeAction(user)
             table.remove(state.actionList, index)
         end
     end
+    
+    for index, action in ipairs(state.priorityList) do
+        if action.user == user then
+            table.remove(state.priorityList, index)
+        end
+    end
 end
 
 function U.handleDeath(target)
@@ -176,10 +184,6 @@ function U.handleDeath(target)
     U.battleLogAdd(''..target.name..' defeated.')
     removeAction(target)
 
-    if state.priorityList[1] and state.priorityList[1].ref == 'secondAtk' then
-        table.remove(state.priorityList, 1)
-    end
-
     if target.isPartyMember and checkIfAllDead(state.party) then
         state.partyDied = true
     elseif not target.isPartyMember and checkIfAllDead(state.enemies) then
@@ -188,6 +192,9 @@ function U.handleDeath(target)
 end
 
 function U.clearTemporaryStatus()
+    
+    state.followUp = nil
+    
     for _, group in ipairs({state.party, state.enemies}) do
         for _, character in ipairs(group) do
             if character.isDefending then

@@ -45,8 +45,9 @@ local function normalAttack(self, user, target, special)
             local secondAttack = math.random(1, 100) < secondAttackChance
 
             if secondAttack then
-                local nextAction = actionCreator.new('secondAtk', user, target)
-                table.insert(state.priorityList, nextAction)
+                if target.currentHp > damage then
+                    state.followUp = actionCreator.new('secondAtk', user, target)
+                end
             end
         end
     else
@@ -455,7 +456,6 @@ actionData['normalAtk'] = {
 actionData['secondAtk'] = {
     execute = secondAttack, 
     cost = 0, 
-    priority = true,
     enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
 }
 actionData['defend'] = { 

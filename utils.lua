@@ -14,6 +14,8 @@ function U.shortenStatusName(status)
     elseif status == 'CONFUSE' then return 'CNFS'
     elseif status == 'DEFUP' then return 'DEF+'
     elseif status == 'AGIUP' then return 'AGI+'
+    elseif status == 'DEFDOWN' then return 'DEF-'
+    elseif status == 'AGIDOWN' then return 'AGI-'
     else return status
     end
 end
@@ -130,7 +132,7 @@ end
 
 function U.chooseNextActionIndex()
     local actionIndex
-    local highestSpeed = 0
+    local highestSpeed = -1
     for index, action in ipairs(state.actionList) do
         local agi = action.user.agi
         local mod = math.floor(agi*0.5)
@@ -169,7 +171,7 @@ local function removeAction(user)
             table.remove(state.actionList, index)
         end
     end
-    
+
     for index, action in ipairs(state.priorityList) do
         if action.user == user then
             table.remove(state.priorityList, index)
@@ -192,9 +194,9 @@ function U.handleDeath(target)
 end
 
 function U.clearTemporaryStatus()
-    
+
     state.followUp = nil
-    
+
     for _, group in ipairs({state.party, state.enemies}) do
         for _, character in ipairs(group) do
             if character.isDefending then
@@ -211,21 +213,15 @@ function U.clearTemporaryStatus()
     end
 end
 
-function U.updateStatChange(target, status)
-    if status == 'DEFUP' then
-        if target.status['DEFUP'] then
-            local buff = math.floor(target.baseDef * 0.5)
-            target.def = target.baseDef + (buff * target.status['DEFUP'].stack)
-        else
-            target.def = target.baseDef
-        end
-    elseif status == 'AGIUP' then
-        if target.status['AGIUP'] then
-            local buff = math.floor(target.baseAgi * 0.5)
-            target.agi = target.baseAgi + (buff * target.status['AGIUP'].stack)
-        else
-            target.agi = target.baseAgi
-        end
+function U.updateStatChange(target, stat)
+    if stat == 'def' then
+        local buff = target.defBuff or 0
+        local debuff = target.defDebuff or 0
+        target.def = target.baseDef + buff - debuff
+    elseif stat == 'agi' then
+        local buff = target.agiBuff or 0
+        local debuff = target.agiDebuff or 0
+        target.agi = target.baseAgi + buff - debuff
     end
 end
 

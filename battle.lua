@@ -46,6 +46,19 @@ function battle.draw()
     elseif state.battleRunning and #state.battleLog > 0 then
         menu.drawBattleLog()
     end
+    
+    --TEMPORARY
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.setFont(font_small)
+    for index, char in ipairs(state.enemies) do
+        local text = 'DEF: '..char.def..' | AGI '..char.agi..'';
+        love.graphics.print(
+            text,
+            5,
+            windowHeight/4 + (index - 1) * 25
+        )
+    end
+        
 
     --TEMPORARY
     love.graphics.setColor(1, 1, 1)

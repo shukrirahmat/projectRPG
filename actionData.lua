@@ -1500,7 +1500,7 @@ actionData['steel'] = {
     name = 'Steel', 
     magic = true,
     cost = 2, 
-    desc = 'Increase the defensive power of of one ally',
+    desc = 'Increase the defensive power of one ally',
     aim = 'allies',
     scope = 'single',
     execute = statusEffectSingle,
@@ -1524,7 +1524,7 @@ actionData['lighten'] = {
     name = 'Lighten', 
     magic = true,
     cost = 2, 
-    desc = 'Increase the agility of of one ally',
+    desc = 'Increase the agility of one ally',
     aim = 'allies',
     scope = 'single',
     execute = statusEffectSingle,
@@ -1544,5 +1544,52 @@ actionData['lightenAll'] = {
     accuracy = 100
 }
 
+actionData['frail'] = {
+    name = 'Frail', 
+    magic = true,
+    cost = 2, 
+    desc = 'Reduce the defensive power of one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'DEFDOWN',
+    accuracy = 100
+}
+
+actionData['frailAll'] = {
+    name = 'FrailAll', 
+    magic = true,
+    cost = 5, 
+    desc = 'Reduce the defensive power of all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'DEFDOWN',
+    accuracy = 100
+}
+
+actionData['burden'] = {
+    name = 'Burden', 
+    magic = true,
+    cost = 2, 
+    desc = 'Reduce the agility of one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'AGIDOWN',
+    accuracy = 100
+}
+
+actionData['burdenAll'] = {
+    name = 'BurdenAll', 
+    magic = true,
+    cost = 5, 
+    desc = 'Reduce the agility of all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'AGIDOWN',
+    accuracy = 100
+}
 
 return actionData;

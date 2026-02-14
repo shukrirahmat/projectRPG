@@ -110,49 +110,88 @@ local function clearStatus(user, target, status)
         utils.battleLogAdd("The curse have been removed from "..target.name.."")
     elseif status == 'DEFUP' then
         target.status['DEFUP'] = nil
-        utils.updateStatChange(target, 'DEFUP')
-        utils.battleLogAdd(""..target.name.."'s defense is back to normal")
+        target.defBuff = nil
+        utils.updateStatChange(target, 'def')
+        utils.battleLogAdd(""..target.name.."'s defense increase has expired")
     elseif status == 'AGIUP' then
         target.status['AGIUP'] = nil
-        utils.updateStatChange(target, 'AGIUP')
-        utils.battleLogAdd(""..target.name.."'s agility is back to normal")
+        target.agiBuff = nil
+        utils.updateStatChange(target, 'agi')
+        utils.battleLogAdd(""..target.name.."'s agility increase has expired")
+    elseif status == 'DEFDOWN' then
+        target.status['DEFDOWN'] = nil
+        target.defDebuff = nil
+        utils.updateStatChange(target, 'def')
+        utils.battleLogAdd(""..target.name.."'s defense reduction has expired")
+    elseif status == 'AGIDOWN' then
+        target.status['AGIDOWN'] = nil
+        target.agiDebuff = nil
+        utils.updateStatChange(target, 'agi')
+        utils.battleLogAdd(""..target.name.."'s agility reduction has expired")
     end
 end
 
 local function addStatChange(_, target, status)
+
+    local text
     if status == 'DEFUP' then
-        if target.status['DEFUP'] then
-            if target.status['DEFUP'].stack < 2 then
-                target.status['DEFUP'].stack = target.status['DEFUP'].stack + 1
-                target.status['DEFUP'].countdown = 5
-                utils.battleLogAdd(""..target.name.."'s defensive power is increased further");
-            elseif target.status['DEFUP'].stack >= 2 then
-                target.status['DEFUP'].countdown = 5
-                utils.battleLogAdd(""..target.name.."'s defensive power is at maximum");
-            end
-        else
-            target.status['DEFUP'] = { stack = 1, countdown = 5}
-            utils.battleLogAdd(""..target.name.."'s defensive power is increased");
-        end
-        utils.updateStatChange(target, status)
+        text = {
+            ""..target.name.."'s defensive power is increased",
+            ""..target.name.."'s defensive power is increased further",
+            ""..target.name.."'s defensive power is at maximum"
+        }
+    elseif status == 'DEFDOWN'then
+        text = {
+            ""..target.name.."'s defensive power is reduced",
+            ""..target.name.."'s defensive power is reduced further",
+            ""..target.name.."'s defensive power cannot be reduced further"
+        }
     elseif status == 'AGIUP' then
-        if target.status['AGIUP'] then
-            if target.status['AGIUP'].stack < 2 then
-                target.status['AGIUP'].stack = target.status['AGIUP'].stack + 1
-                target.status['AGIUP'].countdown = 5
-                utils.battleLogAdd(""..target.name.."'s agility is increased further");
-            elseif target.status['AGIUP'].stack >= 2 then
-                target.status['AGIUP'].countdown = 5
-                utils.battleLogAdd(""..target.name.."'s agility is at maximum");
-            end
-        else
-            target.status['AGIUP'] = { stack = 1, countdown = 5}
-            utils.battleLogAdd(""..target.name.."'s agility is increased");
+        text = {
+            ""..target.name.."'s agility is increased",
+            ""..target.name.."'s agility is increased further",
+            ""..target.name.."'s agility is at maximum"
+        }
+    elseif status == 'AGIDOWN'then
+        text = {
+            ""..target.name.."'s agility is reduced",
+            ""..target.name.."'s agility is reduced further",
+            ""..target.name.."'s agility cannot be reduced further"
+        }
+    end
+
+
+    if target.status[status] then
+        if target.status[status].stack < 2 then
+            target.status[status].stack = target.status[status].stack + 1
+            target.status[status].countdown = 5
+            utils.battleLogAdd(text[2])
+        elseif target.status[status].stack >= 2 then
+            target.status[status].countdown = 5
+            utils.battleLogAdd(text[3])
         end
-        utils.updateStatChange(target, status)
+    else
+        target.status[status] = { stack = 1, countdown = 5}
+        utils.battleLogAdd(text[1])
+    end
+
+    if status == 'DEFUP' then
+        target.defBuff = target.baseDef * 0.5 * target.status['DEFUP'].stack
+        utils.updateStatChange(target, 'def')
+    elseif status == 'DEFDOWN' then
+        target.defDebuff = target.baseDef * 0.5 * target.status['DEFDOWN'].stack
+        utils.updateStatChange(target, 'def')
+    elseif status == 'AGIUP' then
+        target.agiBuff = target.baseAgi * 0.5 * target.status['AGIUP'].stack
+        utils.updateStatChange(target, 'agi')
+    elseif status == 'AGIDOWN' then
+        target.agiDebuff = target.baseAgi * 0.5 * target.status['AGIDOWN'].stack
+        utils.updateStatChange(target, 'agi')
     end
 end
-    
+
+
+
 
 local function addStatus(_, target, status)
     if status == 'BLIND' then

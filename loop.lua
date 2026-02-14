@@ -95,6 +95,14 @@ local function statusClearAll(action)
     if user.status['AGIUP'] then
         countDownStats(user, 'AGIUP')
     end
+    
+    if user.status['DEFDOWN'] then
+        countDownStats(user, 'DEFDOWN')
+    end
+    
+    if user.status['AGIDOWN'] then
+        countDownStats(user, 'AGIDOWN')
+    end
 end
 
 function executeAction(action)

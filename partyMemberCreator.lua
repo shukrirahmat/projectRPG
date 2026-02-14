@@ -27,7 +27,7 @@ local dataSheet = {
         def = 50,
         agi = 100,
         critRate = 64,
-        skills = {'healAll', 'greatHealAll', 'alarm', 'alarmAll', 'steel', 'steelAll', 'cleanse'}
+        skills = {'healAll', 'greatHealAll', 'burden', 'burdenAll', 'steel', 'steelAll', 'cleanse'}
     }, 
     {
         name = 'MAGE',
@@ -37,7 +37,7 @@ local dataSheet = {
         def = 40,
         agi = 90,
         critRate = 64,
-        skills = {'slumber', 'midSlumber', 'greatSlumber', 'lighten', 'lightenAll'}
+        skills = {'slumber', 'midSlumber', 'greatSlumber', 'lighten', 'lightenAll', 'frail', 'frailAll'}
     }
 }
 

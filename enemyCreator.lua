@@ -40,7 +40,7 @@ local dataSheet = {
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
         immune = {['STUN'] = true},
         specialType = 'DRAGON',
-        skills = {'greatSilence'}
+        skills = {}
     }
 }
 

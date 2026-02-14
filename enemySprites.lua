@@ -1,5 +1,6 @@
 local state = require('state')
 local hud = require('hud')
+local utils = require('utils')
 
 local E = {}
 enemySprites = E
@@ -124,10 +125,10 @@ end
 local function drawStatusEffect(enemy, index)
     local spritePos = getSpritePos(enemy, index, 0, 0)
 
-    local borderX = spritePos.x + 15
+    local borderX = spritePos.x + 5
     local borderHeight = 65
     local borderY = spritePos.y + monsterSpriteDimension - borderHeight/2
-    local borderWidth = monsterSpriteDimension - 30
+    local borderWidth = monsterSpriteDimension - 10
     love.graphics.setColor(0, 0, 0, 0.85)
     love.graphics.rectangle('fill', borderX, borderY, borderWidth, borderHeight)
 
@@ -137,14 +138,14 @@ local function drawStatusEffect(enemy, index)
     local j = 0
     for k,v in pairs(enemy.status) do
         love.graphics.printf(
-            string.sub(k, 1, 3),
+            utils.shortenStatusName(k),
             borderX + (i * (borderWidth  /3)),
             borderY + (j * 15),
             borderWidth /3,
             'center'
         )
         i = i + 1
-        if i > 3 then
+        if i > 2 then
             i = 0
             j = j + 1
         end

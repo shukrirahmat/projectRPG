@@ -12,7 +12,7 @@ local dataSheet = {
         spriteHeight = monsterSpriteDimension/4,
         strong = { ['FIRE'] = true, ['DEATH'] = true},
         immune = {},
-        skills = {'confusion'}
+        skills = {}
     },
 
     ['skeleton'] = {
@@ -26,7 +26,7 @@ local dataSheet = {
         strong = {['BLIND'] = true},
         immune = { ['ICE'] = true , ['DEATH'] = true },
         specialType = 'UNDEAD',
-        skills = {'midFire', 'fireBlast', 'hex', 'greatHex'}
+        skills = {'midFire', 'fireBlast'}
     },
 
     ['dragon'] = {
@@ -40,7 +40,7 @@ local dataSheet = {
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
         immune = {['STUN'] = true},
         specialType = 'DRAGON',
-        skills = {'greatSlumber'}
+        skills = {}
     }
 }
 
@@ -59,6 +59,9 @@ function enemyCreator.new(species, name)
     e.currentHp = data.hp
     e.maxMp = data.mp
     e.currentMp = data.mp
+    e.baseAtk = data.atk
+    e.baseDef = data.def
+    e.baseAgi = data.agi
     e.atk = data.atk
     e.def = data.def
     e.agi = data.agi

@@ -311,7 +311,15 @@ local function statusEffect(self, user, target)
     local resistance = utils.checkResistance(self.element, target)
 
     if target.status[self.element] then
-        local statusEffect = effectCreator.new('addStatus', user, target, self.element)
+        local statusEffect;
+        if self.element == 'DEFUP'
+        or self.element == 'AGIUP'
+        or self.element == 'DEFDOWN'
+        or self.element == 'AGIDOWN' then
+            statusEffect = effectCreator.new('addStatChange', user, target, self.element)
+        else
+            statusEffect = effectCreator.new('addStatus', user, target, self.element)
+        end
         table.insert(state.effectList, statusEffect)
     else
         if resistance == 2 then 
@@ -328,7 +336,15 @@ local function statusEffect(self, user, target)
                     local killEffect = effectCreator.new('instakill', user, target)
                     table.insert(state.effectList, killEffect)
                 else
-                    local statusEffect = effectCreator.new('addStatus', user, target, self.element)
+                    local statusEffect;
+                    if self.element == 'DEFUP'
+                    or self.element == 'AGIUP'
+                    or self.element == 'DEFDOWN'
+                    or self.element == 'AGIDOWN' then
+                        statusEffect = effectCreator.new('addStatChange', user, target, self.element)
+                    else
+                        statusEffect = effectCreator.new('addStatus', user, target, self.element)
+                    end
                     table.insert(state.effectList, statusEffect)
                 end
             else
@@ -1478,6 +1494,54 @@ actionData['cleanse'] = {
     aim = 'allies',
     scope = 'single',
     execute = castCleanse,
+}
+
+actionData['steel'] = {
+    name = 'Steel', 
+    magic = true,
+    cost = 2, 
+    desc = 'Increase the defensive power of of one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'DEFUP',
+    accuracy = 100
+}
+
+actionData['steelAll'] = {
+    name = 'SteelAll', 
+    magic = true,
+    cost = 5, 
+    desc = 'Increase the defensive power of all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'DEFUP',
+    accuracy = 100
+}
+
+actionData['lighten'] = {
+    name = 'Lighten', 
+    magic = true,
+    cost = 2, 
+    desc = 'Increase the agility of of one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'AGIUP',
+    accuracy = 100
+}
+
+actionData['lightenAll'] = {
+    name = 'LightenAll', 
+    magic = true,
+    cost = 5, 
+    desc = 'Increase the agility of all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'AGIUP',
+    accuracy = 100
 }
 
 

@@ -12,6 +12,7 @@ state.actionList = {}
 state.priorityList = {}
 state.effectList = {}
 state.killList = {}
+state.followUp = nil
 state.textTimer = 0
 state.textSpeed = 1
 state.battleLog = {}

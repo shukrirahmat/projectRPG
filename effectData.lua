@@ -111,6 +111,41 @@ local function clearStatus(user, target, status)
     end
 end
 
+local function addStatChange(_, target, status)
+    if status == 'DEFUP' then
+        if target.status['DEFUP'] then
+            if target.status['DEFUP'].stack < 2 then
+                target.status['DEFUP'].stack = target.status['DEFUP'].stack + 1
+                target.status['DEFUP'].countdown = 5
+                utils.battleLogAdd(""..target.name.."'s defensive power is increased further");
+            elseif target.status['DEFUP'].stack >= 2 then
+                target.status['DEFUP'].countdown = 5
+                utils.battleLogAdd(""..target.name.."'s defensive power is at maximum");
+            end
+        else
+            target.status['DEFUP'] = { stack = 1, countdown = 5}
+            utils.battleLogAdd(""..target.name.."'s defensive power is increased");
+        end
+        utils.updateStatChange(target, status)
+    elseif status == 'AGIUP' then
+        if target.status['AGIUP'] then
+            if target.status['AGIUP'].stack < 2 then
+                target.status['AGIUP'].stack = target.status['AGIUP'].stack + 1
+                target.status['AGIUP'].countdown = 5
+                utils.battleLogAdd(""..target.name.."'s agility is increased further");
+            elseif target.status['AGIUP'].stack >= 2 then
+                target.status['AGIUP'].countdown = 5
+                utils.battleLogAdd(""..target.name.."'s agility is at maximum");
+            end
+        else
+            target.status['AGIUP'] = { stack = 1, countdown = 5}
+            utils.battleLogAdd(""..target.name.."'s agility is increased");
+        end
+        utils.updateStatChange(target, status)
+    end
+end
+    
+
 local function addStatus(_, target, status)
     if status == 'BLIND' then
         if target.status['BLIND'] then
@@ -153,24 +188,18 @@ local function addStatus(_, target, status)
             utils.battleLogAdd(""..target.name.." is already stunned");
         else
             utils.battleLogAdd(""..target.name.." is stunned!");
-            target.status['CONFUSE'] = nil
-            target.status['SLEEP'] = nil
         end
     elseif status == 'SLEEP' then
         if target.status['SLEEP'] then
             utils.battleLogAdd(""..target.name.." is already asleep");
         else
             utils.battleLogAdd(""..target.name.." is put to sleep!");
-            target.status['STUN'] = nil
-            target.status['CONFUSE'] = nil
         end
     elseif status == 'CONFUSE' then
         if target.status['CONFUSE'] then
             utils.battleLogAdd(""..target.name.." is already confused");
         else
             utils.battleLogAdd(""..target.name.." is confused!");
-            target.status['STUN'] = nil
-            target.status['SLEEP'] = nil
         end
     end
 
@@ -245,6 +274,10 @@ effectData['missedResist'] = {
 
 effectData['addStatus'] = { 
     apply = addStatus
+}
+
+effectData['addStatChange'] = { 
+    apply = addStatChange
 }
 
 effectData['clearStatus'] = {

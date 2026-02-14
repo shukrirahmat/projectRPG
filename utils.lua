@@ -4,6 +4,18 @@ local U = {}
 
 -----MENU RELATED HELPERS-----
 
+function U.shortenStatusName(status)
+    if status == 'POISON' then return 'POSN'
+    elseif status == 'CURSE' then return 'CRSE'
+    elseif status == 'WOUND' then return 'WOUN'
+    elseif status == 'BLIND' then return 'BLND'
+    elseif status == 'PARALYSIS' then return 'PRLS'
+    elseif status == 'SLEEP' then return 'SLPT'
+    elseif status == 'CONFUSE' then return 'CNFS'
+    else return status
+    end
+end
+
 function U.updateTargetMenu(prevMenu, group)
     local targetList = {}
     for _, target in ipairs(group) do
@@ -181,13 +193,31 @@ function U.clearTemporaryStatus()
             if character.isDefending then
                 character.isDefending = false
             end
-            
+
             if character.isAuraCharged then
                 character.isAuraCharged.counter = character.isAuraCharged.counter - 1
                 if character.isAuraCharged.counter <= 0 then
                     character.isAuraCharged = nil
                 end
             end
+        end
+    end
+end
+
+function U.updateStatChange(target, status)
+    if status == 'DEFUP' then
+        if target.status['DEFUP'] then
+            local buff = math.floor(target.baseDef * 0.5)
+            target.def = target.baseDef + (buff * target.status['DEFUP'].stack)
+        else
+            target.def = target.baseDef
+        end
+    elseif status == 'AGIUP' then
+        if target.status['AGIUP'] then
+            local buff = math.floor(target.baseAgi * 0.5)
+            target.agi = target.baseAgi + (buff * target.status['AGIUP'].stack)
+        else
+            target.agi = target.baseAgi
         end
     end
 end

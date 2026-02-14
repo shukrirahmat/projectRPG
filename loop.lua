@@ -11,17 +11,21 @@ local loop = {}
 
 local function statusPass(action)
     local result = action
-    if action.user.status['STUN'] then
-        result = actionCreator.new('stunned', action.user)
-    elseif action.user.status['SLEEP'] then
+    if action.user.status['SLEEP'] then
         result = actionCreator.new('sleeping', action.user)
-    elseif action.user.status['CONFUSE'] then
-        result = actionCreator.new('confused', action.user)
+    elseif action.user.status['STUN'] then
+        result = actionCreator.new('stunned', action.user)
     elseif action.user.status['PARALYSIS'] then
         local roll = math.random(1, 4)
         if roll == 1 then 
             result = actionCreator.new('paralyzed', action.user)
+        else
+            if action.user.status['CONFUSE'] then
+                result = actionCreator.new('confused', action.user)
+            end
         end
+    elseif action.user.status['CONFUSE'] then
+        result = actionCreator.new('confused', action.user)
     end
     return result
 end
@@ -160,7 +164,7 @@ function loop.run()
         if action.target and action.target.isDead then
             action.target = utils.reselectTargetWhenDead(action.target)
         end
-
+        
         action = statusPass(action)
         executeAction(action)
         statusApply(action)
@@ -180,6 +184,7 @@ function loop.run()
         executeAction(action)
         statusApply(action)
         statusClearAll(action)
+        
     else
         utils.clearTemporaryStatus()
         state.battleRunning = false

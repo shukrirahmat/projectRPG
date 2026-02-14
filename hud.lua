@@ -1,4 +1,5 @@
 local state = require('state')
+local utils = require('utils')
 
 local hud = {}
 
@@ -15,9 +16,9 @@ local function alignNumber(value)
 end
 
 local function drawStatusEffect(x, y, width, index, char)
-    local borderX = x + (index - 1) * (width + x) + 10
+    local borderX = x + (index - 1) * (width + x) + 5
     local borderY = y + 5
-    local borderWidth = width - 20
+    local borderWidth = width - 10
     local borderHeight = 65
     love.graphics.setColor(0, 0, 0, 0.85)
     love.graphics.rectangle('fill', borderX, borderY, borderWidth, borderHeight)
@@ -28,14 +29,14 @@ local function drawStatusEffect(x, y, width, index, char)
     local j = 0
     for k,v in pairs(char.status) do
         love.graphics.printf(
-            string.sub(k, 1, 3),
+            utils.shortenStatusName(k),
             borderX + (i * (borderWidth  /3)),
             borderY + (j * 15),
             borderWidth /3,
             'center'
         )
         i = i + 1
-        if i > 3 then
+        if i > 2 then
             i = 0
             j = j + 1
         end

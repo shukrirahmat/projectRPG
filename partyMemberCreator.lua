@@ -7,7 +7,7 @@ local dataSheet = {
         def = 70,
         agi = 60,
         critRate = 64,
-        skills = {'drain', 'greatDrain', 'dracoBomb', 'greatDracoBomb', 'dispel', 'dispelAll'}
+        skills = {'drain', 'greatDrain', 'dracoBomb', 'greatDracoBomb', 'greatParalyze'}
     },
     {
         name = 'FIGHTER',
@@ -17,7 +17,7 @@ local dataSheet = {
         def = 50,
         agi = 120,
         critRate = 8,
-        skills = {'auraBeam', 'greatAuraBeam', 'auraCharge', 'sandstorm', 'greatSandstorm'}
+        skills = {'auraBeam', 'greatAuraBeam', 'auraCharge', 'sandstorm', 'greatSandstorm', 'greatSilence'}
     },
     {
         name = 'PRIEST',
@@ -27,7 +27,7 @@ local dataSheet = {
         def = 50,
         agi = 80,
         critRate = 64,
-        skills = {'healAll', 'greatHealAll', 'alarm', 'alarmAll', 'sooth', 'soothAll', 'cleanse'}
+        skills = {'healAll', 'greatHealAll', 'alarm', 'alarmAll', 'steel', 'steelAll', 'cleanse'}
     }, 
     {
         name = 'MAGE',
@@ -37,7 +37,7 @@ local dataSheet = {
         def = 40,
         agi = 80,
         critRate = 64,
-        skills = {'slumber', 'midSlumber', 'greatSlumber', 'confusion', 'midConfusion', 'greatConfusion',                   'greatTremor'}
+        skills = {'slumber', 'midSlumber', 'greatSlumber', 'lighten', 'lightenAll'}
     }
 }
 
@@ -56,8 +56,11 @@ function P.new(index)
     p.maxMp = data.mp
     p.currentMp = data.mp
     p.str = data.str
+    p.baseAtk = data.str
     p.atk = data.str
+    p.baseDef = data.def
     p.def = data.def
+    p.baseAgi = data.agi
     p.agi = data.agi
     p.critRate = data.critRate or 128
     p.skills = data.skills or {}

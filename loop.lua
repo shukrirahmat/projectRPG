@@ -64,19 +64,36 @@ local function statusClear(user, status, chance)
     end
 end
 
+local function countDownStats(user, status)
+    if user.status[status].countdown > 0 then
+        user.status[status].countdown = user.status[status].countdown - 1;
+    elseif user.status[status].countdown <= 0 then
+        local clear = effectCreator.new('clearStatus', user, user, status)
+        table.insert(state.effectList, clear)
+    end
+end
+
 local function statusClearAll(action)
     local user = action.user
 
     if user.status['BLIND'] then
-        statusClear(user,'BLIND', 20)
+        statusClear(user,'BLIND', 10)
     end
 
     if user.status['SEAL'] then
-        statusClear(user,'SEAL', 20)
+        statusClear(user,'SEAL', 25)
     end
 
     if user.status['STUN'] then
         statusClear(user,'STUN', 50)
+    end
+    
+    if user.status['DEFUP'] then
+        countDownStats(user, 'DEFUP')
+    end
+    
+    if user.status['AGIUP'] then
+        countDownStats(user, 'AGIUP')
     end
 end
 

@@ -108,6 +108,14 @@ local function clearStatus(user, target, status)
             end
         end
         utils.battleLogAdd("The curse have been removed from "..target.name.."")
+    elseif status == 'DEFUP' then
+        target.status['DEFUP'] = nil
+        utils.updateStatChange(target, 'DEFUP')
+        utils.battleLogAdd(""..target.name.."'s defense is back to normal")
+    elseif status == 'AGIUP' then
+        target.status['AGIUP'] = nil
+        utils.updateStatChange(target, 'AGIUP')
+        utils.battleLogAdd(""..target.name.."'s agility is back to normal")
     end
 end
 

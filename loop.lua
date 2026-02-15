@@ -195,7 +195,8 @@ function loop.run()
         local action = state.priorityList[1]
         table.remove(state.priorityList, 1)
 
-        if action.target and action.target.isDead then
+        if action.target and action.target.isDead 
+        and action.ref ~= 'revive' and action.ref ~= 'greatRevive' then
             action.target = utils.reselectTargetWhenDead(action.target)
         end
 
@@ -213,7 +214,8 @@ function loop.run()
         local action = state.actionList[nextActionIndex]
         table.remove(state.actionList, nextActionIndex)
 
-        if action.target and action.target.isDead then
+        if action.target and action.target.isDead 
+        and action.ref ~= 'revive' and action.ref ~= 'greatRevive' then
             action.target = utils.reselectTargetWhenDead(action.target)
         end
 

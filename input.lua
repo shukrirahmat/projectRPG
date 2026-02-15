@@ -189,6 +189,10 @@ function input.executeConfirm()
                     state.currentMenu = state.targetMenu
                     utils.menuReset(state.targetMenu)
                 end
+            elseif data.scope == 'dead' then
+                utils.updateDeadTargetMenu(state.skillMenu, group)
+                state.currentMenu = state.targetMenu
+                utils.menuReset(state.targetMenu)
             elseif data.scope == 'all' then
                 local user = state.party[state.characterMenu.charID]
                 local ref = state.skillMenu.list[state.skillMenu.position]
@@ -205,7 +209,7 @@ function input.executeConfirm()
                 nextCharacter(currentID)
             end
         end
-    elseif state.currentMenu == state.targetMenu then
+    elseif state.currentMenu == state.targetMenu and #state.targetMenu.list > 0 then
         if state.targetMenu.prevMenu == state.characterMenu then
             local target = state.targetMenu.list[state.targetMenu.position]
             addAttackAction(target)

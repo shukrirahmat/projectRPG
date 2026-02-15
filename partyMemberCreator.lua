@@ -17,7 +17,8 @@ local dataSheet = {
         def = 50,
         agi = 120,
         critRate = 8,
-        skills = {'auraBeam', 'greatAuraBeam', 'auraCharge', 'sandstorm', 'greatSandstorm', 'greatSilence'}
+        skills = {'auraBeam', 'greatAuraBeam', 'auraCharge', 'sandstorm', 'greatSandstorm', 'greatSilence'},
+        isDead = true
     },
     {
         name = 'PRIEST',
@@ -27,7 +28,7 @@ local dataSheet = {
         def = 50,
         agi = 100,
         critRate = 64,
-        skills = {'healAll', 'greatHealAll', 'burden', 'burdenAll', 'steel', 'steelAll', 'cleanse'}
+        skills = {'healAll', 'greatHealAll', 'revive', 'greatRevive', 'burdenAll', 'steel', 'steelAll', 'cleanse'}
     }, 
     {
         name = 'MAGE',

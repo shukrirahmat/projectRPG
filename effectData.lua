@@ -48,6 +48,19 @@ local function recovery(_, target, value)
     utils.battleLogAdd(''..target.name..' recovers '..amount..' HP.');
 end
 
+local function revival(_, target, percentage)
+    
+    if percentage < 100 then
+        percentage = math.random(1, percentage)
+    end
+    
+    local hp = math.floor(target.maxHp * percentage * 0.01)
+    target.isDead = false
+    target.currentHp = hp
+    
+    utils.battleLogAdd(''..target.name..' has been revived');
+end
+
 local function noEffect(_, target, value)
     utils.battleLogAdd('It had no effect on '..target.name..'');
 end
@@ -293,6 +306,10 @@ effectData['skillCanceled'] = {
 
 effectData['recover'] = {
     apply = recovery
+}
+
+effectData['revive'] = {
+    apply = revival
 }
 
 effectData['mpDamage'] = {

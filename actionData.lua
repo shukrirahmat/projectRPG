@@ -408,6 +408,19 @@ local function healAll(self, user, group)
     end
 end
 
+local function castRevive(self, user, target)
+    local text = ''..user.name..' casts '..self.name..' on '..target.name..'';
+    utils.battleLogAdd(text)
+    
+    if not target.isDead then 
+        local immuneEffect = effectCreator.new('immune', user, target)
+        table.insert(state.effectList, immuneEffect)
+    else
+        local reviveEffect = effectCreator.new('revive', user, target, self.reviveRatio)
+        table.insert(state.effectList, reviveEffect)
+    end
+end
+
 local function removeStatus(self, user, target)
     if target.status[self.status] then
         local clear = effectCreator.new('clearStatus', user, target, self.status)
@@ -1590,6 +1603,28 @@ actionData['burdenAll'] = {
     execute = statusEffectAll,
     element = 'AGIDOWN',
     accuracy = 100
+}
+
+actionData['revive'] = {
+    name = 'Revive', 
+    magic = true,
+    cost = 25, 
+    desc = 'Revive one dead ally with some HP',
+    aim = 'allies',
+    scope = 'dead',
+    execute = castRevive,
+    reviveRatio = 25
+}
+
+actionData['greatRevive'] = {
+    name = 'GreatRevive', 
+    magic = true,
+    cost = 50, 
+    desc = 'Revive one dead ally with full HP',
+    aim = 'allies',
+    scope = 'dead',
+    execute = castRevive,
+    reviveRatio = 100
 }
 
 return actionData;

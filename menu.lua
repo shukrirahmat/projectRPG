@@ -135,6 +135,19 @@ function drawTargetMenu(refX, refY, refWidth)
         borderWidth,
         borderHeight
     )
+    
+    if #state.targetMenu.list < 1 then
+        love.graphics.setFont(font_medium)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf(
+            'There is no available target',
+            targetX + 10,
+            targetY,
+            targetWidth - 20,
+            'left', 0, 1, 1, 0, -1 * (targetHeight/4)
+        )
+        return
+    end
 
     local firstPage = {}
     local secondPage = {}

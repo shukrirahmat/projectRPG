@@ -31,6 +31,17 @@ function U.updateTargetMenu(prevMenu, group)
     state.targetMenu.prevMenu = prevMenu
 end
 
+function U.updateDeadTargetMenu(prevMenu, group)
+    local targetList = {}
+    for _, target in ipairs(group) do
+        if target.isDead then
+            table.insert(targetList, target)
+        end
+    end
+    state.targetMenu.list = targetList
+    state.targetMenu.prevMenu = prevMenu
+end
+
 function U.updateSkillMenu(user)
     local skillList = {}
     if user.skills and #user.skills > 0 then

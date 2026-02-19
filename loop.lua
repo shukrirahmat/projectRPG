@@ -9,6 +9,21 @@ local input = require('input')
 
 local loop = {}
 
+local function nextPriorityIndex()
+    local result
+    local highestSpeed = -1
+
+    for i, action in ipairs(state.priorityList) do
+        local speed = actionData[action.ref].priority
+        if speed > highestSpeed then
+            highestSpeed = speed
+            result = i
+        end
+    end
+
+    return result
+end
+
 local function statusPass(action)
     local result = action
     if action.user.status['SLEEP'] then
@@ -87,27 +102,27 @@ local function statusClearAll(action)
     if user.status['STUN'] then
         statusClear(user,'STUN', 50)
     end
-    
+
     if user.status['DEFUP'] then
         countDownStats(user, 'DEFUP')
     end
-    
+
     if user.status['AGIUP'] then
         countDownStats(user, 'AGIUP')
     end
-    
+
     if user.status['DEFDOWN'] then
         countDownStats(user, 'DEFDOWN')
     end
-    
+
     if user.status['AGIDOWN'] then
         countDownStats(user, 'AGIDOWN')
     end
-    
+
     if user.status['BARRIER'] then
         countDownStats(user, 'BARRIER')
     end
-    
+
     if user.status['MIGHT'] then
         countDownStats(user, 'MIGHT')
     end
@@ -141,6 +156,11 @@ function executeAction(action)
 end
 
 function applyEffect(effect)
+    
+    if effect.target.status and effect.target.status['GUARDIAN'] then
+        effectData['immune'].apply(effect.user, effect.target, effect.value)
+    end
+    
     effectData[effect.ref].apply(effect.user, effect.target, effect.value)
 
     if effect.target and effect.target.isPartyMember and effectData[effect.ref].partyAnimation then
@@ -163,7 +183,7 @@ end
 
 function loop.run()
 
-    if state.battleEnded and #state.killList == 0 and #state.effectList == 0 then
+    if state.battleEnded then
         state.battleLog = {}
         if state.partyDied then
             utils.battleLogAdd('Party has been defeated')
@@ -192,7 +212,7 @@ function loop.run()
     elseif state.followUp then
         local action = state.followUp
         state.battleLog = {};
-        
+
         executeAction(action)
         statusApply(action)
         statusClearAll(action)
@@ -200,8 +220,10 @@ function loop.run()
 
     elseif #state.priorityList > 0 then
         state.battleLog = {};
-        local action = state.priorityList[1]
-        table.remove(state.priorityList, 1)
+
+        local actionIndex = nextPriorityIndex()
+        local action = state.priorityList[actionIndex]
+        table.remove(state.priorityList, actionIndex)
 
         if action.target and action.target.isDead 
         and actionData[action.ref].scope ~= 'dead' then
@@ -229,7 +251,7 @@ function loop.run()
 
         action = statusPass(action)
         executeAction(action)
-        
+
         if not state.followUp then
             statusApply(action)
             statusClearAll(action)

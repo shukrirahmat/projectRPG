@@ -65,7 +65,7 @@ local function noEffect(_, target, value)
     utils.battleLogAdd('It had no effect on '..target.name..'');
 end
 
-local function skillCanceled(user)
+local function skillCanceled(user, target)
     if user.status['SEAL'] then
         utils.battleLogAdd('But '..user.name..' abilities were sealed!');
     else
@@ -289,6 +289,8 @@ local function addStatus(_, target, status)
         else
             utils.battleLogAdd(""..target.name.." has gained protection from magic damage");
         end
+    elseif status == 'GUARDIAN' then
+        utils.battleLogAdd(""..target.name.." is engulfed by radiant light and could not move");
     end
 
     if status == 'BARRIER' then

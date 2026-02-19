@@ -17,7 +17,8 @@ function U.shortenStatusName(status)
     elseif status == 'DEFDOWN' then return 'DEF-'
     elseif status == 'AGIDOWN' then return 'AGI-'
     elseif status == 'BARRIER' then return 'BARR'
-    elseif status == 'MIGHT' then return 'MGT'
+    elseif status == 'MIGHT' then return 'MGHT'
+    elseif status == 'GUARDIAN' then return 'GRDN'
     else return status
     end
 end
@@ -178,7 +179,7 @@ local function checkIfAllDead(group)
     return totalDead == #group;
 end
 
-local function removeAction(user)
+function U.removeAction(user)
     for index, action in ipairs(state.actionList) do
         if action.user == user then
             table.remove(state.actionList, index)
@@ -197,7 +198,7 @@ function U.handleDeath(target)
     target.isDead = true
     target.status = {}
     U.battleLogAdd(''..target.name..' defeated.')
-    removeAction(target)
+    U.removeAction(target)
 
     if target.isPartyMember and checkIfAllDead(state.party) then
         state.partyDied = true
@@ -221,6 +222,10 @@ function U.clearTemporaryStatus()
                 if character.isAuraCharged.counter <= 0 then
                     character.isAuraCharged = nil
                 end
+            end
+            
+            if character.status['GUARDIAN'] then
+                character.status['GUARDIAN'] = nil
             end
         end
     end

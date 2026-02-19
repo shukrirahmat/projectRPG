@@ -37,7 +37,7 @@ local function normalAttack(self, user, target, special)
         end
 
         utils.battleLogAdd(text)
-        local damageEffect = effectCreator.new('damage', user, target, damage)
+        local damageEffect = effectCreator.new('damage', user, target, damage)        
         table.insert(state.effectList, damageEffect)
 
         if not special then
@@ -141,7 +141,7 @@ local function damageMagic(self, user, target)
     else
         ref = 'damage'
     end
-    
+
     damage = barrierCheck(target, damage)
 
     local damageEffect = effectCreator.new(ref, user, target, damage)
@@ -183,9 +183,9 @@ local function auraCast(self, user, target)
     else
         ref = 'damage'
     end
-    
+
     damage = barrierCheck(target, damage)
-    
+
     local damageEffect = effectCreator.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
 end
@@ -232,7 +232,7 @@ local function castDrain(self, user, target)
     else
         ref = 'damage'
     end
-    
+
     damage = barrierCheck(target, damage)
 
     local damageEffect = effectCreator.new(ref, user, target, damage)
@@ -265,7 +265,7 @@ local function castManaBurn(self, user, group)
             else
                 ref = 'mpDamage'
             end
-            
+
             damage = barrierCheck(target, burnAmount)
 
             local damageEffect = effectCreator.new(ref, user, target, burnAmount)
@@ -397,6 +397,21 @@ local function statusEffectAll(self, user, group)
     end
 end
 
+local function castGuardian(self, user, group)
+    statusEffectAll(self, user, group)
+
+    if user.isPartyMember then
+        for i, member in ipairs(state.party) do
+            utils.removeAction(member)
+        end
+    elseif not user.isPartyMember then
+        for i, enemy in ipairs(state.enemies) do
+            utils.removeAction(enemies)
+        end
+    end
+end
+
+
 local function heal(self, user, target)
     local amount
     if self.name == 'FullHeal' then
@@ -430,7 +445,7 @@ end
 local function castRevive(self, user, target)
     local text = ''..user.name..' casts '..self.name..' on '..target.name..'';
     utils.battleLogAdd(text)
-    
+
     if not target.isDead then 
         local immuneEffect = effectCreator.new('immune', user, target)
         table.insert(state.effectList, immuneEffect)
@@ -493,7 +508,7 @@ actionData['secondAtk'] = {
 actionData['defend'] = { 
     execute = defend, 
     cost = 0, 
-    priority = true
+    priority = 1
 }
 
 actionData['skillCanceled'] = { 
@@ -1661,13 +1676,26 @@ actionData['barrier'] = {
 actionData['might'] = {
     name = 'Might', 
     magic = true,
-    cost = 12, 
+    cost = 8, 
     desc = 'Increases the attack power of one ally',
     aim = 'allies',
     scope = 'single',
     execute = statusEffectSingle,
     element = 'MIGHT',
     accuracy = 100
+}
+
+actionData['guardian'] = {
+    name = 'Guardian', 
+    magic = true,
+    cost = 20, 
+    desc = 'Protects all allies from any attacks for one turn while also disabling them',
+    aim = 'allies',
+    scope = 'all',
+    execute = castGuardian,
+    element = 'GUARDIAN',
+    accuracy = 100,
+    priority = 2
 }
 
 return actionData;

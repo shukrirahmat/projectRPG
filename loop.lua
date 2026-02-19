@@ -103,6 +103,14 @@ local function statusClearAll(action)
     if user.status['AGIDOWN'] then
         countDownStats(user, 'AGIDOWN')
     end
+    
+    if user.status['BARRIER'] then
+        countDownStats(user, 'BARRIER')
+    end
+    
+    if user.status['MIGHT'] then
+        countDownStats(user, 'MIGHT')
+    end
 end
 
 function executeAction(action)
@@ -196,7 +204,7 @@ function loop.run()
         table.remove(state.priorityList, 1)
 
         if action.target and action.target.isDead 
-        and action.ref ~= 'revive' and action.ref ~= 'greatRevive' then
+        and actionData[action.ref].scope ~= 'dead' then
             action.target = utils.reselectTargetWhenDead(action.target)
         end
 
@@ -215,7 +223,7 @@ function loop.run()
         table.remove(state.actionList, nextActionIndex)
 
         if action.target and action.target.isDead 
-        and action.ref ~= 'revive' and action.ref ~= 'greatRevive' then
+        and actionData[action.ref].scope ~= 'dead' then
             action.target = utils.reselectTargetWhenDead(action.target)
         end
 

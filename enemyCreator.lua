@@ -5,7 +5,7 @@ local dataSheet = {
     ['goblin'] = {
         hp = 60,
         mp = 20,
-        atk = 80,
+        str = 80,
         def = 60,
         agi = 80,
         sprite = goblin_sprite,
@@ -18,7 +18,7 @@ local dataSheet = {
     ['skeleton'] = {
         hp = 100,
         mp = 40,
-        atk = 100,
+        str = 100,
         def = 70,
         agi = 60,
         sprite = skeleton_sprite,
@@ -26,13 +26,13 @@ local dataSheet = {
         strong = {['BLIND'] = true},
         immune = { ['ICE'] = true , ['DEATH'] = true },
         specialType = 'UNDEAD',
-        skills = {'midFire', 'fireBlast'}
+        skills = {'midTyphoon'}
     },
 
     ['dragon'] = {
         hp = 250,
         mp = 20,
-        atk = 120,
+        str = 120,
         def = 100,
         agi = 50,
         sprite = dragon_sprite,
@@ -40,7 +40,7 @@ local dataSheet = {
         strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
         immune = {['STUN'] = true},
         specialType = 'DRAGON',
-        skills = {}
+        skills = {'midFireBlast'}
     }
 }
 
@@ -59,10 +59,11 @@ function enemyCreator.new(species, name)
     e.currentHp = data.hp
     e.maxMp = data.mp
     e.currentMp = data.mp
-    e.baseAtk = data.atk
+    e.str = data.str
+    e.baseAtk = data.str
     e.baseDef = data.def
     e.baseAgi = data.agi
-    e.atk = data.atk
+    e.atk = data.str
     e.def = data.def
     e.agi = data.agi
     e.critRate = data.critRate or 128

@@ -117,6 +117,14 @@ local function confused(self, user)
     end
 end
 
+local function barrierCheck(target, damage)
+    if target.status['BARRIER'] then
+        return math.floor(damage * 0.5)
+    else
+        return damage
+    end
+end
+
 
 local function damageMagic(self, user, target)
     local var = self.variance or 0.2
@@ -133,6 +141,8 @@ local function damageMagic(self, user, target)
     else
         ref = 'damage'
     end
+    
+    damage = barrierCheck(target, damage)
 
     local damageEffect = effectCreator.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
@@ -173,6 +183,9 @@ local function auraCast(self, user, target)
     else
         ref = 'damage'
     end
+    
+    damage = barrierCheck(target, damage)
+    
     local damageEffect = effectCreator.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
 end
@@ -219,6 +232,8 @@ local function castDrain(self, user, target)
     else
         ref = 'damage'
     end
+    
+    damage = barrierCheck(target, damage)
 
     local damageEffect = effectCreator.new(ref, user, target, damage)
     table.insert(state.effectList, damageEffect)
@@ -250,6 +265,8 @@ local function castManaBurn(self, user, group)
             else
                 ref = 'mpDamage'
             end
+            
+            damage = barrierCheck(target, burnAmount)
 
             local damageEffect = effectCreator.new(ref, user, target, burnAmount)
             table.insert(state.effectList, damageEffect)
@@ -316,7 +333,8 @@ local function statusEffect(self, user, target)
         if self.element == 'DEFUP'
         or self.element == 'AGIUP'
         or self.element == 'DEFDOWN'
-        or self.element == 'AGIDOWN' then
+        or self.element == 'AGIDOWN' 
+        or self.element == 'MIGHT' then
             statusEffect = effectCreator.new('addStatChange', user, target, self.element)
         else
             statusEffect = effectCreator.new('addStatus', user, target, self.element)
@@ -341,7 +359,8 @@ local function statusEffect(self, user, target)
                     if self.element == 'DEFUP'
                     or self.element == 'AGIUP'
                     or self.element == 'DEFDOWN'
-                    or self.element == 'AGIDOWN' then
+                    or self.element == 'AGIDOWN'
+                    or self.element == 'MIGHT' then
                         statusEffect = effectCreator.new('addStatChange', user, target, self.element)
                     else
                         statusEffect = effectCreator.new('addStatus', user, target, self.element)
@@ -1625,6 +1644,30 @@ actionData['greatRevive'] = {
     scope = 'dead',
     execute = castRevive,
     reviveRatio = 100
+}
+
+actionData['barrier'] = {
+    name = 'Barrier', 
+    magic = true,
+    cost = 12, 
+    desc = 'Summons barrier that reduce magic damage toward allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = statusEffectAll,
+    element = 'BARRIER',
+    accuracy = 100
+}
+
+actionData['might'] = {
+    name = 'Might', 
+    magic = true,
+    cost = 12, 
+    desc = 'Increases the attack power of one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = statusEffectSingle,
+    element = 'MIGHT',
+    accuracy = 100
 }
 
 return actionData;

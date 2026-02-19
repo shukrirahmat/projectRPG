@@ -16,6 +16,8 @@ function U.shortenStatusName(status)
     elseif status == 'AGIUP' then return 'AGI+'
     elseif status == 'DEFDOWN' then return 'DEF-'
     elseif status == 'AGIDOWN' then return 'AGI-'
+    elseif status == 'BARRIER' then return 'BARR'
+    elseif status == 'MIGHT' then return 'MGT'
     else return status
     end
 end
@@ -233,6 +235,9 @@ function U.updateStatChange(target, stat)
         local buff = target.agiBuff or 0
         local debuff = target.agiDebuff or 0
         target.agi = target.baseAgi + buff - debuff
+    elseif stat == 'atk' then
+        local buff = target.atkBuff or 0
+        target.atk = target.baseAtk + buff
     end
 end
 

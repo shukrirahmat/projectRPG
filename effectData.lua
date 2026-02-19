@@ -49,15 +49,15 @@ local function recovery(_, target, value)
 end
 
 local function revival(_, target, percentage)
-    
+
     if percentage < 100 then
         percentage = math.random(1, percentage)
     end
-    
+
     local hp = math.floor(target.maxHp * percentage * 0.01)
     target.isDead = false
     target.currentHp = hp
-    
+
     utils.battleLogAdd(''..target.name..' has been revived');
 end
 
@@ -141,6 +141,14 @@ local function clearStatus(user, target, status)
         target.agiDebuff = nil
         utils.updateStatChange(target, 'agi')
         utils.battleLogAdd(""..target.name.."'s agility reduction has expired")
+    elseif status == 'MIGHT' then
+        target.status['MIGHT'] = nil
+        target.atkBuff = nil
+        utils.updateStatChange(target, 'atk')
+        utils.battleLogAdd(""..target.name.."'s attack power increase has expired")
+    elseif status == 'BARRIER' then
+        target.status['BARRIER'] = nil
+        utils.battleLogAdd(""..target.name.."'s barrier has disappeared")
     end
 end
 
@@ -153,7 +161,7 @@ local function addStatChange(_, target, status)
             ""..target.name.."'s defensive power is increased further",
             ""..target.name.."'s defensive power is at maximum"
         }
-    elseif status == 'DEFDOWN'then
+    elseif status == 'DEFDOWN' then
         text = {
             ""..target.name.."'s defensive power is reduced",
             ""..target.name.."'s defensive power is reduced further",
@@ -165,23 +173,33 @@ local function addStatChange(_, target, status)
             ""..target.name.."'s agility is increased further",
             ""..target.name.."'s agility is at maximum"
         }
-    elseif status == 'AGIDOWN'then
+    elseif status == 'AGIDOWN' then
         text = {
             ""..target.name.."'s agility is reduced",
             ""..target.name.."'s agility is reduced further",
             ""..target.name.."'s agility cannot be reduced further"
         }
+    elseif status == 'MIGHT' then
+        text = {
+            ""..target.name.."'s attack power is increased",
+            ""..target.name.."'s attack power duration is reinforced"
+        }
     end
 
 
     if target.status[status] then
-        if target.status[status].stack < 2 then
-            target.status[status].stack = target.status[status].stack + 1
+        if status == 'MIGHT' then
             target.status[status].countdown = 5
             utils.battleLogAdd(text[2])
-        elseif target.status[status].stack >= 2 then
-            target.status[status].countdown = 5
-            utils.battleLogAdd(text[3])
+        else
+            if target.status[status].stack < 2 then
+                target.status[status].stack = target.status[status].stack + 1
+                target.status[status].countdown = 5
+                utils.battleLogAdd(text[2])
+            elseif target.status[status].stack >= 2 then
+                target.status[status].countdown = 5
+                utils.battleLogAdd(text[3])
+            end
         end
     else
         target.status[status] = { stack = 1, countdown = 5}
@@ -189,17 +207,20 @@ local function addStatChange(_, target, status)
     end
 
     if status == 'DEFUP' then
-        target.defBuff = target.baseDef * 0.5 * target.status['DEFUP'].stack
+        target.defBuff = math.floor(target.baseDef * 0.5 * target.status['DEFUP'].stack)
         utils.updateStatChange(target, 'def')
     elseif status == 'DEFDOWN' then
-        target.defDebuff = target.baseDef * 0.5 * target.status['DEFDOWN'].stack
+        target.defDebuff = math.floor(target.baseDef * 0.5 * target.status['DEFDOWN'].stack)
         utils.updateStatChange(target, 'def')
     elseif status == 'AGIUP' then
-        target.agiBuff = target.baseAgi * 0.5 * target.status['AGIUP'].stack
+        target.agiBuff = math.floor(target.baseAgi * 0.5 * target.status['AGIUP'].stack)
         utils.updateStatChange(target, 'agi')
     elseif status == 'AGIDOWN' then
-        target.agiDebuff = target.baseAgi * 0.5 * target.status['AGIDOWN'].stack
+        target.agiDebuff = math.floor(target.baseAgi * 0.5 * target.status['AGIDOWN'].stack)
         utils.updateStatChange(target, 'agi')
+    elseif status == 'MIGHT' then
+        target.atkBuff = math.floor(target.baseAtk * 0.75)
+        utils.updateStatChange(target, 'atk')
     end
 end
 
@@ -261,9 +282,20 @@ local function addStatus(_, target, status)
         else
             utils.battleLogAdd(""..target.name.." is confused!");
         end
+    elseif status == 'BARRIER' then
+        if target.status['BARRIER'] then
+            target.status['BARRIER'].countdown = 5
+            utils.battleLogAdd(""..target.name.."'s barrier duration is reinforced");
+        else
+            utils.battleLogAdd(""..target.name.." has gained protection from magic damage");
+        end
     end
 
-    target.status[status] = true;
+    if status == 'BARRIER' then
+        target.status['BARRIER'] = {countdown = 5}
+    else    
+        target.status[status] = true;
+    end
 end
 
 local function poisonDamage(_, target, value)
@@ -287,17 +319,17 @@ end
 effectData['damage'] = { 
     apply = dealDamage , 
     partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
-    enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08},
 }
 
 effectData['resisted'] = { 
     apply = dealDamage , 
     partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
-    enemyAnimation = {ref='enemyResisted', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyResisted', maxTick=10, speed=0.08},
 }
 effectData['immune'] = { 
     apply = noEffect , 
-    enemyAnimation = {ref='enemyImmune', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyImmune', maxTick=10, speed=0.08},
 }
 
 effectData['skillCanceled'] = { 
@@ -305,21 +337,21 @@ effectData['skillCanceled'] = {
 }
 
 effectData['recover'] = {
-    apply = recovery
+    apply = recovery,
 }
 
 effectData['revive'] = {
-    apply = revival
+    apply = revival,
 }
 
 effectData['mpDamage'] = {
     apply = dealMPDamage,
-    enemyAnimation = {ref='enemyManaBurned', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyManaBurned', maxTick=10, speed=0.08},
 }
 
 effectData['mpResisted'] = {
     apply = dealMPDamage,
-    enemyAnimation = {ref='enemyManaBurned', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyManaBurned', maxTick=10, speed=0.08},
 }
 
 effectData['instakill'] = { 
@@ -328,34 +360,34 @@ effectData['instakill'] = {
 
 effectData['missed'] = { 
     apply = missed , 
-    enemyAnimation = {ref='enemyDodged', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyDodged', maxTick=10, speed=0.08},
 }
 
 effectData['missedResist'] = { 
     apply = missed , 
-    enemyAnimation = {ref='enemyDodgedResist', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyDodgedResist', maxTick=10, speed=0.08},
 }
 
 effectData['addStatus'] = { 
-    apply = addStatus
+    apply = addStatus,
 }
 
 effectData['addStatChange'] = { 
-    apply = addStatChange
+    apply = addStatChange,
 }
 
 effectData['clearStatus'] = {
-    apply = clearStatus
+    apply = clearStatus,
 }
 
 effectData['poisonDamage'] = { 
     apply = poisonDamage , 
     partyAnimation = {ref='partyDamaged', maxTick=10, speed=0.05},
-    enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08}
+    enemyAnimation = {ref='enemyDamaged', maxTick=10, speed=0.08},
 }
 
 effectData['curseEffect'] = { 
-    apply = curseEffect
+    apply = curseEffect,
 }
 
 return effectData

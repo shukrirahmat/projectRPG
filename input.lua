@@ -41,10 +41,8 @@ local function setEnemyAction()
                 local choices = {unpack(enemy.skills)}
                 local target = utils.selectTargetRandomly(state.party)
 
-                local min = (#choices or 0) * -1
-
-                local rand = math.random(min, #choices or 0)
-                if rand <= 0 then
+                local rand = math.random(0, #choices or 0)
+                if rand == 0 then
                     action = actionCreator.new('normalAtk', enemy, target)
                 else
                     local skillRef = choices[rand]

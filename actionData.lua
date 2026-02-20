@@ -5,68 +5,73 @@ local actionCreator = require('actionCreator')
 
 local actionData = {}
 
-local function normalAttack(self, user, target, special)
-    local damage
-    local text
-    local miss
+local function normalAttack(self, user, targets, special)
 
-    if special == 'secondAttack' then
-        text = ''..user.name..' attacks again!'
-    elseif special == 'confused' then
-        text = ''..user.name..' attacks while being confused'
-    else
-        text = ''..user.name..' attacks!'
-    end
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local damage
+            local text
+            local miss
 
-    if user.status['BLIND'] then
-        local rand = math.random(1, 100)
-        if rand <= 75 then
-            miss = true
-        end
-    end
+            if special == 'secondAttack' then
+                text = ''..user.name..' attacks again!'
+            elseif special == 'confused' then
+                text = ''..user.name..' attacks while being confused'
+            else
+                text = ''..user.name..' attacks!'
+            end
 
-    if not miss then
-
-        local crit = math.random(1, user.critRate) == 1
-
-        if crit then
-            damage = utils.calculateCritDamage(user, target)
-            text = ''..text..' Critical hit!';
-        else
-            damage = utils.calculateAttackDamage(user, target)
-        end
-
-        utils.battleLogAdd(text)
-        local damageEffect = effectCreator.new('damage', user, target, damage)        
-        table.insert(state.effectList, damageEffect)
-
-        if not special then
-            local secondAttackChance = math.floor((user.agi - target.agi)/2)
-            local secondAttack = math.random(1, 100) < secondAttackChance
-
-            if secondAttack then
-                if target.currentHp > damage then
-                    state.followUp = actionCreator.new('secondAtk', user, target)
+            if user.status['BLIND'] then
+                local rand = math.random(1, 100)
+                if rand <= 75 then
+                    miss = true
                 end
             end
+
+            if not miss then
+
+                local crit = math.random(1, user.critRate) == 1
+
+                if crit then
+                    damage = utils.calculateCritDamage(user, target)
+                    text = ''..text..' Critical hit!';
+                else
+                    damage = utils.calculateAttackDamage(user, target)
+                end
+
+                utils.battleLogAdd(text)
+                local damageEffect = effectCreator.new('damage', user, target, damage)        
+                table.insert(state.effectList, damageEffect)
+
+                if not special then
+                    local secondAttackChance = math.floor((user.agi - target.agi)/2)
+                    local secondAttack = math.random(1, 100) < secondAttackChance
+
+                    if secondAttack then
+                        if target.currentHp > damage then
+                            state.followUp = actionCreator.new('secondAtk', user, {target})
+                        end
+                    end
+                end
+            else
+                utils.battleLogAdd(text)
+                local missedEffect = effectCreator.new('missed', user, target)
+                table.insert(state.effectList, missedEffect)
+            end
         end
-    else
-        utils.battleLogAdd(text)
-        local missedEffect = effectCreator.new('missed', user, target)
-        table.insert(state.effectList, missedEffect)
     end
 end
 
-local function secondAttack(self, user, target)
-    normalAttack(self, user, target, 'secondAttack')
+local function secondAttack(self, user, targets)
+    normalAttack(self, user, targets, 'secondAttack')
 end
 
-local function defend(self, user, _)
+local function defend(self, user)
     user.isDefending = true
     utils.battleLogAdd(''..user.name..' defends!')
 end
 
-local function skillCanceled(self, user, target, skill)
+local function skillCanceled(self, user, targets, skill)
     local text
     if skill.magic then
         text = ''..user.name..' casts '..skill.name..'';
@@ -74,7 +79,7 @@ local function skillCanceled(self, user, target, skill)
         text = ''..user.name..' tried to used '..skill.name..'';
     end
     utils.battleLogAdd(text)
-    local noSkilleffect = effectCreator.new('skillCanceled', user, target)
+    local noSkilleffect = effectCreator.new('skillCanceled', user, targets)
     table.insert(state.effectList, noSkilleffect)
 end
 
@@ -106,10 +111,10 @@ local function confused(self, user)
     local roll = math.random(1,3)
     if roll == 1 then
         target = utils.selectTargetRandomly(state.party)
-        normalAttack(self, user, target, 'confused')
+        normalAttack(self, user, {target}, 'confused')
     elseif roll == 2 then
         target = utils.selectTargetRandomly(state.enemies)
-        normalAttack(self, user, target, 'confused')
+        normalAttack(self, user, {target}, 'confused')
     elseif roll == 3 then
         local textRoll = math.random(1, #textList)
         local text = ''..user.name..' '..textList[textRoll]..'';
@@ -126,82 +131,67 @@ local function barrierCheck(target, damage)
 end
 
 
-local function damageMagic(self, user, target)
-    local var = self.variance or 0.2
-    local mod = math.floor(self.baseDamage * var)
-    local damage = self.baseDamage + math.random(-mod, mod)
-    local resistance = utils.checkResistance(self.element, target)
-    local ref
+local function castDamageMagic(self, user, targets)
 
-    if resistance == 2 then 
-        ref = 'immune'
-    elseif resistance == 1 then
-        ref = 'resisted'
-        damage = math.floor(damage/2)
-    else
-        ref = 'damage'
-    end
-
-    damage = barrierCheck(target, damage)
-
-    local damageEffect = effectCreator.new(ref, user, target, damage)
-    table.insert(state.effectList, damageEffect)
-end
-
-local function damageMagicSingle(self, user, target)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
-    damageMagic(self, user, target)
-end
 
-local function damageMagicAll(self, user, group)
-    local text = ''..user.name..' casts '..self.name..'';
-    utils.battleLogAdd(text)
-    for i, target in ipairs(group) do
+    for i, target in ipairs(targets) do
         if not target.isDead then
-            damageMagic(self, user, target)
+            local var = self.variance or 0.2
+            local mod = math.floor(self.baseDamage * var)
+            local damage = self.baseDamage + math.random(-mod, mod)
+            local resistance = utils.checkResistance(self.element, target)
+            local ref
+
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'resisted'
+                damage = math.floor(damage/2)
+            else
+                ref = 'damage'
+            end
+
+            damage = barrierCheck(target, damage)
+
+            local damageEffect = effectCreator.new(ref, user, target, damage)
+            table.insert(state.effectList, damageEffect)
         end
     end
 end
 
-local function auraCast(self, user, target)
-    local baseDamage = math.floor(user.str * self.auraRatio)
-    local mod = math.floor(baseDamage * 0.2)
-    local damage = baseDamage + math.random(-mod, mod)
+local function castAura(self, user, targets)
 
-    if user.isAuraCharged then
-        damage = math.floor(damage * 2.5)
-    end
-
-    local resistance = utils.checkResistance(self.element, target)
-    local ref
-    if resistance == 2 then 
-        ref = 'immune'
-    elseif resistance == 1 then
-        ref = 'resisted'
-        damage = math.floor(damage/2)
-    else
-        ref = 'damage'
-    end
-
-    damage = barrierCheck(target, damage)
-
-    local damageEffect = effectCreator.new(ref, user, target, damage)
-    table.insert(state.effectList, damageEffect)
-end
-
-local function auraCastSingle(self, user, target)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
-    auraCast(self, user, target)
-end
 
-local function auraCastAll(self, user, group)
-    local text = ''..user.name..' casts '..self.name..'';
-    utils.battleLogAdd(text)
-    for i, target in ipairs(group) do
+    for i, target in ipairs(targets) do
         if not target.isDead then
-            auraCast(self, user, target)
+
+            local baseDamage = math.floor(user.str * self.auraRatio)
+            local mod = math.floor(baseDamage * 0.2)
+            local damage = baseDamage + math.random(-mod, mod)
+
+            if user.isAuraCharged then
+                damage = math.floor(damage * 2.5)
+            end
+
+            local resistance = utils.checkResistance(self.element, target)
+            local ref
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'resisted'
+                damage = math.floor(damage/2)
+            else
+                ref = 'damage'
+            end
+
+            damage = barrierCheck(target, damage)
+
+            local damageEffect = effectCreator.new(ref, user, target, damage)
+            table.insert(state.effectList, damageEffect)
         end
     end
 end
@@ -212,44 +202,49 @@ local function auraCharge(self, user)
     user.isAuraCharged = { counter = 2 }
 end
 
-local function castDrain(self, user, target)
+local function castDrain(self, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
 
-    local hpBonus = math.floor(user.maxHp * self.drainBonus)
-    local baseDamage = self.baseDamage + hpBonus
-    local mod = math.floor(baseDamage * 0.2)
+    for i, target in ipairs(targets) do
+        if not target.isDead then
 
-    local damage = baseDamage + math.random(-mod, mod)
-    local resistance = utils.checkResistance(self.element, target)
-    local ref
+            local hpBonus = math.floor(user.maxHp * self.drainBonus)
+            local baseDamage = self.baseDamage + hpBonus
+            local mod = math.floor(baseDamage * 0.2)
 
-    if resistance == 2 then 
-        ref = 'immune'
-    elseif resistance == 1 then
-        ref = 'resisted'
-        damage = math.floor(damage/2)
-    else
-        ref = 'damage'
-    end
+            local damage = baseDamage + math.random(-mod, mod)
+            local resistance = utils.checkResistance(self.element, target)
+            local ref
 
-    damage = barrierCheck(target, damage)
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'resisted'
+                damage = math.floor(damage/2)
+            else
+                ref = 'damage'
+            end
 
-    local damageEffect = effectCreator.new(ref, user, target, damage)
-    table.insert(state.effectList, damageEffect)
+            damage = barrierCheck(target, damage)
 
-    if ref ~= 'immune' then
-        local amount = math.min(damage, target.currentHp)
-        local recoverEffect = effectCreator.new('recover', user, user, amount)
-        table.insert(state.effectList, recoverEffect)
+            local damageEffect = effectCreator.new(ref, user, target, damage)
+            table.insert(state.effectList, damageEffect)
+
+            if ref ~= 'immune' then
+                local amount = math.min(damage, target.currentHp)
+                local recoverEffect = effectCreator.new('recover', user, user, amount)
+                table.insert(state.effectList, recoverEffect)
+            end
+        end
     end
 end
 
-local function castManaBurn(self, user, group)
+local function castManaBurn(self, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
 
-    for i, target in ipairs(group) do
+    for i, target in ipairs(targets) do
         if not target.isDead then
 
             local mod = math.floor(self.baseDamage * 0.2)
@@ -274,131 +269,122 @@ local function castManaBurn(self, user, group)
     end
 end
 
-local function castDracoBomb(self, user, target)
+local function castDracoBomb(self, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
 
-    local damage;
-
-    if target.specialType and target.specialType == 'DRAGON' then
-        local mod = math.floor(self.baseDamage * 0.2)
-        damage = self.baseDamage + math.random(-mod, mod)
-    else
-        damage = 1
-    end
-
-    local damageEffect = effectCreator.new('damage', user, target, damage)
-    table.insert(state.effectList, damageEffect)
-end
-
-local function castExorcism(self, user, target)
-
-    if target.specialType and target.specialType == 'UNDEAD' then
-        local chance = math.random(1, 100)
-        if chance <= self.accuracy then
-            local killEffect = effectCreator.new('instakill', user, target)
-            table.insert(state.effectList, killEffect)
-        else
-            local missEffect = effectCreator.new('missed', user, target)
-            table.insert(state.effectList, missEffect)
-        end
-    else
-        local immuneEffect = effectCreator.new('immune', user, target)
-        table.insert(state.effectList, immuneEffect)
-    end
-end
-
-local function castExorcismSingle(self, user, target)
-    local text = ''..user.name..' casts '..self.name..'';
-    utils.battleLogAdd(text)
-    castExorcism(self, user, target)
-end
-
-local function castExorcismAll(self, user, group)
-    local text = ''..user.name..' casts '..self.name..'';
-    utils.battleLogAdd(text)
-    for i, target in ipairs(group) do
+    for i, target in ipairs(targets) do 
         if not target.isDead then
-            castExorcism(self, user, target)
-        end
-    end
-end
 
-local function statusEffect(self, user, target)
-    local accuracy = self.accuracy
-    local resistance = utils.checkResistance(self.element, target)
+            local damage;
 
-    if target.status[self.element] then
-        local statusEffect;
-        if self.element == 'DEFUP'
-        or self.element == 'AGIUP'
-        or self.element == 'DEFDOWN'
-        or self.element == 'AGIDOWN' 
-        or self.element == 'MIGHT' then
-            statusEffect = effectCreator.new('addStatChange', user, target, self.element)
-        else
-            statusEffect = effectCreator.new('addStatus', user, target, self.element)
-        end
-        table.insert(state.effectList, statusEffect)
-    else
-        if resistance == 2 then 
-            local immuneEffect = effectCreator.new('immune', user, target)
-            table.insert(state.effectList, immuneEffect)
-        else
-            if resistance == 1 then
-                accuracy = math.floor(accuracy / 2)
+            if target.specialType and target.specialType == 'DRAGON' then
+                local mod = math.floor(self.baseDamage * 0.2)
+                damage = self.baseDamage + math.random(-mod, mod)
+            else
+                damage = 1
             end
 
-            local chance = math.random(1, 100)
-            if chance <= accuracy then
-                if self.element == 'DEATH' then
+            local damageEffect = effectCreator.new('damage', user, target, damage)
+            table.insert(state.effectList, damageEffect)
+        end
+    end
+end
+
+local function castExorcism(self, user, targets)
+
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+
+            if target.specialType and target.specialType == 'UNDEAD' then
+                local chance = math.random(1, 100)
+                if chance <= self.accuracy then
                     local killEffect = effectCreator.new('instakill', user, target)
                     table.insert(state.effectList, killEffect)
                 else
-                    local statusEffect;
-                    if self.element == 'DEFUP'
-                    or self.element == 'AGIUP'
-                    or self.element == 'DEFDOWN'
-                    or self.element == 'AGIDOWN'
-                    or self.element == 'MIGHT' then
-                        statusEffect = effectCreator.new('addStatChange', user, target, self.element)
-                    else
-                        statusEffect = effectCreator.new('addStatus', user, target, self.element)
-                    end
-                    table.insert(state.effectList, statusEffect)
+                    local missEffect = effectCreator.new('missed', user, target)
+                    table.insert(state.effectList, missEffect)
                 end
             else
-                local missEffect
-                if resistance == 1 then
-                    missEffect = effectCreator.new('missedResist', user, target)
-                else
-                    missEffect = effectCreator.new('missed', user, target)
-                end
-                table.insert(state.effectList, missEffect)
+                local immuneEffect = effectCreator.new('immune', user, target)
+                table.insert(state.effectList, immuneEffect)
             end
         end
     end
 end
 
-local function statusEffectSingle(self, user, target)
-    local text = ''..user.name..' casts '..self.name..'';
-    utils.battleLogAdd(text)
-    statusEffect(self, user, target)
-end
+local function castStatusEffect(self, user, targets)
 
-local function statusEffectAll(self, user, group)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
 
-    for i, target in ipairs(group) do
+    for i, target in ipairs(targets) do
         if not target.isDead then
-            statusEffect(self, user, target)
+
+            local accuracy = self.accuracy
+            local resistance = utils.checkResistance(self.element, target)
+
+            if target.status[self.element] then
+                local statusEffect;
+                if self.element == 'DEFUP'
+                or self.element == 'AGIUP'
+                or self.element == 'DEFDOWN'
+                or self.element == 'AGIDOWN' 
+                or self.element == 'MIGHT' then
+                    statusEffect = effectCreator.new('addStatChange', user, target, self.element)
+                else
+                    statusEffect = effectCreator.new('addStatus', user, target, self.element)
+                end
+                table.insert(state.effectList, statusEffect)
+            else
+                if resistance == 2 then 
+                    local immuneEffect = effectCreator.new('immune', user, target)
+                    table.insert(state.effectList, immuneEffect)
+                else
+                    if resistance == 1 then
+                        accuracy = math.floor(accuracy / 2)
+                    end
+
+                    local chance = math.random(1, 100)
+                    if chance <= accuracy then
+                        if self.element == 'DEATH' then
+                            local killEffect = effectCreator.new('instakill', user, target)
+                            table.insert(state.effectList, killEffect)
+                        else
+                            local statusEffect;
+                            if self.element == 'DEFUP'
+                            or self.element == 'AGIUP'
+                            or self.element == 'DEFDOWN'
+                            or self.element == 'AGIDOWN'
+                            or self.element == 'MIGHT' then
+                                statusEffect = effectCreator.new('addStatChange', 
+                                    user, target, self.element)
+                            else
+                                statusEffect = effectCreator.new('addStatus', 
+                                    user, target, self.element)
+                            end
+                            table.insert(state.effectList, statusEffect)
+                        end
+                    else
+                        local missEffect
+                        if resistance == 1 then
+                            missEffect = effectCreator.new('missedResist', user, target)
+                        else
+                            missEffect = effectCreator.new('missed', user, target)
+                        end
+                        table.insert(state.effectList, missEffect)
+                    end
+                end
+            end
         end
     end
 end
 
-local function castGuardian(self, user, group)
-    statusEffectAll(self, user, group)
+local function castGuardian(self, user, targets)
+    castStatusEffect(self, user, targets)
 
     if user.isPartyMember then
         for i, member in ipairs(state.party) do
@@ -412,84 +398,72 @@ local function castGuardian(self, user, group)
 end
 
 
-local function heal(self, user, target)
-    local amount
-    if self.name == 'FullHeal' then
-        amount = target.maxHp - target.currentHp
-    else
-        amount = self.healAmount
-        local mod = math.floor(amount*0.2)
-        amount = amount + math.random(-mod, mod)
-    end
-
-    local recoverEffect = effectCreator.new('recover', user, target, amount)
-    table.insert(state.effectList, recoverEffect)
-end
-
-local function healSingle(self, user, target)
+local function  castHeal(self, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
-    heal(self, user, target)
-end
 
-local function healAll(self, user, group)
-    local text = ''..user.name..' casts '..self.name..'';
-    utils.battleLogAdd(text)
-    for i, target in ipairs(group) do
+    for i, target in ipairs(targets) do
         if not target.isDead then
-            heal(self, user, target)
+            local amount
+            if self.name == 'FullHeal' then
+                amount = target.maxHp - target.currentHp
+            else
+                amount = self.healAmount
+                local mod = math.floor(amount*0.2)
+                amount = amount + math.random(-mod, mod)
+            end
+
+            local recoverEffect = effectCreator.new('recover', user, target, amount)
+            table.insert(state.effectList, recoverEffect)
         end
     end
 end
 
-local function castRevive(self, user, target)
-    local text = ''..user.name..' casts '..self.name..' on '..target.name..'';
-    utils.battleLogAdd(text)
-
-    if not target.isDead then 
-        local immuneEffect = effectCreator.new('immune', user, target)
-        table.insert(state.effectList, immuneEffect)
-    else
-        local reviveEffect = effectCreator.new('revive', user, target, self.reviveRatio)
-        table.insert(state.effectList, reviveEffect)
-    end
-end
-
-local function removeStatus(self, user, target)
-    if target.status[self.status] then
-        local clear = effectCreator.new('clearStatus', user, target, self.status)
-        table.insert(state.effectList, clear)
-    else
-        local immuneEffect = effectCreator.new('immune', user, target)
-        table.insert(state.effectList, immuneEffect)
-    end
-end
-
-local function removeStatusSingle(self, user, target)
+local function castRevive(self, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
-    removeStatus(self, user, target)
-end
 
-local function removeStatusAll(self, user, group)
-    local text = ''..user.name..' casts '..self.name..'';
-    utils.battleLogAdd(text)
-    for i, target in ipairs(group) do
-        if not target.isDead then
-            removeStatus(self, user, target)
+    for i, target in ipairs(targets) do
+        if not target.isDead then 
+            local immuneEffect = effectCreator.new('immune', user, target)
+            table.insert(state.effectList, immuneEffect)
+        else
+            local reviveEffect = effectCreator.new('revive', user, target, self.reviveRatio)
+            table.insert(state.effectList, reviveEffect)
         end
     end
 end
 
-local function castCleanse(self, user, target)
+local function castRemoveStatus(self, user, target)
     local text = ''..user.name..' casts '..self.name..'';
     utils.battleLogAdd(text)
 
-    for i, status in ipairs({'POISON', 'CURSE', 'WOUND', 'SLEEP', 'CONFUSE', 'PARALYSIS'}) do
-        if target.status[status] then
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            if target.status[self.status] then
+                local clear = effectCreator.new('clearStatus', user, target, self.status)
+                table.insert(state.effectList, clear)
+            else
+                local immuneEffect = effectCreator.new('immune', user, target)
+                table.insert(state.effectList, immuneEffect)
+            end
+        end
+    end
+end
 
-            local clear = effectCreator.new('clearStatus', user, target, status)
-            table.insert(state.effectList, clear)
+local function castCleanse(self, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            for i, status in ipairs({'POISON', 'CURSE', 'WOUND', 'SLEEP', 'CONFUSE', 'PARALYSIS'}) do
+                if target.status[status] then
+
+                    local clear = effectCreator.new('clearStatus', user, target, status)
+                    table.insert(state.effectList, clear)
+                end
+            end
         end
     end
 end
@@ -538,7 +512,7 @@ actionData['fire'] = {
     desc = 'Deals small fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'FIRE',
     baseDamage = 10
 }
@@ -550,7 +524,7 @@ actionData['midFire'] = {
     desc = 'Deals medium fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'FIRE',
     baseDamage = 40
 }
@@ -562,7 +536,7 @@ actionData['greatFire'] = {
     desc = 'Deals large fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'FIRE',
     baseDamage = 100
 }
@@ -574,7 +548,7 @@ actionData['chaosFire'] = {
     desc = 'Deals very large fire damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'FIRE',
     baseDamage = 250
 }
@@ -586,7 +560,7 @@ actionData['ice'] = {
     desc = 'Deals small ice damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'ICE',
     baseDamage = 15
 }
@@ -598,7 +572,7 @@ actionData['midIce'] = {
     desc = 'Deals medium ice damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'ICE',
     baseDamage = 50
 }
@@ -610,7 +584,7 @@ actionData['greatIce'] = {
     desc = 'Deals large ice damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'ICE',
     baseDamage = 120
 }
@@ -622,7 +596,7 @@ actionData['holy'] = {
     desc = 'Deals small holy damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'HOLY',
     baseDamage = 20
 }
@@ -634,7 +608,7 @@ actionData['midHoly'] = {
     desc = 'Deals medium holy damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'HOLY',
     baseDamage = 80
 }
@@ -646,7 +620,7 @@ actionData['greatHoly'] = {
     desc = 'Deals large holy damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'HOLY',
     baseDamage = 160
 }
@@ -658,7 +632,7 @@ actionData['void'] = {
     desc = 'Deals small void damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'VOID',
     baseDamage = 20,
     variance = 0.4
@@ -671,7 +645,7 @@ actionData['midVoid'] = {
     desc = 'Deals medium void damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'VOID',
     baseDamage = 80,
     variance = 0.4
@@ -684,7 +658,7 @@ actionData['greatVoid'] = {
     desc = 'Deals large void damage to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = damageMagicSingle,
+    execute = castDamageMagic,
     element = 'VOID',
     baseDamage = 160,
     variance = 0.4
@@ -697,7 +671,7 @@ actionData['fireBlast'] = {
     desc = 'Deals small fire damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'FIRE',
     baseDamage = 10
 }
@@ -709,7 +683,7 @@ actionData['midFireBlast'] = {
     desc = 'Deals medium fire damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'FIRE',
     baseDamage = 30
 }
@@ -721,7 +695,7 @@ actionData['greatFireBlast'] = {
     desc = 'Deals large fire damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'FIRE',
     baseDamage = 80
 }
@@ -733,7 +707,7 @@ actionData['iceFrost'] = {
     desc = 'Deals small ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'ICE',
     baseDamage = 8
 }
@@ -745,7 +719,7 @@ actionData['midIceFrost'] = {
     desc = 'Deals medium ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'ICE',
     baseDamage = 20
 }
@@ -757,7 +731,7 @@ actionData['greatIceFrost'] = {
     desc = 'Deals large ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'ICE',
     baseDamage = 60
 }
@@ -769,7 +743,7 @@ actionData['chaosIceFrost'] = {
     desc = 'Deals very large ice damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'ICE',
     baseDamage = 150
 }
@@ -781,7 +755,7 @@ actionData['typhoon'] = {
     desc = 'Deals small wind damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'WIND',
     baseDamage = 15
 }
@@ -793,7 +767,7 @@ actionData['midTyphoon'] = {
     desc = 'Deals medium wind damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'WIND',
     baseDamage = 50
 }
@@ -805,7 +779,7 @@ actionData['greatTyphoon'] = {
     desc = 'Deals large wind damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'WIND',
     baseDamage = 100,
 }
@@ -817,7 +791,7 @@ actionData['lightning'] = {
     desc = 'Deals small bolt damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'BOLT',
     baseDamage = 15,
     variance = 0.4
@@ -830,7 +804,7 @@ actionData['midLightning'] = {
     desc = 'Deals medium bolt damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'BOLT',
     baseDamage = 50,
     variance = 0.4
@@ -843,7 +817,7 @@ actionData['greatLightning'] = {
     desc = 'Deals large bolt damage to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = damageMagicAll,
+    execute = castDamageMagic,
     element = 'BOLT',
     baseDamage = 100,
     variance = 0.4
@@ -856,7 +830,7 @@ actionData['aura'] = {
     desc = 'Deals damage to all enemies using small percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = auraCastAll,
+    execute = castAura,
     element = 'AURA',
     auraRatio = 0.1
 }
@@ -868,7 +842,7 @@ actionData['midAura'] = {
     desc = 'Deals damage to all enemies using medium percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = auraCastAll,
+    execute = castAura,
     element = 'AURA',
     auraRatio = 0.2
 }
@@ -880,7 +854,7 @@ actionData['greatAura'] = {
     desc = 'Deals damage to all enemies using high percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = auraCastAll,
+    execute = castAura,
     element = 'AURA',
     auraRatio = 0.4
 }
@@ -892,7 +866,7 @@ actionData['auraBeam'] = {
     desc = 'Deals damage to one enemies using high percentage of strength',
     aim = 'enemies',
     scope = 'single',
-    execute = auraCastSingle,
+    execute = castAura,
     element = 'AURA',
     auraRatio = 0.8
 }
@@ -904,7 +878,7 @@ actionData['greatAuraBeam'] = {
     desc = 'Deals damage to one enemies using very high percentage of strength',
     aim = 'enemies',
     scope = 'single',
-    execute = auraCastSingle,
+    execute = castAura,
     element = 'AURA',
     auraRatio = 1.5
 }
@@ -916,7 +890,7 @@ actionData['auraCharge'] = {
     desc = 'Next aura magic will deal 2.5 more damage',
     aim = 'allies',
     scope = 'self',
-    execute = auraCharge,
+    execute = castAura,
 }
 
 actionData['drain'] = {
@@ -998,7 +972,7 @@ actionData['exorcism'] = {
     desc = 'High chance to instantly kill an undead enemies',
     aim = 'enemies',
     scope = 'single',
-    execute = castExorcismSingle,
+    execute = castExorcism,
     accuracy = 80
 }
 
@@ -1009,7 +983,7 @@ actionData['greatExorcism'] = {
     desc = 'High chance to instantly kill all undead enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castExorcismAll,
+    execute = castExorcism,
     accuracy = 80
 }
 
@@ -1020,7 +994,7 @@ actionData['death'] = {
     desc = 'Chance to instantly kill one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'DEATH',
     accuracy = 30
 }
@@ -1032,7 +1006,7 @@ actionData['midDeath'] = {
     desc = 'Low chance to instantly kill all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'DEATH',
     accuracy = 15
 }
@@ -1044,7 +1018,7 @@ actionData['greatDeath'] = {
     desc = 'High chance to instantly kill all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'DEATH',
     accuracy = 30
 }
@@ -1056,7 +1030,7 @@ actionData['sandstorm'] = {
     desc = 'Low chance to blind all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'BLIND',
     accuracy = 50
 }
@@ -1068,7 +1042,7 @@ actionData['greatSandstorm'] = {
     desc = 'High chance to blind all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'BLIND',
     accuracy = 80
 }
@@ -1080,7 +1054,7 @@ actionData['silence'] = {
     desc = 'Low chance to seal abilities of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'SEAL',
     accuracy = 50
 }
@@ -1092,7 +1066,7 @@ actionData['greatSilence'] = {
     desc = 'High chance to seal abilities of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'SEAL',
     accuracy = 80
 }
@@ -1104,7 +1078,7 @@ actionData['tremor'] = {
     desc = 'Low chance to stun of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'STUN',
     accuracy = 25
 }
@@ -1116,7 +1090,7 @@ actionData['greatTremor'] = {
     desc = 'High chance to stun of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'STUN',
     accuracy = 50
 }
@@ -1128,7 +1102,7 @@ actionData['wound'] = {
     desc = 'Low chance to leave all enemies wounded',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'WOUND',
     accuracy = 50
 }
@@ -1140,7 +1114,7 @@ actionData['greatWound'] = {
     desc = 'High chance to leave all enemies wounded',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'WOUND',
     accuracy = 80
 }
@@ -1152,7 +1126,7 @@ actionData['toxin'] = {
     desc = 'Chance to poison one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'POISON',
     accuracy = 80
 }
@@ -1164,7 +1138,7 @@ actionData['midToxin'] = {
     desc = 'Low chance to poison all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'POISON',
     accuracy = 50
 }
@@ -1176,7 +1150,7 @@ actionData['greatToxin'] = {
     desc = 'High chance to poison all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'POISON',
     accuracy = 80
 }
@@ -1188,7 +1162,7 @@ actionData['hex'] = {
     desc = 'Chance to put a curse one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'CURSE',
     accuracy = 70
 }
@@ -1200,7 +1174,7 @@ actionData['midHex'] = {
     desc = 'Low chance to put a curse on all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'CURSE',
     accuracy = 40
 }
@@ -1212,7 +1186,7 @@ actionData['greatHex'] = {
     desc = 'High chance to put a curse on all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'CURSE',
     accuracy = 70
 }
@@ -1224,7 +1198,7 @@ actionData['paralyze'] = {
     desc = 'Chance to apply paralysis to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'PARALYSIS',
     accuracy = 70
 }
@@ -1236,7 +1210,7 @@ actionData['midParalyze'] = {
     desc = 'Low chance to apply paralysis to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'PARALYSIS',
     accuracy = 40
 }
@@ -1248,7 +1222,7 @@ actionData['greatParalyze'] = {
     desc = 'High chance to apply paralysis on all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'PARALYSIS',
     accuracy = 70
 }
@@ -1260,7 +1234,7 @@ actionData['slumber'] = {
     desc = 'Chance to put one enemy to sleep',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'SLEEP',
     accuracy = 40
 }
@@ -1272,7 +1246,7 @@ actionData['midSlumber'] = {
     desc = 'Low chance to put one all enemies to sleep',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'SLEEP',
     accuracy = 20
 }
@@ -1284,7 +1258,7 @@ actionData['greatSlumber'] = {
     desc = 'High chance to put one all enemies to sleep',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'SLEEP',
     accuracy = 40
 }
@@ -1296,7 +1270,7 @@ actionData['confusion'] = {
     desc = 'Chance to confuse one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'CONFUSE',
     accuracy = 40
 }
@@ -1308,7 +1282,7 @@ actionData['midConfusion'] = {
     desc = 'Low chance to confuse all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'CONFUSE',
     accuracy = 20
 }
@@ -1320,7 +1294,7 @@ actionData['greatConfusion'] = {
     desc = 'High chance to confuse all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'CONFUSE',
     accuracy = 40
 }
@@ -1332,7 +1306,7 @@ actionData['heal'] = {
     desc = 'Recover small amount of HP to one ally',
     aim = 'allies',
     scope = 'single',
-    execute = healSingle,
+    execute = castHeal,
     healAmount = 40
 }
 
@@ -1343,7 +1317,7 @@ actionData['midHeal'] = {
     desc = 'Recover medium amount of HP to one ally',
     aim = 'allies',
     scope = 'single',
-    execute = healSingle,
+    execute = castHeal,
     healAmount = 100
 }
 
@@ -1354,7 +1328,7 @@ actionData['greatHeal'] = {
     desc = 'Recover large amount of HP to one ally',
     aim = 'allies',
     scope = 'single',
-    execute = healSingle,
+    execute = castHeal,
     healAmount = 300
 }
 
@@ -1365,7 +1339,7 @@ actionData['fullHeal'] = {
     desc = 'Recover HP of one ally to full',
     aim = 'allies',
     scope = 'single',
-    execute = healSingle
+    execute = castHeal
 }
 
 actionData['healAll'] = {
@@ -1375,7 +1349,7 @@ actionData['healAll'] = {
     desc = 'Recover medium amount of HP to all allies',
     aim = 'allies',
     scope = 'all',
-    execute = healAll,
+    execute = castHeal,
     healAmount = 80
 }
 
@@ -1386,7 +1360,7 @@ actionData['greatHealAll'] = {
     desc = 'Recover large amount of HP to all allies',
     aim = 'allies',
     scope = 'all',
-    execute = healAll,
+    execute = castHeal,
     healAmount = 250
 }
 
@@ -1397,7 +1371,7 @@ actionData['neutralize'] = {
     desc = 'Remove poison from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = removeStatusSingle,
+    execute = castRemoveStatus,
     status = 'POISON'
 }
 
@@ -1408,7 +1382,7 @@ actionData['neutralizeAll'] = {
     desc = 'Remove poison from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = removeStatusAll,
+    execute = castRemoveStatus,
     status = 'POISON'
 }
 
@@ -1419,7 +1393,7 @@ actionData['purify'] = {
     desc = 'Remove curse from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = removeStatusSingle,
+    execute = castRemoveStatus,
     status = 'CURSE'
 }
 
@@ -1430,7 +1404,7 @@ actionData['purifyAll'] = {
     desc = 'Remove curse from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = removeStatusAll,
+    execute = castRemoveStatus,
     status = 'CURSE'
 }
 
@@ -1441,7 +1415,7 @@ actionData['dispel'] = {
     desc = 'Remove paralysis from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = removeStatusSingle,
+    execute = castRemoveStatus,
     status = 'PARALYSIS'
 }
 
@@ -1452,7 +1426,7 @@ actionData['dispelAll'] = {
     desc = 'Remove paralysis from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = removeStatusAll,
+    execute = castRemoveStatus,
     status = 'PARALYSIS'
 }
 
@@ -1463,7 +1437,7 @@ actionData['mend'] = {
     desc = 'Remove wound from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = removeStatusAll,
+    execute = castRemoveStatus,
     status = 'WOUND'
 }
 
@@ -1474,7 +1448,7 @@ actionData['dispel'] = {
     desc = 'Remove paralysis from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = removeStatusSingle,
+    execute = castRemoveStatus,
     status = 'PARALYSIS'
 }
 
@@ -1485,7 +1459,7 @@ actionData['dispelAll'] = {
     desc = 'Remove paralysis from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = removeStatusAll,
+    execute = castRemoveStatus,
     status = 'PARALYSIS'
 }
 
@@ -1496,7 +1470,7 @@ actionData['alarm'] = {
     desc = 'Awake one ally from sleep',
     aim = 'allies',
     scope = 'single',
-    execute = removeStatusSingle,
+    execute = castRemoveStatus,
     status = 'SLEEP'
 }
 
@@ -1507,7 +1481,7 @@ actionData['alarmAll'] = {
     desc = 'Awake all allies from sleep',
     aim = 'allies',
     scope = 'all',
-    execute = removeStatusAll,
+    execute = castRemoveStatus,
     status = 'SLEEP'
 }
 
@@ -1518,7 +1492,7 @@ actionData['sooth'] = {
     desc = 'Remove confusion from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = removeStatusSingle,
+    execute = castRemoveStatus,
     status = 'CONFUSE'
 }
 
@@ -1529,7 +1503,7 @@ actionData['soothAll'] = {
     desc = 'Remove confusion from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = removeStatusAll,
+    execute = castRemoveStatus,
     status = 'CONFUSE'
 }
 
@@ -1540,7 +1514,7 @@ actionData['cleanse'] = {
     desc = 'Remove poison, curse, wound, paralysis, sleep and confusion from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castCleanse,
+    execute = castRemoveStatus,
 }
 
 actionData['steel'] = {
@@ -1550,7 +1524,7 @@ actionData['steel'] = {
     desc = 'Increase the defensive power of one ally',
     aim = 'allies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'DEFUP',
     accuracy = 100
 }
@@ -1562,7 +1536,7 @@ actionData['steelAll'] = {
     desc = 'Increase the defensive power of all allies',
     aim = 'allies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'DEFUP',
     accuracy = 100
 }
@@ -1574,7 +1548,7 @@ actionData['lighten'] = {
     desc = 'Increase the agility of one ally',
     aim = 'allies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'AGIUP',
     accuracy = 100
 }
@@ -1586,7 +1560,7 @@ actionData['lightenAll'] = {
     desc = 'Increase the agility of all allies',
     aim = 'allies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'AGIUP',
     accuracy = 100
 }
@@ -1598,7 +1572,7 @@ actionData['frail'] = {
     desc = 'Reduce the defensive power of one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'DEFDOWN',
     accuracy = 100
 }
@@ -1610,7 +1584,7 @@ actionData['frailAll'] = {
     desc = 'Reduce the defensive power of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'DEFDOWN',
     accuracy = 100
 }
@@ -1622,7 +1596,7 @@ actionData['burden'] = {
     desc = 'Reduce the agility of one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'AGIDOWN',
     accuracy = 100
 }
@@ -1634,7 +1608,7 @@ actionData['burdenAll'] = {
     desc = 'Reduce the agility of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'AGIDOWN',
     accuracy = 100
 }
@@ -1668,7 +1642,7 @@ actionData['barrier'] = {
     desc = 'Summons barrier that reduce magic damage toward allies',
     aim = 'allies',
     scope = 'all',
-    execute = statusEffectAll,
+    execute = castStatusEffect,
     element = 'BARRIER',
     accuracy = 100
 }
@@ -1680,7 +1654,7 @@ actionData['might'] = {
     desc = 'Increases the attack power of one ally',
     aim = 'allies',
     scope = 'single',
-    execute = statusEffectSingle,
+    execute = castStatusEffect,
     element = 'MIGHT',
     accuracy = 100
 }

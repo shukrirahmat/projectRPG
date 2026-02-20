@@ -24,6 +24,15 @@ local function nextPriorityIndex()
     return result
 end
 
+local function reselectDeadTarget(action)
+    if #action.targets == 1 and action.targets[1].isDead 
+    and actionData[action.ref].scope ~= 'dead' then
+        action.targets = {utils.reselectTargetWhenDead(action.targets[1])}
+    end
+    
+    return action
+end
+
 local function statusPass(action)
     local result = action
     if action.user.status['SLEEP'] then
@@ -141,7 +150,7 @@ function executeAction(action)
     end
 
     if canAct then
-        toAct.execute(toAct, action.user, action.target)
+        toAct.execute(toAct, action.user, action.targets)
         if not action.user.isPartyMember and toAct.enemyAnimation then
             local aniData = toAct.enemyAnimation
             local animation = animationCreator.new(
@@ -151,16 +160,17 @@ function executeAction(action)
         end
     else
         local skillCanceled = actionData['skillCanceled']
-        skillCanceled.execute(skillCanceled, action.user, action.target, toAct)
+        skillCanceled.execute(skillCanceled, action.user, action.targets, toAct)
     end
 end
 
 function applyEffect(effect)
-    
+
     if effect.target.status and effect.target.status['GUARDIAN'] then
         effectData['immune'].apply(effect.user, effect.target, effect.value)
+        return
     end
-    
+
     effectData[effect.ref].apply(effect.user, effect.target, effect.value)
 
     if effect.target and effect.target.isPartyMember and effectData[effect.ref].partyAnimation then
@@ -225,11 +235,7 @@ function loop.run()
         local action = state.priorityList[actionIndex]
         table.remove(state.priorityList, actionIndex)
 
-        if action.target and action.target.isDead 
-        and actionData[action.ref].scope ~= 'dead' then
-            action.target = utils.reselectTargetWhenDead(action.target)
-        end
-
+        action = reselectDeadTarget(action)
         action = statusPass(action)
         executeAction(action)
 
@@ -244,11 +250,7 @@ function loop.run()
         local action = state.actionList[nextActionIndex]
         table.remove(state.actionList, nextActionIndex)
 
-        if action.target and action.target.isDead 
-        and actionData[action.ref].scope ~= 'dead' then
-            action.target = utils.reselectTargetWhenDead(action.target)
-        end
-
+        action = reselectDeadTarget(action)
         action = statusPass(action)
         executeAction(action)
 

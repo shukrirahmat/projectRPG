@@ -20,7 +20,7 @@ local function setPartyAction()
             local action
             if member.status['STUN'] or member.status['SLEEP'] or member.status['CONFUSE'] then
                 local target = utils.selectTargetRandomly(state.enemies)
-                action = actionCreator.new('normalAtk', member, target)
+                action = actionCreator.new('normalAtk', member, {target})
             elseif member.currentAction then
                 action = member.currentAction
             end
@@ -36,28 +36,28 @@ local function setEnemyAction()
             local action
             if enemy.status['STUN'] or enemy.status['SLEEP'] or enemy.status['CONFUSE'] then
                 local target = utils.selectTargetRandomly(state.party)
-                action = actionCreator.new('normalAtk', enemy, target)
+                action = actionCreator.new('normalAtk', enemy, {target})
             else
                 local choices = {unpack(enemy.skills)}
                 local target = utils.selectTargetRandomly(state.party)
 
                 local rand = math.random(0, #choices or 0)
                 if rand == 0 then
-                    action = actionCreator.new('normalAtk', enemy, target)
+                    action = actionCreator.new('normalAtk', enemy, {target})
                 else
                     local skillRef = choices[rand]
                     local skill = actionData[skillRef]
-                    local targetGroup;
+                    local targets;
                     if skill.aim == 'allies' then 
-                        targetGroup = state.enemies
+                        targets = state.enemies
                     elseif skill.aim == 'enemies' then
-                        targetGroup = state.party
+                        targets = state.party
                     end
                     if skill.scope == 'single' then
-                        local target = utils.selectTargetRandomly(targetGroup)
-                        action = actionCreator.new(skillRef, enemy, target)
+                        local target = utils.selectTargetRandomly(targets)
+                        action = actionCreator.new(skillRef, enemy, {target})
                     elseif skill.scope == 'all' then
-                        action = actionCreator.new(skillRef, enemy, targetGroup)
+                        action = actionCreator.new(skillRef, enemy, targets)
                     elseif skill.scope == 'self' then
                         action = actionCreator(skillRef, enemy, enemy)
                     end
@@ -88,7 +88,7 @@ end
 
 local function addAttackAction(target)
     local user = state.party[state.characterMenu.charID]
-    local action = actionCreator.new('normalAtk', user, target)
+    local action = actionCreator.new('normalAtk', user, {target})
     user.currentAction = action
 end
 
@@ -179,7 +179,7 @@ function input.executeConfirm()
                     local target = group[1]
                     local user = state.party[state.characterMenu.charID]
                     local ref = state.skillMenu.list[state.skillMenu.position]
-                    local action = actionCreator.new(ref, user, target)
+                    local action = actionCreator.new(ref, user, {target})
                     user.currentAction = action
                     local currentID = state.characterMenu.charID
                     nextCharacter(currentID)
@@ -201,7 +201,7 @@ function input.executeConfirm()
             elseif data.scope == 'self' then
                 local user = state.party[state.characterMenu.charID]
                 local ref = state.skillMenu.list[state.skillMenu.position]
-                local action = actionCreator.new(ref, user)
+                local action = actionCreator.new(ref, user, user)
                 user.currentAction = action
                 local currentID = state.characterMenu.charID
                 nextCharacter(currentID)
@@ -215,7 +215,7 @@ function input.executeConfirm()
             local target = state.targetMenu.list[state.targetMenu.position]
             local user = state.party[state.characterMenu.charID]
             local ref = state.skillMenu.list[state.skillMenu.position]
-            local action = actionCreator.new(ref, user, target)
+            local action = actionCreator.new(ref, user, {target})
             user.currentAction = action
         end
         local currentID = state.characterMenu.charID

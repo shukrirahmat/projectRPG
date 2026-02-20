@@ -224,9 +224,6 @@ local function addStatChange(_, target, status)
     end
 end
 
-
-
-
 local function addStatus(_, target, status)
     if status == 'BLIND' then
         if target.status['BLIND'] then

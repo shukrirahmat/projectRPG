@@ -10,7 +10,7 @@ local dataSheet = {
         agi = 80,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4,
-        strong = { ['FIRE'] = true, ['DEATH'] = true},
+        strong = {},
         immune = {},
         skills = {}
     },
@@ -23,10 +23,10 @@ local dataSheet = {
         agi = 60,
         sprite = skeleton_sprite,
         spriteHeight = 0,
-        strong = {['BLIND'] = true},
-        immune = { ['ICE'] = true , ['DEATH'] = true },
+        strong = {},
+        immune = {},
         specialType = 'UNDEAD',
-        skills = {'midTyphoon'}
+        skills = {}
     },
 
     ['dragon'] = {
@@ -37,10 +37,10 @@ local dataSheet = {
         agi = 50,
         sprite = dragon_sprite,
         spriteHeight = 0,
-        strong = {['FIRE'] = true, ['ICE'] = true, ['BOLT'] = true, ['WIND'] = true},
-        immune = {['STUN'] = true},
+        strong = {},
+        immune = {},
         specialType = 'DRAGON',
-        skills = {'midFireBlast'}
+        skills = {}
     }
 }
 

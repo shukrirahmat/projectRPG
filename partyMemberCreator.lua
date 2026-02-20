@@ -7,7 +7,7 @@ local dataSheet = {
         def = 70,
         agi = 80,
         critRate = 64,
-        skills = {'drain', 'greatDrain', 'dracoBomb', 'greatDracoBomb', 'greatParalyze', 'guardian'}
+        skills = {}
     },
     {
         name = 'FIGHTER',
@@ -17,7 +17,7 @@ local dataSheet = {
         def = 50,
         agi = 120,
         critRate = 8,
-        skills = {'auraBeam', 'greatAuraBeam', 'auraCharge', 'sandstorm', 'greatSandstorm', 'greatSilence'},
+        skills = {},
     },
     {
         name = 'PRIEST',
@@ -27,7 +27,7 @@ local dataSheet = {
         def = 50,
         agi = 100,
         critRate = 64,
-        skills = {'healAll', 'greatHealAll', 'barrier', 'greatRevive', 'burdenAll', 'steel', 'steelAll', 'cleanse'}
+        skills = {}
     }, 
     {
         name = 'MAGE',
@@ -37,7 +37,7 @@ local dataSheet = {
         def = 40,
         agi = 90,
         critRate = 64,
-        skills = {'might', 'midSlumber', 'greatSlumber', 'lighten', 'lightenAll', 'frail', 'frailAll'}
+        skills = {}
     }
 }
 

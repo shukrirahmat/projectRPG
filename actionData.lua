@@ -17,6 +17,8 @@ local function normalAttack(self, user, targets, special)
                 text = ''..user.name..' attacks again!'
             elseif special == 'confused' then
                 text = ''..user.name..' attacks while being confused'
+            elseif special == 'quickStrike' then
+                text = ''..user.name..' attacks swiftly'
             else
                 text = ''..user.name..' attacks!'
             end
@@ -29,7 +31,6 @@ local function normalAttack(self, user, targets, special)
             end
 
             if not miss then
-
                 local crit = math.random(1, user.critRate) == 1
 
                 if crit then
@@ -37,6 +38,10 @@ local function normalAttack(self, user, targets, special)
                     text = ''..text..' Critical hit!';
                 else
                     damage = utils.calculateAttackDamage(user, target)
+                end
+                
+                if special == 'quickStrike' then
+                    damage = math.floor(damage * 0.5)
                 end
 
                 utils.battleLogAdd(text)
@@ -64,6 +69,10 @@ end
 
 local function secondAttack(self, user, targets)
     normalAttack(self, user, targets, 'secondAttack')
+end
+
+local function quickStrike(self, user, targets)
+    normalAttack(self, user, targets, 'quickStrike')
 end
 
 local function defend(self, user)
@@ -482,7 +491,7 @@ actionData['secondAtk'] = {
 actionData['defend'] = { 
     execute = defend, 
     cost = 0, 
-    priority = 1
+    priority = 2
 }
 
 actionData['skillCanceled'] = { 
@@ -505,8 +514,8 @@ actionData['sleeping'] = {
     execute = sleeping
 }
 
-actionData['fire'] = {
-    name = 'Fire', 
+actionData['flameI'] = {
+    name = 'Flame I', 
     magic = true,
     cost = 2, 
     desc = 'Deals small fire damage to one enemy',
@@ -517,8 +526,8 @@ actionData['fire'] = {
     baseDamage = 10
 }
 
-actionData['midFire'] = {
-    name = 'MidFire', 
+actionData['flameII'] = {
+    name = 'Flame II', 
     magic = true,
     cost = 4, 
     desc = 'Deals medium fire damage to one enemy',
@@ -529,8 +538,8 @@ actionData['midFire'] = {
     baseDamage = 40
 }
 
-actionData['greatFire'] = {
-    name = 'GreatFire', 
+actionData['flameIII'] = {
+    name = 'Flame III', 
     magic = true,
     cost = 8, 
     desc = 'Deals large fire damage to one enemy',
@@ -541,8 +550,8 @@ actionData['greatFire'] = {
     baseDamage = 100
 }
 
-actionData['chaosFire'] = {
-    name = 'ChaosFire', 
+actionData['flameX'] = {
+    name = 'Flame X', 
     magic = true,
     cost = 15, 
     desc = 'Deals very large fire damage to one enemy',
@@ -553,8 +562,8 @@ actionData['chaosFire'] = {
     baseDamage = 250
 }
 
-actionData['ice'] = {
-    name = 'Ice', 
+actionData['frostI'] = {
+    name = 'Frost I', 
     magic = true,
     cost = 3, 
     desc = 'Deals small ice damage to one enemy',
@@ -565,8 +574,8 @@ actionData['ice'] = {
     baseDamage = 15
 }
 
-actionData['midIce'] = {
-    name = 'MidIce', 
+actionData['frostII'] = {
+    name = 'Frost II', 
     magic = true,
     cost = 5, 
     desc = 'Deals medium ice damage to one enemy',
@@ -577,8 +586,8 @@ actionData['midIce'] = {
     baseDamage = 50
 }
 
-actionData['greatIce'] = {
-    name = 'GreatIce', 
+actionData['frostIII'] = {
+    name = 'Frost III', 
     magic = true,
     cost = 10, 
     desc = 'Deals large ice damage to one enemy',
@@ -589,44 +598,44 @@ actionData['greatIce'] = {
     baseDamage = 120
 }
 
-actionData['holy'] = {
-    name = 'Holy', 
+actionData['luminaI'] = {
+    name = 'Lumina I', 
     magic = true,
     cost = 4, 
-    desc = 'Deals small holy damage to one enemy',
+    desc = 'Deals small light damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = castDamageMagic,
-    element = 'HOLY',
+    element = 'LIGHT',
     baseDamage = 20
 }
 
-actionData['midHoly'] = {
-    name = 'MidHoly', 
+actionData['luminaII'] = {
+    name = 'Lumina II', 
     magic = true,
     cost = 6, 
-    desc = 'Deals medium holy damage to one enemy',
+    desc = 'Deals medium light damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = castDamageMagic,
-    element = 'HOLY',
+    element = 'LIGHT',
     baseDamage = 80
 }
 
-actionData['greatHoly'] = {
-    name = 'GreatHoly', 
+actionData['luminaIII'] = {
+    name = 'Lumina III', 
     magic = true,
     cost = 12, 
-    desc = 'Deals large holy damage to one enemy',
+    desc = 'Deals large light damage to one enemy',
     aim = 'enemies',
     scope = 'single',
     execute = castDamageMagic,
-    element = 'HOLY',
+    element = 'LIGHT',
     baseDamage = 160
 }
 
-actionData['void'] = {
-    name = 'Void', 
+actionData['voidI'] = {
+    name = 'Void I', 
     magic = true,
     cost = 4, 
     desc = 'Deals small void damage to one enemy',
@@ -638,8 +647,8 @@ actionData['void'] = {
     variance = 0.4
 }
 
-actionData['midVoid'] = {
-    name = 'MidVoid', 
+actionData['voidII'] = {
+    name = 'Void II', 
     magic = true,
     cost = 6, 
     desc = 'Deals medium void damage to one enemy',
@@ -651,8 +660,8 @@ actionData['midVoid'] = {
     variance = 0.4
 }
 
-actionData['greatVoid'] = {
-    name = 'GreatVoid', 
+actionData['voidIII'] = {
+    name = 'void III', 
     magic = true,
     cost = 12, 
     desc = 'Deals large void damage to one enemy',
@@ -664,8 +673,8 @@ actionData['greatVoid'] = {
     variance = 0.4
 }
 
-actionData['fireBlast'] = {
-    name = 'FireBlast', 
+actionData['infernoI'] = {
+    name = 'Inferno I', 
     magic = true,
     cost = 4, 
     desc = 'Deals small fire damage to all enemies',
@@ -676,8 +685,8 @@ actionData['fireBlast'] = {
     baseDamage = 10
 }
 
-actionData['midFireBlast'] = {
-    name = 'MidFireBlast', 
+actionData['infernoII'] = {
+    name = 'Inferno II', 
     magic = true,
     cost = 8, 
     desc = 'Deals medium fire damage to all enemies',
@@ -688,8 +697,8 @@ actionData['midFireBlast'] = {
     baseDamage = 30
 }
 
-actionData['greatFireBlast'] = {
-    name = 'GreatFireBlast', 
+actionData['infernoIII'] = {
+    name = 'Inferno III', 
     magic = true,
     cost = 12, 
     desc = 'Deals large fire damage to all enemies',
@@ -700,8 +709,8 @@ actionData['greatFireBlast'] = {
     baseDamage = 80
 }
 
-actionData['iceFrost'] = {
-    name = 'IceFrost', 
+actionData['blizzardI'] = {
+    name = 'Blizzard I', 
     magic = true,
     cost = 3, 
     desc = 'Deals small ice damage to all enemies',
@@ -712,8 +721,8 @@ actionData['iceFrost'] = {
     baseDamage = 8
 }
 
-actionData['midIceFrost'] = {
-    name = 'MidIceFrost', 
+actionData['blizzardII'] = {
+    name = 'Blizzard II', 
     magic = true,
     cost = 6, 
     desc = 'Deals medium ice damage to all enemies',
@@ -724,8 +733,8 @@ actionData['midIceFrost'] = {
     baseDamage = 20
 }
 
-actionData['greatIceFrost'] = {
-    name = 'GreatIceFrost', 
+actionData['blizzardIII'] = {
+    name = 'Blizzard III', 
     magic = true,
     cost = 10, 
     desc = 'Deals large ice damage to all enemies',
@@ -736,8 +745,8 @@ actionData['greatIceFrost'] = {
     baseDamage = 60
 }
 
-actionData['chaosIceFrost'] = {
-    name = 'ChaosIceFrost', 
+actionData['blizzardX'] = {
+    name = 'Blizzard X', 
     magic = true,
     cost = 20, 
     desc = 'Deals very large ice damage to all enemies',
@@ -748,8 +757,8 @@ actionData['chaosIceFrost'] = {
     baseDamage = 150
 }
 
-actionData['typhoon'] = {
-    name = 'Typhoon', 
+actionData['typhoonI'] = {
+    name = 'Typhoon I', 
     magic = true,
     cost = 5, 
     desc = 'Deals small wind damage to all enemies',
@@ -760,8 +769,8 @@ actionData['typhoon'] = {
     baseDamage = 15
 }
 
-actionData['midTyphoon'] = {
-    name = 'MidTyphoon', 
+actionData['typhoonII'] = {
+    name = 'Typhoon II', 
     magic = true,
     cost = 9, 
     desc = 'Deals medium wind damage to all enemies',
@@ -772,8 +781,8 @@ actionData['midTyphoon'] = {
     baseDamage = 50
 }
 
-actionData['greatTyphoon'] = {
-    name = 'GreatTyphoon', 
+actionData['typhoonIII'] = {
+    name = 'Typhoon III', 
     magic = true,
     cost = 14, 
     desc = 'Deals large wind damage to all enemies',
@@ -784,8 +793,8 @@ actionData['greatTyphoon'] = {
     baseDamage = 100,
 }
 
-actionData['lightning'] = {
-    name = 'Lightning', 
+actionData['lightningI'] = {
+    name = 'Lightning I', 
     magic = true,
     cost = 5, 
     desc = 'Deals small bolt damage to all enemies',
@@ -797,8 +806,8 @@ actionData['lightning'] = {
     variance = 0.4
 }
 
-actionData['midLightning'] = {
-    name = 'MidLightning', 
+actionData['lightningII'] = {
+    name = 'Lightning II', 
     magic = true,
     cost = 9, 
     desc = 'Deals medium bolt damage to all enemies',
@@ -810,8 +819,8 @@ actionData['midLightning'] = {
     variance = 0.4
 }
 
-actionData['greatLightning'] = {
-    name = 'GreatLightning', 
+actionData['lightningIII'] = {
+    name = 'Lightning III', 
     magic = true,
     cost = 14, 
     desc = 'Deals large bolt damage to all enemies',
@@ -823,8 +832,8 @@ actionData['greatLightning'] = {
     variance = 0.4
 }
 
-actionData['aura'] = {
-    name = 'Aura', 
+actionData['auraI'] = {
+    name = 'Aura I', 
     magic = true,
     cost = 0, 
     desc = 'Deals damage to all enemies using small percentage of strength',
@@ -835,8 +844,8 @@ actionData['aura'] = {
     auraRatio = 0.1
 }
 
-actionData['midAura'] = {
-    name = 'MidAura', 
+actionData['auraII'] = {
+    name = 'Aura II', 
     magic = true,
     cost = 0, 
     desc = 'Deals damage to all enemies using medium percentage of strength',
@@ -847,8 +856,8 @@ actionData['midAura'] = {
     auraRatio = 0.2
 }
 
-actionData['greatAura'] = {
-    name = 'GreatAura', 
+actionData['auraIII'] = {
+    name = 'Aura III', 
     magic = true,
     cost = 0, 
     desc = 'Deals damage to all enemies using high percentage of strength',
@@ -859,8 +868,8 @@ actionData['greatAura'] = {
     auraRatio = 0.4
 }
 
-actionData['auraBeam'] = {
-    name = 'AuraBeam', 
+actionData['auraBlastI'] = {
+    name = 'Aura Blast I', 
     magic = true,
     cost = 0, 
     desc = 'Deals damage to one enemies using high percentage of strength',
@@ -871,8 +880,8 @@ actionData['auraBeam'] = {
     auraRatio = 0.8
 }
 
-actionData['greatAuraBeam'] = {
-    name = 'GreatAuraBeam', 
+actionData['auraBlastII'] = {
+    name = 'Aura Blast II', 
     magic = true,
     cost = 0, 
     desc = 'Deals damage to one enemies using very high percentage of strength',
@@ -884,7 +893,7 @@ actionData['greatAuraBeam'] = {
 }
 
 actionData['auraCharge'] = {
-    name = 'AuraCharge', 
+    name = 'Aura Charge', 
     tech = true,
     cost = 0, 
     desc = 'Next aura magic will deal 2.5 more damage',
@@ -893,8 +902,8 @@ actionData['auraCharge'] = {
     execute = castAura,
 }
 
-actionData['drain'] = {
-    name = 'Drain', 
+actionData['drainI'] = {
+    name = 'Drain I', 
     magic = true,
     cost = 4, 
     desc = 'Deals damage to one enemy and recovers the same amount',
@@ -906,8 +915,8 @@ actionData['drain'] = {
     drainBonus = 0.1
 }
 
-actionData['greatDrain'] = {
-    name = 'GreatDrain', 
+actionData['drainII'] = {
+    name = 'Drain II', 
     magic = true,
     cost = 8, 
     desc = 'Deals large damage to one enemy and recovers the same amount',
@@ -919,8 +928,8 @@ actionData['greatDrain'] = {
     drainBonus = 0.25
 }
 
-actionData['manaBurn'] = {
-    name = 'ManaBurn', 
+actionData['manaBurnI'] = {
+    name = 'Mana Burn I', 
     magic = true,
     cost = 2, 
     desc = 'Reduce small amount of all enemies MP',
@@ -931,8 +940,8 @@ actionData['manaBurn'] = {
     baseDamage = 10,
 }
 
-actionData['greatManaBurn'] = {
-    name = 'GreatManaBurn', 
+actionData['manaBurnII'] = {
+    name = 'Mana Burn II', 
     magic = true,
     cost = 5, 
     desc = 'Reduce large amount of all enemies MP',
@@ -943,8 +952,8 @@ actionData['greatManaBurn'] = {
     baseDamage = 25,
 }
 
-actionData['dracoBomb'] = {
-    name = 'DracoBomb', 
+actionData['drakebaneI'] = {
+    name = 'Drakebane I', 
     magic = true,
     cost = 4, 
     desc = 'Deals large damage to dragons',
@@ -954,8 +963,8 @@ actionData['dracoBomb'] = {
     baseDamage = 150
 }
 
-actionData['greatDracoBomb'] = {
-    name = 'GreatDracoBomb', 
+actionData['drakebaneII'] = {
+    name = 'Drakebane II', 
     magic = true,
     cost = 8, 
     desc = 'Deals very large damage to dragons',
@@ -965,8 +974,8 @@ actionData['greatDracoBomb'] = {
     baseDamage = 300
 }
 
-actionData['exorcism'] = {
-    name = 'Exorcism', 
+actionData['exorciseI'] = {
+    name = 'Exorcise I', 
     magic = true,
     cost = 4, 
     desc = 'High chance to instantly kill an undead enemies',
@@ -976,8 +985,8 @@ actionData['exorcism'] = {
     accuracy = 80
 }
 
-actionData['greatExorcism'] = {
-    name = 'GreatExorcism', 
+actionData['exorciseII'] = {
+    name = 'Exorcise II', 
     magic = true,
     cost = 8, 
     desc = 'High chance to instantly kill all undead enemies',
@@ -987,8 +996,8 @@ actionData['greatExorcism'] = {
     accuracy = 80
 }
 
-actionData['death'] = {
-    name = 'Death', 
+actionData['deathI'] = {
+    name = 'Death I', 
     magic = true,
     cost = 5, 
     desc = 'Chance to instantly kill one enemy',
@@ -999,8 +1008,8 @@ actionData['death'] = {
     accuracy = 30
 }
 
-actionData['midDeath'] = {
-    name = 'MidDeath', 
+actionData['deathII'] = {
+    name = 'Death II', 
     magic = true,
     cost = 10, 
     desc = 'Low chance to instantly kill all enemies',
@@ -1011,8 +1020,8 @@ actionData['midDeath'] = {
     accuracy = 15
 }
 
-actionData['greatDeath'] = {
-    name = 'GreatDeath', 
+actionData['deathIII'] = {
+    name = 'Death III', 
     magic = true,
     cost = 15, 
     desc = 'High chance to instantly kill all enemies',
@@ -1023,8 +1032,8 @@ actionData['greatDeath'] = {
     accuracy = 30
 }
 
-actionData['sandstorm'] = {
-    name = 'Sandstorm', 
+actionData['sandstormI'] = {
+    name = 'Sandstorm I', 
     magic = true,
     cost = 3, 
     desc = 'Low chance to blind all enemies',
@@ -1035,8 +1044,8 @@ actionData['sandstorm'] = {
     accuracy = 50
 }
 
-actionData['greatSandstorm'] = {
-    name = 'GreatSandstorm', 
+actionData['sandstormI'] = {
+    name = 'Sandstorm II', 
     magic = true,
     cost = 5, 
     desc = 'High chance to blind all enemies',
@@ -1047,8 +1056,8 @@ actionData['greatSandstorm'] = {
     accuracy = 80
 }
 
-actionData['silence'] = {
-    name = 'Silence', 
+actionData['sealI'] = {
+    name = 'Seal I', 
     magic = true,
     cost = 3, 
     desc = 'Low chance to seal abilities of all enemies',
@@ -1059,8 +1068,8 @@ actionData['silence'] = {
     accuracy = 50
 }
 
-actionData['greatSilence'] = {
-    name = 'GreatSilence', 
+actionData['sealII'] = {
+    name = 'seal II', 
     magic = true,
     cost = 5, 
     desc = 'High chance to seal abilities of all enemies',
@@ -1071,8 +1080,8 @@ actionData['greatSilence'] = {
     accuracy = 80
 }
 
-actionData['tremor'] = {
-    name = 'Tremor', 
+actionData['tremorI'] = {
+    name = 'Tremor I', 
     magic = true,
     cost = 5, 
     desc = 'Low chance to stun of all enemies',
@@ -1083,8 +1092,8 @@ actionData['tremor'] = {
     accuracy = 25
 }
 
-actionData['greatTremor'] = {
-    name = 'GreatTremor', 
+actionData['tremorII'] = {
+    name = 'Tremor II', 
     magic = true,
     cost = 8, 
     desc = 'High chance to stun of all enemies',
@@ -1095,8 +1104,8 @@ actionData['greatTremor'] = {
     accuracy = 50
 }
 
-actionData['wound'] = {
-    name = 'Wound', 
+actionData['woundI'] = {
+    name = 'Wound I', 
     magic = true,
     cost = 3, 
     desc = 'Low chance to leave all enemies wounded',
@@ -1107,8 +1116,8 @@ actionData['wound'] = {
     accuracy = 50
 }
 
-actionData['greatWound'] = {
-    name = 'GreatWound', 
+actionData['woundII'] = {
+    name = 'Wound II', 
     magic = true,
     cost = 5, 
     desc = 'High chance to leave all enemies wounded',
@@ -1119,8 +1128,8 @@ actionData['greatWound'] = {
     accuracy = 80
 }
 
-actionData['toxin'] = {
-    name = 'Toxin', 
+actionData['toxinI'] = {
+    name = 'Toxin I', 
     magic = true,
     cost = 2, 
     desc = 'Chance to poison one enemy',
@@ -1131,8 +1140,8 @@ actionData['toxin'] = {
     accuracy = 80
 }
 
-actionData['midToxin'] = {
-    name = 'MidToxin', 
+actionData['toxinII'] = {
+    name = 'Toxin II', 
     magic = true,
     cost = 3, 
     desc = 'Low chance to poison all enemies',
@@ -1143,8 +1152,8 @@ actionData['midToxin'] = {
     accuracy = 50
 }
 
-actionData['greatToxin'] = {
-    name = 'GreatToxin', 
+actionData['toxinIII'] = {
+    name = 'Toxin III', 
     magic = true,
     cost = 5, 
     desc = 'High chance to poison all enemies',
@@ -1155,8 +1164,8 @@ actionData['greatToxin'] = {
     accuracy = 80
 }
 
-actionData['hex'] = {
-    name = 'Hex', 
+actionData['hexI'] = {
+    name = 'Hex I', 
     magic = true,
     cost = 3, 
     desc = 'Chance to put a curse one enemy',
@@ -1167,8 +1176,8 @@ actionData['hex'] = {
     accuracy = 70
 }
 
-actionData['midHex'] = {
-    name = 'MidHex', 
+actionData['hexII'] = {
+    name = 'Hex II', 
     magic = true,
     cost = 5, 
     desc = 'Low chance to put a curse on all enemies',
@@ -1179,8 +1188,8 @@ actionData['midHex'] = {
     accuracy = 40
 }
 
-actionData['greatHex'] = {
-    name = 'GreatHex', 
+actionData['hexIII'] = {
+    name = 'Hex III', 
     magic = true,
     cost = 8, 
     desc = 'High chance to put a curse on all enemies',
@@ -1191,8 +1200,8 @@ actionData['greatHex'] = {
     accuracy = 70
 }
 
-actionData['paralyze'] = {
-    name = 'Paralyze', 
+actionData['paralyzeI'] = {
+    name = 'Paralyze I', 
     magic = true,
     cost = 3, 
     desc = 'Chance to apply paralysis to one enemy',
@@ -1203,8 +1212,8 @@ actionData['paralyze'] = {
     accuracy = 70
 }
 
-actionData['midParalyze'] = {
-    name = 'MidParalyze', 
+actionData['paralyzeII'] = {
+    name = 'Paralyze II', 
     magic = true,
     cost = 5, 
     desc = 'Low chance to apply paralysis to all enemies',
@@ -1215,8 +1224,8 @@ actionData['midParalyze'] = {
     accuracy = 40
 }
 
-actionData['greatParalyze'] = {
-    name = 'GreatParalyze', 
+actionData['paralyzeIII'] = {
+    name = 'Paralyze III', 
     magic = true,
     cost = 8, 
     desc = 'High chance to apply paralysis on all enemies',
@@ -1227,8 +1236,8 @@ actionData['greatParalyze'] = {
     accuracy = 70
 }
 
-actionData['slumber'] = {
-    name = 'Slumber', 
+actionData['slumberI'] = {
+    name = 'Slumber I', 
     magic = true,
     cost = 4, 
     desc = 'Chance to put one enemy to sleep',
@@ -1239,8 +1248,8 @@ actionData['slumber'] = {
     accuracy = 40
 }
 
-actionData['midSlumber'] = {
-    name = 'MidSlumber', 
+actionData['slumberII'] = {
+    name = 'Slumber II', 
     magic = true,
     cost = 7, 
     desc = 'Low chance to put one all enemies to sleep',
@@ -1251,8 +1260,8 @@ actionData['midSlumber'] = {
     accuracy = 20
 }
 
-actionData['greatSlumber'] = {
-    name = 'GreatSlumber', 
+actionData['slumberIII'] = {
+    name = 'Slumber III', 
     magic = true,
     cost = 10, 
     desc = 'High chance to put one all enemies to sleep',
@@ -1263,8 +1272,8 @@ actionData['greatSlumber'] = {
     accuracy = 40
 }
 
-actionData['confusion'] = {
-    name = 'Confusion', 
+actionData['confusionI'] = {
+    name = 'Confusion I', 
     magic = true,
     cost = 4, 
     desc = 'Chance to confuse one enemy',
@@ -1275,8 +1284,8 @@ actionData['confusion'] = {
     accuracy = 40
 }
 
-actionData['midConfusion'] = {
-    name = 'MidConfusion', 
+actionData['confusionII'] = {
+    name = 'Confusion II', 
     magic = true,
     cost = 7, 
     desc = 'Low chance to confuse all enemies',
@@ -1287,8 +1296,8 @@ actionData['midConfusion'] = {
     accuracy = 20
 }
 
-actionData['greatConfusion'] = {
-    name = 'GreatConfusion', 
+actionData['confusionIII'] = {
+    name = 'Confusion III', 
     magic = true,
     cost = 10, 
     desc = 'High chance to confuse all enemies',
@@ -1299,8 +1308,8 @@ actionData['greatConfusion'] = {
     accuracy = 40
 }
 
-actionData['heal'] = {
-    name = 'Heal', 
+actionData['healI'] = {
+    name = 'Heal I', 
     magic = true,
     cost = 2, 
     desc = 'Recover small amount of HP to one ally',
@@ -1310,8 +1319,8 @@ actionData['heal'] = {
     healAmount = 40
 }
 
-actionData['midHeal'] = {
-    name = 'MidHeal', 
+actionData['healII'] = {
+    name = 'Heal II', 
     magic = true,
     cost = 4, 
     desc = 'Recover medium amount of HP to one ally',
@@ -1321,8 +1330,8 @@ actionData['midHeal'] = {
     healAmount = 100
 }
 
-actionData['greatHeal'] = {
-    name = 'GreatHeal', 
+actionData['healIII'] = {
+    name = 'Heal III', 
     magic = true,
     cost = 6, 
     desc = 'Recover large amount of HP to one ally',
@@ -1333,7 +1342,7 @@ actionData['greatHeal'] = {
 }
 
 actionData['fullHeal'] = {
-    name = 'FullHeal', 
+    name = 'Full Heal', 
     magic = true,
     cost = 10, 
     desc = 'Recover HP of one ally to full',
@@ -1342,8 +1351,8 @@ actionData['fullHeal'] = {
     execute = castHeal
 }
 
-actionData['healAll'] = {
-    name = 'HealAll', 
+actionData['healAllI'] = {
+    name = 'Heal All I', 
     magic = true,
     cost = 12, 
     desc = 'Recover medium amount of HP to all allies',
@@ -1353,8 +1362,8 @@ actionData['healAll'] = {
     healAmount = 80
 }
 
-actionData['greatHealAll'] = {
-    name = 'GreatHealAll', 
+actionData['healAllII'] = {
+    name = 'Heal All II', 
     magic = true,
     cost = 20, 
     desc = 'Recover large amount of HP to all allies',
@@ -1376,7 +1385,7 @@ actionData['neutralize'] = {
 }
 
 actionData['neutralizeAll'] = {
-    name = 'NeutralizeAll', 
+    name = 'Neutralize All', 
     magic = true,
     cost = 5, 
     desc = 'Remove poison from all allies',
@@ -1398,7 +1407,7 @@ actionData['purify'] = {
 }
 
 actionData['purifyAll'] = {
-    name = 'PurifyAll', 
+    name = 'Purify All', 
     magic = true,
     cost = 6, 
     desc = 'Remove curse from all allies',
@@ -1408,30 +1417,8 @@ actionData['purifyAll'] = {
     status = 'CURSE'
 }
 
-actionData['dispel'] = {
-    name = 'Dispel', 
-    magic = true,
-    cost = 3, 
-    desc = 'Remove paralysis from one ally',
-    aim = 'allies',
-    scope = 'single',
-    execute = castRemoveStatus,
-    status = 'PARALYSIS'
-}
-
-actionData['dispelAll'] = {
-    name = 'DispelAll', 
-    magic = true,
-    cost = 6, 
-    desc = 'Remove paralysis from all allies',
-    aim = 'allies',
-    scope = 'all',
-    execute = castRemoveStatus,
-    status = 'PARALYSIS'
-}
-
-actionData['mend'] = {
-    name = 'Mend', 
+actionData['mendAll'] = {
+    name = 'Mend All', 
     magic = true,
     cost = 8, 
     desc = 'Remove wound from all allies',
@@ -1453,7 +1440,7 @@ actionData['dispel'] = {
 }
 
 actionData['dispelAll'] = {
-    name = 'DispelAll', 
+    name = 'Dispel All', 
     magic = true,
     cost = 6, 
     desc = 'Remove paralysis from all allies',
@@ -1475,7 +1462,7 @@ actionData['alarm'] = {
 }
 
 actionData['alarmAll'] = {
-    name = 'AlarmAll', 
+    name = 'Alarm All', 
     magic = true,
     cost = 6, 
     desc = 'Awake all allies from sleep',
@@ -1497,7 +1484,7 @@ actionData['sooth'] = {
 }
 
 actionData['soothAll'] = {
-    name = 'SoothAll', 
+    name = 'Sooth All', 
     magic = true,
     cost = 6, 
     desc = 'Remove confusion from all allies',
@@ -1530,7 +1517,7 @@ actionData['steel'] = {
 }
 
 actionData['steelAll'] = {
-    name = 'SteelAll', 
+    name = 'Steel All', 
     magic = true,
     cost = 5, 
     desc = 'Increase the defensive power of all allies',
@@ -1541,8 +1528,8 @@ actionData['steelAll'] = {
     accuracy = 100
 }
 
-actionData['lighten'] = {
-    name = 'Lighten', 
+actionData['fleet'] = {
+    name = 'Fleet', 
     magic = true,
     cost = 2, 
     desc = 'Increase the agility of one ally',
@@ -1553,8 +1540,8 @@ actionData['lighten'] = {
     accuracy = 100
 }
 
-actionData['lightenAll'] = {
-    name = 'LightenAll', 
+actionData['fleetAll'] = {
+    name = 'Fleet All', 
     magic = true,
     cost = 5, 
     desc = 'Increase the agility of all allies',
@@ -1577,8 +1564,8 @@ actionData['frail'] = {
     accuracy = 100
 }
 
-actionData['frailAll'] = {
-    name = 'FrailAll', 
+actionData['frail All'] = {
+    name = 'Frail All', 
     magic = true,
     cost = 5, 
     desc = 'Reduce the defensive power of all enemies',
@@ -1589,8 +1576,8 @@ actionData['frailAll'] = {
     accuracy = 100
 }
 
-actionData['burden'] = {
-    name = 'Burden', 
+actionData['snare'] = {
+    name = 'Snare', 
     magic = true,
     cost = 2, 
     desc = 'Reduce the agility of one enemy',
@@ -1601,8 +1588,8 @@ actionData['burden'] = {
     accuracy = 100
 }
 
-actionData['burdenAll'] = {
-    name = 'BurdenAll', 
+actionData['snareAll'] = {
+    name = 'Snare All', 
     magic = true,
     cost = 5, 
     desc = 'Reduce the agility of all enemies',
@@ -1624,8 +1611,8 @@ actionData['revive'] = {
     reviveRatio = 25
 }
 
-actionData['greatRevive'] = {
-    name = 'GreatRevive', 
+actionData['fullRevive'] = {
+    name = 'Full Revive', 
     magic = true,
     cost = 50, 
     desc = 'Revive one dead ally with full HP',
@@ -1669,7 +1656,18 @@ actionData['guardian'] = {
     execute = castGuardian,
     element = 'GUARDIAN',
     accuracy = 100,
-    priority = 2
+    priority = 3
+}
+
+actionData['quickStrike'] = {
+    name = 'Quick Strike', 
+    tech = true,
+    cost = 0, 
+    desc = 'A fast normal attack that deals half the damage',
+    aim = 'enemies',
+    scope = 'single',
+    execute = quickStrike,
+    priority = 1
 }
 
 return actionData;

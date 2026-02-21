@@ -121,11 +121,17 @@ local function ram(self, user, targets)
     for i, target in ipairs(targets) do
         if not target.isDead then
             utils.battleLogAdd(''..user.name..' rams into '..target.name..'!')
-            local baseDamage = math.floor(user.currentHp*0.5) - math.floor(target.def/3)
+            local baseDamage = math.floor(user.currentHp*0.6) - math.floor(target.def/3)
             local mod = math.floor(baseDamage*0.2)
             local damage = math.max(1, baseDamage + math.random(-mod, mod))
             local damageEffect = effectCreator.new('damage', user, target, damage)        
             table.insert(state.effectList, damageEffect)
+            
+            local ownDamage = math.floor(user.currentHp*0.2)
+            local ownMod = math.floor(ownDamage*0.2)
+            local recoil = math.max(1, ownDamage + math.random(-ownMod, ownMod))
+            local recoilEffect = effectCreator.new('damage', user, user, recoil)        
+            table.insert(state.effectList, recoilEffect)
         end
     end
 end
@@ -1817,7 +1823,7 @@ actionData['ram'] = {
     name = 'Ram', 
     tech = true,
     cost = 0, 
-    desc = 'Charges into an enemy, deals more damage the more HP you have',
+    desc = 'Charges into an enemy, and take some recoil damage',
     aim = 'enemies',
     scope = 'single',
     execute = ram,

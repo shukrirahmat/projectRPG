@@ -27,7 +27,23 @@ local function normalAttack(self, user, targets, special)
             end
 
             if not miss or user.isFocused then
-                local crit = math.random(1, user.critRate) == 1
+                local crit
+
+                if special and special.cat == 'desperation' then
+                    if (user.currentHp/user.maxHp) < 0.2 then
+                        crit = math.random(1, 4) < 4
+                    else
+                        crit = false
+                    end
+                    if not crit then
+                        utils.battleLogAdd(text)
+                        local immuneEffect = effectCreator.new('immune', user, target, damage)        
+                        table.insert(state.effectList, immuneEffect)
+                        return
+                    end
+                else
+                    crit = math.random(1, user.critRate) == 1
+                end
 
                 if crit then
                     damage = utils.calculateCritDamage(user, target)
@@ -103,6 +119,11 @@ local function elementalStrike(self, user, targets)
     normalAttack(self, user, targets, special)
 end
 
+local function desperation(self, user, targets)
+    local special = {cat = 'desperation', text = 'tries a desperation attack!'}
+    normalAttack(self, user, targets, special)
+end
+
 local function defend(self, user)
     user.isDefending = true
     utils.battleLogAdd(''..user.name..' defends!')
@@ -126,7 +147,7 @@ local function ram(self, user, targets)
             local damage = math.max(1, baseDamage + math.random(-mod, mod))
             local damageEffect = effectCreator.new('damage', user, target, damage)        
             table.insert(state.effectList, damageEffect)
-            
+
             local ownDamage = math.floor(user.currentHp*0.2)
             local ownMod = math.floor(ownDamage*0.2)
             local recoil = math.max(1, ownDamage + math.random(-ownMod, ownMod))
@@ -1827,6 +1848,16 @@ actionData['ram'] = {
     aim = 'enemies',
     scope = 'single',
     execute = ram,
+}
+
+actionData['desperation'] = {
+    name = 'Desperation', 
+    tech = true,
+    cost = 0, 
+    desc = 'Attack that are more likely to land critical hits at low health',
+    aim = 'enemies',
+    scope = 'single',
+    execute = desperation,
 }
 
 return actionData;

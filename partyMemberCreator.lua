@@ -7,7 +7,7 @@ local dataSheet = {
         def = 70,
         agi = 80,
         critRate = 64,
-        skills = {'cover', 'flameStrike', 'focus', 'ram'}
+        skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'}
     },
     {
         name = 'FIGHTER',
@@ -17,7 +17,7 @@ local dataSheet = {
         def = 50,
         agi = 120,
         critRate = 64,
-        skills = {'deathIII', 'voidStrike', 'ram'},
+        skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
     },
     {
         name = 'PRIEST',

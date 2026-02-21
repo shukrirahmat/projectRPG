@@ -98,6 +98,8 @@ function hud.draw()
 
         if member.isDead then
             love.graphics.setColor(0.25, 0.25, 0.25)
+        elseif (member.currentHp / member.maxHp) <= 0.2 then
+            love.graphics.setColor(0.97, 0.28, 0.11)
         else
             love.graphics.setColor(1, 1, 1)
         end

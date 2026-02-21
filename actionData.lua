@@ -39,7 +39,7 @@ local function normalAttack(self, user, targets, special)
                 else
                     damage = utils.calculateAttackDamage(user, target)
                 end
-                
+
                 if special == 'quickStrike' then
                     damage = math.floor(damage * 0.5)
                 end
@@ -78,6 +78,15 @@ end
 local function defend(self, user)
     user.isDefending = true
     utils.battleLogAdd(''..user.name..' defends!')
+end
+
+local function cover(self, user, targets)
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            target.isCovered = { coveredBy = user }
+            utils.battleLogAdd(''..user.name..' covers '..target.name..' from attacks!')
+        end
+    end
 end
 
 local function skillCanceled(self, user, targets, skill)
@@ -1668,6 +1677,17 @@ actionData['quickStrike'] = {
     scope = 'single',
     execute = quickStrike,
     priority = 1
+}
+
+actionData['cover'] = {
+    name = 'Cover', 
+    tech = true,
+    cost = 0, 
+    desc = 'Cover an ally from any attack',
+    aim = 'allies',
+    scope = 'single',
+    execute = cover,
+    priority = 2
 }
 
 return actionData;

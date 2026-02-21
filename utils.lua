@@ -213,6 +213,7 @@ function U.clearTemporaryStatus()
 
     for _, group in ipairs({state.party, state.enemies}) do
         for _, character in ipairs(group) do
+            
             if character.isDefending then
                 character.isDefending = false
             end
@@ -226,6 +227,10 @@ function U.clearTemporaryStatus()
             
             if character.status['GUARDIAN'] then
                 character.status['GUARDIAN'] = nil
+            end
+            
+            if character.isCovered then
+                character.isCovered = nil
             end
         end
     end

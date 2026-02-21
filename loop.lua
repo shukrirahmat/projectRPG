@@ -24,12 +24,20 @@ local function nextPriorityIndex()
     return result
 end
 
-local function reselectDeadTarget(action)
+local function redirectTarget(action)
     if #action.targets == 1 and action.targets[1].isDead 
-    and actionData[action.ref].scope ~= 'dead' then
+    and actionData[action.ref].aim ~= 'allies' then
         action.targets = {utils.reselectTargetWhenDead(action.targets[1])}
     end
-    
+
+    for i, target in ipairs(action.targets) do
+        if not target.isDead and target.isCovered then
+            if not target.isCovered.coveredBy.isDead then
+                action.targets[i] = target.isCovered.coveredBy
+            end
+        end
+    end
+
     return action
 end
 
@@ -213,11 +221,22 @@ function loop.run()
         if state.partyDied or state.allEnemyDead then
             state.battleEnded = true
         end
+        state.textTimer = 0
 
     elseif #state.effectList > 0 then
         local effect = state.effectList[1]
         table.remove(state.effectList, 1)
-        applyEffect(effect)
+
+        if not effect.target.isDead or effect.ref == 'revive' then
+            applyEffect(effect)
+            if effect.ref == 'instakill' then
+                state.textTimer = 5
+            else
+                state.textTimer = 0
+            end
+        else
+            state.textTimer = 5
+        end        
 
     elseif state.followUp then
         local action = state.followUp
@@ -227,6 +246,7 @@ function loop.run()
         statusApply(action)
         statusClearAll(action)
         state.followUp = nil
+        state.textTimer = 0
 
     elseif #state.priorityList > 0 then
         state.battleLog = {};
@@ -235,7 +255,7 @@ function loop.run()
         local action = state.priorityList[actionIndex]
         table.remove(state.priorityList, actionIndex)
 
-        action = reselectDeadTarget(action)
+        action = redirectTarget(action)
         action = statusPass(action)
         executeAction(action)
 
@@ -243,6 +263,7 @@ function loop.run()
             statusApply(action)
             statusClearAll(action)
         end
+        state.textTimer = 0
 
     elseif #state.actionList > 0 then
         state.battleLog = {};
@@ -250,7 +271,7 @@ function loop.run()
         local action = state.actionList[nextActionIndex]
         table.remove(state.actionList, nextActionIndex)
 
-        action = reselectDeadTarget(action)
+        action = redirectTarget(action)
         action = statusPass(action)
         executeAction(action)
 
@@ -258,14 +279,15 @@ function loop.run()
             statusApply(action)
             statusClearAll(action)
         end
+        state.textTimer = 0
 
     else
         utils.clearTemporaryStatus()
         state.battleRunning = false
-        state.textTimer = 0
         state.battleLog = {}
         state.currentMenu = state.mainMenu
         state.mainMenu.position = 1
+        state.textTimer = 0
     end
 end
 

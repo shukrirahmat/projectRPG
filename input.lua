@@ -57,9 +57,9 @@ local function setEnemyAction()
                         local target = utils.selectTargetRandomly(targets)
                         action = actionCreator.new(skillRef, enemy, {target})
                     elseif skill.scope == 'all' then
-                        action = actionCreator.new(skillRef, enemy, targets)
+                        action = actionCreator.new(skillRef, enemy, {unpack(targets)})
                     elseif skill.scope == 'self' then
-                        action = actionCreator(skillRef, enemy, enemy)
+                        action = actionCreator(skillRef, enemy, {enemy})
                     end
                 end
             end
@@ -194,14 +194,14 @@ function input.executeConfirm()
             elseif data.scope == 'all' then
                 local user = state.party[state.characterMenu.charID]
                 local ref = state.skillMenu.list[state.skillMenu.position]
-                local action = actionCreator.new(ref, user, group)
+                local action = actionCreator.new(ref, user, {unpack(group)})
                 user.currentAction = action
                 local currentID = state.characterMenu.charID
                 nextCharacter(currentID)
             elseif data.scope == 'self' then
                 local user = state.party[state.characterMenu.charID]
                 local ref = state.skillMenu.list[state.skillMenu.position]
-                local action = actionCreator.new(ref, user, user)
+                local action = actionCreator.new(ref, user, {user})
                 user.currentAction = action
                 local currentID = state.characterMenu.charID
                 nextCharacter(currentID)

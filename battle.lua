@@ -26,7 +26,6 @@ function battle.update(dt)
             end
         elseif state.textTimer > state.textSpeed then
             loop.run()
-            state.textTimer = 0
         end
     end
     

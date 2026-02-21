@@ -26,7 +26,7 @@ local dataSheet = {
         strong = {},
         immune = {},
         specialType = 'UNDEAD',
-        skills = {}
+        skills = {'hexII'}
     },
 
     ['dragon'] = {
@@ -40,7 +40,7 @@ local dataSheet = {
         strong = {},
         immune = {},
         specialType = 'DRAGON',
-        skills = {}
+        skills = {'lightningIII'}
     }
 }
 

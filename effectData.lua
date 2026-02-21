@@ -74,7 +74,6 @@ local function skillCanceled(user, target)
 end
 
 local function instakill(_, target)
-    utils.battleLogAdd(''..target.name..' is instantly killed!');
     target.currentHp = 0;
     table.insert(state.killList, target)
 end

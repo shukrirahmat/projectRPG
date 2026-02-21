@@ -26,7 +26,7 @@ local function normalAttack(self, user, targets, special)
                 end
             end
 
-            if not miss then
+            if not miss or user.isFocused then
                 local crit = math.random(1, user.critRate) == 1
 
                 if crit then
@@ -113,6 +113,19 @@ local function cover(self, user, targets)
         if not target.isDead then
             target.isCovered = { coveredBy = user }
             utils.battleLogAdd(''..user.name..' covers '..target.name..' from attacks!')
+        end
+    end
+end
+
+local function ram(self, user, targets)
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            utils.battleLogAdd(''..user.name..' rams into '..target.name..'!')
+            local baseDamage = math.floor(user.currentHp*0.5) - math.floor(target.def/3)
+            local mod = math.floor(baseDamage*0.2)
+            local damage = math.max(1, baseDamage + math.random(-mod, mod))
+            local damageEffect = effectCreator.new('damage', user, target, damage)        
+            table.insert(state.effectList, damageEffect)
         end
     end
 end
@@ -246,6 +259,12 @@ local function auraCharge(self, user)
     local text = ''..user.name..' charged itself';
     utils.battleLogAdd(text)
     user.isAuraCharged = { counter = 2 }
+end
+
+local function focus(self, user)
+    local text = ''..user.name..' increases their focus';
+    utils.battleLogAdd(text)
+    user.isFocused = { counter = 2 }
 end
 
 local function castDrain(self, user, targets)
@@ -1081,7 +1100,7 @@ actionData['sandstormI'] = {
     accuracy = 50
 }
 
-actionData['sandstormI'] = {
+actionData['sandstormII'] = {
     name = 'Sandstorm II', 
     magic = true,
     cost = 5, 
@@ -1782,6 +1801,26 @@ actionData['voidStrike'] = {
     scope = 'single',
     execute = elementalStrike,
     element = 'VOID'
+}
+
+actionData['focus'] = {
+    name = 'Focus', 
+    tech = true,
+    cost = 0, 
+    desc = 'Ensure next normal attack to not miss',
+    aim = 'allies',
+    scope = 'self',
+    execute = focus,
+}
+
+actionData['ram'] = {
+    name = 'Ram', 
+    tech = true,
+    cost = 0, 
+    desc = 'Charges into an enemy, deals more damage the more HP you have',
+    aim = 'enemies',
+    scope = 'single',
+    execute = ram,
 }
 
 return actionData;

@@ -12,7 +12,7 @@ local dataSheet = {
         spriteHeight = monsterSpriteDimension/4,
         strong = {['VOID'] = true},
         immune = {},
-        skills = {}
+        skills = {'sandstormII'}
     },
 
     ['skeleton'] = {

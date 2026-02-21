@@ -225,6 +225,13 @@ function U.clearTemporaryStatus()
                 end
             end
             
+            if character.isFocused then
+                character.isFocused.counter = character.isFocused.counter - 1
+                if character.isFocused.counter <= 0 then
+                    character.isFocused = nil
+                end
+            end
+            
             if character.status['GUARDIAN'] then
                 character.status['GUARDIAN'] = nil
             end

@@ -13,12 +13,8 @@ local function normalAttack(self, user, targets, special)
             local text
             local miss
 
-            if special == 'secondAttack' then
-                text = ''..user.name..' attacks again!'
-            elseif special == 'confused' then
-                text = ''..user.name..' attacks while being confused'
-            elseif special == 'quickStrike' then
-                text = ''..user.name..' attacks swiftly'
+            if special then
+                text = ''..user.name..' '..special.text..''
             else
                 text = ''..user.name..' attacks!'
             end
@@ -40,8 +36,33 @@ local function normalAttack(self, user, targets, special)
                     damage = utils.calculateAttackDamage(user, target)
                 end
 
-                if special == 'quickStrike' then
+                if special and special.cat == 'quickStrike' then
                     damage = math.floor(damage * 0.5)
+                end
+
+                if special and special.cat == 'elemental' then
+                    local res = utils.checkResistance(special.element, target)
+                    if res == 0 then
+                        if special.element == 'FIRE' 
+                        or special.element == 'ICE'
+                        or special.element == 'BOLT'
+                        or special.element == 'WIND' then
+                            damage = math.floor(damage * 1.5)
+                        elseif special.element == 'LIGHT' or special.element == 'VOID' then
+                            damage = math.floor(damage * 1.75)
+                        end
+                    elseif res == 1 then
+                        damage = math.floor(damage * 0.5)
+                        utils.battleLogAdd(text)
+                        local resistedEffect = effectCreator.new('resisted', user, target, damage)        
+                        table.insert(state.effectList, resistedEffect)
+                        return
+                    elseif res == 2 then
+                        utils.battleLogAdd(text)
+                        local immuneEffect = effectCreator.new('immune', user, target, damage)        
+                        table.insert(state.effectList, immuneEffect)
+                        return
+                    end
                 end
 
                 utils.battleLogAdd(text)
@@ -68,11 +89,18 @@ local function normalAttack(self, user, targets, special)
 end
 
 local function secondAttack(self, user, targets)
-    normalAttack(self, user, targets, 'secondAttack')
+    local special = {cat ='secondAttack', text = 'attacks again!'}
+    normalAttack(self, user, targets, special)
 end
 
 local function quickStrike(self, user, targets)
-    normalAttack(self, user, targets, 'quickStrike')
+    local special = {cat ='quickStrike', text = 'attacks swiftly!'}
+    normalAttack(self, user, targets, special)
+end
+
+local function elementalStrike(self, user, targets)
+    local special = {cat = 'elemental', element = self.element, text = 'used '..self.name..''}
+    normalAttack(self, user, targets, special)
 end
 
 local function defend(self, user)
@@ -129,10 +157,10 @@ local function confused(self, user)
     local roll = math.random(1,3)
     if roll == 1 then
         target = utils.selectTargetRandomly(state.party)
-        normalAttack(self, user, {target}, 'confused')
+        normalAttack(self, user, {target}, {cat = 'confused', text = 'attacks while being confused'})
     elseif roll == 2 then
         target = utils.selectTargetRandomly(state.enemies)
-        normalAttack(self, user, {target}, 'confused')
+        normalAttack(self, user, {target}, {cat = 'confused', text = 'attacks while being confused'})
     elseif roll == 3 then
         local textRoll = math.random(1, #textList)
         local text = ''..user.name..' '..textList[textRoll]..'';
@@ -1688,6 +1716,72 @@ actionData['cover'] = {
     scope = 'single',
     execute = cover,
     priority = 2
+}
+
+actionData['flameStrike'] = {
+    name = 'Flame Strike', 
+    tech = true,
+    cost = 4, 
+    desc = 'A normal attack that are imbued with fire element',
+    aim = 'enemies',
+    scope = 'single',
+    execute = elementalStrike,
+    element = 'FIRE'
+}
+
+actionData['frostStrike'] = {
+    name = 'Frost Strike', 
+    tech = true,
+    cost = 4, 
+    desc = 'A normal attack that are imbued with ice element',
+    aim = 'enemies',
+    scope = 'single',
+    execute = elementalStrike,
+    element = 'ICE'
+}
+
+actionData['ligtningStrike'] = {
+    name = 'Lightning Strike', 
+    tech = true,
+    cost = 4, 
+    desc = 'A normal attack that are imbued with bolt element',
+    aim = 'enemies',
+    scope = 'single',
+    execute = elementalStrike,
+    element = 'BOLT'
+}
+
+actionData['typhoonStrike'] = {
+    name = 'Typhoon Strike', 
+    tech = true,
+    cost = 4, 
+    desc = 'A normal attack that are imbued with wind element',
+    aim = 'enemies',
+    scope = 'single',
+    execute = elementalStrike,
+    element = 'WIND'
+}
+
+actionData['luminaStrike'] = {
+    name = 'Lumina Strike', 
+    tech = true,
+    cost = 6, 
+    desc = 'A normal attack that are imbued with light element',
+    aim = 'enemies',
+    scope = 'single',
+    execute = elementalStrike,
+    element = 'LIGHT'
+}
+
+actionData['voidStrike'] = {
+    name = 'Void Strike', 
+    tech = true,
+    cost = 6, 
+    desc = 'A normal attack that are imbued with void element',
+    aim = 'enemies',
+    scope = 'single',
+    execute = elementalStrike,
+    element = 'VOID'
 }
 
 return actionData;

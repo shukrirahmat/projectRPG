@@ -7,17 +7,17 @@ local dataSheet = {
         def = 70,
         agi = 80,
         critRate = 64,
-        skills = {'cover'}
+        skills = {'cover', 'flameStrike'}
     },
     {
         name = 'FIGHTER',
         hp = 160,
         mp = 35,
-        str = 70,
+        str = 80,
         def = 50,
         agi = 120,
         critRate = 8,
-        skills = {'deathIII'},
+        skills = {'deathIII', 'voidStrike'},
     },
     {
         name = 'PRIEST',

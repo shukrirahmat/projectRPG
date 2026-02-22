@@ -17,5 +17,11 @@ passiveData['arcaneProtection'] = 'gain strong resistance to fire, ice, wind and
 passiveData['celestialProtection'] = 'gain strong resistance to light and void'
 passiveData['regenerate'] = 'recover HP every turn'
 passiveData['echoMagic'] = 'chance to cast magic twice'
+passiveData['basher'] = 'chance to stun the enemy on normal attack'
+passiveData['stabber'] = 'chance to wound the enemy on normal attack'
+passiveData['breaker'] = 'chance to lower enemy defense on normal attack'
+passiveData['crippler'] = 'chance to lower enemy agiliy on normal attack'
+passiveData['executor'] = 'chance to instantly kill enemy on normal attack'
+passiveData['merciless'] = 'Normal attack deals more damage to wounded target'
 
 return passiveList

@@ -5,10 +5,61 @@ local actionCreator = require('actionCreator')
 
 local actionData = {}
 
+local function handleExecutor(user, target)
+    if user.passives['executor'] then
+        local ref = utils.checkResistance('DEATH', target)
+        local accuracy
+        if ref == 0 then 
+            accuracy = 20
+        elseif ref == 1 then
+            acurracy = 5
+        elseif ref == 2 then
+            accuracy = 0
+        end
+        local roll = math.random(1, 100)
+        if roll <= accuracy then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function handleOnHitEffects(user, target)
+    local psv = {'basher', 'stabber', 'breaker', 'crippler'}
+    local status = {'STUN', 'WOUND', 'DEFDOWN', 'AGIDOWN'}
+
+    for i = 1, #psv do
+        local p = psv[i]
+        if user.passives[p] then
+            local ref = utils.checkResistance(status[i], target)
+            local accuracy
+            if ref == 0 then 
+                accuracy = 20
+            elseif ref == 1 then
+                acurracy = 5
+            elseif ref == 2 then
+                accuracy = 0
+            end
+            local roll = math.random(1, 100)
+            if roll <= accuracy then
+                local effectRef
+                if status[i] == 'DEFDOWN' or status[i] == 'AGIDOWN' then
+                    effectRef = 'addStatChange'
+                else
+                    effectRef = 'addStatus'
+                end
+                statusEffect = effectCreator.new(effectRef, user, target, status[i])
+                table.insert(state.effectList, statusEffect)
+            end
+        end
+    end
+end
+
 local function normalAttack(self, user, targets, special)
 
     for i, target in ipairs(targets) do
-        
+
         if not target.isDead then
             local damage
             local text
@@ -26,7 +77,7 @@ local function normalAttack(self, user, targets, special)
                     miss = true
                 end
             end
-            
+
             if not miss and target.dodgeRate ~= 0 then
                 local roll = math.random(1, target.dodgeRate)
                 if roll == 1 then
@@ -35,6 +86,14 @@ local function normalAttack(self, user, targets, special)
             end
 
             if not miss or user.isFocused then
+
+                if handleExecutor(user, target) then
+                    utils.battleLogAdd(text)
+                    local killEffect = effectCreator.new('instakill', user, target)
+                    table.insert(state.effectList, killEffect)
+                    return
+                end
+
                 local crit
                 if special and special.cat == 'desperation' then
                     if (user.currentHp/user.maxHp) < 0.2 then
@@ -88,9 +147,15 @@ local function normalAttack(self, user, targets, special)
                     end
                 end
 
+                if user.passives['merciless'] and target.status['WOUND'] then
+                    damage = math.floor(damage * 1.5)
+                end
+
                 utils.battleLogAdd(text)
                 local damageEffect = effectCreator.new('damage', user, target, damage)        
                 table.insert(state.effectList, damageEffect)
+
+                handleOnHitEffects(user, target)
 
                 if not special then
                     local secondAttackChance = math.floor((user.agi - target.agi)/2)
@@ -231,7 +296,7 @@ end
 local function passiveBoost(user, element, damage)
     local passives = {'fireLord', 'iceLord', 'windLord', 'thunderLord', 'seraph', 'demonLord', 'leechLord'}
     local elements = {'FIRE', 'ICE', 'WIND', 'BOLT', 'LIGHT', 'VOID', 'DRAIN'}
-    
+
     for i = 1, #elements do
         if element == elements[i] and user.passives[passives[i]] == true then
             local multiplier = 1.5
@@ -239,7 +304,7 @@ local function passiveBoost(user, element, damage)
             return math.floor(damage * multiplier)
         end
     end
-    
+
     return damage
 end
 

@@ -78,7 +78,7 @@ function enemyCreator.new(species, name)
     e.passives = data.passives or {}
     
     if e.passives['keenEye+'] then
-        e.critRate = 4
+        e.critRate = 8
     elseif e.passives['keenEye'] then
         e.critRate = 16
     end

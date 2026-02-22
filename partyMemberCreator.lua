@@ -7,7 +7,7 @@ local dataSheet = {
         def = 70,
         agi = 80,
         skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
-        passives = {['evasion'] = true, ['evasion+'] = true, ['regenerate'] = true,
+        passives = {['executor'] = true, ['merciless'] = true, ['regenerate'] = true,
             ['immunity'] = {'BLIND'} }
     },
     {
@@ -18,8 +18,8 @@ local dataSheet = {
         def = 50,
         agi = 120,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
-        passives = {['arcaneProtection'] = true, ['keenEye+'] = true, ['dualWield'] = true,
-            ['immunity'] = {'BLIND'}}
+        passives = {['executor'] = true, ['keenEye+'] = true, ['dualWield'] = true,
+            ['merciless'] = true}
     },
     {
         name = 'PRIEST',
@@ -29,7 +29,7 @@ local dataSheet = {
         def = 50,
         agi = 100,
         skills = {'typhoonI', 'luminaII', 'healAllI', 'drainII'},
-        passives = {['windLord'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
+        passives = {['executor'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
     }, 
     {
         name = 'MAGE',
@@ -38,8 +38,8 @@ local dataSheet = {
         str = 30,
         def = 40,
         agi = 90,
-        skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI'},
-        passives = {['thunderLord'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
+        skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI', 'woundII'},
+        passives = {['executor'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
     }
 }
 
@@ -73,9 +73,9 @@ function P.new(index)
     p.passives = data.passives or {}
     
     if p.passives['keenEye+'] then
-        p.critRate = 4
-    elseif p.passives['keenEye'] then
         p.critRate = 8
+    elseif p.passives['keenEye'] then
+        p.critRate = 16
     end
     
     if p.passives['evasion+'] then

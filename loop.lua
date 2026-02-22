@@ -153,12 +153,16 @@ local function statusClearAll(action)
     end
 end
 
-function executeAction(action)
+function executeAction(action, isFollowUp)
     local toAct = actionData[action.ref]
     local canAct = true
 
     if toAct.magic or toAct.tech then
-        if action.user.currentMp >= toAct.cost and not action.user.status['SEAL'] then
+        if action.user.status['SEAL'] then
+            canAct = false
+        elseif isFollowUp then
+            canAct = true
+        elseif action.user.currentMp >= toAct.cost then
             action.user.currentMp = action.user.currentMp - toAct.cost
         else
             canAct = false
@@ -167,6 +171,7 @@ function executeAction(action)
 
     if canAct then
         toAct.execute(toAct, action.user, action.targets)
+        
         if not action.user.isPartyMember and toAct.enemyAnimation then
             local aniData = toAct.enemyAnimation
             local animation = animationCreator.new(
@@ -174,6 +179,14 @@ function executeAction(action)
             )
             state.animation = animation
         end
+        
+        if toAct.magic and action.user.passives['echoMagic'] then
+            local roll = math.random(1, 4)
+            if roll == 1 then
+                state.followUp = action
+            end
+        end
+        
     else
         local skillCanceled = actionData['skillCanceled']
         skillCanceled.execute(skillCanceled, action.user, action.targets, toAct)
@@ -250,7 +263,8 @@ function loop.run()
         local action = state.followUp
         state.battleLog = {};
 
-        executeAction(action)
+        action = redirectTarget(action)
+        executeAction(action, true)
         statusApply(action)
         statusClearAll(action)
         state.followUp = nil

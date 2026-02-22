@@ -16,5 +16,6 @@ passiveData['immune(element)'] = 'gain immunity to that element'
 passiveData['arcaneProtection'] = 'gain strong resistance to fire, ice, wind and lightning'
 passiveData['celestialProtection'] = 'gain strong resistance to light and void'
 passiveData['regenerate'] = 'recover HP every turn'
+passiveData['echoMagic'] = 'chance to cast magic twice'
 
 return passiveList

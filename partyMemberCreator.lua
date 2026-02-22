@@ -28,8 +28,8 @@ local dataSheet = {
         str = 60,
         def = 50,
         agi = 100,
-        skills = {'typhoonIII', 'luminaIII', 'healAllII', 'drainII'},
-        passives = {['windLord'] = true, ['celestialProtection'] = true, ['immunity'] = {'SEAL'}}
+        skills = {'typhoonI', 'luminaII', 'healAllI', 'drainII'},
+        passives = {['windLord'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
     }, 
     {
         name = 'MAGE',
@@ -38,8 +38,8 @@ local dataSheet = {
         str = 30,
         def = 40,
         agi = 90,
-        skills = {'lightningIII', 'luminaIII', 'voidIII', 'drainII'},
-        passives = {['thunderLord'] = true, ['arcaneProtection'] = true, ['immunity'] = {'SEAL'}}
+        skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI'},
+        passives = {['thunderLord'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
     }
 }
 

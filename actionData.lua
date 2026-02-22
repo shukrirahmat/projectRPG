@@ -21,15 +21,21 @@ local function normalAttack(self, user, targets, special)
             end
 
             if user.status['BLIND'] then
-                local rand = math.random(1, 100)
-                if rand <= 75 then
+                local roll = math.random(1, 100)
+                if roll <= 75 then
+                    miss = true
+                end
+            end
+            
+            if not miss and target.dodgeRate ~= 0 then
+                local roll = math.random(1, target.dodgeRate)
+                if roll == 1 then
                     miss = true
                 end
             end
 
             if not miss or user.isFocused then
                 local crit
-
                 if special and special.cat == 'desperation' then
                     if (user.currentHp/user.maxHp) < 0.2 then
                         crit = math.random(1, 4) < 4

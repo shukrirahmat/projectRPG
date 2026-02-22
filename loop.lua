@@ -86,6 +86,14 @@ local function statusApply(action)
             table.insert(state.effectList, curseEffect)
         end
     end
+    
+    if user.passives['regenerate'] then
+        local baseAmount = math.floor(user.maxHp * 0.1)
+        local mod = math.floor(baseAmount*0.2)
+        local amount = baseAmount + math.random(-mod, mod)
+        local recoverEffect = effectCreator.new('recover', user, user, amount)
+        table.insert(state.effectList, recoverEffect)
+    end
 end
 
 local function statusClear(user, status, chance)

@@ -67,6 +67,7 @@ function enemyCreator.new(species, name)
     e.def = data.def
     e.agi = data.agi
     e.critRate = data.critRate or 128
+    e.dodgeRate = data.dodgeRate or 0
     e.sprite = data.sprite
     e.spriteHeight = data.spriteHeight
     e.strong = data.strong or {}
@@ -80,6 +81,30 @@ function enemyCreator.new(species, name)
         e.critRate = 4
     elseif e.passives['keenEye'] then
         e.critRate = 16
+    end
+    
+    if e.passives['evasion+'] then
+        e.dodgeRate = 2
+    elseif e.passives['evasion'] then
+        e.dodgeRate = 4
+    end
+    
+    if e.passives['immunity'] then
+        for i, element in ipairs(e.passives['immunity']) do
+            e.immune[element] = true
+        end
+    end
+    
+    if e.passives['arcaneProtection'] then
+        e.strong['FIRE'] = true
+        e.strong['ICE'] = true
+        e.strong['BOLT'] = true
+        e.strong['WIND'] = true
+    end
+    
+    if e.passives['celestialProtection'] then
+        e.strong['LIGHT'] = true
+        e.strong['VOID'] = true
     end
 
     return e

@@ -7,7 +7,8 @@ local dataSheet = {
         def = 70,
         agi = 80,
         skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
-        passives = {['dualWield'] = true}
+        passives = {['evasion'] = true, ['evasion+'] = true, ['regenerate'] = true,
+            ['immunity'] = {'BLIND'} }
     },
     {
         name = 'FIGHTER',
@@ -17,7 +18,8 @@ local dataSheet = {
         def = 50,
         agi = 120,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
-        passives = {['keenEye'] = true, ['keenEye+'] = true, ['dualWield'] = true}
+        passives = {['arcaneProtection'] = true, ['keenEye+'] = true, ['dualWield'] = true,
+            ['immunity'] = {'BLIND'}}
     },
     {
         name = 'PRIEST',
@@ -27,7 +29,7 @@ local dataSheet = {
         def = 50,
         agi = 100,
         skills = {'typhoonIII', 'luminaIII', 'healAllII', 'drainII'},
-        passives = {['windLord'] = true}
+        passives = {['windLord'] = true, ['celestialProtection'] = true, ['immunity'] = {'SEAL'}}
     }, 
     {
         name = 'MAGE',
@@ -37,7 +39,7 @@ local dataSheet = {
         def = 40,
         agi = 90,
         skills = {'lightningIII', 'luminaIII', 'voidIII', 'drainII'},
-        passives = {['thunderLord'] = true, ['leechLord'] = true}
+        passives = {['thunderLord'] = true, ['arcaneProtection'] = true, ['immunity'] = {'SEAL'}}
     }
 }
 
@@ -63,6 +65,7 @@ function P.new(index)
     p.baseAgi = data.agi
     p.agi = data.agi
     p.critRate = data.critRate or 64
+    p.dodgeRate = data.dodgeRate or 0
     p.skills = data.skills or {}
     p.status = {}
     p.strong = data.strong or {}
@@ -72,7 +75,31 @@ function P.new(index)
     if p.passives['keenEye+'] then
         p.critRate = 4
     elseif p.passives['keenEye'] then
-        p.critRate = 16
+        p.critRate = 8
+    end
+    
+    if p.passives['evasion+'] then
+        p.dodgeRate = 2
+    elseif p.passives['evasion'] then
+        p.dodgeRate = 4
+    end
+    
+    if p.passives['immunity'] then
+        for i, element in ipairs(p.passives['immunity']) do
+            p.immune[element] = true
+        end
+    end
+    
+    if p.passives['arcaneProtection'] then
+        p.strong['FIRE'] = true
+        p.strong['ICE'] = true
+        p.strong['BOLT'] = true
+        p.strong['WIND'] = true
+    end
+    
+    if p.passives['celestialProtection'] then
+        p.strong['LIGHT'] = true
+        p.strong['VOID'] = true
     end
 
     return p

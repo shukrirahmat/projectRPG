@@ -6,8 +6,8 @@ local dataSheet = {
         str = 130,
         def = 70,
         agi = 80,
-        critRate = 64,
-        skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'}
+        skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
+        passives = {['dualWield'] = true}
     },
     {
         name = 'FIGHTER',
@@ -16,8 +16,8 @@ local dataSheet = {
         str = 80,
         def = 50,
         agi = 120,
-        critRate = 64,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
+        passives = {['keenEye'] = true, ['keenEye+'] = true, ['dualWield'] = true}
     },
     {
         name = 'PRIEST',
@@ -26,8 +26,8 @@ local dataSheet = {
         str = 60,
         def = 50,
         agi = 100,
-        critRate = 64,
-        skills = {'blizzardI', 'blizzardII', 'blizzardIII', 'blizzardX', 'healAllII'}
+        skills = {'typhoonIII', 'luminaIII', 'healAllII', 'drainII'},
+        passives = {['windLord'] = true}
     }, 
     {
         name = 'MAGE',
@@ -36,8 +36,8 @@ local dataSheet = {
         str = 30,
         def = 40,
         agi = 90,
-        critRate = 64,
-        skills = {'flameI', 'flameII', 'flameIII', 'flameX'}
+        skills = {'lightningIII', 'luminaIII', 'voidIII', 'drainII'},
+        passives = {['thunderLord'] = true, ['leechLord'] = true}
     }
 }
 
@@ -62,11 +62,18 @@ function P.new(index)
     p.def = data.def
     p.baseAgi = data.agi
     p.agi = data.agi
-    p.critRate = data.critRate or 128
+    p.critRate = data.critRate or 64
     p.skills = data.skills or {}
     p.status = {}
     p.strong = data.strong or {}
     p.immune = data.immune or {}
+    p.passives = data.passives or {}
+    
+    if p.passives['keenEye+'] then
+        p.critRate = 4
+    elseif p.passives['keenEye'] then
+        p.critRate = 16
+    end
 
     return p
 end

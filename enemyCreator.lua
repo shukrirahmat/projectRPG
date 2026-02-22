@@ -10,7 +10,7 @@ local dataSheet = {
         agi = 80,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4,
-        strong = {['VOID'] = true},
+        strong = {},
         immune = {},
         skills = {}
     },
@@ -23,8 +23,8 @@ local dataSheet = {
         agi = 60,
         sprite = skeleton_sprite,
         spriteHeight = 0,
-        strong = {['FIRE'] = true},
-        immune = {['VOID'] = true},
+        strong = {},
+        immune = {},
         specialType = 'UNDEAD',
         skills = {}
     },
@@ -38,7 +38,7 @@ local dataSheet = {
         sprite = dragon_sprite,
         spriteHeight = 0,
         strong = {},
-        immune = {['FIRE'] = true},
+        immune = {},
         specialType = 'DRAGON',
         skills = {}
     }
@@ -74,6 +74,13 @@ function enemyCreator.new(species, name)
     e.specialType = data.specialType
     e.status = {}
     e.skills = data.skills or {} 
+    e.passives = data.passives or {}
+    
+    if e.passives['keenEye+'] then
+        e.critRate = 4
+    elseif e.passives['keenEye'] then
+        e.critRate = 16
+    end
 
     return e
 end

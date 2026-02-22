@@ -8,6 +8,7 @@ local actionData = {}
 local function normalAttack(self, user, targets, special)
 
     for i, target in ipairs(targets) do
+        
         if not target.isDead then
             local damage
             local text
@@ -87,7 +88,12 @@ local function normalAttack(self, user, targets, special)
 
                 if not special then
                     local secondAttackChance = math.floor((user.agi - target.agi)/2)
-                    local secondAttack = math.random(1, 100) < secondAttackChance
+                    local secondAttack
+                    if user.passives['dualWield'] then
+                        secondAttack = true
+                    else
+                        secondAttack = math.random(1, 100) < secondAttackChance
+                    end
 
                     if secondAttack then
                         if target.currentHp > damage then
@@ -216,6 +222,20 @@ local function barrierCheck(target, damage)
     end
 end
 
+local function passiveBoost(user, element, damage)
+    local passives = {'fireLord', 'iceLord', 'windLord', 'thunderLord', 'seraph', 'demonLord', 'leechLord'}
+    local elements = {'FIRE', 'ICE', 'WIND', 'BOLT', 'LIGHT', 'VOID', 'DRAIN'}
+    
+    for i = 1, #elements do
+        if element == elements[i] and user.passives[passives[i]] == true then
+            local multiplier = 1.5
+            if elements[i] == 'DRAIN' then multiplier = 2 end
+            return math.floor(damage * multiplier)
+        end
+    end
+    
+    return damage
+end
 
 local function castDamageMagic(self, user, targets)
 
@@ -239,6 +259,7 @@ local function castDamageMagic(self, user, targets)
                 ref = 'damage'
             end
 
+            damage = passiveBoost(user, self.element, damage)
             damage = barrierCheck(target, damage)
 
             local damageEffect = effectCreator.new(ref, user, target, damage)
@@ -318,6 +339,7 @@ local function castDrain(self, user, targets)
                 ref = 'damage'
             end
 
+            damage = passiveBoost(user, self.element, damage)
             damage = barrierCheck(target, damage)
 
             local damageEffect = effectCreator.new(ref, user, target, damage)
@@ -744,7 +766,7 @@ actionData['voidII'] = {
 }
 
 actionData['voidIII'] = {
-    name = 'void III', 
+    name = 'Void III', 
     magic = true,
     cost = 12, 
     desc = 'Deals large void damage to one enemy',

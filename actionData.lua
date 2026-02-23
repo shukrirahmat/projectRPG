@@ -93,6 +93,40 @@ local function checkMiss(user, target)
     return false
 end
 
+local function handleElementalCombo(user, target)
+    if user.passives['fireCombo'] then
+        local followUp = actionCreator.new('flameI', user, {target})
+        table.insert(state.followUp, followUp)
+    end
+
+    if user.passives['iceCombo'] then
+        local followUp = actionCreator.new('frostI', user, {target})
+        table.insert(state.followUp, followUp)
+    end
+
+    if user.passives['windCombo'] then
+        local targets;
+        if not target.isPartyMember then
+            targets = {unpack(state.enemies)};
+        else
+            targets = {unpack(state.party)};
+        end
+        local followUp = actionCreator.new('typhoonI', user, targets)
+        table.insert(state.followUp, followUp)
+    end
+
+    if user.passives['boltCombo'] then
+        local targets;
+        if not target.isPartyMember then
+            targets = {unpack(state.enemies)};
+        else
+            targets = {unpack(state.party)};
+        end
+        local followUp = actionCreator.new('lightningI', user, targets)
+        table.insert(state.followUp, followUp)
+    end
+end
+
 local function normalAttack(self, user, targets, special)
 
     for i, target in ipairs(targets) do
@@ -183,6 +217,7 @@ local function normalAttack(self, user, targets, special)
 
                 handleOnHitEffects(user, target)
                 handleStealGold(user, target)
+                handleElementalCombo(user, target)
 
                 if not special then
                     handleCounterAttack(user, target)

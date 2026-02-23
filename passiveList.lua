@@ -26,5 +26,9 @@ passiveData['pincher'] = 'Normal attack steals money from enemy'
 passiveData['counter'] = 'Counters when hit with normal attack'
 passiveData['lightWielder'] = 'Gain atk power when equipped with sword, dagger or fists'
 passiveData['HeavyWielder'] = 'Gain atk power when equipped with axe, hammer or spear'
+passiveData['fireCombo'] = 'Normal attack is followed by Flame I'
+passiveData['iceCombo'] = 'Normal attack is followed by Ice I'
+passiveData['windCombo'] = 'Normal attack is followed by Typhoon I'
+passiveData['boltCombo'] = 'Normal attack is followed by Lightning I'
 
 return passiveList

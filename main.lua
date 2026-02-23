@@ -21,7 +21,7 @@ function love.load()
         enemyCreator.new('skeleton', 'SKELETON1'),
         enemyCreator.new('skeleton', 'SKELETON2')
     }
-    battle.load(party, enemies)
+    battle.load(party, enemies, 2500)
 end
 
 function love.update(dt)

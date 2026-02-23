@@ -312,7 +312,23 @@ local function curseEffect(_, target)
     table.insert(state.killList, target)
 end
 
-
+local function stealGold(user, target, amount)
+    if target.isPartyMember then
+        amount = math.min(amount, state.partyGold)
+        state.partyGold = state.partyGold - amount;
+    elseif not target.isPartyMember then
+        amount = math.min(amount, target.stealableGold)
+        target.stealableGold = target.stealableGold - amount;
+    end
+    
+    if user.isPartyMember then
+        state.partyGold = state.partyGold + amount
+    elseif not user.isPartyMember then
+        user.stealableGold = user.stealableGold + amount
+    end
+    
+    utils.battleLogAdd(''..user.name..' stole '..amount..' Gold');
+end
 
 effectData['damage'] = { 
     apply = dealDamage , 
@@ -386,6 +402,10 @@ effectData['poisonDamage'] = {
 
 effectData['curseEffect'] = { 
     apply = curseEffect,
+}
+
+effectData['stealGold'] = { 
+    apply = stealGold,
 }
 
 return effectData

@@ -7,9 +7,10 @@ local loop = require('loop')
 
 local battle = {}
 
-function battle.load(party, enemies)
+function battle.load(party, enemies, gold)
     state.party = party
     state.enemies = enemies
+    state.partyGold = gold
 end
 
 function battle.update(dt)

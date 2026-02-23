@@ -1,45 +1,49 @@
 local dataSheet = {
     {
         name = 'KNIGHT',
+        lvl = 20,
         hp = 180,
         mp = 20,
         str = 130,
         def = 70,
         agi = 80,
         skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
-        passives = {['executor'] = true, ['merciless'] = true, ['regenerate'] = true,
+        passives = {['pincher'] = true, ['regenerate'] = true,
             ['immunity'] = {'BLIND'} }
     },
     {
         name = 'FIGHTER',
+        lvl = 20,
         hp = 160,
         mp = 35,
         str = 80,
         def = 50,
         agi = 120,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
-        passives = {['executor'] = true, ['keenEye+'] = true, ['dualWield'] = true,
+        passives = {['pincher'] = true, ['keenEye+'] = true, ['dualWield'] = true,
             ['merciless'] = true}
     },
     {
         name = 'PRIEST',
+        lvl = 20,
         hp = 140,
         mp = 150,
         str = 60,
         def = 50,
         agi = 100,
         skills = {'typhoonI', 'luminaII', 'healAllI', 'drainII'},
-        passives = {['executor'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
+        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}}
     }, 
     {
         name = 'MAGE',
+        lvl = 20,
         hp = 100,
         mp = 80,
         str = 30,
         def = 40,
         agi = 90,
         skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI', 'woundII'},
-        passives = {['executor'] = true, ['echoMagic'] = true, ['immunity'] = {'SEAL'}}
+        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}}
     }
 }
 
@@ -53,6 +57,7 @@ function P.new(index)
     p.isDead = data.isDead or false
 
     p.name = data.name
+    p.lvl = data.lvl
     p.maxHp = data.hp
     p.currentHp = data.hp
     p.maxMp = data.mp

@@ -24,5 +24,6 @@ state.animation = nil
 state.infoMode = false
 state.cursorTimer = 0
 state.cursor = false
+state.partyGold = 0
 
 return state;

@@ -3,6 +3,7 @@ state = require('state')
 
 local dataSheet = {
     ['goblin'] = {
+        lvl = 12,
         hp = 60,
         mp = 20,
         str = 80,
@@ -12,10 +13,13 @@ local dataSheet = {
         spriteHeight = monsterSpriteDimension/4,
         strong = {},
         immune = {},
-        skills = {}
+        skills = {},
+        passives = {['pincher'] = true},
+        gold = 300
     },
 
     ['skeleton'] = {
+        lvl = 18,
         hp = 100,
         mp = 40,
         str = 100,
@@ -26,10 +30,12 @@ local dataSheet = {
         strong = {},
         immune = {},
         specialType = 'UNDEAD',
-        skills = {}
+        skills = {},
+        gold = 50
     },
 
     ['dragon'] = {
+        lvl = 25,
         hp = 250,
         mp = 20,
         str = 120,
@@ -40,7 +46,8 @@ local dataSheet = {
         strong = {},
         immune = {},
         specialType = 'DRAGON',
-        skills = {}
+        skills = {},
+        gold = 250
     }
 }
 
@@ -55,6 +62,7 @@ function enemyCreator.new(species, name)
 
     e.species = species
     e.name = name
+    e.lvl = data.lvl
     e.maxHp = data.hp
     e.currentHp = data.hp
     e.maxMp = data.mp
@@ -76,6 +84,8 @@ function enemyCreator.new(species, name)
     e.status = {}
     e.skills = data.skills or {} 
     e.passives = data.passives or {}
+    e.stealableGold = data.gold or 0
+    e.droppedGold = data.gold or 0
     
     if e.passives['keenEye+'] then
         e.critRate = 8

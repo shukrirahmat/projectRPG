@@ -56,6 +56,16 @@ local function handleOnHitEffects(user, target)
     end
 end
 
+local function handleStealGold(user, target)
+    if user.passives['pincher'] then
+        local baseAmount = user.lvl * 5
+        local mod = math.floor(baseAmount * 0.5)
+        local amount = baseAmount + math.random(-mod, mod)
+        local stealEffect = effectCreator.new('stealGold', user, target, amount)
+        table.insert(state.effectList, stealEffect)
+    end
+end
+
 local function normalAttack(self, user, targets, special)
 
     for i, target in ipairs(targets) do
@@ -91,6 +101,7 @@ local function normalAttack(self, user, targets, special)
                     utils.battleLogAdd(text)
                     local killEffect = effectCreator.new('instakill', user, target)
                     table.insert(state.effectList, killEffect)
+                    handleStealGold(user, target)
                     return
                 end
 
@@ -146,16 +157,13 @@ local function normalAttack(self, user, targets, special)
                         return
                     end
                 end
-
-                if user.passives['merciless'] and target.status['WOUND'] then
-                    damage = math.floor(damage * 1.5)
-                end
-
+                
                 utils.battleLogAdd(text)
                 local damageEffect = effectCreator.new('damage', user, target, damage)        
                 table.insert(state.effectList, damageEffect)
 
                 handleOnHitEffects(user, target)
+                handleStealGold(user, target)
 
                 if not special then
                     local secondAttackChance = math.floor((user.agi - target.agi)/2)

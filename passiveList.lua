@@ -22,6 +22,6 @@ passiveData['stabber'] = 'chance to wound the enemy on normal attack'
 passiveData['breaker'] = 'chance to lower enemy defense on normal attack'
 passiveData['crippler'] = 'chance to lower enemy agiliy on normal attack'
 passiveData['executor'] = 'chance to instantly kill enemy on normal attack'
-passiveData['merciless'] = 'Normal attack deals more damage to wounded target'
+passiveData['pincher'] = 'Normal attack steals money from enemy'
 
 return passiveList

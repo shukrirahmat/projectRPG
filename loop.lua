@@ -248,7 +248,7 @@ function loop.run()
         local effect = state.effectList[1]
         table.remove(state.effectList, 1)
 
-        if not effect.target.isDead or effect.ref == 'revive' then
+        if not effect.target.isDead or effect.ref == 'revive' or effect.ref == 'stealGold' then
             applyEffect(effect)
             if effect.ref == 'instakill' then
                 state.textTimer = 5
@@ -310,6 +310,8 @@ function loop.run()
         state.currentMenu = state.mainMenu
         state.mainMenu.position = 1
         state.textTimer = 0
+        
+        print(state.partyGold)
     end
 end
 

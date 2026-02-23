@@ -48,6 +48,12 @@ local function recovery(_, target, value)
     utils.battleLogAdd(''..target.name..' recovers '..amount..' HP.');
 end
 
+local function mpRecovery(_, target, value)
+    local amount = math.min(target.maxMp - target.currentMp, value)
+    target.currentMp = math.min(target.maxMp, target.currentMp + amount)
+    utils.battleLogAdd(''..target.name..' gets back '..amount..' MP.');
+end
+
 local function revival(_, target, percentage)
 
     if percentage < 100 then
@@ -352,6 +358,10 @@ effectData['skillCanceled'] = {
 
 effectData['recover'] = {
     apply = recovery,
+}
+
+effectData['mpRecover'] = {
+    apply = mpRecovery,
 }
 
 effectData['revive'] = {

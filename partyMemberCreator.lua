@@ -36,7 +36,7 @@ local dataSheet = {
         def = 50,
         agi = 100,
         skills = {'typhoonI', 'luminaII', 'healAllI', 'drainII'},
-        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}},
+        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}, ['manaSaver'] = true},
         weapon = weaponCreator.new('woodenStaff')
     }, 
     {
@@ -48,7 +48,7 @@ local dataSheet = {
         def = 40,
         agi = 90,
         skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI', 'woundII'},
-        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}},
+        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}, ['manaSaver'] = true},
         weapon = weaponCreator.new('smallDagger')
     }
 }

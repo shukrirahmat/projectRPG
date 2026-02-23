@@ -30,5 +30,6 @@ passiveData['fireCombo'] = 'Normal attack is followed by Flame I'
 passiveData['iceCombo'] = 'Normal attack is followed by Ice I'
 passiveData['windCombo'] = 'Normal attack is followed by Typhoon I'
 passiveData['boltCombo'] = 'Normal attack is followed by Lightning I'
+passiveData['manaSaver'] = 'Magic attack have a chance to return back the MP cost after casting'
 
 return passiveList

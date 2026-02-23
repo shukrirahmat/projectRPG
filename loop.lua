@@ -31,7 +31,7 @@ local function redirectTarget(action)
     end
 
     for i, target in ipairs(action.targets) do
-        if not target.isDead and target.isCovered then
+        if not target.isDead and target.isCovered and actionData[action.ref].aim ~= 'allies' then
             if not target.isCovered.coveredBy.isDead then
                 action.targets[i] = target.isCovered.coveredBy
             end
@@ -186,10 +186,19 @@ function executeAction(action, isFollowUp)
             state.animation = animation
         end
 
-        if toAct.magic and action.user.passives['echoMagic'] and not isFollowUp then
-            local roll = math.random(1, 4)
-            if roll == 1 then
-                table.insert(state.followUp, action)
+        if toAct.magic then
+            if action.user.passives['echoMagic'] and not isFollowUp then
+                local roll = math.random(1, 4)
+                if roll == 1 then
+                    table.insert(state.followUp, action)
+                end
+            end
+            if action.user.passives['manaSaver'] and not isFollowUp then
+                local roll = math.random(1, 4)
+                if roll == 1 then
+                    local effect = effectCreator.new('mpRecover', action.user, action.user, toAct.cost)
+                    table.insert(state.effectList, effect)
+                end
             end
         end
 

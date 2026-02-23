@@ -4,13 +4,13 @@ local dataSheet = {
     {
         name = 'KNIGHT',
         lvl = 20,
-        hp = 180,
+        hp = 80,
         mp = 20,
         str = 60,
         def = 70,
         agi = 80,
         skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
-        passives = {['counter'] = true, ['heavyWielder'] = true,
+        passives = {['counter'] = true, ['regeneration'] = true, ['lastStand'] = true, 
             ['immunity'] = {'BLIND'} , ['iceCombo'] = true},
         weapon = weaponCreator.new('rustedAxe')
     },

@@ -10,6 +10,13 @@ local function dealDamage(_, target, value)
     if target.isDefending then
         damage = math.max(math.floor(damage/2), 1)
     end
+
+    if target.passives['lastStand'] then
+        if damage >= target.currentHp and target.currentHp > 1 then
+            damage = target.currentHp - 1;
+        end
+    end
+    
     target.currentHp = target.currentHp - damage;
     utils.battleLogAdd(''..target.name..' takes '..damage..' damage.');
     if target.currentHp <= 0 then
@@ -326,13 +333,13 @@ local function stealGold(user, target, amount)
         amount = math.min(amount, target.stealableGold)
         target.stealableGold = target.stealableGold - amount;
     end
-    
+
     if user.isPartyMember then
         state.partyGold = state.partyGold + amount
     elseif not user.isPartyMember then
         user.stealableGold = user.stealableGold + amount
     end
-    
+
     utils.battleLogAdd(''..user.name..' stole '..amount..' Gold');
 end
 

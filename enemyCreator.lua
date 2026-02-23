@@ -31,6 +31,7 @@ local dataSheet = {
         immune = {},
         specialType = 'UNDEAD',
         skills = {},
+        passives = {['counter'] = true},
         gold = 50
     },
 
@@ -47,6 +48,7 @@ local dataSheet = {
         immune = {},
         specialType = 'DRAGON',
         skills = {},
+        passives = {['counter'] = true},
         gold = 250
     }
 }

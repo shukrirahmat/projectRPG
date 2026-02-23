@@ -66,6 +66,15 @@ local function handleStealGold(user, target)
     end
 end
 
+local function handleCounterAttack(user, target)
+    if target.passives['counter'] then
+        if not target.status['SLEEP'] and not target.status['CONFUSE'] and not target.status['STUN'] then
+            local counterAction = actionCreator.new('counterAtk', user, {target})
+            table.insert(state.followUp, counterAction)
+        end
+    end
+end
+
 local function normalAttack(self, user, targets, special)
 
     for i, target in ipairs(targets) do
@@ -164,6 +173,12 @@ local function normalAttack(self, user, targets, special)
 
                 handleOnHitEffects(user, target)
                 handleStealGold(user, target)
+                
+                if not special then
+                    handleCounterAttack(user, target)
+                elseif special and special.cat ~= 'counter' then
+                    handleCounterAttack(user, target)
+                end
 
                 if not special then
                     local secondAttackChance = math.floor((user.agi - target.agi)/2)
@@ -175,10 +190,8 @@ local function normalAttack(self, user, targets, special)
                     end
 
                     if secondAttack then
-                        if target.currentHp > damage then
                             local followUp = actionCreator.new('secondAtk', user, {target})
                             table.insert(state.followUp, followUp)
-                        end
                     end
                 end
             else
@@ -193,6 +206,11 @@ end
 local function secondAttack(self, user, targets)
     local special = {cat ='secondAttack', text = 'attacks again!'}
     normalAttack(self, user, targets, special)
+end
+
+local function counterAttack(self, user, targets)
+    local special = {cat ='counter', text = 'counters!'}
+    normalAttack(self, targets[1], {user}, special)
 end
 
 local function quickStrike(self, user, targets)
@@ -673,6 +691,13 @@ actionData['secondAtk'] = {
     cost = 0, 
     enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
 }
+
+actionData['counterAtk'] = {
+    execute = counterAttack, 
+    cost = 0, 
+    enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
+}
+
 actionData['defend'] = { 
     execute = defend, 
     cost = 0, 

@@ -178,6 +178,12 @@ function executeAction(action, isFollowUp)
                 action.user, aniData.ref, aniData.maxTick, aniData.speed
             )
             state.animation = animation
+        elseif action.user.isPartyMember and action.ref == 'counterAtk' then
+            local aniData = toAct.enemyAnimation
+            local animation = animationCreator.new(
+                action.targets[1], aniData.ref, aniData.maxTick, aniData.speed
+            )
+            state.animation = animation
         end
 
         if toAct.magic and action.user.passives['echoMagic'] and not isFollowUp then
@@ -261,18 +267,33 @@ function loop.run()
 
     elseif #state.followUp > 0 then
         local action = state.followUp[1]
-        state.battleLog = {};
         table.remove(state.followUp, 1)
 
-        action = redirectTarget(action)
-        executeAction(action, true)
+        local skip;
+
+        if action.ref == 'secondAtk' or action.ref == 'counterAtk' then
+            if action.targets[1].isDead then
+                skip = true
+            else
+                state.battleLog = {};
+                executeAction(action, true)
+            end
+        else
+            state.battleLog = {};
+            action = redirectTarget(action)
+            executeAction(action, true)
+        end
 
         if #state.followUp == 0 then
             statusApply(action)
             statusClearAll(action)
         end
-        
-        state.textTimer = 0
+
+        if skip then
+            state.textTimer = 5
+        else
+            state.textTimer = 0
+        end
 
     elseif #state.priorityList > 0 then
         state.battleLog = {};
@@ -314,8 +335,6 @@ function loop.run()
         state.currentMenu = state.mainMenu
         state.mainMenu.position = 1
         state.textTimer = 0
-
-        print(state.partyGold)
     end
 end
 

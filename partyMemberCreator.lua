@@ -8,7 +8,7 @@ local dataSheet = {
         def = 70,
         agi = 80,
         skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
-        passives = {['pincher'] = true, ['regenerate'] = true,
+        passives = {['counter'] = true, ['regenerate'] = true,
             ['immunity'] = {'BLIND'} }
     },
     {
@@ -16,12 +16,11 @@ local dataSheet = {
         lvl = 20,
         hp = 160,
         mp = 35,
-        str = 80,
+        str = 100,
         def = 50,
         agi = 120,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
-        passives = {['pincher'] = true, ['keenEye+'] = true, ['dualWield'] = true,
-            ['merciless'] = true}
+        passives = {['counter'] = true, ['keenEye+'] = true, ['dualWield'] = true}
     },
     {
         name = 'PRIEST',

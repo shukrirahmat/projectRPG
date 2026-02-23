@@ -24,5 +24,7 @@ passiveData['crippler'] = 'chance to lower enemy agiliy on normal attack'
 passiveData['executor'] = 'chance to instantly kill enemy on normal attack'
 passiveData['pincher'] = 'Normal attack steals money from enemy'
 passiveData['counter'] = 'Counters when hit with normal attack'
+passiveData['lightWielder'] = 'Gain atk power when equipped with sword, dagger or fists'
+passiveData['HeavyWielder'] = 'Gain atk power when equipped with axe, hammer or spear'
 
 return passiveList

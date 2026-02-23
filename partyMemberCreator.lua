@@ -1,48 +1,54 @@
+local weaponCreator = require('weaponCreator')
+
 local dataSheet = {
     {
         name = 'KNIGHT',
         lvl = 20,
         hp = 180,
         mp = 20,
-        str = 130,
+        str = 60,
         def = 70,
         agi = 80,
         skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
-        passives = {['counter'] = true, ['regenerate'] = true,
-            ['immunity'] = {'BLIND'} }
+        passives = {['counter'] = true, ['heavyWielder'] = true,
+            ['immunity'] = {'BLIND'} },
+        weapon = weaponCreator.new('rustedAxe')
     },
     {
         name = 'FIGHTER',
         lvl = 20,
         hp = 160,
         mp = 35,
-        str = 100,
+        str = 80,
         def = 50,
         agi = 120,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
-        passives = {['counter'] = true, ['keenEye+'] = true, ['dualWield'] = true}
+        passives = {['lightWielder'] = true, ['keenEye+'] = true, ['dualWield'] = true},
+        weapon = weaponCreator.new('leatherFist')
     },
     {
         name = 'PRIEST',
         lvl = 20,
         hp = 140,
         mp = 150,
-        str = 60,
+        str = 30,
         def = 50,
         agi = 100,
         skills = {'typhoonI', 'luminaII', 'healAllI', 'drainII'},
-        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}}
+        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}},
+        weapon = weaponCreator.new('woodenStaff')
     }, 
     {
         name = 'MAGE',
         lvl = 20,
         hp = 100,
         mp = 80,
-        str = 30,
+        str = 24,
         def = 40,
         agi = 90,
         skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI', 'woundII'},
-        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}}
+        passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}},
+        weapon = weaponCreator.new('smallDagger')
     }
 }
 
@@ -62,8 +68,9 @@ function P.new(index)
     p.maxMp = data.mp
     p.currentMp = data.mp
     p.str = data.str
-    p.baseAtk = data.str
-    p.atk = data.str
+    p.weapon = data.weapon
+    p.baseAtk = data.str + (p.weapon.atkPower or 0)
+    p.atk = p.baseAtk
     p.baseDef = data.def
     p.def = data.def
     p.baseAgi = data.agi
@@ -104,6 +111,16 @@ function P.new(index)
     if p.passives['celestialProtection'] then
         p.strong['LIGHT'] = true
         p.strong['VOID'] = true
+    end
+    
+    if p.passives['lightWielder'] and p.weapon.weight == 'LIGHTWEIGHT' then
+        p.baseAtk = p.baseAtk * 1.5
+        p.atk = p.baseAtk
+    end
+    
+    if p.passives['heavyWielder'] and p.weapon.weight == 'HEAVYWEIGHT' then
+        p.baseAtk = p.baseAtk * 1.5
+        p.atk = p.baseAtk
     end
 
     return p

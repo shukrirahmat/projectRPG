@@ -411,9 +411,9 @@ local function castDamageMagic(self, user, targets)
     end
 end
 
-local function castAura(self, user, targets)
+local function useAura(self, user, targets)
 
-    local text = ''..user.name..' casts '..self.name..'';
+    local text = ''..user.name..' uses '..self.name..'';
     utils.battleLogAdd(text)
 
     for i, target in ipairs(targets) do
@@ -723,6 +723,17 @@ local function castCleanse(self, user, targets)
             end
         end
     end
+end
+
+local function undo(self, user, _)
+    local text = ''..user.name..' undo debuffs on itself';
+    utils.battleLogAdd(text)
+    user.status['DEFDOWN'] = nil
+    user.defDebuff = nil
+    utils.updateStatChange(user, 'def')
+    user.status['AGIDOWN'] = nil
+    user.agiDebuff = nil
+    utils.updateStatChange(user, 'agi')
 end
 
 
@@ -1089,60 +1100,60 @@ actionData['lightningIII'] = {
 
 actionData['auraI'] = {
     name = 'Aura I', 
-    magic = true,
+    tech = true,
     cost = 0, 
     desc = 'Deals damage to all enemies using small percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = castAura,
+    execute = useAura,
     element = 'AURA',
     auraRatio = 0.1
 }
 
 actionData['auraII'] = {
     name = 'Aura II', 
-    magic = true,
+    tech = true,
     cost = 0, 
     desc = 'Deals damage to all enemies using medium percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = castAura,
+    execute = useAura,
     element = 'AURA',
     auraRatio = 0.2
 }
 
 actionData['auraIII'] = {
     name = 'Aura III', 
-    magic = true,
+    tech = true,
     cost = 0, 
     desc = 'Deals damage to all enemies using high percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = castAura,
+    execute = useAura,
     element = 'AURA',
     auraRatio = 0.4
 }
 
 actionData['auraBlastI'] = {
     name = 'Aura Blast I', 
-    magic = true,
+    tech = true,
     cost = 0, 
     desc = 'Deals damage to one enemies using high percentage of strength',
     aim = 'enemies',
     scope = 'single',
-    execute = castAura,
+    execute = useAura,
     element = 'AURA',
     auraRatio = 0.8
 }
 
 actionData['auraBlastII'] = {
     name = 'Aura Blast II', 
-    magic = true,
+    tech = true,
     cost = 0, 
     desc = 'Deals damage to one enemies using very high percentage of strength',
     aim = 'enemies',
     scope = 'single',
-    execute = castAura,
+    execute = useAura,
     element = 'AURA',
     auraRatio = 1.5
 }
@@ -1154,7 +1165,7 @@ actionData['auraCharge'] = {
     desc = 'Next aura magic will deal 2.5 more damage',
     aim = 'allies',
     scope = 'self',
-    execute = castAura,
+    execute = auraCharge,
 }
 
 actionData['drainI'] = {
@@ -2030,6 +2041,16 @@ actionData['desperation'] = {
     aim = 'enemies',
     scope = 'single',
     execute = desperation,
+}
+
+actionData['undo'] = {
+    name = 'Undo', 
+    tech = true,
+    cost = 0, 
+    desc = 'Remove defense and agility debuffs to self',
+    aim = 'allies',
+    scope = 'self',
+    execute = undo,
 }
 
 return actionData;

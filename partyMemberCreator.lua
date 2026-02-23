@@ -10,7 +10,7 @@ local dataSheet = {
         def = 70,
         agi = 80,
         skills = {'cover', 'flameStrike', 'focus', 'ram', 'desperation'},
-        passives = {['counter'] = true, ['regeneration'] = true, ['lastStand'] = true, 
+        passives = {['counter'] = true, ['piercer'] = true, ['lastStand'] = true, 
             ['immunity'] = {'BLIND'} , ['iceCombo'] = true},
         weapon = weaponCreator.new('rustedAxe')
     },
@@ -22,9 +22,9 @@ local dataSheet = {
         str = 80,
         def = 50,
         agi = 120,
-        skills = {'deathIII', 'voidStrike', 'ram', 'desperation'},
-        passives = {['lightWielder'] = true, ['keenEye+'] = true, ['dualWield'] = true, 
-            ['boltCombo'] = true, ['counter'] = true},
+        skills = {'deathIII', 'voidStrike', 'ram', 'desperation', 'undo'},
+        passives = {['keenEye+'] = true, ['dualWield'] = true, 
+            ['piercer'] = true, ['counter'] = true},
         weapon = weaponCreator.new('leatherFist')
     },
     {

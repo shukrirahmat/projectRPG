@@ -16,7 +16,7 @@ function love.load()
     local enemies = { 
         enemyCreator.new('goblin', 'GOBLIN1'),
         enemyCreator.new('goblin', 'GOBLIN2'),
-        enemyCreator.new('goblin', 'GOBLIN3'),
+        enemyCreator.new('armoredGoblin', 'ARMGOB1'),
         enemyCreator.new('dragon', 'DRAGON1'),
         enemyCreator.new('skeleton', 'SKELETON1'),
         enemyCreator.new('skeleton', 'SKELETON2')

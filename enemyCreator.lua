@@ -17,6 +17,23 @@ local dataSheet = {
         passives = {['pincher'] = true},
         gold = 300
     },
+    
+    ['armoredGoblin'] = {
+        lvl = 22,
+        hp = 160,
+        mp = 120,
+        str = 90,
+        def = 180,
+        agi = 80,
+        sprite = armored_goblin_sprite,
+        spriteHeight = monsterSpriteDimension/4,
+        strong = {},
+        immune = {},
+        specialType = 'ARMORED',
+        skills = {},
+        passives = {},
+        gold = 300
+    },
 
     ['skeleton'] = {
         lvl = 18,
@@ -30,8 +47,8 @@ local dataSheet = {
         strong = {},
         immune = {},
         specialType = 'UNDEAD',
-        skills = {},
-        passives = {['counter'] = true},
+        skills = {'frail All'},
+        passives = {},
         gold = 50
     },
 
@@ -48,7 +65,7 @@ local dataSheet = {
         immune = {},
         specialType = 'DRAGON',
         skills = {},
-        passives = {['counter'] = true},
+        passives = {},
         gold = 250
     }
 }

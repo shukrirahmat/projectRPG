@@ -260,15 +260,27 @@ end
 
 ---------------CALCULATOR----------------
 
-function U.calculateAttackDamage(attacker, target)
-    local damage = math.floor(attacker.atk/2) - math.floor(target.def/3)
+function U.calculateAttackDamage(attacker, target)    
+    
+    local pierce = 1
+    if target.specialType == 'ARMORED' and attacker.passives['piercer'] then
+        pierce = 2
+    end
+    
+    local damage = math.floor(attacker.atk/2) - math.floor(target.def/(3 * pierce))
     local mod = math.floor(damage*0.2)
     damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)
 end
 
 function U.calculateCritDamage(attacker, target)
-    local damage = math.floor(attacker.atk/2 * 3) - math.floor(target.def/6)
+    
+    local pierce = 1
+    if target.specialType == 'ARMORED' and attacker.passives['piercer'] then
+        pierce = 2
+    end
+    
+    local damage = math.floor(attacker.atk/2 * 3) - math.floor(target.def/(6 * pierce))
     local mod = math.floor(damage*0.2)
     damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)

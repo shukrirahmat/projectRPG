@@ -44,7 +44,7 @@ local dataSheet = {
         agi = 50,
         sprite = dragon_sprite,
         spriteHeight = 0,
-        strong = {},
+        strong = {['FIRE'] = true},
         immune = {},
         specialType = 'DRAGON',
         skills = {},

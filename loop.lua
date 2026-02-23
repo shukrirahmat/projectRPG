@@ -179,7 +179,7 @@ function executeAction(action, isFollowUp)
             )
             state.animation = animation
         elseif action.user.isPartyMember and action.ref == 'counterAtk' then
-            local aniData = toAct.enemyAnimation
+            local aniData = toAct.partyAnimation
             local animation = animationCreator.new(
                 action.targets[1], aniData.ref, aniData.maxTick, aniData.speed
             )

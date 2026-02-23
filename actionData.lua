@@ -75,6 +75,24 @@ local function handleCounterAttack(user, target)
     end
 end
 
+local function checkMiss(user, target)
+    if user.status['BLIND'] then
+        local roll = math.random(1, 100)
+        if roll <= 75 then
+            return true
+        end
+    end
+
+    if target.dodgeRate ~= 0 then
+        local roll = math.random(1, target.dodgeRate)
+        if roll == 1 then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function normalAttack(self, user, targets, special)
 
     for i, target in ipairs(targets) do
@@ -83,6 +101,7 @@ local function normalAttack(self, user, targets, special)
             local damage
             local text
             local miss
+            local resisted
 
             if special then
                 text = ''..user.name..' '..special.text..''
@@ -90,19 +109,7 @@ local function normalAttack(self, user, targets, special)
                 text = ''..user.name..' attacks!'
             end
 
-            if user.status['BLIND'] then
-                local roll = math.random(1, 100)
-                if roll <= 75 then
-                    miss = true
-                end
-            end
-
-            if not miss and target.dodgeRate ~= 0 then
-                local roll = math.random(1, target.dodgeRate)
-                if roll == 1 then
-                    miss = true
-                end
-            end
+            miss = checkMiss(user, target)
 
             if not miss or user.isFocused then
 
@@ -155,10 +162,7 @@ local function normalAttack(self, user, targets, special)
                         end
                     elseif res == 1 then
                         damage = math.floor(damage * 0.5)
-                        utils.battleLogAdd(text)
-                        local resistedEffect = effectCreator.new('resisted', user, target, damage)        
-                        table.insert(state.effectList, resistedEffect)
-                        return
+                        resisted = true;
                     elseif res == 2 then
                         utils.battleLogAdd(text)
                         local immuneEffect = effectCreator.new('immune', user, target, damage)        
@@ -166,14 +170,20 @@ local function normalAttack(self, user, targets, special)
                         return
                     end
                 end
-                
+
                 utils.battleLogAdd(text)
-                local damageEffect = effectCreator.new('damage', user, target, damage)        
-                table.insert(state.effectList, damageEffect)
+
+                if resisted then
+                    local resistedEffect = effectCreator.new('resisted', user, target, damage)        
+                    table.insert(state.effectList, resistedEffect)
+                else
+                    local damageEffect = effectCreator.new('damage', user, target, damage)        
+                    table.insert(state.effectList, damageEffect)
+                end
 
                 handleOnHitEffects(user, target)
                 handleStealGold(user, target)
-                
+
                 if not special then
                     handleCounterAttack(user, target)
                 elseif special and special.cat ~= 'counter' then
@@ -190,8 +200,8 @@ local function normalAttack(self, user, targets, special)
                     end
 
                     if secondAttack then
-                            local followUp = actionCreator.new('secondAtk', user, {target})
-                            table.insert(state.followUp, followUp)
+                        local followUp = actionCreator.new('secondAtk', user, {target})
+                        table.insert(state.followUp, followUp)
                     end
                 end
             else
@@ -695,7 +705,7 @@ actionData['secondAtk'] = {
 actionData['counterAtk'] = {
     execute = counterAttack, 
     cost = 0, 
-    enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
+    partyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
 }
 
 actionData['defend'] = { 

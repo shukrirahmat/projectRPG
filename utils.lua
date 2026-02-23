@@ -209,7 +209,7 @@ end
 
 function U.clearTemporaryStatus()
 
-    state.followUp = nil
+    state.followUp = {}
 
     for _, group in ipairs({state.party, state.enemies}) do
         for _, character in ipairs(group) do

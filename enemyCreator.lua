@@ -13,7 +13,7 @@ local dataSheet = {
         spriteHeight = monsterSpriteDimension/4,
         strong = {},
         immune = {},
-        skills = {},
+        skills = {'toxinII'},
         passives = {['pincher'] = true},
         gold = 300
     },

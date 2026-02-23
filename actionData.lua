@@ -176,7 +176,8 @@ local function normalAttack(self, user, targets, special)
 
                     if secondAttack then
                         if target.currentHp > damage then
-                            state.followUp = actionCreator.new('secondAtk', user, {target})
+                            local followUp = actionCreator.new('secondAtk', user, {target})
+                            table.insert(state.followUp, followUp)
                         end
                     end
                 end

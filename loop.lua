@@ -86,7 +86,7 @@ local function statusApply(action)
             table.insert(state.effectList, curseEffect)
         end
     end
-    
+
     if user.passives['regenerate'] then
         local baseAmount = math.floor(user.maxHp * 0.1)
         local mod = math.floor(baseAmount*0.2)
@@ -171,7 +171,7 @@ function executeAction(action, isFollowUp)
 
     if canAct then
         toAct.execute(toAct, action.user, action.targets)
-        
+
         if not action.user.isPartyMember and toAct.enemyAnimation then
             local aniData = toAct.enemyAnimation
             local animation = animationCreator.new(
@@ -179,14 +179,14 @@ function executeAction(action, isFollowUp)
             )
             state.animation = animation
         end
-        
-        if toAct.magic and action.user.passives['echoMagic'] then
+
+        if toAct.magic and action.user.passives['echoMagic'] and not isFollowUp then
             local roll = math.random(1, 4)
             if roll == 1 then
-                state.followUp = action
+                table.insert(state.followUp, action)
             end
         end
-        
+
     else
         local skillCanceled = actionData['skillCanceled']
         skillCanceled.execute(skillCanceled, action.user, action.targets, toAct)
@@ -259,15 +259,19 @@ function loop.run()
             state.textTimer = 5
         end        
 
-    elseif state.followUp then
-        local action = state.followUp
+    elseif #state.followUp > 0 then
+        local action = state.followUp[1]
         state.battleLog = {};
+        table.remove(state.followUp, 1)
 
         action = redirectTarget(action)
         executeAction(action, true)
-        statusApply(action)
-        statusClearAll(action)
-        state.followUp = nil
+
+        if #state.followUp == 0 then
+            statusApply(action)
+            statusClearAll(action)
+        end
+        
         state.textTimer = 0
 
     elseif #state.priorityList > 0 then
@@ -281,7 +285,7 @@ function loop.run()
         action = statusPass(action)
         executeAction(action)
 
-        if not state.followUp then
+        if #state.followUp == 0 then
             statusApply(action)
             statusClearAll(action)
         end
@@ -297,7 +301,7 @@ function loop.run()
         action = statusPass(action)
         executeAction(action)
 
-        if not state.followUp then
+        if #state.followUp == 0 then
             statusApply(action)
             statusClearAll(action)
         end
@@ -310,7 +314,7 @@ function loop.run()
         state.currentMenu = state.mainMenu
         state.mainMenu.position = 1
         state.textTimer = 0
-        
+
         print(state.partyGold)
     end
 end

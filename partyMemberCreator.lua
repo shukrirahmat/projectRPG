@@ -4,7 +4,7 @@ local dataSheet = {
     {
         name = 'KNIGHT',
         lvl = 20,
-        hp = 80,
+        hp = 180,
         mp = 20,
         str = 60,
         def = 70,

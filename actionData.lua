@@ -26,8 +26,8 @@ local function handleExecutor(user, target)
 end
 
 local function handleOnHitEffects(user, target)
-    local psv = {'basher', 'stabber', 'breaker', 'crippler'}
-    local status = {'STUN', 'WOUND', 'DEFDOWN', 'AGIDOWN'}
+    local psv = {'basher'}
+    local status = {'STUN'}
 
     for i = 1, #psv do
         local p = psv[i]
@@ -43,13 +43,7 @@ local function handleOnHitEffects(user, target)
             end
             local roll = math.random(1, 100)
             if roll <= accuracy then
-                local effectRef
-                if status[i] == 'DEFDOWN' or status[i] == 'AGIDOWN' then
-                    effectRef = 'addStatChange'
-                else
-                    effectRef = 'addStatus'
-                end
-                statusEffect = effectCreator.new(effectRef, user, target, status[i])
+                statusEffect = effectCreator.new('addStatus', user, target, status[i])
                 table.insert(state.effectList, statusEffect)
             end
         end
@@ -96,11 +90,13 @@ end
 local function handleElementalCombo(user, target)
     if user.passives['fireCombo'] then
         local followUp = actionCreator.new('flameI', user, {target})
+        followUp.combo = true
         table.insert(state.followUp, followUp)
     end
 
     if user.passives['iceCombo'] then
         local followUp = actionCreator.new('frostI', user, {target})
+        followUp.combo = true
         table.insert(state.followUp, followUp)
     end
 
@@ -112,6 +108,7 @@ local function handleElementalCombo(user, target)
             targets = {unpack(state.party)};
         end
         local followUp = actionCreator.new('typhoonI', user, targets)
+        followUp.combo = true
         table.insert(state.followUp, followUp)
     end
 
@@ -123,6 +120,7 @@ local function handleElementalCombo(user, target)
             targets = {unpack(state.party)};
         end
         local followUp = actionCreator.new('lightningI', user, targets)
+        followUp.combo = true
         table.insert(state.followUp, followUp)
     end
 end
@@ -380,9 +378,12 @@ local function passiveBoost(user, element, damage)
     return damage
 end
 
-local function castDamageMagic(self, user, targets)
+local function castDamageMagic(self, user, targets, special)
 
     local text = ''..user.name..' casts '..self.name..'';
+    if special and special.combo then
+        text = 'Unleashed '..self.name..'';
+    end
     utils.battleLogAdd(text)
 
     for i, target in ipairs(targets) do
@@ -437,8 +438,6 @@ local function useAura(self, user, targets)
             else
                 ref = 'damage'
             end
-
-            damage = barrierCheck(target, damage)
 
             local damageEffect = effectCreator.new(ref, user, target, damage)
             table.insert(state.effectList, damageEffect)
@@ -734,6 +733,32 @@ local function undo(self, user, _)
     user.status['AGIDOWN'] = nil
     user.agiDebuff = nil
     utils.updateStatChange(user, 'agi')
+end
+
+local function hiddenBlades(self, user, targets)
+    local text = ''..user.name..' use '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local damage = math.random(1, 10)
+            local damageEffect = effectCreator.new('damage', user, target, damage)        
+            table.insert(state.effectList, damageEffect)
+
+            local resistance = utils.checkResistance('STUN', target)
+            local stunChance
+            if resistance == 1 then
+                stunChance = math.random(1, 20)
+            elseif resistance == 0 then
+                stunChance = math.random(1, 10)
+            end
+
+            if resistance ~= 2 and stunChance == 1 then
+                statusEffect = effectCreator.new('addStatus', user, target, 'STUN')
+                table.insert(state.effectList, statusEffect)
+            end    
+        end
+    end
 end
 
 
@@ -1936,6 +1961,17 @@ actionData['quickStrike'] = {
     priority = 1
 }
 
+actionData['hiddenBlades'] = {
+    name = 'Hidden Blades', 
+    tech = true,
+    cost = 0, 
+    desc = 'Quickly throw sharp daggers to all enemies that also might stun them',
+    aim = 'enemies',
+    scope = 'all',
+    execute = hiddenBlades,
+    priority = 1
+}
+
 actionData['cover'] = {
     name = 'Cover', 
     tech = true,
@@ -2047,7 +2083,7 @@ actionData['undo'] = {
     name = 'Undo', 
     tech = true,
     cost = 0, 
-    desc = 'Remove defense and agility debuffs to self',
+    desc = 'Remove defense and agility debuffs from self',
     aim = 'allies',
     scope = 'self',
     execute = undo,

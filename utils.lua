@@ -292,4 +292,13 @@ function U.checkResistance(element, target)
     return 0
 end
 
+function U.checkCannotMove(target)
+    if target.status['STUN'] then return true end
+    if target.status['SLEEP'] then return true end
+    if target.status['CONFUSE'] then return true end
+    return false
+end
+    
+    
+
 return U

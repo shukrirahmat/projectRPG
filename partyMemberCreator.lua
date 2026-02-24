@@ -24,7 +24,7 @@ local dataSheet = {
         agi = 120,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation', 'undo'},
         passives = {['keenEye+'] = true, ['dualWield'] = true, 
-            ['piercer'] = true, ['counter'] = true},
+            ['windCombo'] = true, ['counter'] = true},
         weapon = weaponCreator.new('leatherFist')
     },
     {
@@ -47,7 +47,7 @@ local dataSheet = {
         str = 24,
         def = 40,
         agi = 90,
-        skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI', 'woundII'},
+        skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI', 'woundII', 'hiddenBlades'},
         passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}, ['manaSaver'] = true},
         weapon = weaponCreator.new('smallDagger')
     }

@@ -125,7 +125,7 @@ local function statusClearAll(action)
     end
 
     if user.status['STUN'] then
-        statusClear(user,'STUN', 50)
+        statusClear(user,'STUN', 60)
     end
 
     if user.status['DEFUP'] then
@@ -170,7 +170,12 @@ function executeAction(action, isFollowUp)
     end
 
     if canAct then
-        toAct.execute(toAct, action.user, action.targets)
+
+        if action.combo then
+            toAct.execute(toAct, action.user, action.targets, {combo = true})
+        else
+            toAct.execute(toAct, action.user, action.targets)
+        end
 
         if not action.user.isPartyMember and toAct.enemyAnimation then
             local aniData = toAct.enemyAnimation
@@ -281,7 +286,7 @@ function loop.run()
         local skip;
 
         if action.ref == 'secondAtk' or action.ref == 'counterAtk' then
-            if action.targets[1].isDead then
+            if action.targets[1].isDead or utils.checkCannotMove(action.targets[1]) then
                 skip = true
             else
                 state.battleLog = {};

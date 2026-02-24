@@ -6,6 +6,7 @@ state.mainMenu = {position = 1, list = {'FIGHT', 'FLEE'}}
 state.characterMenu = {position = 1, list = {'ATTACK', 'SKILL', 'DEFEND', 'ITEM'}, charID = 1}
 state.targetMenu = {position = 1}
 state.skillMenu = {position = 1}
+state.itemMenu = {position = 1}
 state.currentMenu = state.mainMenu
 state.battleRunning = false
 state.actionList = {}
@@ -25,5 +26,6 @@ state.infoMode = false
 state.cursorTimer = 0
 state.cursor = false
 state.partyGold = 0
+state.partyItems = {}
 
 return state;

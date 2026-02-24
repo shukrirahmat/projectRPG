@@ -15,7 +15,8 @@ local dataSheet = {
         immune = {},
         skills = {},
         passives = {['pincher'] = true},
-        gold = 300
+        gold = 300,
+        stealableItem = { ref = 'healingTonic', rate = 1 }
     },
     
     ['armoredGoblin'] = {
@@ -32,7 +33,8 @@ local dataSheet = {
         specialType = 'ARMORED',
         skills = {},
         passives = {},
-        gold = 300
+        gold = 300,
+        stealableItem = { ref = 'healingTonic', rate = 1 }
     },
 
     ['skeleton'] = {
@@ -49,7 +51,8 @@ local dataSheet = {
         specialType = 'UNDEAD',
         skills = {'frail All'},
         passives = {},
-        gold = 50
+        gold = 50,
+        stealableItem = { ref = 'talisman', rate = 1 }
     },
 
     ['dragon'] = {
@@ -66,7 +69,8 @@ local dataSheet = {
         specialType = 'DRAGON',
         skills = {},
         passives = {},
-        gold = 250
+        gold = 250,
+        stealableItem = { ref = 'prismTonic', rate = 1 }
     }
 }
 
@@ -103,6 +107,7 @@ function enemyCreator.new(species, name)
     e.status = {}
     e.skills = data.skills or {} 
     e.passives = data.passives or {}
+    e.stealableItem = data.stealableItem or nil
     e.stealableGold = data.gold or 0
     e.droppedGold = data.gold or 0
     

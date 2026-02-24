@@ -50,13 +50,24 @@ local function handleOnHitEffects(user, target)
     end
 end
 
-local function handleStealGold(user, target)
+local function handleSteal(user, target)
     if user.passives['pincher'] then
         local baseAmount = user.lvl * 5
         local mod = math.floor(baseAmount * 0.5)
         local amount = baseAmount + math.random(-mod, mod)
         local stealEffect = effectCreator.new('stealGold', user, target, amount)
         table.insert(state.effectList, stealEffect)
+    end
+    
+    --PARTY EXCLUSIVES
+    if user.passives['snatcher'] then
+        if target.stealableItem then
+            local roll = math.random(1, target.stealableItem.rate)
+            if roll == 1 then
+                local stealEffect = effectCreator.new('stealItem', user, target, target.stealableItem.ref)
+                table.insert(state.effectList, stealEffect)
+            end
+        end
     end
 end
 
@@ -149,7 +160,7 @@ local function normalAttack(self, user, targets, special)
                     utils.battleLogAdd(text)
                     local killEffect = effectCreator.new('instakill', user, target)
                     table.insert(state.effectList, killEffect)
-                    handleStealGold(user, target)
+                    handleSteal(user, target)
                     return
                 end
 
@@ -214,7 +225,7 @@ local function normalAttack(self, user, targets, special)
                 end
 
                 handleOnHitEffects(user, target)
-                handleStealGold(user, target)
+                handleSteal(user, target)
                 handleElementalCombo(user, target)
 
                 if not special then

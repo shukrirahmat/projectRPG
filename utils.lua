@@ -258,6 +258,18 @@ function U.updateStatChange(target, stat)
     end
 end
 
+function U.manageItems(itemRef, mod)
+    if state.partyItems[itemRef] then
+        state.partyItems[itemRef].amount = state.partyItems[itemRef].amount + mod
+    elseif not state.partyItems[itemRef] and mod > 0 then
+        state.partyItems[itemRef] = {amount = mod}
+    end
+    
+    if state.partyItems[itemRef].amount < 1 then
+        state.partyItems[itemRef] = nil
+    end
+end
+
 ---------------CALCULATOR----------------
 
 function U.calculateAttackDamage(attacker, target)    

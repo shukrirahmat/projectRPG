@@ -24,7 +24,7 @@ local dataSheet = {
         agi = 120,
         skills = {'deathIII', 'voidStrike', 'ram', 'desperation', 'undo'},
         passives = {['keenEye+'] = true, ['dualWield'] = true, 
-            ['windCombo'] = true, ['counter'] = true},
+            ['snatcher'] = true, ['counter'] = true},
         weapon = weaponCreator.new('leatherFist')
     },
     {

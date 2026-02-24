@@ -259,7 +259,7 @@ function loop.run()
             state.animation = animationCreator.new(toKill, 'enemyDied', 8, 0.05)
         end
 
-        if state.partyDied or state.allEnemyDead then
+        if (state.partyDied or state.allEnemyDead) and #state.effectList == 0 then
             state.battleEnded = true
         end
         state.textTimer = 0
@@ -268,7 +268,8 @@ function loop.run()
         local effect = state.effectList[1]
         table.remove(state.effectList, 1)
 
-        if not effect.target.isDead or effect.ref == 'revive' or effect.ref == 'stealGold' then
+        if not effect.target.isDead or effect.ref == 'revive' 
+        or effect.ref == 'stealGold' or effect.ref == 'stealItem' then
             applyEffect(effect)
             if effect.ref == 'instakill' then
                 state.textTimer = 5

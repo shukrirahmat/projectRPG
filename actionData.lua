@@ -64,7 +64,7 @@ local function handleSteal(user, target)
         if target.stealableItem then
             local roll = math.random(1, target.stealableItem.rate)
             if roll == 1 then
-                local stealEffect = effectCreator.new('stealItem', user, target, target.stealableItem.ref)
+                local stealEffect = effectCreator.new('stealItem', user, target, target.stealableItem.item)
                 table.insert(state.effectList, stealEffect)
             end
         end

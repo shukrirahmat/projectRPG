@@ -1,5 +1,6 @@
 utils = require('utils')
 state = require('state')
+itemCreator = require('itemCreator')
 
 local dataSheet = {
     ['goblin'] = {
@@ -16,7 +17,7 @@ local dataSheet = {
         skills = {},
         passives = {['pincher'] = true},
         gold = 300,
-        stealableItem = { ref = 'healingTonic', rate = 1 }
+        stealableItem = { item = itemCreator.new('healingTonic'), rate = 1 }
     },
     
     ['armoredGoblin'] = {
@@ -34,7 +35,7 @@ local dataSheet = {
         skills = {},
         passives = {},
         gold = 300,
-        stealableItem = { ref = 'healingTonic', rate = 1 }
+        stealableItem = { item = itemCreator.new('healingTonic'), rate = 1 }
     },
 
     ['skeleton'] = {
@@ -52,7 +53,7 @@ local dataSheet = {
         skills = {'frail All'},
         passives = {},
         gold = 50,
-        stealableItem = { ref = 'talisman', rate = 1 }
+        stealableItem = { item = itemCreator.new('talisman'), rate = 1 }
     },
 
     ['dragon'] = {
@@ -70,7 +71,7 @@ local dataSheet = {
         skills = {},
         passives = {},
         gold = 250,
-        stealableItem = { ref = 'prismTonic', rate = 1 }
+        stealableItem = { item = itemCreator.new('prismTonic'), rate = 1 }
     }
 }
 

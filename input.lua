@@ -161,6 +161,10 @@ function input.executeConfirm()
             user.currentAction = actionCreator.new('defend', user)
             local currentID = state.characterMenu.charID
             nextCharacter(currentID)
+        elseif state.characterMenu.position == 4 then
+            utils.updateItemMenu(char)
+            state.currentMenu = state.itemMenu
+            utils.menuReset(state.itemMenu)
         end
     elseif state.currentMenu == state.skillMenu
     and #state.skillMenu.list > 0 then

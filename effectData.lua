@@ -1,7 +1,6 @@
 local state = require('state')
 local utils = require('utils')
 local effectCreator = require('effectCreator')
-local itemData = require('itemData')
 
 local effectData = {}
 
@@ -326,11 +325,9 @@ local function curseEffect(_, target)
     table.insert(state.killList, target)
 end
 
-local function stealItem(user, target, ref)
-    local data = itemData[ref]
-    
-    utils.battleLogAdd(''..user.name..' stole '..data.name..'');
-    utils.manageItems(ref, 1)
+local function stealItem(user, target, item)
+    utils.battleLogAdd(''..user.name..' stole '..item.name..'');
+    utils.manageItems(item, 1)
     target.stealableItem = nil
 end
 

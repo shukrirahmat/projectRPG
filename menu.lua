@@ -135,7 +135,7 @@ function drawTargetMenu(refX, refY, refWidth)
         borderWidth,
         borderHeight
     )
-    
+
     if #state.targetMenu.list < 1 then
         love.graphics.setFont(font_medium)
         love.graphics.setColor(1, 1, 1)
@@ -217,7 +217,7 @@ function drawTargetMenu(refX, refY, refWidth)
     end
 end
 
-function drawDescriptionText(x, y, skill)
+function drawDescriptionText(x, y, data)
     local width = (windowWidth - 10)/4 - 10
     love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle(
@@ -227,8 +227,16 @@ function drawDescriptionText(x, y, skill)
         width,
         height
     )
+    
+    local topText;
+    if data.cat == 'skill' then
+        topText = 'MP cost: '..data.cost..''
+    elseif data.cat == 'item' then
+        topText = 'Have left: '..data.amount..''
+    end
+    
     love.graphics.printf(
-        'MP cost: '..skill.cost..'',
+        topText,
         x + 20,
         y + 10,
         width - 20,
@@ -237,12 +245,113 @@ function drawDescriptionText(x, y, skill)
     love.graphics.line(x, y + itemHeight + 10, x + width, y + itemHeight + 10)
     love.graphics.setFont(font_small)
     love.graphics.printf(
-        skill.desc,
+        data.desc,
         x + 20,
         y + itemHeight + 10,
         width - 40,
         'left', 0, 1, 1, 0, -1 * (itemHeight/4)
     )
+end
+
+function drawMiddleMenu(menu, isTargeting)
+    local leftMenu = drawCharacterMenu()
+
+    local borderX = leftMenu.borderX + leftMenu.borderWidth + 10
+    local borderY = leftMenu.borderY
+    local borderWidth = (windowWidth - 10)/2 - 10
+    local borderHeight = height
+
+    love.graphics.setColor(1,1,1)
+    love.graphics.rectangle(
+        'line',
+        borderX,
+        borderY,
+        borderWidth,
+        borderHeight
+    )
+
+    if #menu.list == 0 then
+        local name = menu.user;
+        local text;
+        if menu == state.skillMenu then
+            text = ''..name..' have not learned any skills'
+        elseif menu == state.itemMenu then
+            text = 'Party did not have any consumable items'
+        end
+        love.graphics.setFont(font_small)
+        love.graphics.printf(
+            text,
+            borderX + 10,
+            borderY + 10,
+            borderWidth - 20,
+            'left'
+        )
+    else
+        for index, ref in ipairs(menu.list) do
+            love.graphics.setFont(font_medium)
+            love.graphics.setColor(1, 1, 1)
+            if menu == state.skillMenu then
+                local skill = actionData[ref]
+                if menu.user.currentMp < skill.cost then
+                    love.graphics.setColor(0.25, 0.25, 0.25)
+                end
+            end
+
+            local x
+            if index % 2 == 0 then
+                x = borderX + borderWidth/2 + 10
+            else
+                x = borderX + 10
+            end
+            local y = borderY + 10 + (math.floor((index - 1)/2)) * itemHeight
+            
+            local name;
+            if menu == state.skillMenu then
+                local skill = actionData[ref]
+                name = skill.name
+            elseif menu == state.itemMenu then
+                name = ref.item.name
+            end
+
+            love.graphics.printf(
+                name,
+                x + 20,
+                y,
+                borderWidth/2 - 40,
+                'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+            )
+            
+            love.graphics.setColor(1, 1, 1)
+            if menu.position == index then
+                drawMenuIndicator(x, y, itemHeight)
+                if isTargeting then
+                    drawTargetMenu(
+                        borderX, 
+                        borderY, 
+                        borderWidth
+                    )
+                else
+                    local data = {}
+                    if menu == state.skillMenu then
+                        local skill = actionData[ref]
+                        data.cat = 'skill'
+                        data.desc = skill.desc
+                        data.cost = skill.cost
+                    elseif menu == state.itemMenu then
+                        data.cat = 'item'
+                        data.desc = ref.item.desc
+                        data.amount = ref.amount
+                    end
+                        
+                    drawDescriptionText(
+                        borderX + borderWidth + 10,
+                        borderY,
+                        data
+                    )
+                end
+            end
+        end
+    end
 end
 
 function drawSkillMenu(isTargeting)
@@ -360,10 +469,12 @@ function menu.draw()
             local leftMenu = drawCharacterMenu()
             drawTargetMenu(leftMenu.borderX, leftMenu.borderY, leftMenu.borderWidth)
         elseif state.targetMenu.prevMenu == state.skillMenu then
-            drawSkillMenu(true)
+            drawMiddleMenu(state.skillMenu, true)
         end
     elseif state.currentMenu == state.skillMenu then
-        drawSkillMenu(false)
+        drawMiddleMenu(state.skillMenu, false)
+    elseif state.currentMenu == state.itemMenu then
+        drawMiddleMenu(state.itemMenu, false)
     end
 end
 

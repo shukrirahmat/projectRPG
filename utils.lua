@@ -56,6 +56,17 @@ function U.updateSkillMenu(user)
     state.skillMenu.list = skillList
 end
 
+function U.updateItemMenu(user)
+    local itemList = {}
+    for k, v in pairs(state.partyItems) do
+        table.insert(itemList, {item= v.item, amount = v.amount })
+    end
+
+    table.sort(itemList, function(a, b) return a.item.id < b.item.id end)
+    state.itemMenu.user = user
+    state.itemMenu.list = itemList
+end
+
 function U.menuReset(menu)
     menu.position = 1
 end
@@ -213,7 +224,7 @@ function U.clearTemporaryStatus()
 
     for _, group in ipairs({state.party, state.enemies}) do
         for _, character in ipairs(group) do
-            
+
             if character.isDefending then
                 character.isDefending = false
             end
@@ -224,18 +235,18 @@ function U.clearTemporaryStatus()
                     character.isAuraCharged = nil
                 end
             end
-            
+
             if character.isFocused then
                 character.isFocused.counter = character.isFocused.counter - 1
                 if character.isFocused.counter <= 0 then
                     character.isFocused = nil
                 end
             end
-            
+
             if character.status['GUARDIAN'] then
                 character.status['GUARDIAN'] = nil
             end
-            
+
             if character.isCovered then
                 character.isCovered = nil
             end
@@ -258,27 +269,27 @@ function U.updateStatChange(target, stat)
     end
 end
 
-function U.manageItems(itemRef, mod)
-    if state.partyItems[itemRef] then
-        state.partyItems[itemRef].amount = state.partyItems[itemRef].amount + mod
-    elseif not state.partyItems[itemRef] and mod > 0 then
-        state.partyItems[itemRef] = {amount = mod}
+function U.manageItems(item, mod)
+    if state.partyItems[item.ref] then
+        state.partyItems[item.ref].amount = state.partyItems[item.ref].amount + mod
+    elseif not state.partyItems[item.ref] and mod > 0 then
+        state.partyItems[item.ref] = {item = item , amount = mod}
     end
-    
-    if state.partyItems[itemRef].amount < 1 then
-        state.partyItems[itemRef] = nil
+
+    if state.partyItems[item.ref].amount < 1 then
+        state.partyItems[item.ref] = nil
     end
 end
 
 ---------------CALCULATOR----------------
 
 function U.calculateAttackDamage(attacker, target)    
-    
+
     local pierce = 1
     if target.specialType == 'ARMORED' and attacker.passives['piercer'] then
         pierce = 2
     end
-    
+
     local damage = math.floor(attacker.atk/2) - math.floor(target.def/(3 * pierce))
     local mod = math.floor(damage*0.2)
     damage = damage + math.floor(math.random(-mod, mod))
@@ -286,12 +297,12 @@ function U.calculateAttackDamage(attacker, target)
 end
 
 function U.calculateCritDamage(attacker, target)
-    
+
     local pierce = 1
     if target.specialType == 'ARMORED' and attacker.passives['piercer'] then
         pierce = 2
     end
-    
+
     local damage = math.floor(attacker.atk/2 * 3) - math.floor(target.def/(6 * pierce))
     local mod = math.floor(damage*0.2)
     damage = damage + math.floor(math.random(-mod, mod))
@@ -310,7 +321,7 @@ function U.checkCannotMove(target)
     if target.status['CONFUSE'] then return true end
     return false
 end
-    
-    
+
+
 
 return U

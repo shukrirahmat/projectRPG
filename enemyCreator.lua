@@ -50,10 +50,10 @@ local dataSheet = {
         strong = {},
         immune = {},
         specialType = 'UNDEAD',
-        skills = {'frail All'},
+        skills = {'hexII'},
         passives = {},
         gold = 50,
-        stealableItem = { item = itemCreator.new('talisman'), rate = 1 }
+        stealableItem = { item = itemCreator.new('holyWater'), rate = 1}
     },
 
     ['dragon'] = {

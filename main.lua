@@ -2,6 +2,7 @@ require('globals')
 local battle = require('battle')
 local partyMemberCreator = require('partyMemberCreator')
 local enemyCreator = require('enemyCreator')
+local itemCreator = require('itemCreator')
 
 function love.load()
     math.randomseed(os.time())
@@ -21,7 +22,13 @@ function love.load()
         enemyCreator.new('skeleton', 'SKELETON1'),
         enemyCreator.new('skeleton', 'SKELETON2')
     }
-    battle.load(party, enemies, 2500)
+    
+    local items = {
+        ['healingTonic'] = { item = itemCreator.new('healingTonic'), amount = 10 },
+        ['holyWater'] = { item = itemCreator.new('holyWater'), amount = 5 }
+        }
+    
+    battle.load(party, enemies, 2500, items)
 end
 
 function love.update(dt)

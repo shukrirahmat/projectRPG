@@ -1,8 +1,8 @@
 local itemData = {}
 
 itemData['healingTonic'] = { id = 1, name = 'Healing Tonic', desc = 'Recover small amount of HP'}
-itemData['prismTonic'] = { id = 2, name = 'Prism Tonic', desc = 'Recover medium amount of HP'}
-itemData['talisman'] = { id = 3, name = 'Talisman', desc = 'Remove curse to one ally'}
+itemData['prismTonic'] = { id = 2, name = 'Prism Tonic', desc = 'Recover HP to full'}
+itemData['holyWater'] = { id = 3, name = 'Holy Water', desc = 'Remove curse from one ally'}
 
 local itemCreator = {}
 

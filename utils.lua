@@ -250,6 +250,11 @@ function U.clearTemporaryStatus()
             if character.isCovered then
                 character.isCovered = nil
             end
+            
+            if character.usingItem then
+                U.manageItems(character.usingItem, 1)
+                character.usingItem = nil
+            end
         end
     end
 end

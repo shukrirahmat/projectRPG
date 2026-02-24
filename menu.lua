@@ -470,6 +470,8 @@ function menu.draw()
             drawTargetMenu(leftMenu.borderX, leftMenu.borderY, leftMenu.borderWidth)
         elseif state.targetMenu.prevMenu == state.skillMenu then
             drawMiddleMenu(state.skillMenu, true)
+        elseif state.targetMenu.prevMenu == state.itemMenu then
+            drawMiddleMenu(state.itemMenu, true)
         end
     elseif state.currentMenu == state.skillMenu then
         drawMiddleMenu(state.skillMenu, false)

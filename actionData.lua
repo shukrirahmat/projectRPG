@@ -672,7 +672,7 @@ local function  castHeal(self, user, targets)
     for i, target in ipairs(targets) do
         if not target.isDead then
             local amount
-            if self.name == 'FullHeal' then
+            if self.name == 'Full Heal' then
                 amount = target.maxHp - target.currentHp
             else
                 amount = self.healAmount
@@ -768,6 +768,42 @@ local function hiddenBlades(self, user, targets)
                 statusEffect = effectCreator.new('addStatus', user, target, 'STUN')
                 table.insert(state.effectList, statusEffect)
             end    
+        end
+    end
+end
+
+local function  useTonic(self, user, targets)
+    local text = ''..user.name..' used '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local amount
+            if not self.healAmount then
+                amount = target.maxHp - target.currentHp
+            else
+                amount = self.healAmount
+            end
+
+            local recoverEffect = effectCreator.new('recover', user, target, amount)
+            table.insert(state.effectList, recoverEffect)
+        end
+    end
+end
+
+local function useStatusRecovery(self, user, targets)
+    local text = ''..user.name..' used '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            if target.status[self.status] then
+                local clear = effectCreator.new('clearStatus', user, target, self.status)
+                table.insert(state.effectList, clear)
+            else
+                local immuneEffect = effectCreator.new('immune', user, target)
+                table.insert(state.effectList, immuneEffect)
+            end
         end
     end
 end
@@ -1618,7 +1654,7 @@ actionData['healI'] = {
     aim = 'allies',
     scope = 'single',
     execute = castHeal,
-    healAmount = 40
+    healAmount = 50
 }
 
 actionData['healII'] = {
@@ -2098,6 +2134,35 @@ actionData['undo'] = {
     aim = 'allies',
     scope = 'self',
     execute = undo,
+}
+
+actionData['healingTonic'] = {
+    name = 'Healing Tonic', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useTonic,
+    healAmount = 40
+}
+
+actionData['prismTonic'] = {
+    name = 'Prism Tonic', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useTonic,
+}
+
+actionData['holyWater'] = {
+    name = 'Holy Water', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useStatusRecovery,
+    status = 'CURSE'
 }
 
 return actionData;

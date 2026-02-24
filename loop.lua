@@ -176,6 +176,10 @@ function executeAction(action, isFollowUp)
         else
             toAct.execute(toAct, action.user, action.targets)
         end
+        
+        if action.user.usingItem then
+            action.user.usingItem = nil
+        end
 
         if not action.user.isPartyMember and toAct.enemyAnimation then
             local aniData = toAct.enemyAnimation

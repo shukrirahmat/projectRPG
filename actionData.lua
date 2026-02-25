@@ -51,6 +51,15 @@ local function handleOnHitEffects(user, target)
 end
 
 local function handleSteal(user, target)
+    
+    if user.isPartyMember and target.isPartyMember then
+        return
+    end
+    
+    if not user.isPartyMember and not target.isPartyMember then
+        return
+    end
+    
     if user.passives['pincher'] then
         local baseAmount = user.lvl * 5
         local mod = math.floor(baseAmount * 0.5)

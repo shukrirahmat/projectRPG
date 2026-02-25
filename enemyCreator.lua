@@ -17,7 +17,7 @@ local dataSheet = {
         skills = {},
         passives = {['pincher'] = true},
         gold = 300,
-        stealableItem = { item = itemCreator.new('healingTonic'), rate = 1 }
+        stealableItem = { item = itemCreator.new('healingTonic'), rate = 8 }
     },
     
     ['armoredGoblin'] = {
@@ -35,7 +35,7 @@ local dataSheet = {
         skills = {},
         passives = {},
         gold = 300,
-        stealableItem = { item = itemCreator.new('healingTonic'), rate = 1 }
+        stealableItem = { item = itemCreator.new('healingTonic'), rate = 8 }
     },
 
     ['skeleton'] = {
@@ -53,7 +53,7 @@ local dataSheet = {
         skills = {'hexII'},
         passives = {},
         gold = 50,
-        stealableItem = { item = itemCreator.new('holyWater'), rate = 1}
+        stealableItem = { item = itemCreator.new('holyWater'), rate = 16}
     },
 
     ['dragon'] = {
@@ -71,7 +71,7 @@ local dataSheet = {
         skills = {},
         passives = {},
         gold = 250,
-        stealableItem = { item = itemCreator.new('prismTonic'), rate = 1 }
+        stealableItem = { item = itemCreator.new('prismTonic'), rate = 25 }
     }
 }
 

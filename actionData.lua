@@ -800,6 +800,21 @@ local function  useTonic(self, user, targets)
     end
 end
 
+local function  useNectar(self, user, targets)
+    local text = ''..user.name..' used '..self.name..'';
+    utils.battleLogAdd(text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local amount
+            amount = self.mpHealAmount
+
+            local recoverEffect = effectCreator.new('mpRecover', user, target, amount)
+            table.insert(state.effectList, recoverEffect)
+        end
+    end
+end
+
 local function useStatusRecovery(self, user, targets)
     local text = ''..user.name..' used '..self.name..'';
     utils.battleLogAdd(text)
@@ -2164,6 +2179,26 @@ actionData['prismTonic'] = {
     execute = useTonic,
 }
 
+actionData['goldenNectar'] = {
+    name = 'Golden Nectar', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useNectar,
+    mpHealAmount = 40
+}
+
+actionData['antidote'] = {
+    name = 'Antidote', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useStatusRecovery,
+    status = 'POISON'
+}
+
 actionData['holyWater'] = {
     name = 'Holy Water', 
     item = true,
@@ -2172,6 +2207,46 @@ actionData['holyWater'] = {
     scope = 'single',
     execute = useStatusRecovery,
     status = 'CURSE'
+}
+
+actionData['bandage'] = {
+    name = 'Bandage', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useStatusRecovery,
+    status = 'WOUND'
+}
+
+actionData['wigglyGrass'] = {
+    name = 'Wiggly Grass', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useStatusRecovery,
+    status = 'PARALYSIS'
+}
+
+actionData['fairyBell'] = {
+    name = 'Fairy Bell', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useStatusRecovery,
+    status = 'SLEEP'
+}
+
+actionData['clarityBrew'] = {
+    name = 'Clarity Brew', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = useStatusRecovery,
+    status = 'CONFUSE'
 }
 
 return actionData;

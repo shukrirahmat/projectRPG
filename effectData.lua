@@ -58,7 +58,7 @@ end
 local function mpRecovery(_, target, value)
     local amount = math.min(target.maxMp - target.currentMp, value)
     target.currentMp = math.min(target.maxMp, target.currentMp + amount)
-    utils.battleLogAdd(''..target.name..' gets back '..amount..' MP.');
+    utils.battleLogAdd(''..target.name..' recovers '..amount..' MP.');
 end
 
 local function revival(_, target, percentage)

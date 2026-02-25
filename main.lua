@@ -25,7 +25,8 @@ function love.load()
     
     local items = {
         ['healingTonic'] = { item = itemCreator.new('healingTonic'), amount = 10 },
-        ['holyWater'] = { item = itemCreator.new('holyWater'), amount = 5 }
+        ['holyWater'] = { item = itemCreator.new('holyWater'), amount = 5 },
+        ['goldenNectar'] = { item = itemCreator.new('goldenNectar'), amount = 2 }
         }
     
     battle.load(party, enemies, 2500, items)

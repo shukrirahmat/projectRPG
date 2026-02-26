@@ -6,6 +6,7 @@ local itemCreator = require('itemCreator')
 
 function love.load()
     math.randomseed(os.time())
+    love.window.setMode(windowWidth, windowHeight)
     
     local party = { 
         partyMemberCreator.new(1), 

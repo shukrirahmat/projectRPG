@@ -71,7 +71,7 @@ local dataSheet = {
         skills = {},
         passives = {},
         gold = 250,
-        stealableItem = { item = itemCreator.new('prismTonic'), rate = 25 }
+        stealableItem = { item = itemCreator.new('prismTonic'), rate = 32 }
     }
 }
 

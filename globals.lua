@@ -1,5 +1,5 @@
-windowWidth = 800
-windowHeight = 600
+windowWidth = 960
+windowHeight = 540
 
 love.graphics.setBackgroundColor(0,0,0)
 
@@ -19,3 +19,4 @@ goblin_sprite = love.graphics.newImage('images/goblin.png')
 armored_goblin_sprite = love.graphics.newImage('images/armored_goblin.png')
 skeleton_sprite = love.graphics.newImage('images/skeleton.png')
 dragon_sprite = love.graphics.newImage('images/dragon.png')
+

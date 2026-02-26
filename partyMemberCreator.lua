@@ -47,7 +47,9 @@ local dataSheet = {
         str = 24,
         def = 40,
         agi = 90,
-        skills = {'lightningI', 'luminaII', 'voidIII', 'drainII', 'tremorI', 'woundII', 'hiddenBlades'},
+        skills = {
+            'lightningI', 'lightningII', 'lightningIII', 'luminaI', 'luminaII', 'luminaIII', 'tremorII', 'woundII', 'might'
+            },
         passives = {['echoMagic'] = true, ['immunity'] = {'SEAL'}, ['manaSaver'] = true},
         weapon = weaponCreator.new('smallDagger')
     }

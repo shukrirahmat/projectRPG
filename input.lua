@@ -93,43 +93,30 @@ local function addAttackAction(target)
 end
 
 function input.executeLeft()
-    if state.currentMenu == state.skillMenu then
-        if state.skillMenu.position % 2 == 0
-        and state.skillMenu.position - 1 >= 1 then
-            utils.menuUp(state.skillMenu)
-        end
-    elseif state.currentMenu == state.itemMenu then
-        if state.itemMenu.position % 2 == 0
-        and state.itemMenu.position - 1 >= 1 then
-            utils.menuUp(state.itemMenu)
+    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
+        if state.currentMenu.position % 2 == 0
+        and state.currentMenu.position - 1 >= 1 then
+            utils.menuUp(state.currentMenu)
         end
     end
 end
 
 function input.executeRight()
-    if state.currentMenu == state.skillMenu then
-        if state.skillMenu.position % 2 ~= 0
-        and state.skillMenu.position + 1 <= #state.skillMenu.list then
-            utils.menuDown(state.skillMenu)
-        end
-    elseif state.currentMenu == state.itemMenu then
-        if state.itemMenu.position % 2 ~= 0
-        and state.itemMenu.position + 1 <= #state.itemMenu.list then
-            utils.menuDown(state.itemMenu)
+    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
+        if state.currentMenu.position % 2 ~= 0
+        and state.currentMenu.position + 1 <= #state.currentMenu.list then
+            utils.menuDown(state.currentMenu)
         end
     end
 end
 
 function input.executeDown()
-    if state.currentMenu == state.skillMenu then
-        if state.skillMenu.position + 2 <= #state.skillMenu.list then
-            utils.menuDown(state.skillMenu)
-            utils.menuDown(state.skillMenu)
-        end
-    elseif state.currentMenu == state.itemMenu then
-        if state.itemMenu.position + 2 <= #state.itemMenu.list then
-            utils.menuDown(state.itemMenu)
-            utils.menuDown(state.itemMenu)
+    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
+        if state.currentMenu.position + 2 <= #state.currentMenu.list then
+            utils.menuDown(state.currentMenu)
+            utils.menuDown(state.currentMenu)
+        elseif state.currentMenu.position + 1 == #state.currentMenu.list then
+            utils.menuDown(state.currentMenu)
         end
     else
         if state.currentMenu.position < #state.currentMenu.list then
@@ -139,15 +126,10 @@ function input.executeDown()
 end
 
 function input.executeUp()
-    if state.currentMenu == state.skillMenu then
-        if state.skillMenu.position - 2 >= 1 then
-            utils.menuUp(state.skillMenu)
-            utils.menuUp(state.skillMenu)
-        end
-    elseif state.currentMenu == state.itemMenu then
-        if state.itemMenu.position - 2 >= 1 then
-            utils.menuUp(state.itemMenu)
-            utils.menuUp(state.itemMenu)
+    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
+        if state.currentMenu.position - 2 >= 1 then
+            utils.menuUp(state.currentMenu)
+            utils.menuUp(state.currentMenu)
         end
     else
         if state.currentMenu.position > 1 then

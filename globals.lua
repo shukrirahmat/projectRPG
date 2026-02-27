@@ -1,5 +1,5 @@
-windowWidth = 960
-windowHeight = 540
+windowWidth = 1024
+windowHeight = 576
 
 love.graphics.setBackgroundColor(0,0,0)
 

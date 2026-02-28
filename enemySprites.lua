@@ -1,4 +1,4 @@
-local state = require('state')
+local battleState = require('battleState')
 local hud = require('hud')
 local utils = require('utils')
 
@@ -17,7 +17,7 @@ local enemyMovement = {
 
 local function getSpritePos(enemy,index, shiftX, shiftY)
     local x = windowWidth/2 + (index - 1) * monsterSpriteDimension + shiftX 
-    - (monsterSpriteDimension/2) * #state.enemies;
+    - (monsterSpriteDimension/2) * #battleState.enemies;
     local y = windowHeight/2 + shiftY  - monsterSpriteDimension/1.5
     local height = enemy.spriteHeight
     return {x = x, y = y, height = height}
@@ -37,9 +37,9 @@ end
 
 local function drawAttackAnimation(enemy, index)
     for moveIndex, movement in ipairs(enemyMovement) do
-        if state.animation.tick == moveIndex then
+        if battleState.animation.tick == moveIndex then
             drawEnemySprite(enemy, index, movement.x, movement.y)
-        elseif state.animation.tick == 0 or state.animation.tick > #enemyMovement then
+        elseif battleState.animation.tick == 0 or battleState.animation.tick > #enemyMovement then
             drawEnemySprite(enemy, index, 0, 0)
         end
     end
@@ -58,28 +58,28 @@ local function drawTextOnEnemy(enemy, index, text, font, color)
     love.graphics.printf(
         text,
         spritePos.x,
-        spritePos.y + spritePos.height - 20 - state.animation.tick * 2,
+        spritePos.y + spritePos.height - 20 - battleState.animation.tick * 2,
         monsterSpriteDimension,
         'center'
     )
 end
 
 local function drawDamagedAnimation(enemy, index, color)
-    if state.animation.tick % 2 == 0 and state.animation.tick <= 4 then
+    if battleState.animation.tick % 2 == 0 and battleState.animation.tick <= 4 then
         drawEnemySprite(enemy, index, 0, 0)
-    elseif state.animation.tick > 4 then
+    elseif battleState.animation.tick > 4 then
         drawEnemySprite(enemy, index, 0, 0)
     else
         drawEnemySprite(enemy, index, 0, 0, 0.1)
     end
 
-    if state.animation.tick > 1 then
-        drawTextOnEnemy(enemy, index, state.animation.value, font_bold, color)
+    if battleState.animation.tick > 1 then
+        drawTextOnEnemy(enemy, index, battleState.animation.value, font_bold, color)
     end
 end
 
 local function drawImmuneAnimation(enemy, index)
-    if state.animation.tick == 1 or state.animation.tick == 2 then
+    if battleState.animation.tick == 1 or battleState.animation.tick == 2 then
         drawEnemySprite(enemy, index, 0, 0, 0.8)
     else
         drawEnemySprite(enemy, index, 0, 0)
@@ -87,37 +87,37 @@ local function drawImmuneAnimation(enemy, index)
 end
 
 local function drawDodgeAnimation(enemy, index, color)
-    if state.animation.tick == 1 or state.animation.tick == 2 then
+    if battleState.animation.tick == 1 or battleState.animation.tick == 2 then
         drawEnemySprite(enemy, index, 5, 0)
     else
         drawEnemySprite(enemy, index, 0, 0)
     end
     
-    if state.animation.tick > 1 then
+    if battleState.animation.tick > 1 then
         drawTextOnEnemy(enemy, index, 'MISS', font_small, color)
     end
 end
 
 
 local function drawDeathAnimation(enemy, index)
-    local tint = math.max(0, 1 - state.animation.tick/8)
+    local tint = math.max(0, 1 - battleState.animation.tick/8)
     drawEnemySprite(enemy, index, 0, 0, tint)
 end
 
 local function drawEnemyAnimation(enemy, index)
-    if state.animation.ref == 'enemyAtk' then
+    if battleState.animation.ref == 'enemyAtk' then
         drawAttackAnimation(enemy, index)
-    elseif state.animation.ref == 'enemyDamaged' then
+    elseif battleState.animation.ref == 'enemyDamaged' then
         drawDamagedAnimation(enemy, index)
-    elseif state.animation.ref == 'enemyResisted' then
+    elseif battleState.animation.ref == 'enemyResisted' then
         drawDamagedAnimation(enemy, index, 'grey')
-    elseif state.animation.ref == 'enemyManaBurned' then
+    elseif battleState.animation.ref == 'enemyManaBurned' then
         drawDamagedAnimation(enemy, index, 'blue')
-    elseif state.animation.ref == 'enemyImmune' then
+    elseif battleState.animation.ref == 'enemyImmune' then
         drawImmuneAnimation(enemy, index)
-    elseif state.animation.ref == 'enemyDodged' then
+    elseif battleState.animation.ref == 'enemyDodged' then
         drawDodgeAnimation(enemy, index)
-    elseif state.animation.ref == 'enemyDodgedResist' then
+    elseif battleState.animation.ref == 'enemyDodgedResist' then
         drawDodgeAnimation(enemy, index, 'grey')
     end
 end
@@ -153,20 +153,20 @@ local function drawStatusEffect(enemy, index)
 end
 
 function E.draw()
-    for i, enemy in ipairs(state.enemies) do
+    for i, enemy in ipairs(battleState.enemies) do
         if not enemy.isDead then
-            if state.animation and state.animation.user == enemy then
+            if battleState.animation and battleState.animation.user == enemy then
                 drawEnemyAnimation(enemy, i)
             else
                 drawEnemySprite(enemy, i, 0, 0)
             end
 
-            if state.infoMode then
+            if battleState.infoMode then
                 drawStatusEffect(enemy, i)
             end
 
         elseif enemy.isDead 
-        and state.animation and state.animation.user == enemy then
+        and battleState.animation and battleState.animation.user == enemy then
             drawDeathAnimation(enemy,i)
         end
     end

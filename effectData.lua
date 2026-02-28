@@ -1,4 +1,4 @@
-local state = require('state')
+local battleState = require('battleState')
 local utils = require('utils')
 local effectCreator = require('effectCreator')
 
@@ -21,7 +21,7 @@ local function dealDamage(_, target, value)
     utils.battleLogAdd(''..target.name..' takes '..damage..' damage.');
     if target.currentHp <= 0 then
         target.currentHp = 0;
-        table.insert(state.killList, target)
+        table.insert(battleState.killList, target)
     end
 
     for _, statusEf in ipairs({'SLEEP', 'CONFUSE'}) do
@@ -29,7 +29,7 @@ local function dealDamage(_, target, value)
             local roll = math.random(1,4)
             if roll == 1 then
                 local clearEffect = effectCreator.new('clearStatus', user, target, statusEf)
-                table.insert(state.effectList, clearEffect)
+                table.insert(battleState.effectList, clearEffect)
             end
         end
     end
@@ -88,7 +88,7 @@ end
 
 local function instakill(_, target)
     target.currentHp = 0;
-    table.insert(state.killList, target)
+    table.insert(battleState.killList, target)
 end
 
 local function missed(_, target)
@@ -119,17 +119,17 @@ local function clearStatus(user, target, status)
         utils.battleLogAdd(""..target.name.." is not confused anymore")
     elseif status == 'POISON' then
         target.status['POISON'] = nil
-        for i, effect in ipairs(state.effectList) do
+        for i, effect in ipairs(battleState.effectList) do
             if effect.ref == 'poisonDamage' then
-                table.remove(state.effectList, i)
+                table.remove(battleState.effectList, i)
             end
         end
         utils.battleLogAdd(""..target.name.." recovered from poisoned")
     elseif status == 'CURSE' then
         target.status['CURSE'] = nil
-        for i, effect in ipairs(state.effectList) do
+        for i, effect in ipairs(battleState.effectList) do
             if effect.ref == 'curseEffect' then
-                table.remove(state.effectList, i)
+                table.remove(battleState.effectList, i)
             end
         end
         utils.battleLogAdd("The curse have been removed from "..target.name.."")
@@ -315,14 +315,14 @@ local function poisonDamage(_, target, value)
     utils.battleLogAdd(''..target.name..' loses '..damage..' HP to poison.');
     if target.currentHp <= 0 then
         target.currentHp = 0;
-        table.insert(state.killList, target)
+        table.insert(battleState.killList, target)
     end
 end
 
 local function curseEffect(_, target)
     utils.battleLogAdd(''..target.name..' died from the curse');
     target.currentHp = 0;
-    table.insert(state.killList, target)
+    table.insert(battleState.killList, target)
 end
 
 local function stealItem(user, target, item)
@@ -333,15 +333,15 @@ end
 
 local function stealGold(user, target, amount)
     if target.isPartyMember then
-        amount = math.min(amount, state.partyGold)
-        state.partyGold = state.partyGold - amount;
+        amount = math.min(amount, battleState.partyGold)
+        battleState.partyGold = battleState.partyGold - amount;
     elseif not target.isPartyMember then
         amount = math.min(amount, target.stealableGold)
         target.stealableGold = target.stealableGold - amount;
     end
 
     if user.isPartyMember then
-        state.partyGold = state.partyGold + amount
+        battleState.partyGold = battleState.partyGold + amount
     elseif not user.isPartyMember then
         user.stealableGold = user.stealableGold + amount
     end

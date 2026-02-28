@@ -1,4 +1,4 @@
-local state = require('state')
+local battleState = require('battleState')
 local utils = require('utils')
 
 local hud = {}
@@ -60,31 +60,31 @@ function hud.draw()
     local mpY = borderY + 25 * 2
     local mpWidth = borderWidth - 10
 
-    for index, member in ipairs(state.party) do
+    for index, member in ipairs(battleState.party) do
 
         --MOVE DOWNWARD FOR ANIMATION
         local shiftY = 0
         local hpBit = 0
-        if state.animation 
-        and state.animation.user == member 
-        and state.animation.ref == 'partyDamaged' then
-            if state.animation.tick <= 3 then
-                shiftY = state.animation.tick * 4
+        if battleState.animation 
+        and battleState.animation.user == member 
+        and battleState.animation.ref == 'partyDamaged' then
+            if battleState.animation.tick <= 3 then
+                shiftY = battleState.animation.tick * 4
             else
-                shiftY = math.max(0, (16 - (state.animation.tick) * 2))
+                shiftY = math.max(0, (16 - (battleState.animation.tick) * 2))
             end
 
-            local hpDrop = math.min(state.animation.value, member.currentHp)
-            local dropPerTick = math.floor(hpDrop/state.animation.maxTick)
-            if state.animation.tick < state.animation.maxTick then
-                hpBit = (state.animation.maxTick - state.animation.tick) * dropPerTick
+            local hpDrop = math.min(battleState.animation.value, member.currentHp)
+            local dropPerTick = math.floor(hpDrop/battleState.animation.maxTick)
+            if battleState.animation.tick < battleState.animation.maxTick then
+                hpBit = (battleState.animation.maxTick - battleState.animation.tick) * dropPerTick
             else
                 hpBit = 0
             end
         end
         
-        if state.infoMode then
-            drawStatusEffect(borderX, borderY + borderHeight, borderWidth, index, state.party[index])
+        if battleState.infoMode then
+            drawStatusEffect(borderX, borderY + borderHeight, borderWidth, index, battleState.party[index])
         end
         
         love.graphics.setColor(0, 0, 0)
@@ -124,7 +124,7 @@ function hud.draw()
         local memberHpX = hpX + (index - 1) * (borderWidth + borderX)
         local memberMpX = mpX + (index - 1) * (borderWidth + borderX)
         love.graphics.setFont(font_large)
-        if not state.infoMode then
+        if not battleState.infoMode then
             love.graphics.printf(
                 'HP '..alignNumber(member.currentHp + hpBit)..'', 
                 memberHpX, hpY + shiftY, hpWidth,'center')

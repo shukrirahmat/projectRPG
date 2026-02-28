@@ -1,9 +1,9 @@
-local state = require('state')
+local battleState = require('battleState')
 local actionData = require('actionData')
 
 local menu = {}
 
-local height = state.bottomHeight
+local height = battleState.bottomHeight
 local itemHeight = (height - 20)/4
 
 local function drawMenuIndicator(x, y, height)
@@ -41,8 +41,8 @@ local function drawLeftMenu(m)
     love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(font_medium)
     for i, item in ipairs(m.list) do
-        if m == state.characterMenu
-        and state.party[state.characterMenu.charID].status['SEAL']
+        if m == battleState.characterMenu
+        and battleState.party[battleState.characterMenu.charID].status['SEAL']
         and i == 2 then
             love.graphics.setColor(0.25, 0.25, 0.25)
         else
@@ -75,7 +75,7 @@ local function drawLeftMenu(m)
 end
 
 local function drawCharacterMenu()
-    local leftMenu = drawLeftMenu(state.characterMenu)
+    local leftMenu = drawLeftMenu(battleState.characterMenu)
 
     local borderHeight = 30
     local borderX = leftMenu.borderX
@@ -104,8 +104,8 @@ local function drawCharacterMenu()
     )
 
 
-    local id = state.characterMenu.charID
-    local charName = state.party[id].name
+    local id = battleState.characterMenu.charID
+    local charName = battleState.party[id].name
     love.graphics.printf(
         charName,
         nameX,
@@ -161,7 +161,7 @@ function drawTargetMenu(refX, refY, refWidth)
         borderHeight
     )
 
-    if #state.targetMenu.list < 1 then
+    if #battleState.targetMenu.list < 1 then
         love.graphics.setFont(font_medium)
         love.graphics.setColor(1, 1, 1)
         love.graphics.printf(
@@ -178,15 +178,15 @@ function drawTargetMenu(refX, refY, refWidth)
     local secondPage = {}
     local currentPage
 
-    for i = 1, #state.targetMenu.list, 1 do
+    for i = 1, #battleState.targetMenu.list, 1 do
         if i < 5 then
-            table.insert(firstPage, state.targetMenu.list[i])
+            table.insert(firstPage, battleState.targetMenu.list[i])
         else
-            table.insert(secondPage, state.targetMenu.list[i])
+            table.insert(secondPage, battleState.targetMenu.list[i])
         end
     end
 
-    if state.targetMenu.position < 5 then
+    if battleState.targetMenu.position < 5 then
         currentPage = firstPage
     else
         currentPage = secondPage
@@ -208,7 +208,7 @@ function drawTargetMenu(refX, refY, refWidth)
         else
             pointer = i + 4
         end
-        if state.targetMenu.position == pointer then
+        if battleState.targetMenu.position == pointer then
             drawMenuIndicator(
                 targetX,
                 targetY + (i - 1) * targetHeight,
@@ -271,7 +271,7 @@ local function drawCurrentMenuPage(
 
         love.graphics.setFont(font_medium)
         love.graphics.setColor(1, 1, 1)
-        if menu == state.skillMenu then
+        if menu == battleState.skillMenu then
             local skill = actionData[menu.list[i]]
             if menu.user.currentMp < skill.cost then
                 love.graphics.setColor(0.25, 0.25, 0.25)
@@ -288,10 +288,10 @@ local function drawCurrentMenuPage(
         local y = borderY + 10 + (math.floor((itemPos - 1)/2)) * itemHeight
 
         local name;
-        if menu == state.skillMenu then
+        if menu == battleState.skillMenu then
             local skill = actionData[menu.list[i]]
             name = skill.name
-        elseif menu == state.itemMenu then
+        elseif menu == battleState.itemMenu then
             name = menu.list[i].item.name
         end
 
@@ -314,12 +314,12 @@ local function drawCurrentMenuPage(
                 )
             else
                 local data = {}
-                if menu == state.skillMenu then
+                if menu == battleState.skillMenu then
                     local skill = actionData[menu.list[i]]
                     data.cat = 'skill'
                     data.desc = skill.desc
                     data.cost = skill.cost
-                elseif menu == state.itemMenu then
+                elseif menu == battleState.itemMenu then
                     data.cat = 'item'
                     data.desc = menu.list[i].item.desc
                     data.amount = menu.list[i].amount
@@ -367,9 +367,9 @@ function drawMiddleMenu(menu, isTargeting)
     if #menu.list == 0 then
         local name = menu.user;
         local text;
-        if menu == state.skillMenu then
+        if menu == battleState.skillMenu then
             text = ''..name..' have not learned any skills'
-        elseif menu == state.itemMenu then
+        elseif menu == battleState.itemMenu then
             text = 'Party did not have any consumable items'
         end
         love.graphics.setFont(font_small)
@@ -407,7 +407,7 @@ function menu.drawBattleLog()
     )
 
     love.graphics.setFont(font_text)
-    for index, text in ipairs(state.battleLog) do
+    for index, text in ipairs(battleState.battleLog) do
         love.graphics.printf(
             text,
             textX,
@@ -418,23 +418,23 @@ function menu.drawBattleLog()
 end
 
 function menu.draw()
-    if state.currentMenu == state.mainMenu then
-        drawLeftMenu(state.mainMenu)
-    elseif state.currentMenu == state.characterMenu then
+    if battleState.currentMenu == battleState.mainMenu then
+        drawLeftMenu(battleState.mainMenu)
+    elseif battleState.currentMenu == battleState.characterMenu then
         drawCharacterMenu()
-    elseif state.currentMenu == state.targetMenu then
-        if state.targetMenu.prevMenu == state.characterMenu then
+    elseif battleState.currentMenu == battleState.targetMenu then
+        if battleState.targetMenu.prevMenu == battleState.characterMenu then
             local leftMenu = drawCharacterMenu()
             drawTargetMenu(leftMenu.borderX, leftMenu.borderY, leftMenu.borderWidth)
-        elseif state.targetMenu.prevMenu == state.skillMenu then
-            drawMiddleMenu(state.skillMenu, true)
-        elseif state.targetMenu.prevMenu == state.itemMenu then
-            drawMiddleMenu(state.itemMenu, true)
+        elseif battleState.targetMenu.prevMenu == battleState.skillMenu then
+            drawMiddleMenu(battleState.skillMenu, true)
+        elseif battleState.targetMenu.prevMenu == battleState.itemMenu then
+            drawMiddleMenu(battleState.itemMenu, true)
         end
-    elseif state.currentMenu == state.skillMenu then
-        drawMiddleMenu(state.skillMenu, false)
-    elseif state.currentMenu == state.itemMenu then
-        drawMiddleMenu(state.itemMenu, false)
+    elseif battleState.currentMenu == battleState.skillMenu then
+        drawMiddleMenu(battleState.skillMenu, false)
+    elseif battleState.currentMenu == battleState.itemMenu then
+        drawMiddleMenu(battleState.itemMenu, false)
     end
 end
 

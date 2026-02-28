@@ -1,4 +1,4 @@
-local state = require('state')
+local battleState = require('battleState')
 local utils = require('utils')
 local animationCreator = require('animationCreator')
 local actionCreator = require('actionCreator')
@@ -13,7 +13,7 @@ local function nextPriorityIndex()
     local result
     local highestSpeed = -1
 
-    for i, action in ipairs(state.priorityList) do
+    for i, action in ipairs(battleState.priorityList) do
         local speed = actionData[action.ref].priority
         if speed > highestSpeed then
             highestSpeed = speed
@@ -70,7 +70,7 @@ local function statusApply(action)
         local ratio = rand * 0.01
         local amount = math.floor(user.maxHp * ratio)
         local poisonEffect = effectCreator.new('poisonDamage', user, user, amount)
-        table.insert(state.effectList, poisonEffect)
+        table.insert(battleState.effectList, poisonEffect)
     end
 
     if user.status['CURSE'] then
@@ -83,7 +83,7 @@ local function statusApply(action)
         local roll = math.random(1, max)
         if roll == 1 then
             local curseEffect = effectCreator.new('curseEffect', user, user)
-            table.insert(state.effectList, curseEffect)
+            table.insert(battleState.effectList, curseEffect)
         end
     end
 
@@ -92,7 +92,7 @@ local function statusApply(action)
         local mod = math.floor(baseAmount*0.2)
         local amount = baseAmount + math.random(-mod, mod)
         local recoverEffect = effectCreator.new('recover', user, user, amount)
-        table.insert(state.effectList, recoverEffect)
+        table.insert(battleState.effectList, recoverEffect)
     end
 end
 
@@ -100,7 +100,7 @@ local function statusClear(user, status, chance)
     local roll = math.random(0, 100)
     if roll <= chance then
         local clear = effectCreator.new('clearStatus', user, user, status)
-        table.insert(state.effectList, clear)
+        table.insert(battleState.effectList, clear)
     end
 end
 
@@ -109,7 +109,7 @@ local function countDownStats(user, status)
         user.status[status].countdown = user.status[status].countdown - 1;
     elseif user.status[status].countdown <= 0 then
         local clear = effectCreator.new('clearStatus', user, user, status)
-        table.insert(state.effectList, clear)
+        table.insert(battleState.effectList, clear)
     end
 end
 
@@ -186,27 +186,27 @@ function executeAction(action, isFollowUp)
             local animation = animationCreator.new(
                 action.user, aniData.ref, aniData.maxTick, aniData.speed
             )
-            state.animation = animation
+            battleState.animation = animation
         elseif action.user.isPartyMember and action.ref == 'counterAtk' then
             local aniData = toAct.partyAnimation
             local animation = animationCreator.new(
                 action.targets[1], aniData.ref, aniData.maxTick, aniData.speed
             )
-            state.animation = animation
+            battleState.animation = animation
         end
 
         if toAct.magic then
             if action.user.passives['echoMagic'] and not isFollowUp then
                 local roll = math.random(1, 4)
                 if roll == 1 then
-                    table.insert(state.followUp, action)
+                    table.insert(battleState.followUp, action)
                 end
             end
             if action.user.passives['manaSaver'] and not isFollowUp then
                 local roll = math.random(1, 4)
                 if roll == 1 then
                     local effect = effectCreator.new('mpRecover', action.user, action.user, toAct.cost)
-                    table.insert(state.effectList, effect)
+                    table.insert(battleState.effectList, effect)
                 end
             end
         end
@@ -231,14 +231,14 @@ function applyEffect(effect)
         local animation = animationCreator.new(
             effect.target, data.ref, data.maxTick, data.speed, effect.value
         )
-        state.animation = animation
+        battleState.animation = animation
     elseif effect.target 
     and not effect.target.isPartyMember and effectData[effect.ref].enemyAnimation then
         local data = effectData[effect.ref].enemyAnimation
         local animation = animationCreator.new(
             effect.target, data.ref, data.maxTick, data.speed, effect.value
         )
-        state.animation = animation
+        battleState.animation = animation
     end
 end
 
@@ -246,47 +246,47 @@ end
 
 function loop.run()
 
-    if state.battleEnded then
-        state.battleLog = {}
-        if state.partyDied then
+    if battleState.battleEnded then
+        battleState.battleLog = {}
+        if battleState.partyDied then
             utils.battleLogAdd('Party has been defeated')
-        elseif state.allEnemyDead then
+        elseif battleState.allEnemyDead then
             utils.battleLogAdd('All enemy has been defeated')
         end
-        state.textTimer = 0
-    elseif #state.killList > 0 then
-        local toKill = state.killList[1]
-        table.remove(state.killList, 1)
+        battleState.textTimer = 0
+    elseif #battleState.killList > 0 then
+        local toKill = battleState.killList[1]
+        table.remove(battleState.killList, 1)
         utils.handleDeath(toKill)
 
         if not toKill.isPartyMember then
-            state.animation = animationCreator.new(toKill, 'enemyDied', 8, 0.05)
+            battleState.animation = animationCreator.new(toKill, 'enemyDied', 8, 0.05)
         end
 
-        if (state.partyDied or state.allEnemyDead) and #state.effectList == 0 then
-            state.battleEnded = true
+        if (battleState.partyDied or battleState.allEnemyDead) and #battleState.effectList == 0 then
+            battleState.battleEnded = true
         end
-        state.textTimer = 0
+        battleState.textTimer = 0
 
-    elseif #state.effectList > 0 then
-        local effect = state.effectList[1]
-        table.remove(state.effectList, 1)
+    elseif #battleState.effectList > 0 then
+        local effect = battleState.effectList[1]
+        table.remove(battleState.effectList, 1)
 
         if not effect.target.isDead or effect.ref == 'revive' 
         or effect.ref == 'stealGold' or effect.ref == 'stealItem' then
             applyEffect(effect)
             if effect.ref == 'instakill' then
-                state.textTimer = 5
+                battleState.textTimer = 5
             else
-                state.textTimer = 0
+                battleState.textTimer = 0
             end
         else
-            state.textTimer = 5
+            battleState.textTimer = 5
         end        
 
-    elseif #state.followUp > 0 then
-        local action = state.followUp[1]
-        table.remove(state.followUp, 1)
+    elseif #battleState.followUp > 0 then
+        local action = battleState.followUp[1]
+        table.remove(battleState.followUp, 1)
 
         local skip;
 
@@ -294,66 +294,66 @@ function loop.run()
             if action.targets[1].isDead or utils.checkCannotMove(action.targets[1]) then
                 skip = true
             else
-                state.battleLog = {};
+                battleState.battleLog = {};
                 executeAction(action, true)
             end
         else
-            state.battleLog = {};
+            battleState.battleLog = {};
             action = redirectTarget(action)
             executeAction(action, true)
         end
 
-        if #state.followUp == 0 then
+        if #battleState.followUp == 0 then
             statusApply(action)
             statusClearAll(action)
         end
 
         if skip then
-            state.textTimer = 5
+            battleState.textTimer = 5
         else
-            state.textTimer = 0
+            battleState.textTimer = 0
         end
 
-    elseif #state.priorityList > 0 then
-        state.battleLog = {};
+    elseif #battleState.priorityList > 0 then
+        battleState.battleLog = {};
 
         local actionIndex = nextPriorityIndex()
-        local action = state.priorityList[actionIndex]
-        table.remove(state.priorityList, actionIndex)
+        local action = battleState.priorityList[actionIndex]
+        table.remove(battleState.priorityList, actionIndex)
 
         action = redirectTarget(action)
         action = statusPass(action)
         executeAction(action)
 
-        if #state.followUp == 0 then
+        if #battleState.followUp == 0 then
             statusApply(action)
             statusClearAll(action)
         end
-        state.textTimer = 0
+        battleState.textTimer = 0
 
-    elseif #state.actionList > 0 then
-        state.battleLog = {};
+    elseif #battleState.actionList > 0 then
+        battleState.battleLog = {};
         local nextActionIndex = utils.chooseNextActionIndex()
-        local action = state.actionList[nextActionIndex]
-        table.remove(state.actionList, nextActionIndex)
+        local action = battleState.actionList[nextActionIndex]
+        table.remove(battleState.actionList, nextActionIndex)
 
         action = redirectTarget(action)
         action = statusPass(action)
         executeAction(action)
 
-        if #state.followUp == 0 then
+        if #battleState.followUp == 0 then
             statusApply(action)
             statusClearAll(action)
         end
-        state.textTimer = 0
+        battleState.textTimer = 0
 
     else
         utils.clearTemporaryStatus()
-        state.battleRunning = false
-        state.battleLog = {}
-        state.currentMenu = state.mainMenu
-        state.mainMenu.position = 1
-        state.textTimer = 0
+        battleState.battleRunning = false
+        battleState.battleLog = {}
+        battleState.currentMenu = battleState.mainMenu
+        battleState.mainMenu.position = 1
+        battleState.textTimer = 0
     end
 end
 

@@ -1,4 +1,4 @@
-local state = require('state')
+local battleState = require('battleState')
 local utils = require('utils')
 local effectCreator = require('effectCreator')
 local actionCreator = require('actionCreator')
@@ -44,7 +44,7 @@ local function handleOnHitEffects(user, target)
             local roll = math.random(1, 100)
             if roll <= accuracy then
                 statusEffect = effectCreator.new('addStatus', user, target, status[i])
-                table.insert(state.effectList, statusEffect)
+                table.insert(battleState.effectList, statusEffect)
             end
         end
     end
@@ -65,7 +65,7 @@ local function handleSteal(user, target)
         local mod = math.floor(baseAmount * 0.5)
         local amount = baseAmount + math.random(-mod, mod)
         local stealEffect = effectCreator.new('stealGold', user, target, amount)
-        table.insert(state.effectList, stealEffect)
+        table.insert(battleState.effectList, stealEffect)
     end
     
     --PARTY EXCLUSIVES
@@ -74,7 +74,7 @@ local function handleSteal(user, target)
             local roll = math.random(1, target.stealableItem.rate)
             if roll == 1 then
                 local stealEffect = effectCreator.new('stealItem', user, target, target.stealableItem.item)
-                table.insert(state.effectList, stealEffect)
+                table.insert(battleState.effectList, stealEffect)
             end
         end
     end
@@ -84,7 +84,7 @@ local function handleCounterAttack(user, target)
     if target.passives['counter'] then
         if not target.status['SLEEP'] and not target.status['CONFUSE'] and not target.status['STUN'] then
             local counterAction = actionCreator.new('counterAtk', user, {target})
-            table.insert(state.followUp, counterAction)
+            table.insert(battleState.followUp, counterAction)
         end
     end
 end
@@ -111,37 +111,37 @@ local function handleElementalCombo(user, target)
     if user.passives['fireCombo'] then
         local followUp = actionCreator.new('flameI', user, {target})
         followUp.combo = true
-        table.insert(state.followUp, followUp)
+        table.insert(battleState.followUp, followUp)
     end
 
     if user.passives['iceCombo'] then
         local followUp = actionCreator.new('frostI', user, {target})
         followUp.combo = true
-        table.insert(state.followUp, followUp)
+        table.insert(battleState.followUp, followUp)
     end
 
     if user.passives['windCombo'] then
         local targets;
         if not target.isPartyMember then
-            targets = {unpack(state.enemies)};
+            targets = {unpack(battleState.enemies)};
         else
-            targets = {unpack(state.party)};
+            targets = {unpack(battleState.party)};
         end
         local followUp = actionCreator.new('typhoonI', user, targets)
         followUp.combo = true
-        table.insert(state.followUp, followUp)
+        table.insert(battleState.followUp, followUp)
     end
 
     if user.passives['boltCombo'] then
         local targets;
         if not target.isPartyMember then
-            targets = {unpack(state.enemies)};
+            targets = {unpack(battleState.enemies)};
         else
-            targets = {unpack(state.party)};
+            targets = {unpack(battleState.party)};
         end
         local followUp = actionCreator.new('lightningI', user, targets)
         followUp.combo = true
-        table.insert(state.followUp, followUp)
+        table.insert(battleState.followUp, followUp)
     end
 end
 
@@ -168,7 +168,7 @@ local function normalAttack(self, user, targets, special)
                 if handleExecutor(user, target) then
                     utils.battleLogAdd(text)
                     local killEffect = effectCreator.new('instakill', user, target)
-                    table.insert(state.effectList, killEffect)
+                    table.insert(battleState.effectList, killEffect)
                     handleSteal(user, target)
                     return
                 end
@@ -183,7 +183,7 @@ local function normalAttack(self, user, targets, special)
                     if not crit then
                         utils.battleLogAdd(text)
                         local immuneEffect = effectCreator.new('immune', user, target, damage)        
-                        table.insert(state.effectList, immuneEffect)
+                        table.insert(battleState.effectList, immuneEffect)
                         return
                     end
                 else
@@ -218,7 +218,7 @@ local function normalAttack(self, user, targets, special)
                     elseif res == 2 then
                         utils.battleLogAdd(text)
                         local immuneEffect = effectCreator.new('immune', user, target, damage)        
-                        table.insert(state.effectList, immuneEffect)
+                        table.insert(battleState.effectList, immuneEffect)
                         return
                     end
                 end
@@ -227,10 +227,10 @@ local function normalAttack(self, user, targets, special)
 
                 if resisted then
                     local resistedEffect = effectCreator.new('resisted', user, target, damage)        
-                    table.insert(state.effectList, resistedEffect)
+                    table.insert(battleState.effectList, resistedEffect)
                 else
                     local damageEffect = effectCreator.new('damage', user, target, damage)        
-                    table.insert(state.effectList, damageEffect)
+                    table.insert(battleState.effectList, damageEffect)
                 end
 
                 handleOnHitEffects(user, target)
@@ -254,13 +254,13 @@ local function normalAttack(self, user, targets, special)
 
                     if secondAttack then
                         local followUp = actionCreator.new('secondAtk', user, {target})
-                        table.insert(state.followUp, followUp)
+                        table.insert(battleState.followUp, followUp)
                     end
                 end
             else
                 utils.battleLogAdd(text)
                 local missedEffect = effectCreator.new('missed', user, target)
-                table.insert(state.effectList, missedEffect)
+                table.insert(battleState.effectList, missedEffect)
             end
         end
     end
@@ -313,13 +313,13 @@ local function ram(self, user, targets)
             local mod = math.floor(baseDamage*0.2)
             local damage = math.max(1, baseDamage + math.random(-mod, mod))
             local damageEffect = effectCreator.new('damage', user, target, damage)        
-            table.insert(state.effectList, damageEffect)
+            table.insert(battleState.effectList, damageEffect)
 
             local ownDamage = math.floor(user.currentHp*0.2)
             local ownMod = math.floor(ownDamage*0.2)
             local recoil = math.max(1, ownDamage + math.random(-ownMod, ownMod))
             local recoilEffect = effectCreator.new('damage', user, user, recoil)        
-            table.insert(state.effectList, recoilEffect)
+            table.insert(battleState.effectList, recoilEffect)
         end
     end
 end
@@ -333,7 +333,7 @@ local function skillCanceled(self, user, targets, skill)
     end
     utils.battleLogAdd(text)
     local noSkilleffect = effectCreator.new('skillCanceled', user, targets)
-    table.insert(state.effectList, noSkilleffect)
+    table.insert(battleState.effectList, noSkilleffect)
 end
 
 local function stunned(self, user)
@@ -363,10 +363,10 @@ local function confused(self, user)
     local target
     local roll = math.random(1,3)
     if roll == 1 then
-        target = utils.selectTargetRandomly(state.party)
+        target = utils.selectTargetRandomly(battleState.party)
         normalAttack(self, user, {target}, {cat = 'confused', text = 'attacks while being confused'})
     elseif roll == 2 then
-        target = utils.selectTargetRandomly(state.enemies)
+        target = utils.selectTargetRandomly(battleState.enemies)
         normalAttack(self, user, {target}, {cat = 'confused', text = 'attacks while being confused'})
     elseif roll == 3 then
         local textRoll = math.random(1, #textList)
@@ -427,7 +427,7 @@ local function castDamageMagic(self, user, targets, special)
             damage = barrierCheck(target, damage)
 
             local damageEffect = effectCreator.new(ref, user, target, damage)
-            table.insert(state.effectList, damageEffect)
+            table.insert(battleState.effectList, damageEffect)
         end
     end
 end
@@ -460,7 +460,7 @@ local function useAura(self, user, targets)
             end
 
             local damageEffect = effectCreator.new(ref, user, target, damage)
-            table.insert(state.effectList, damageEffect)
+            table.insert(battleState.effectList, damageEffect)
         end
     end
 end
@@ -505,12 +505,12 @@ local function castDrain(self, user, targets)
             damage = barrierCheck(target, damage)
 
             local damageEffect = effectCreator.new(ref, user, target, damage)
-            table.insert(state.effectList, damageEffect)
+            table.insert(battleState.effectList, damageEffect)
 
             if ref ~= 'immune' then
                 local amount = math.min(damage, target.currentHp)
                 local recoverEffect = effectCreator.new('recover', user, user, amount)
-                table.insert(state.effectList, recoverEffect)
+                table.insert(battleState.effectList, recoverEffect)
             end
         end
     end
@@ -540,7 +540,7 @@ local function castManaBurn(self, user, targets)
             damage = barrierCheck(target, burnAmount)
 
             local damageEffect = effectCreator.new(ref, user, target, burnAmount)
-            table.insert(state.effectList, damageEffect)
+            table.insert(battleState.effectList, damageEffect)
         end
     end
 end
@@ -562,7 +562,7 @@ local function castDracoBomb(self, user, targets)
             end
 
             local damageEffect = effectCreator.new('damage', user, target, damage)
-            table.insert(state.effectList, damageEffect)
+            table.insert(battleState.effectList, damageEffect)
         end
     end
 end
@@ -579,14 +579,14 @@ local function castExorcism(self, user, targets)
                 local chance = math.random(1, 100)
                 if chance <= self.accuracy then
                     local killEffect = effectCreator.new('instakill', user, target)
-                    table.insert(state.effectList, killEffect)
+                    table.insert(battleState.effectList, killEffect)
                 else
                     local missEffect = effectCreator.new('missed', user, target)
-                    table.insert(state.effectList, missEffect)
+                    table.insert(battleState.effectList, missEffect)
                 end
             else
                 local immuneEffect = effectCreator.new('immune', user, target)
-                table.insert(state.effectList, immuneEffect)
+                table.insert(battleState.effectList, immuneEffect)
             end
         end
     end
@@ -614,11 +614,11 @@ local function castStatusEffect(self, user, targets)
                 else
                     statusEffect = effectCreator.new('addStatus', user, target, self.element)
                 end
-                table.insert(state.effectList, statusEffect)
+                table.insert(battleState.effectList, statusEffect)
             else
                 if resistance == 2 then 
                     local immuneEffect = effectCreator.new('immune', user, target)
-                    table.insert(state.effectList, immuneEffect)
+                    table.insert(battleState.effectList, immuneEffect)
                 else
                     if resistance == 1 then
                         accuracy = math.floor(accuracy / 2)
@@ -628,7 +628,7 @@ local function castStatusEffect(self, user, targets)
                     if chance <= accuracy then
                         if self.element == 'DEATH' then
                             local killEffect = effectCreator.new('instakill', user, target)
-                            table.insert(state.effectList, killEffect)
+                            table.insert(battleState.effectList, killEffect)
                         else
                             local statusEffect;
                             if self.element == 'DEFUP'
@@ -642,7 +642,7 @@ local function castStatusEffect(self, user, targets)
                                 statusEffect = effectCreator.new('addStatus', 
                                     user, target, self.element)
                             end
-                            table.insert(state.effectList, statusEffect)
+                            table.insert(battleState.effectList, statusEffect)
                         end
                     else
                         local missEffect
@@ -651,7 +651,7 @@ local function castStatusEffect(self, user, targets)
                         else
                             missEffect = effectCreator.new('missed', user, target)
                         end
-                        table.insert(state.effectList, missEffect)
+                        table.insert(battleState.effectList, missEffect)
                     end
                 end
             end
@@ -663,11 +663,11 @@ local function castGuardian(self, user, targets)
     castStatusEffect(self, user, targets)
 
     if user.isPartyMember then
-        for i, member in ipairs(state.party) do
+        for i, member in ipairs(battleState.party) do
             utils.removeAction(member)
         end
     elseif not user.isPartyMember then
-        for i, enemy in ipairs(state.enemies) do
+        for i, enemy in ipairs(battleState.enemies) do
             utils.removeAction(enemies)
         end
     end
@@ -690,7 +690,7 @@ local function  castHeal(self, user, targets)
             end
 
             local recoverEffect = effectCreator.new('recover', user, target, amount)
-            table.insert(state.effectList, recoverEffect)
+            table.insert(battleState.effectList, recoverEffect)
         end
     end
 end
@@ -702,10 +702,10 @@ local function castRevive(self, user, targets)
     for i, target in ipairs(targets) do
         if not target.isDead then 
             local immuneEffect = effectCreator.new('immune', user, target)
-            table.insert(state.effectList, immuneEffect)
+            table.insert(battleState.effectList, immuneEffect)
         else
             local reviveEffect = effectCreator.new('revive', user, target, self.reviveRatio)
-            table.insert(state.effectList, reviveEffect)
+            table.insert(battleState.effectList, reviveEffect)
         end
     end
 end
@@ -718,10 +718,10 @@ local function castRemoveStatus(self, user, target)
         if not target.isDead then
             if target.status[self.status] then
                 local clear = effectCreator.new('clearStatus', user, target, self.status)
-                table.insert(state.effectList, clear)
+                table.insert(battleState.effectList, clear)
             else
                 local immuneEffect = effectCreator.new('immune', user, target)
-                table.insert(state.effectList, immuneEffect)
+                table.insert(battleState.effectList, immuneEffect)
             end
         end
     end
@@ -737,7 +737,7 @@ local function castCleanse(self, user, targets)
                 if target.status[status] then
 
                     local clear = effectCreator.new('clearStatus', user, target, status)
-                    table.insert(state.effectList, clear)
+                    table.insert(battleState.effectList, clear)
                 end
             end
         end
@@ -763,7 +763,7 @@ local function hiddenBlades(self, user, targets)
         if not target.isDead then
             local damage = math.random(1, 10)
             local damageEffect = effectCreator.new('damage', user, target, damage)        
-            table.insert(state.effectList, damageEffect)
+            table.insert(battleState.effectList, damageEffect)
 
             local resistance = utils.checkResistance('STUN', target)
             local stunChance
@@ -775,7 +775,7 @@ local function hiddenBlades(self, user, targets)
 
             if resistance ~= 2 and stunChance == 1 then
                 statusEffect = effectCreator.new('addStatus', user, target, 'STUN')
-                table.insert(state.effectList, statusEffect)
+                table.insert(battleState.effectList, statusEffect)
             end    
         end
     end
@@ -795,7 +795,7 @@ local function  useTonic(self, user, targets)
             end
 
             local recoverEffect = effectCreator.new('recover', user, target, amount)
-            table.insert(state.effectList, recoverEffect)
+            table.insert(battleState.effectList, recoverEffect)
         end
     end
 end
@@ -810,7 +810,7 @@ local function  useNectar(self, user, targets)
             amount = self.mpHealAmount
 
             local recoverEffect = effectCreator.new('mpRecover', user, target, amount)
-            table.insert(state.effectList, recoverEffect)
+            table.insert(battleState.effectList, recoverEffect)
         end
     end
 end
@@ -823,10 +823,10 @@ local function useStatusRecovery(self, user, targets)
         if not target.isDead then
             if target.status[self.status] then
                 local clear = effectCreator.new('clearStatus', user, target, self.status)
-                table.insert(state.effectList, clear)
+                table.insert(battleState.effectList, clear)
             else
                 local immuneEffect = effectCreator.new('immune', user, target)
-                table.insert(state.effectList, immuneEffect)
+                table.insert(battleState.effectList, immuneEffect)
             end
         end
     end

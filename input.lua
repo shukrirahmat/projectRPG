@@ -1,4 +1,4 @@
-local state = require('state')
+local battleState = require('battleState')
 local utils = require('utils')
 local actionCreator = require('actionCreator')
 local actionData = require('actionData')
@@ -8,18 +8,18 @@ local input = {}
 function input.sendActionIntoQueue(action)
     local actionDetails = actionData[action.ref]    
     if actionDetails.priority then
-        table.insert(state.priorityList, action)
+        table.insert(battleState.priorityList, action)
     else
-        table.insert(state.actionList, action)
+        table.insert(battleState.actionList, action)
     end
 end
 
 local function setPartyAction()
-    for _, member in ipairs(state.party) do
+    for _, member in ipairs(battleState.party) do
         if not member.isDead then
             local action
             if member.status['STUN'] or member.status['SLEEP'] or member.status['CONFUSE'] then
-                local target = utils.selectTargetRandomly(state.enemies)
+                local target = utils.selectTargetRandomly(battleState.enemies)
                 action = actionCreator.new('normalAtk', member, {target})
             elseif member.currentAction then
                 action = member.currentAction
@@ -31,15 +31,15 @@ local function setPartyAction()
 end
 
 local function setEnemyAction()
-    for _, enemy in ipairs(state.enemies) do
+    for _, enemy in ipairs(battleState.enemies) do
         if not enemy.isDead then
             local action
             if enemy.status['STUN'] or enemy.status['SLEEP'] or enemy.status['CONFUSE'] then
-                local target = utils.selectTargetRandomly(state.party)
+                local target = utils.selectTargetRandomly(battleState.party)
                 action = actionCreator.new('normalAtk', enemy, {target})
             else
                 local choices = {unpack(enemy.skills)}
-                local target = utils.selectTargetRandomly(state.party)
+                local target = utils.selectTargetRandomly(battleState.party)
 
                 local rand = math.random(0, #choices or 0)
                 if rand == 0 then
@@ -49,9 +49,9 @@ local function setEnemyAction()
                     local skill = actionData[skillRef]
                     local targets;
                     if skill.aim == 'allies' then 
-                        targets = state.enemies
+                        targets = battleState.enemies
                     elseif skill.aim == 'enemies' then
-                        targets = state.party
+                        targets = battleState.party
                     end
                     if skill.scope == 'single' then
                         local target = utils.selectTargetRandomly(targets)
@@ -71,246 +71,246 @@ end
 local function runBattle()
     setPartyAction()
     setEnemyAction()
-    state.battleRunning = true
-    state.textTimer = 0.5
+    battleState.battleRunning = true
+    battleState.textTimer = 0.5
 end
 
 local function nextCharacter(currentID)
     local nextID = utils.getAbleCharID(currentID, 'next')
     if nextID then
-        state.currentMenu = state.characterMenu
-        state.characterMenu.charID = nextID
-        utils.menuReset(state.characterMenu)
+        battleState.currentMenu = battleState.characterMenu
+        battleState.characterMenu.charID = nextID
+        utils.menuReset(battleState.characterMenu)
     else
         runBattle()
     end
 end
 
 local function addAttackAction(target)
-    local user = state.party[state.characterMenu.charID]
+    local user = battleState.party[battleState.characterMenu.charID]
     local action = actionCreator.new('normalAtk', user, {target})
     user.currentAction = action
 end
 
 function input.executeLeft()
-    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
-        if state.currentMenu.position % 2 == 0
-        and state.currentMenu.position - 1 >= 1 then
-            utils.menuUp(state.currentMenu)
+    if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
+        if battleState.currentMenu.position % 2 == 0
+        and battleState.currentMenu.position - 1 >= 1 then
+            utils.menuUp(battleState.currentMenu)
         end
     end
 end
 
 function input.executeRight()
-    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
-        if state.currentMenu.position % 2 ~= 0
-        and state.currentMenu.position + 1 <= #state.currentMenu.list then
-            utils.menuDown(state.currentMenu)
+    if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
+        if battleState.currentMenu.position % 2 ~= 0
+        and battleState.currentMenu.position + 1 <= #battleState.currentMenu.list then
+            utils.menuDown(battleState.currentMenu)
         end
     end
 end
 
 function input.executeDown()
-    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
-        if state.currentMenu.position + 2 <= #state.currentMenu.list then
-            utils.menuDown(state.currentMenu)
-            utils.menuDown(state.currentMenu)
-        elseif state.currentMenu.position + 1 == #state.currentMenu.list then
-            utils.menuDown(state.currentMenu)
+    if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
+        if battleState.currentMenu.position + 2 <= #battleState.currentMenu.list then
+            utils.menuDown(battleState.currentMenu)
+            utils.menuDown(battleState.currentMenu)
+        elseif battleState.currentMenu.position + 1 == #battleState.currentMenu.list then
+            utils.menuDown(battleState.currentMenu)
         end
     else
-        if state.currentMenu.position < #state.currentMenu.list then
-            utils.menuDown(state.currentMenu)
+        if battleState.currentMenu.position < #battleState.currentMenu.list then
+            utils.menuDown(battleState.currentMenu)
         end
     end
 end
 
 function input.executeUp()
-    if state.currentMenu == state.skillMenu or state.currentMenu == state.itemMenu then
-        if state.currentMenu.position - 2 >= 1 then
-            utils.menuUp(state.currentMenu)
-            utils.menuUp(state.currentMenu)
+    if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
+        if battleState.currentMenu.position - 2 >= 1 then
+            utils.menuUp(battleState.currentMenu)
+            utils.menuUp(battleState.currentMenu)
         end
     else
-        if state.currentMenu.position > 1 then
-            utils.menuUp(state.currentMenu)
+        if battleState.currentMenu.position > 1 then
+            utils.menuUp(battleState.currentMenu)
         end
     end
 end
 
 function input.executeConfirm()
-    if state.currentMenu == state.mainMenu then
+    if battleState.currentMenu == battleState.mainMenu then
         nextCharacter(0)
-    elseif state.currentMenu == state.characterMenu then
-        local char = state.party[state.characterMenu.charID]
-        if state.characterMenu.position == 1 then
-            utils.updateTargetMenu(state.characterMenu, state.enemies)
-            if #state.targetMenu.list == 1 then
-                local target = state.enemies[1]
+    elseif battleState.currentMenu == battleState.characterMenu then
+        local char = battleState.party[battleState.characterMenu.charID]
+        if battleState.characterMenu.position == 1 then
+            utils.updateTargetMenu(battleState.characterMenu, battleState.enemies)
+            if #battleState.targetMenu.list == 1 then
+                local target = battleState.enemies[1]
                 addAttackAction(target)
-                local currentID = state.characterMenu.charID
+                local currentID = battleState.characterMenu.charID
                 nextCharacter(currentID)
-            elseif #state.targetMenu.list > 1 then
-                state.currentMenu = state.targetMenu
-                utils.menuReset(state.targetMenu)
+            elseif #battleState.targetMenu.list > 1 then
+                battleState.currentMenu = battleState.targetMenu
+                utils.menuReset(battleState.targetMenu)
             end
-        elseif state.characterMenu.position == 2 and not char.status['SEAL'] then
+        elseif battleState.characterMenu.position == 2 and not char.status['SEAL'] then
             utils.updateSkillMenu(char)
-            state.currentMenu = state.skillMenu
-            utils.menuReset(state.skillMenu)
-        elseif state.characterMenu.position == 3 then
+            battleState.currentMenu = battleState.skillMenu
+            utils.menuReset(battleState.skillMenu)
+        elseif battleState.characterMenu.position == 3 then
             local user = char
             user.currentAction = actionCreator.new('defend', user)
-            local currentID = state.characterMenu.charID
+            local currentID = battleState.characterMenu.charID
             nextCharacter(currentID)
-        elseif state.characterMenu.position == 4 then
+        elseif battleState.characterMenu.position == 4 then
             utils.updateItemMenu(char)
-            state.currentMenu = state.itemMenu
-            utils.menuReset(state.itemMenu)
+            battleState.currentMenu = battleState.itemMenu
+            utils.menuReset(battleState.itemMenu)
         end
-    elseif state.currentMenu == state.skillMenu
-    and #state.skillMenu.list > 0 then
-        local ref = state.skillMenu.list[state.skillMenu.position]
+    elseif battleState.currentMenu == battleState.skillMenu
+    and #battleState.skillMenu.list > 0 then
+        local ref = battleState.skillMenu.list[battleState.skillMenu.position]
         local data = actionData[ref]
-        if state.skillMenu.user.currentMp >= data.cost then
+        if battleState.skillMenu.user.currentMp >= data.cost then
             local group
             if data.aim == 'enemies' then
-                group = state.enemies
+                group = battleState.enemies
             elseif data.aim == 'allies' then
-                group = state.party
+                group = battleState.party
             end
             if data.scope == 'single' then
-                utils.updateTargetMenu(state.skillMenu, group)
-                if #state.targetMenu.list == 1 then
+                utils.updateTargetMenu(battleState.skillMenu, group)
+                if #battleState.targetMenu.list == 1 then
                     local target = group[1]
-                    local user = state.party[state.characterMenu.charID]
-                    local ref = state.skillMenu.list[state.skillMenu.position]
+                    local user = battleState.party[battleState.characterMenu.charID]
+                    local ref = battleState.skillMenu.list[battleState.skillMenu.position]
                     local action = actionCreator.new(ref, user, {target})
                     user.currentAction = action
-                    local currentID = state.characterMenu.charID
+                    local currentID = battleState.characterMenu.charID
                     nextCharacter(currentID)
-                elseif #state.targetMenu.list > 1 then
-                    state.currentMenu = state.targetMenu
-                    utils.menuReset(state.targetMenu)
+                elseif #battleState.targetMenu.list > 1 then
+                    battleState.currentMenu = battleState.targetMenu
+                    utils.menuReset(battleState.targetMenu)
                 end
             elseif data.scope == 'dead' then
-                utils.updateDeadTargetMenu(state.skillMenu, group)
-                state.currentMenu = state.targetMenu
-                utils.menuReset(state.targetMenu)
+                utils.updateDeadTargetMenu(battleState.skillMenu, group)
+                battleState.currentMenu = battleState.targetMenu
+                utils.menuReset(battleState.targetMenu)
             elseif data.scope == 'all' then
-                local user = state.party[state.characterMenu.charID]
-                local ref = state.skillMenu.list[state.skillMenu.position]
+                local user = battleState.party[battleState.characterMenu.charID]
+                local ref = battleState.skillMenu.list[battleState.skillMenu.position]
                 local action = actionCreator.new(ref, user, {unpack(group)})
                 user.currentAction = action
-                local currentID = state.characterMenu.charID
+                local currentID = battleState.characterMenu.charID
                 nextCharacter(currentID)
             elseif data.scope == 'self' then
-                local user = state.party[state.characterMenu.charID]
-                local ref = state.skillMenu.list[state.skillMenu.position]
+                local user = battleState.party[battleState.characterMenu.charID]
+                local ref = battleState.skillMenu.list[battleState.skillMenu.position]
                 local action = actionCreator.new(ref, user, {user})
                 user.currentAction = action
-                local currentID = state.characterMenu.charID
+                local currentID = battleState.characterMenu.charID
                 nextCharacter(currentID)
             end
         end
-    elseif state.currentMenu == state.itemMenu
-    and #state.itemMenu.list > 0 then
-        local item = state.itemMenu.list[state.itemMenu.position].item
+    elseif battleState.currentMenu == battleState.itemMenu
+    and #battleState.itemMenu.list > 0 then
+        local item = battleState.itemMenu.list[battleState.itemMenu.position].item
         local data = actionData[item.ref]
             local group
             if data.aim == 'enemies' then
-                group = state.enemies
+                group = battleState.enemies
             elseif data.aim == 'allies' then
-                group = state.party
+                group = battleState.party
             end
             if data.scope == 'single' then
-                utils.updateTargetMenu(state.itemMenu, group)
-                if #state.targetMenu.list == 1 then
+                utils.updateTargetMenu(battleState.itemMenu, group)
+                if #battleState.targetMenu.list == 1 then
                     local target = group[1]
-                    local user = state.party[state.characterMenu.charID]
+                    local user = battleState.party[battleState.characterMenu.charID]
                     local ref = item.ref
                     local action = actionCreator.new(ref, user, {target})
                     user.currentAction = action
                     user.usingItem = item
                     utils.manageItems(item, -1)
-                    local currentID = state.characterMenu.charID
+                    local currentID = battleState.characterMenu.charID
                     nextCharacter(currentID)
-                elseif #state.targetMenu.list > 1 then
-                    state.currentMenu = state.targetMenu
-                    utils.menuReset(state.targetMenu)
+                elseif #battleState.targetMenu.list > 1 then
+                    battleState.currentMenu = battleState.targetMenu
+                    utils.menuReset(battleState.targetMenu)
                 end
             elseif data.scope == 'dead' then
-                utils.updateDeadTargetMenu(state.itemMenu, group)
-                state.currentMenu = state.targetMenu
-                utils.menuReset(state.targetMenu)
+                utils.updateDeadTargetMenu(battleState.itemMenu, group)
+                battleState.currentMenu = battleState.targetMenu
+                utils.menuReset(battleState.targetMenu)
             elseif data.scope == 'all' then
-                local user = state.party[state.characterMenu.charID]
+                local user = battleState.party[battleState.characterMenu.charID]
                 local ref = item.ref
                 local action = actionCreator.new(ref, user, {unpack(group)})
                 user.currentAction = action
                 user.usingItem = item
                 utils.manageItems(item, -1)
-                local currentID = state.characterMenu.charID
+                local currentID = battleState.characterMenu.charID
                 nextCharacter(currentID)
             elseif data.scope == 'self' then
-                local user = state.party[state.characterMenu.charID]
+                local user = battleState.party[battleState.characterMenu.charID]
                 local ref = item.ref
                 local action = actionCreator.new(ref, user, {user})
                 user.currentAction = action
                 user.usingItem = item
                 utils.manageItems(item, -1)
-                local currentID = state.characterMenu.charID
+                local currentID = battleState.characterMenu.charID
                 nextCharacter(currentID)
             end
-    elseif state.currentMenu == state.targetMenu and #state.targetMenu.list > 0 then
-        if state.targetMenu.prevMenu == state.characterMenu then
-            local target = state.targetMenu.list[state.targetMenu.position]
+    elseif battleState.currentMenu == battleState.targetMenu and #battleState.targetMenu.list > 0 then
+        if battleState.targetMenu.prevMenu == battleState.characterMenu then
+            local target = battleState.targetMenu.list[battleState.targetMenu.position]
             addAttackAction(target)
-        elseif state.targetMenu.prevMenu == state.skillMenu then
-            local target = state.targetMenu.list[state.targetMenu.position]
-            local user = state.party[state.characterMenu.charID]
-            local ref = state.skillMenu.list[state.skillMenu.position]
+        elseif battleState.targetMenu.prevMenu == battleState.skillMenu then
+            local target = battleState.targetMenu.list[battleState.targetMenu.position]
+            local user = battleState.party[battleState.characterMenu.charID]
+            local ref = battleState.skillMenu.list[battleState.skillMenu.position]
             local action = actionCreator.new(ref, user, {target})
             user.currentAction = action
-        elseif state.targetMenu.prevMenu == state.itemMenu then
-            local target = state.targetMenu.list[state.targetMenu.position]
-            local user = state.party[state.characterMenu.charID]
-            local item = state.itemMenu.list[state.itemMenu.position].item
+        elseif battleState.targetMenu.prevMenu == battleState.itemMenu then
+            local target = battleState.targetMenu.list[battleState.targetMenu.position]
+            local user = battleState.party[battleState.characterMenu.charID]
+            local item = battleState.itemMenu.list[battleState.itemMenu.position].item
             local ref = item.ref
             local action = actionCreator.new(ref, user, {target})
             user.currentAction = action
             user.usingItem = item
             utils.manageItems(item, -1)
         end
-        local currentID = state.characterMenu.charID
+        local currentID = battleState.characterMenu.charID
         nextCharacter(currentID)
     end
 end
 
 function input.executeCancel()
-    if state.currentMenu == state.characterMenu then
-        local currentID = state.characterMenu.charID
+    if battleState.currentMenu == battleState.characterMenu then
+        local currentID = battleState.characterMenu.charID
         local prevID = utils.getAbleCharID(currentID, 'prev')
         if prevID then
-            state.characterMenu.charID = prevID
-            utils.menuReset(state.characterMenu)
-            local user = state.party[state.characterMenu.charID]
+            battleState.characterMenu.charID = prevID
+            utils.menuReset(battleState.characterMenu)
+            local user = battleState.party[battleState.characterMenu.charID]
             if user.usingItem then
                 utils.manageItems(user.usingItem, 1)
                 user.usingItem = nil
             end
         else
-            state.currentMenu = state.mainMenu
-            utils.menuReset(state.mainMenu)
+            battleState.currentMenu = battleState.mainMenu
+            utils.menuReset(battleState.mainMenu)
         end
-    elseif state.currentMenu == state.targetMenu then
-        state.currentMenu  = state.targetMenu.prevMenu
-    elseif state.currentMenu == state.skillMenu then
-        state.currentMenu = state.characterMenu
-        state.characterMenu.position = 2
-    elseif state.currentMenu == state.itemMenu then
-        state.currentMenu = state.characterMenu
-        state.characterMenu.position = 4
+    elseif battleState.currentMenu == battleState.targetMenu then
+        battleState.currentMenu  = battleState.targetMenu.prevMenu
+    elseif battleState.currentMenu == battleState.skillMenu then
+        battleState.currentMenu = battleState.characterMenu
+        battleState.characterMenu.position = 2
+    elseif battleState.currentMenu == battleState.itemMenu then
+        battleState.currentMenu = battleState.characterMenu
+        battleState.characterMenu.position = 4
     end
 end
 

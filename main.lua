@@ -1,46 +1,24 @@
 require('globals')
 local battle = require('battle')
-local partyMemberCreator = require('partyMemberCreator')
-local enemyCreator = require('enemyCreator')
-local itemCreator = require('itemCreator')
+local overworld = require('overworld')
+local currentState = nil;
 
 function love.load()
     math.randomseed(os.time())
     love.window.setMode(windowWidth, windowHeight)
     
-    local party = { 
-        partyMemberCreator.new(1), 
-        partyMemberCreator.new(2), 
-        partyMemberCreator.new(3), 
-        partyMemberCreator.new(4)
-    }
-    
-    local enemies = { 
-        enemyCreator.new('goblin', 'GOBLIN1'),
-        enemyCreator.new('goblin', 'GOBLIN2'),
-        enemyCreator.new('armoredGoblin', 'ARMGOB1'),
-        enemyCreator.new('dragon', 'DRAGON1'),
-        enemyCreator.new('skeleton', 'SKELETON1'),
-        enemyCreator.new('skeleton', 'SKELETON2')
-    }
-    
-    local items = {
-        ['healingTonic'] = { item = itemCreator.new('healingTonic'), amount = 10 },
-        ['holyWater'] = { item = itemCreator.new('holyWater'), amount = 5 },
-        ['goldenNectar'] = { item = itemCreator.new('goldenNectar'), amount = 2 }
-        }
-    
-    battle.load(party, enemies, 2500, items)
+    overworld.load()
+    currentState = overworld
 end
 
 function love.update(dt)
-    battle.update(dt)
+    currentState.update(dt)
 end
 
 function love.draw()
-    battle.draw()
+    currentState.draw()
 end
 
 function love.keypressed(key)
-    battle.keypressed(key)
+    currentState.keypressed(key)
 end

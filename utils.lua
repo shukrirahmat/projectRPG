@@ -1,4 +1,4 @@
-local state = require('state')
+local battleState = require('battleState')
 
 local U = {}
 
@@ -30,8 +30,8 @@ function U.updateTargetMenu(prevMenu, group)
             table.insert(targetList, target)
         end
     end
-    state.targetMenu.list = targetList
-    state.targetMenu.prevMenu = prevMenu
+    battleState.targetMenu.list = targetList
+    battleState.targetMenu.prevMenu = prevMenu
 end
 
 function U.updateDeadTargetMenu(prevMenu, group)
@@ -41,8 +41,8 @@ function U.updateDeadTargetMenu(prevMenu, group)
             table.insert(targetList, target)
         end
     end
-    state.targetMenu.list = targetList
-    state.targetMenu.prevMenu = prevMenu
+    battleState.targetMenu.list = targetList
+    battleState.targetMenu.prevMenu = prevMenu
 end
 
 function U.updateSkillMenu(user)
@@ -52,19 +52,19 @@ function U.updateSkillMenu(user)
             table.insert(skillList, skill)
         end
     end
-    state.skillMenu.user = user
-    state.skillMenu.list = skillList
+    battleState.skillMenu.user = user
+    battleState.skillMenu.list = skillList
 end
 
 function U.updateItemMenu(user)
     local itemList = {}
-    for k, v in pairs(state.partyItems) do
+    for k, v in pairs(battleState.partyItems) do
         table.insert(itemList, {item= v.item, amount = v.amount })
     end
 
     table.sort(itemList, function(a, b) return a.item.id < b.item.id end)
-    state.itemMenu.user = user
-    state.itemMenu.list = itemList
+    battleState.itemMenu.user = user
+    battleState.itemMenu.list = itemList
 end
 
 function U.menuReset(menu)
@@ -86,14 +86,14 @@ function U.getAbleCharID(currentID, where)
 
     if where == 'next' then
         nextID = currentID + 1
-        outOfBound = nextID > #state.party 
+        outOfBound = nextID > #battleState.party 
     elseif where == 'prev' then
         nextID = currentID - 1
         outOfBound = nextID < 1
     end
 
     while not found and not outOfBound do
-        local char = state.party[nextID]
+        local char = battleState.party[nextID]
         if not char.isDead 
         and not char.status['STUN']
         and not char.status['SLEEP']
@@ -102,7 +102,7 @@ function U.getAbleCharID(currentID, where)
         else
             if where == 'next' then
                 nextID = nextID + 1
-                outOfBound = nextID > #state.party 
+                outOfBound = nextID > #battleState.party 
             elseif where == 'prev' then
                 nextID = nextID - 1
                 outOfBound = nextID < 1
@@ -120,11 +120,11 @@ end
 ------------HANDLING BATTLES----------------
 
 function U.battleLogAdd(text)
-    if #state.battleLog >= 8 then
-        table.remove(state.battleLog, 1)
+    if #battleState.battleLog >= 8 then
+        table.remove(battleState.battleLog, 1)
     end
 
-    table.insert(state.battleLog, text)
+    table.insert(battleState.battleLog, text)
 end
 
 function U.selectTargetRandomly(group)
@@ -158,7 +158,7 @@ end
 function U.chooseNextActionIndex()
     local actionIndex
     local highestSpeed = -1
-    for index, action in ipairs(state.actionList) do
+    for index, action in ipairs(battleState.actionList) do
         local agi = action.user.agi
         local mod = math.floor(agi*0.5)
         local speed = agi + (math.random(-mod, mod))
@@ -173,9 +173,9 @@ end
 function U.reselectTargetWhenDead(selectedTarget)
     local target
     if selectedTarget.isPartyMember then
-        target = U.selectTargetRandomly(state.party)
+        target = U.selectTargetRandomly(battleState.party)
     else
-        target = U.selectTargetRandomly(state.enemies)
+        target = U.selectTargetRandomly(battleState.enemies)
     end
     return target
 end
@@ -191,15 +191,15 @@ local function checkIfAllDead(group)
 end
 
 function U.removeAction(user)
-    for index, action in ipairs(state.actionList) do
+    for index, action in ipairs(battleState.actionList) do
         if action.user == user then
-            table.remove(state.actionList, index)
+            table.remove(battleState.actionList, index)
         end
     end
 
-    for index, action in ipairs(state.priorityList) do
+    for index, action in ipairs(battleState.priorityList) do
         if action.user == user then
-            table.remove(state.priorityList, index)
+            table.remove(battleState.priorityList, index)
         end
     end
 end
@@ -211,18 +211,18 @@ function U.handleDeath(target)
     U.battleLogAdd(''..target.name..' defeated.')
     U.removeAction(target)
 
-    if target.isPartyMember and checkIfAllDead(state.party) then
-        state.partyDied = true
-    elseif not target.isPartyMember and checkIfAllDead(state.enemies) then
-        state.allEnemyDead = true
+    if target.isPartyMember and checkIfAllDead(battleState.party) then
+        battleState.partyDied = true
+    elseif not target.isPartyMember and checkIfAllDead(battleState.enemies) then
+        battleState.allEnemyDead = true
     end
 end
 
 function U.clearTemporaryStatus()
 
-    state.followUp = {}
+    battleState.followUp = {}
 
-    for _, group in ipairs({state.party, state.enemies}) do
+    for _, group in ipairs({battleState.party, battleState.enemies}) do
         for _, character in ipairs(group) do
 
             if character.isDefending then
@@ -275,14 +275,14 @@ function U.updateStatChange(target, stat)
 end
 
 function U.manageItems(item, mod)
-    if state.partyItems[item.ref] then
-        state.partyItems[item.ref].amount = state.partyItems[item.ref].amount + mod
-    elseif not state.partyItems[item.ref] and mod > 0 then
-        state.partyItems[item.ref] = {item = item , amount = mod}
+    if battleState.partyItems[item.ref] then
+        battleState.partyItems[item.ref].amount = battleState.partyItems[item.ref].amount + mod
+    elseif not battleState.partyItems[item.ref] and mod > 0 then
+        battleState.partyItems[item.ref] = {item = item , amount = mod}
     end
 
-    if state.partyItems[item.ref].amount < 1 then
-        state.partyItems[item.ref] = nil
+    if battleState.partyItems[item.ref].amount < 1 then
+        battleState.partyItems[item.ref] = nil
     end
 end
 

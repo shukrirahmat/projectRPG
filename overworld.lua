@@ -34,8 +34,18 @@ function overworld.load()
                     owState.currentSprite = player_back[1]
                     playerPos.y = playerPos.y - 1
                     camera.y = camera.y + owState.tileSize
-                    currentMove = nil
                     moveTimer = moveSpeed
+                    if love.keyboard.isDown('up') then
+                        currentMove = 'up'
+                    elseif love.keyboard.isDown('right') then
+                        currentMove = 'right'
+                    elseif love.keyboard.isDown('left') then
+                        currentMove = 'left'
+                    elseif love.keyboard.isDown('down') then
+                        currentMove = 'down'
+                    else
+                        currentMove = nil
+                    end
                 end
             else
                 currentMove = nil
@@ -57,8 +67,18 @@ function overworld.load()
                     moveShift.y = 0                
                     playerPos.y = playerPos.y + 1
                     camera.y = camera.y - owState.tileSize
-                    currentMove = nil
                     moveTimer = moveSpeed
+                    if love.keyboard.isDown('down') then
+                        currentMove = 'down'
+                    elseif love.keyboard.isDown('right') then
+                        currentMove = 'right'
+                    elseif love.keyboard.isDown('left') then
+                        currentMove = 'left'
+                    elseif love.keyboard.isDown('up') then
+                        currentMove = 'up'
+                    else
+                        currentMove = nil
+                    end
                 end
             else
                 currentMove = nil
@@ -80,8 +100,18 @@ function overworld.load()
                     moveShift.x = 0                
                     playerPos.x = playerPos.x - 1
                     camera.x = camera.x + owState.tileSize
-                    currentMove = nil
                     moveTimer = moveSpeed
+                    if love.keyboard.isDown('left') then
+                        currentMove = 'left'
+                    elseif love.keyboard.isDown('up') then
+                        currentMove = 'up'
+                    elseif love.keyboard.isDown('down') then
+                        currentMove = 'down'
+                    elseif love.keyboard.isDown('right') then
+                        currentMove = 'right'
+                    else
+                        currentMove = nil
+                    end
                 end
             else
                 currentMove = nil
@@ -103,8 +133,18 @@ function overworld.load()
                     moveShift.x = 0                
                     playerPos.x = playerPos.x + 1
                     camera.x = camera.x - owState.tileSize
-                    currentMove = nil
                     moveTimer = moveSpeed
+                    if love.keyboard.isDown('right') then
+                        currentMove = 'right'
+                    elseif love.keyboard.isDown('up') then
+                        currentMove = 'up'
+                    elseif love.keyboard.isDown('down') then
+                        currentMove = 'down'
+                    elseif love.keyboard.isDown('left') then
+                        currentMove = 'left'
+                    else
+                        currentMove = nil
+                    end
                 end
             else
                 currentMove = nil

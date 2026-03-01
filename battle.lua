@@ -2,7 +2,7 @@ local battleState = require('battleState')
 local hud = require('hud')
 local enemySprites = require('enemySprites')
 local menu = require('menu')
-local input = require('input')
+local battleInput = require('battleInput')
 local loop = require('loop')
 
 local battle = {}
@@ -78,17 +78,17 @@ end
 function battle.keypressed(key)
     if not battleState.battleRunning then
         if key == 'up' then
-            input.executeUp()
+            battleInput.executeUp()
         elseif key == 'down' then
-            input.executeDown()
+            battleInput.executeDown()
         elseif key == 'left' then
-            input.executeLeft()
+            battleInput.executeLeft()
         elseif key == 'right' then
-            input.executeRight()
+            battleInput.executeRight()
         elseif key == 'z' then
-            input.executeConfirm()
+            battleInput.executeConfirm()
         elseif key == 'x' then
-            input.executeCancel()
+            battleInput.executeCancel()
         end
     end
 end

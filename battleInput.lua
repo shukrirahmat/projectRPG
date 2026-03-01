@@ -3,9 +3,9 @@ local utils = require('utils')
 local actionCreator = require('actionCreator')
 local actionData = require('actionData')
 
-local input = {}
+local battleInput = {}
 
-function input.sendActionIntoQueue(action)
+function battleInput.sendActionIntoQueue(action)
     local actionDetails = actionData[action.ref]    
     if actionDetails.priority then
         table.insert(battleState.priorityList, action)
@@ -24,7 +24,7 @@ local function setPartyAction()
             elseif member.currentAction then
                 action = member.currentAction
             end
-            input.sendActionIntoQueue(action)
+            battleInput.sendActionIntoQueue(action)
             member.currentAction = nil
         end
     end
@@ -63,7 +63,7 @@ local function setEnemyAction()
                     end
                 end
             end
-            input.sendActionIntoQueue(action)
+            battleInput.sendActionIntoQueue(action)
         end
     end
 end
@@ -92,7 +92,7 @@ local function addAttackAction(target)
     user.currentAction = action
 end
 
-function input.executeLeft()
+function battleInput.executeLeft()
     if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
         if battleState.currentMenu.position % 2 == 0
         and battleState.currentMenu.position - 1 >= 1 then
@@ -101,7 +101,7 @@ function input.executeLeft()
     end
 end
 
-function input.executeRight()
+function battleInput.executeRight()
     if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
         if battleState.currentMenu.position % 2 ~= 0
         and battleState.currentMenu.position + 1 <= #battleState.currentMenu.list then
@@ -110,7 +110,7 @@ function input.executeRight()
     end
 end
 
-function input.executeDown()
+function battleInput.executeDown()
     if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
         if battleState.currentMenu.position + 2 <= #battleState.currentMenu.list then
             utils.menuDown(battleState.currentMenu)
@@ -125,7 +125,7 @@ function input.executeDown()
     end
 end
 
-function input.executeUp()
+function battleInput.executeUp()
     if battleState.currentMenu == battleState.skillMenu or battleState.currentMenu == battleState.itemMenu then
         if battleState.currentMenu.position - 2 >= 1 then
             utils.menuUp(battleState.currentMenu)
@@ -138,7 +138,7 @@ function input.executeUp()
     end
 end
 
-function input.executeConfirm()
+function battleInput.executeConfirm()
     if battleState.currentMenu == battleState.mainMenu then
         nextCharacter(0)
     elseif battleState.currentMenu == battleState.characterMenu then
@@ -287,7 +287,7 @@ function input.executeConfirm()
     end
 end
 
-function input.executeCancel()
+function battleInput.executeCancel()
     if battleState.currentMenu == battleState.characterMenu then
         local currentID = battleState.characterMenu.charID
         local prevID = utils.getAbleCharID(currentID, 'prev')
@@ -314,4 +314,4 @@ function input.executeCancel()
     end
 end
 
-return input
+return battleInput

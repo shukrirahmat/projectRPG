@@ -5,7 +5,6 @@ local actionCreator = require('actionCreator')
 local actionData = require('actionData')
 local effectCreator = require('effectCreator')
 local effectData = require('effectData')
-local input = require('input')
 
 local loop = {}
 

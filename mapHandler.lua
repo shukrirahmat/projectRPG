@@ -25,6 +25,19 @@ function mapHandler.draw()
     end
 
     love.graphics.setColor(1, 1, 1)
+    for k, v in pairs(owState.currentMap.spots) do
+        local sprite
+        if v.category == 'gates' then
+            sprite = gate_sprite
+        end
+        love.graphics.draw(
+            sprite,
+            (v.x - 1) * owState.tileSize + owState.camera.x - owState.moveShift.x,
+            (v.y - 1) * owState.tileSize + owState.camera.y - owState.moveShift.y
+        )
+    end
+
+    love.graphics.setColor(1, 1, 1)
     love.graphics.draw(
         player_sprites,
         owState.currentSprite,

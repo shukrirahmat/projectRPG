@@ -1,4 +1,6 @@
 local owState = require('overworldState')
+local mapData = require('mapData')
+local mapHandler = require('mapHandler')
 
 local playerHandler = {}
 
@@ -55,8 +57,13 @@ local function getNextMove(currentMove)
         elseif love.keyboard.isDown('right') then return 'right'
         end
     end
-    
+
     return nil
+end
+
+function playerHandler.travelTo(ref)
+    owState.currentMap = mapData[ref]
+    mapHandler.load()
 end
 
 function playerHandler.movePlayer(dt)
@@ -97,7 +104,15 @@ function playerHandler.movePlayer(dt)
 
         owState.moveTimer = owState.moveSpeed
 
-        owState.currentMove = getNextMove(owState.currentMove)
+        local spot = owState.currentMap.spots[''..owState.playerPos.x..','..owState.playerPos.y..'']
+        if spot then
+            owState.currentMove = nil
+            if spot.category == 'gates' then
+                playerHandler.travelTo(spot.to)
+            end
+        else
+            owState.currentMove = getNextMove(owState.currentMove)
+        end
     end
 end
 

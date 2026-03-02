@@ -38,6 +38,8 @@ player_left = {
     love.graphics.newQuad(128, 192, 64, 64, 192, 256)
 }
 
+gate_sprite = love.graphics.newImage('images/gate.png')
+
 
 
 goblin_sprite = love.graphics.newImage('images/goblin.png')

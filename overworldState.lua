@@ -6,7 +6,7 @@ overworldState.currentSprite = nil
 overworldState.playerPos = { x = 0, y = 0 }
 overworldState.camera = {x = 0, y = 0}
 overworldState.currentMove = nil
-overworldState.moveSpeed = 0.5
+overworldState.moveSpeed = 0.3
 overworldState.moveTimer = overworldState.moveSpeed
 overworldState.moveShift = { x = 0, y = 0}
 

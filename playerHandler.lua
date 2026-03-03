@@ -32,6 +32,11 @@ local directions = {
 }
 
 local function getNextMove(currentMove)
+    
+    if owState.mainMenuOpen then
+        return nil
+    end
+    
     if currentMove == 'up' then
         if love.keyboard.isDown('up') then return 'up'
         elseif love.keyboard.isDown('right') then return 'right'

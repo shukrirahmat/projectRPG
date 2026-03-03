@@ -4,6 +4,19 @@ local U = {}
 
 -----MENU RELATED HELPERS-----
 
+function U.drawMenuIndicator(x, y, height)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.polygon(
+        'fill',
+        x,
+        y + (height/2) - 10,
+        x,
+        y + (height/2) + 10,
+        x + 10,
+        y + (height/2)
+    )
+end
+
 function U.shortenStatusName(status)
     if status == 'POISON' then return 'POSN'
     elseif status == 'CURSE' then return 'CRSE'

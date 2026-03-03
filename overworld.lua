@@ -1,6 +1,7 @@
 local overworld = {}
 local owState = require('overworldState')
 local owInput = require('overworldInput')
+local owMenu = require('overworldMenu')
 local mapHandler = require('mapHandler')
 local playerHandler = require('playerHandler')
 local mapData = require('mapData')
@@ -20,6 +21,9 @@ end
 
 function overworld.draw()
     mapHandler.draw()
+    if owState.mainMenuOpen then
+        owMenu.drawMainMenu()
+    end
 end
 
 function overworld.keypressed(key)

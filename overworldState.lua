@@ -10,6 +10,7 @@ overworldState.moveSpeed = 0.3
 overworldState.moveTimer = overworldState.moveSpeed
 overworldState.moveShift = { x = 0, y = 0}
 overworldState.party = {}
-overworldState.menuOpen = false
+overworldState.mainMenuOpen = false
+overworldState.mainMenu = {position = 1, list = { 'SKILLS', 'STATUS', 'EQUIP'}}
 
 return overworldState 

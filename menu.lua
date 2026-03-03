@@ -1,23 +1,11 @@
 local battleState = require('battleState')
 local actionData = require('actionData')
+local utils = require('utils')
 
 local menu = {}
 
 local height = battleState.bottomHeight
 local itemHeight = (height - 20)/4
-
-local function drawMenuIndicator(x, y, height)
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.polygon(
-        'fill',
-        x,
-        y + (height/2) - 10,
-        x,
-        y + (height/2) + 10,
-        x + 10,
-        y + (height/2)
-    )
-end
 
 local function drawLeftMenu(m)
     local borderHeight = height

@@ -9,5 +9,7 @@ overworldState.currentMove = nil
 overworldState.moveSpeed = 0.3
 overworldState.moveTimer = overworldState.moveSpeed
 overworldState.moveShift = { x = 0, y = 0}
+overworldState.party = {}
+overworldState.menuOpen = false
 
 return overworldState 

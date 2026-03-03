@@ -1,6 +1,37 @@
-local weaponCreator = require('weaponCreator')
+local equipmentCreator = require('equipmentCreator')
 
 local statsGain = {}
+
+--[[
+
+one
+hp  95 175 265 365 475  = 1190
+mp  30 60  90  120 160
+str 35 75  115 155 205
+vit 25 55  85  125 165
+agi 25 55  95  135 185
+
+two
+hp  65 115 165 215 275 = 1000
+mp  60 120 180 250 330
+str 15 25  45  65  85
+vit 15 35  55  85  115
+agi 35 65  105 145 195
+
+three
+hp  85 155 225 305 385 = 1090
+mp  40 80  130 180 240
+str 25 55  85  115 155
+vit 35 65  105 145 185
+agi 25 45  65  95  125
+
+four
+hp  105 195 295 395 505 = 1150
+mp  20  40  60  80  110
+str 45  85  135 195 255
+vit 35  65  105 145 195
+agi 15  25  45  65  85
+]]
 
 statsGain['ONE'] = {
     hp = { 
@@ -12,7 +43,7 @@ statsGain['ONE'] = {
     },
     mp = {
         ['1-10'] = 2,
-        ['10-20'] = 2,
+        ['10-20'] = 3,
         ['20-30'] = 3,
         ['30-40'] = 3,
         ['40-50'] = 4
@@ -40,7 +71,7 @@ statsGain['ONE'] = {
     }
 }
 
-stats['TWO'] = {
+statsGain['TWO'] = {
     hp = { 
         ['1-10'] =  4,
         ['10-20'] = 5,
@@ -74,11 +105,11 @@ stats['TWO'] = {
         ['10-20'] = 3,
         ['20-30'] = 4,
         ['30-40'] = 4,
-        ['40-50'] = 4
+        ['40-50'] = 5
     }
 }
 
-stats['THREE'] = {
+statsGain['THREE'] = {
     hp = { 
         ['1-10'] = 6,
         ['10-20'] = 7,
@@ -102,21 +133,21 @@ stats['THREE'] = {
     },
     vit = {
         ['1-10'] = 3,
-        ['10-20'] = 4,
+        ['10-20'] = 3,
         ['20-30'] = 4,
         ['30-40'] = 4,
-        ['40-50'] = 5
+        ['40-50'] = 4
     },
     agi = {
         ['1-10'] = 2,
         ['10-20'] = 2,
-        ['20-30'] = 3,
+        ['20-30'] = 2,
         ['30-40'] = 3,
         ['40-50'] = 3
     }
 }
 
-stats['FOUR'] = {
+statsGain['FOUR'] = {
     hp = { 
         ['1-10'] = 8,
         ['10-20'] = 9,
@@ -204,7 +235,6 @@ dataSheet['FOUR'] = {
     passives = {},
 }
 
-
 local P = {}
 
 function P.new(ref)
@@ -221,8 +251,7 @@ function P.new(ref)
     p.maxMp = data.mp
     p.currentMp = data.mp
     p.str = data.str
-    p.weapon = data.weapon or nil
-    p.baseAtk = data.str + (p.weapon.atkPower or 0)
+    p.baseAtk = data.str
     p.atk = p.baseAtk
     p.baseDef = data.vit
     p.def = data.baseDef
@@ -235,6 +264,49 @@ function P.new(ref)
     p.strong = data.strong or {}
     p.immune = data.immune or {}
     p.passives = data.passives or {}
+    p.weapon = data.weapon or nil
+    p.armor = data.armor or nil
+    p.shield = data.shield or nil
+
+    if p.weapon then
+        p.baseAtk = p.baseAtk + p.weapon.atkPower;
+        p.atk = p.baseAtk
+        if p.weapon.passives then
+            for k, v in pairs(p.weapon.passives) do
+                p.passives[k] = true
+            end
+        end
+    end
+
+    if p.armor then
+        p.baseDef= p.baseDef + p.armor.defPower;
+        p.def = p.baseDef
+        if p.armor.passives then
+            for k, v in pairs(p.armor.passives) do
+                p.passives[k] = true
+            end
+        end
+    end
+
+    if p.shield then
+        p.baseDef= p.baseDef + p.shield.defPower;
+        p.def = p.baseDef
+        if p.shield.passives then
+            for k, v in pairs(p.shield.passives) do
+                p.passives[k] = true
+            end
+        end
+    end
+    
+    for k, v in ipairs(p.passives) do
+        if k:sub(1, 7) == 'strong:' then
+            if k then p.strong[k:sub(8)] = true end
+        end
+        
+        if k:sub(1, 7) == 'immune:' then
+            if k then p.immune[k:sub(8)] = true end
+        end
+    end
 
     if p.passives['keenEye+'] then
         p.critRate = 8
@@ -246,12 +318,6 @@ function P.new(ref)
         p.dodgeRate = 2
     elseif p.passives['evasion'] then
         p.dodgeRate = 4
-    end
-
-    if p.passives['immunity'] then
-        for i, element in ipairs(p.passives['immunity']) do
-            p.immune[element] = true
-        end
     end
 
     if p.passives['arcaneProtection'] then
@@ -266,12 +332,12 @@ function P.new(ref)
         p.strong['VOID'] = true
     end
 
-    if p.passives['lightWielder'] and p.weapon and p.weapon.weight == 'LIGHTWEIGHT' then
+    if p.passives['lightWielder'] and p.weapon and p.weapon.weaponWeight == 'LIGHTWEIGHT' then
         p.baseAtk = p.baseAtk * 1.5
         p.atk = p.baseAtk
     end
 
-    if p.passives['heavyWielder'] and p.weapon and p.weapon.weight == 'HEAVYWEIGHT' then
+    if p.passives['heavyWielder'] and p.weapon and p.weapon.weaponWeight == 'HEAVYWEIGHT' then
         p.baseAtk = p.baseAtk * 1.5
         p.atk = p.baseAtk
     end

@@ -307,6 +307,9 @@ function U.calculateAttackDamage(attacker, target)
     if target.specialType == 'ARMORED' and attacker.passives['piercer'] then
         pierce = 2
     end
+    
+    print(target.name)
+    print(target.def)
 
     local damage = math.floor(attacker.atk/2) - math.floor(target.def/(3 * pierce))
     local mod = math.floor(damage*0.2)

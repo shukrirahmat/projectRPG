@@ -14,5 +14,6 @@ overworldState.onMenu = false
 overworldState.currentScreen = nil
 overworldState.mainMenu = {position = 1, list = { 'SKILLS', 'STATUS', 'EQUIP'}}
 overworldState.statusScreen = {position = 1}
+overworldState.encounterChance = nil
 
 return overworldState 

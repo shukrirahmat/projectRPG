@@ -353,7 +353,7 @@ function drawMiddleMenu(menu, isTargeting)
     )
 
     if #menu.list == 0 then
-        local name = menu.user;
+        local name = menu.user.name;
         local text;
         if menu == battleState.skillMenu then
             text = ''..name..' have not learned any skills'

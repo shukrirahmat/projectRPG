@@ -14,6 +14,8 @@ mapData['stage_1'] = {
     size = { x = 11, y = 11 },
     startPos = { x = 6, y = 10 },
     floor = { r = 0.89, g = 0.13, b = 0.09 },
+    encounterRate = 1000,
+    encounters = {'slime', 'slime', 'slime', 'goblin'},
     
     spots = {
         ['6,10'] = { x = 6 , y = 10 , category = 'gates', to = 'worldMap'}

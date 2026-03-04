@@ -1,12 +1,52 @@
 local owState = require('overworldState')
+local mapData = require('mapData')
+local enemyCreator = require('enemyCreator')
 
 local mapHandler = {}
+
+function mapHandler.createEncounter()
+
+    local encounterSet = {}
+
+    local rollTimes = 1
+    local moreRoll = true
+    local moreRollChance = 100
+    while moreRoll and rollTimes <= 8 do
+        local roll_1 = math.random(0, 100)
+        if roll_1 < moreRollChance then
+            local roll_2 = math.random(1, #owState.currentMap.encounters)
+            local enemyRef = owState.currentMap.encounters[roll_2]
+            if not encounterSet[enemyRef] then
+                encounterSet[enemyRef] = 1
+            else
+                encounterSet[enemyRef] = encounterSet[enemyRef] + 1
+            end
+            rollTimes = rollTimes + 1
+            moreRollChance = math.floor(moreRollChance * 0.8);
+        else
+            moreRoll = false
+        end
+    end
+
+    local enemies = {}
+
+    for k, v in pairs(encounterSet) do
+        for i = 1, v do
+            local name = ''..k:upper()..''..i..''
+            local enemy = enemyCreator.new(k, name)
+            table.insert(enemies, enemy)
+        end
+    end
+
+    return enemies
+end
 
 function mapHandler.load()
     owState.playerPos = owState.currentMap.startPos;
     owState.currentSprite = player_front[1]
     owState.camera.x = windowWidth/2 - (owState.playerPos.x - 0.5) * owState.tileSize
     owState.camera.y = windowHeight/2 - (owState.playerPos.y - 0.5) * owState.tileSize
+    owState.encounterChance = owState.currentMap.encounterRate or nil
 end
 
 function mapHandler.draw()

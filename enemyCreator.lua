@@ -1,23 +1,28 @@
 utils = require('utils')
-state = require('state')
 itemCreator = require('itemCreator')
 
 local dataSheet = {
+    ['slime'] = {
+        lvl = 1,
+        hp = 8,
+        mp = 0,
+        str = 6,
+        def = 1,
+        agi = 3,
+        sprite = slime_sprite,
+        spriteHeight = monsterSpriteDimension/2,
+        gold = 5
+    },
     ['goblin'] = {
-        lvl = 12,
-        hp = 60,
-        mp = 20,
-        str = 80,
-        def = 60,
-        agi = 80,
+        lvl = 2,
+        hp = 12,
+        mp = 0,
+        str = 8,
+        def = 1,
+        agi = 8,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4,
-        strong = {},
-        immune = {},
-        skills = {},
-        passives = {['pincher'] = true},
-        gold = 300,
-        stealableItem = { item = itemCreator.new('healingTonic'), rate = 8 }
+        gold = 8
     },
     
     ['armoredGoblin'] = {
@@ -112,6 +117,16 @@ function enemyCreator.new(species, name)
     e.stealableGold = data.gold or 0
     e.droppedGold = data.gold or 0
     
+    for k, v in pairs(e.passives) do
+        if k:sub(1, 7) == 'strong:' then
+            if k then e.strong[k:sub(8)] = true end
+        end
+        
+        if k:sub(1, 7) == 'immune:' then
+            if k then e.immune[k:sub(8)] = true end
+        end
+    end
+    
     if e.passives['keenEye+'] then
         e.critRate = 8
     elseif e.passives['keenEye'] then
@@ -122,12 +137,6 @@ function enemyCreator.new(species, name)
         e.dodgeRate = 2
     elseif e.passives['evasion'] then
         e.dodgeRate = 4
-    end
-    
-    if e.passives['immunity'] then
-        for i, element in ipairs(e.passives['immunity']) do
-            e.immune[element] = true
-        end
     end
     
     if e.passives['arcaneProtection'] then

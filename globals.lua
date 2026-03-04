@@ -41,7 +41,7 @@ player_left = {
 gate_sprite = love.graphics.newImage('images/gate.png')
 
 
-
+slime_sprite = love.graphics.newImage('images/slime.png')
 goblin_sprite = love.graphics.newImage('images/goblin.png')
 armored_goblin_sprite = love.graphics.newImage('images/armored_goblin.png')
 skeleton_sprite = love.graphics.newImage('images/skeleton.png')

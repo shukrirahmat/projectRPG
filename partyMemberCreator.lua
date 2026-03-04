@@ -74,7 +74,7 @@ function P.new(ref)
     p.atk = p.baseAtk
     p.vit = data.vit
     p.baseDef = data.vit
-    p.def = data.baseDef
+    p.def = p.baseDef
     p.baseAgi = data.agi
     p.agi = data.agi
     p.critRate = data.critRate or 64

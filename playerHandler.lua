@@ -1,6 +1,10 @@
 local owState = require('overworldState')
 local mapData = require('mapData')
 local mapHandler = require('mapHandler')
+local gameState = require('gameState')
+local transition = require('transition')
+local trState = require('transitionState')
+local battle = require('battle')
 
 local playerHandler = {}
 
@@ -32,11 +36,11 @@ local directions = {
 }
 
 local function getNextMove(currentMove)
-    
+
     if owState.onMenu then
         return nil
     end
-    
+
     if currentMove == 'up' then
         if love.keyboard.isDown('up') then return 'up'
         elseif love.keyboard.isDown('right') then return 'right'
@@ -69,6 +73,46 @@ end
 function playerHandler.travelTo(ref)
     owState.currentMap = mapData[ref]
     mapHandler.load()
+end
+
+local function handleEncounter()
+    
+    local enemies = mapHandler.createEncounter()
+    local party = owState.party
+    local gold = gameState.partyGold
+    local items = gameState.partyItems
+    battle.load(party, enemies, gold, items)
+    
+    trState.transitionType = 'battleTransition';
+    gameState.currentState = transition;
+    transition.load()
+end
+    
+
+local function handlePostMovement()
+    local spot = owState.currentMap.spots[''..owState.playerPos.x..','..owState.playerPos.y..'']
+    
+    if spot then
+        owState.currentMove = nil
+        if spot.category == 'gates' then
+            playerHandler.travelTo(spot.to)
+            return
+        end
+    end
+    
+    if owState.encounterChance then
+        local roll = math.random(1, owState.encounterChance)
+        if roll == 1 then
+            owState.currentMove = nil
+            owState.encounterChance = owState.currentMap.encounterRate
+            handleEncounter()
+            return
+        else
+            owState.encounterChance = math.floor(owState.encounterChance * 0.8)
+        end
+    end
+    
+    owState.currentMove = getNextMove(owState.currentMove)
 end
 
 function playerHandler.movePlayer(dt)
@@ -108,16 +152,9 @@ function playerHandler.movePlayer(dt)
         owState.camera.y = owState.camera.y - dir.dy * owState.tileSize
 
         owState.moveTimer = owState.moveSpeed
+        
+        handlePostMovement()
 
-        local spot = owState.currentMap.spots[''..owState.playerPos.x..','..owState.playerPos.y..'']
-        if spot then
-            owState.currentMove = nil
-            if spot.category == 'gates' then
-                playerHandler.travelTo(spot.to)
-            end
-        else
-            owState.currentMove = getNextMove(owState.currentMove)
-        end
     end
 end
 

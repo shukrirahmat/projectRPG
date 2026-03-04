@@ -133,23 +133,23 @@ local function clearStatus(user, target, status)
             end
         end
         utils.battleLogAdd("The curse have been removed from "..target.name.."")
-    elseif status == 'DEFUP' then
-        target.status['DEFUP'] = nil
+    elseif status == 'STEEL' then
+        target.status['STEEL'] = nil
         target.defBuff = nil
         utils.updateStatChange(target, 'def')
         utils.battleLogAdd(""..target.name.."'s defense increase has expired")
-    elseif status == 'AGIUP' then
-        target.status['AGIUP'] = nil
+    elseif status == 'FLEET' then
+        target.status['FLEET'] = nil
         target.agiBuff = nil
         utils.updateStatChange(target, 'agi')
         utils.battleLogAdd(""..target.name.."'s agility increase has expired")
-    elseif status == 'DEFDOWN' then
-        target.status['DEFDOWN'] = nil
+    elseif status == 'FRAIL' then
+        target.status['FRAIL'] = nil
         target.defDebuff = nil
         utils.updateStatChange(target, 'def')
         utils.battleLogAdd(""..target.name.."'s defense reduction has expired")
-    elseif status == 'AGIDOWN' then
-        target.status['AGIDOWN'] = nil
+    elseif status == 'SNARE' then
+        target.status['SNARE'] = nil
         target.agiDebuff = nil
         utils.updateStatChange(target, 'agi')
         utils.battleLogAdd(""..target.name.."'s agility reduction has expired")
@@ -167,25 +167,25 @@ end
 local function addStatChange(_, target, status)
 
     local text
-    if status == 'DEFUP' then
+    if status == 'STEEL' then
         text = {
             ""..target.name.."'s defensive power is increased",
             ""..target.name.."'s defensive power is increased further",
             ""..target.name.."'s defensive power is at maximum"
         }
-    elseif status == 'DEFDOWN' then
+    elseif status == 'FRAIL' then
         text = {
             ""..target.name.."'s defensive power is reduced",
             ""..target.name.."'s defensive power is reduced further",
             ""..target.name.."'s defensive power cannot be reduced further"
         }
-    elseif status == 'AGIUP' then
+    elseif status == 'FLEET' then
         text = {
             ""..target.name.."'s agility is increased",
             ""..target.name.."'s agility is increased further",
             ""..target.name.."'s agility is at maximum"
         }
-    elseif status == 'AGIDOWN' then
+    elseif status == 'SNARE' then
         text = {
             ""..target.name.."'s agility is reduced",
             ""..target.name.."'s agility is reduced further",
@@ -218,17 +218,17 @@ local function addStatChange(_, target, status)
         utils.battleLogAdd(text[1])
     end
 
-    if status == 'DEFUP' then
-        target.defBuff = math.floor(target.baseDef * 0.5 * target.status['DEFUP'].stack)
+    if status == 'STEEL' then
+        target.defBuff = math.floor(target.baseDef * 0.5 * target.status['STEEL'].stack)
         utils.updateStatChange(target, 'def')
-    elseif status == 'DEFDOWN' then
-        target.defDebuff = math.floor(target.baseDef * 0.5 * target.status['DEFDOWN'].stack)
+    elseif status == 'FRAIL' then
+        target.defDebuff = math.floor(target.baseDef * 0.5 * target.status['FRAIL'].stack)
         utils.updateStatChange(target, 'def')
-    elseif status == 'AGIUP' then
-        target.agiBuff = math.floor(target.baseAgi * 0.5 * target.status['AGIUP'].stack)
+    elseif status == 'FLEET' then
+        target.agiBuff = math.floor(target.baseAgi * 0.5 * target.status['FLEET'].stack)
         utils.updateStatChange(target, 'agi')
-    elseif status == 'AGIDOWN' then
-        target.agiDebuff = math.floor(target.baseAgi * 0.5 * target.status['AGIDOWN'].stack)
+    elseif status == 'SNARE' then
+        target.agiDebuff = math.floor(target.baseAgi * 0.5 * target.status['SNARE'].stack)
         utils.updateStatChange(target, 'agi')
     elseif status == 'MIGHT' then
         target.atkBuff = math.floor(target.baseAtk * 0.75)

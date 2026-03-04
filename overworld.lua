@@ -2,6 +2,7 @@ local overworld = {}
 local owState = require('overworldState')
 local owInput = require('overworldInput')
 local owMenu = require('overworldMenu')
+local statusScreen = require('statusScreen')
 local mapHandler = require('mapHandler')
 local playerHandler = require('playerHandler')
 local mapData = require('mapData')
@@ -11,7 +12,7 @@ function overworld.load(party)
     owState.currentMap = mapData['worldMap']
     mapHandler.load()
 end
-    
+
 
 function overworld.update(dt)
     if owState.currentMove then
@@ -21,14 +22,20 @@ end
 
 function overworld.draw()
     mapHandler.draw()
-    if owState.mainMenuOpen then
-        owMenu.drawMainMenu()
+    if owState.onMenu then
+        if owState.currentScreen == 'mainMenu' then
+            owMenu.drawMainMenu()
+        elseif owState.currentScreen == 'statusScreen' then
+            statusScreen.draw()
+        end
     end
 end
 
 function overworld.keypressed(key)
     if key == 'c' then 
         owInput.executeMenu()
+    elseif key == 'z' then 
+        owInput.executeConfirm()
     elseif key == 'x' then 
         owInput.executeCancel()
     elseif key == 'up' then

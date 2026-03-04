@@ -605,10 +605,10 @@ local function castStatusEffect(self, user, targets)
 
             if target.status[self.element] then
                 local statusEffect;
-                if self.element == 'DEFUP'
-                or self.element == 'AGIUP'
-                or self.element == 'DEFDOWN'
-                or self.element == 'AGIDOWN' 
+                if self.element == 'STEEL'
+                or self.element == 'FLEET'
+                or self.element == 'FRAIL'
+                or self.element == 'SNARE' 
                 or self.element == 'MIGHT' then
                     statusEffect = effectCreator.new('addStatChange', user, target, self.element)
                 else
@@ -631,10 +631,10 @@ local function castStatusEffect(self, user, targets)
                             table.insert(battleState.effectList, killEffect)
                         else
                             local statusEffect;
-                            if self.element == 'DEFUP'
-                            or self.element == 'AGIUP'
-                            or self.element == 'DEFDOWN'
-                            or self.element == 'AGIDOWN'
+                            if self.element == 'STEEL'
+                            or self.element == 'FLEET'
+                            or self.element == 'FRAIL'
+                            or self.element == 'SNARE'
                             or self.element == 'MIGHT' then
                                 statusEffect = effectCreator.new('addStatChange', 
                                     user, target, self.element)
@@ -747,10 +747,10 @@ end
 local function undo(self, user, _)
     local text = ''..user.name..' undo debuffs on itself';
     utils.battleLogAdd(text)
-    user.status['DEFDOWN'] = nil
+    user.status['FRAIL'] = nil
     user.defDebuff = nil
     utils.updateStatChange(user, 'def')
-    user.status['AGIDOWN'] = nil
+    user.status['SNARE'] = nil
     user.agiDebuff = nil
     utils.updateStatChange(user, 'agi')
 end
@@ -1874,7 +1874,7 @@ actionData['steel'] = {
     aim = 'allies',
     scope = 'single',
     execute = castStatusEffect,
-    element = 'DEFUP',
+    element = 'STEEL',
     accuracy = 100
 }
 
@@ -1886,7 +1886,7 @@ actionData['steelAll'] = {
     aim = 'allies',
     scope = 'all',
     execute = castStatusEffect,
-    element = 'DEFUP',
+    element = 'STEEL',
     accuracy = 100
 }
 
@@ -1898,7 +1898,7 @@ actionData['fleet'] = {
     aim = 'allies',
     scope = 'single',
     execute = castStatusEffect,
-    element = 'AGIUP',
+    element = 'FLEET',
     accuracy = 100
 }
 
@@ -1910,7 +1910,7 @@ actionData['fleetAll'] = {
     aim = 'allies',
     scope = 'all',
     execute = castStatusEffect,
-    element = 'AGIUP',
+    element = 'FLEET',
     accuracy = 100
 }
 
@@ -1922,7 +1922,7 @@ actionData['frail'] = {
     aim = 'enemies',
     scope = 'single',
     execute = castStatusEffect,
-    element = 'DEFDOWN',
+    element = 'FRAIL',
     accuracy = 100
 }
 
@@ -1934,7 +1934,7 @@ actionData['frail All'] = {
     aim = 'enemies',
     scope = 'all',
     execute = castStatusEffect,
-    element = 'DEFDOWN',
+    element = 'FRAIL',
     accuracy = 100
 }
 
@@ -1946,7 +1946,7 @@ actionData['snare'] = {
     aim = 'enemies',
     scope = 'single',
     execute = castStatusEffect,
-    element = 'AGIDOWN',
+    element = 'SNARE',
     accuracy = 100
 }
 
@@ -1958,7 +1958,7 @@ actionData['snareAll'] = {
     aim = 'enemies',
     scope = 'all',
     execute = castStatusEffect,
-    element = 'AGIDOWN',
+    element = 'SNARE',
     accuracy = 100
 }
 

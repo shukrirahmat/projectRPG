@@ -127,20 +127,20 @@ local function statusClearAll(action)
         statusClear(user,'STUN', 60)
     end
 
-    if user.status['DEFUP'] then
-        countDownStats(user, 'DEFUP')
+    if user.status['STEEL'] then
+        countDownStats(user, 'STEEL')
     end
 
-    if user.status['AGIUP'] then
-        countDownStats(user, 'AGIUP')
+    if user.status['FLEET'] then
+        countDownStats(user, 'FLEET')
     end
 
-    if user.status['DEFDOWN'] then
-        countDownStats(user, 'DEFDOWN')
+    if user.status['FRAIL'] then
+        countDownStats(user, 'FRAIL')
     end
 
-    if user.status['AGIDOWN'] then
-        countDownStats(user, 'AGIDOWN')
+    if user.status['SNARE'] then
+        countDownStats(user, 'SNARE')
     end
 
     if user.status['BARRIER'] then

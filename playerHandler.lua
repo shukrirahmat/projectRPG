@@ -33,7 +33,7 @@ local directions = {
 
 local function getNextMove(currentMove)
     
-    if owState.mainMenuOpen then
+    if owState.onMenu then
         return nil
     end
     

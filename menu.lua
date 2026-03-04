@@ -44,7 +44,7 @@ local function drawLeftMenu(m)
             'center', 0, 1, 1, 0, -1 * (itemHeight/4)
         )
         if m.position == i then
-            drawMenuIndicator(
+            utils.drawMenuIndicator(
                 itemX,
                 itemY + (i - 1) * itemHeight,
                 itemHeight
@@ -197,7 +197,7 @@ function drawTargetMenu(refX, refY, refWidth)
             pointer = i + 4
         end
         if battleState.targetMenu.position == pointer then
-            drawMenuIndicator(
+            utils.drawMenuIndicator(
                 targetX,
                 targetY + (i - 1) * targetHeight,
                 targetHeight
@@ -293,7 +293,7 @@ local function drawCurrentMenuPage(
 
         love.graphics.setColor(1, 1, 1)
         if menu.position == i then
-            drawMenuIndicator(x, y, itemHeight)
+            utils.drawMenuIndicator(x, y, itemHeight)
             if isTargeting then
                 drawTargetMenu(
                     borderX, 

@@ -1,190 +1,5 @@
 local equipmentCreator = require('equipmentCreator')
 
-local statsGain = {}
-
---[[
-
-one
-hp  95 175 265 365 475  = 1190
-mp  30 60  90  120 160
-str 35 75  115 155 205
-vit 25 55  85  125 165
-agi 25 55  95  135 185
-
-two
-hp  65 115 165 215 275 = 1000
-mp  60 120 180 250 330
-str 15 25  45  65  85
-vit 15 35  55  85  115
-agi 35 65  105 145 195
-
-three
-hp  85 155 225 305 385 = 1090
-mp  40 80  130 180 240
-str 25 55  85  115 155
-vit 35 65  105 145 185
-agi 25 45  65  95  125
-
-four
-hp  105 195 295 395 505 = 1150
-mp  20  40  60  80  110
-str 45  85  135 195 255
-vit 35  65  105 145 195
-agi 15  25  45  65  85
-]]
-
-statsGain['ONE'] = {
-    hp = { 
-        ['1-10'] = 7,
-        ['10-20'] = 8,
-        ['20-30'] = 9,
-        ['30-40'] = 10,
-        ['40-50'] = 11
-    },
-    mp = {
-        ['1-10'] = 2,
-        ['10-20'] = 3,
-        ['20-30'] = 3,
-        ['30-40'] = 3,
-        ['40-50'] = 4
-    },
-    str = {
-        ['1-10'] = 3,
-        ['10-20'] = 4,
-        ['20-30'] = 4,
-        ['30-40'] = 4,
-        ['40-50'] = 5
-    },
-    vit = {
-        ['1-10'] = 2,
-        ['10-20'] = 3,
-        ['20-30'] = 3,
-        ['30-40'] = 4,
-        ['40-50'] = 4
-    },
-    agi = {
-        ['1-10'] = 2,
-        ['10-20'] = 3,
-        ['20-30'] = 4,
-        ['30-40'] = 4,
-        ['40-50'] = 5
-    }
-}
-
-statsGain['TWO'] = {
-    hp = { 
-        ['1-10'] =  4,
-        ['10-20'] = 5,
-        ['20-30'] = 5,
-        ['30-40'] = 5,
-        ['40-50'] = 6
-    },
-    mp = {
-        ['1-10'] =  5,
-        ['10-20'] = 6,
-        ['20-30'] = 6,
-        ['30-40'] = 7,
-        ['40-50'] = 8
-    },
-    str = {
-        ['1-10'] =  1,
-        ['10-20'] = 1,
-        ['20-30'] = 2,
-        ['30-40'] = 2,
-        ['40-50'] = 2
-    },
-    vit = {
-        ['1-10'] =  1,
-        ['10-20'] = 2,
-        ['20-30'] = 2,
-        ['30-40'] = 3,
-        ['40-50'] = 3
-    },
-    agi = {
-        ['1-10'] =  3,
-        ['10-20'] = 3,
-        ['20-30'] = 4,
-        ['30-40'] = 4,
-        ['40-50'] = 5
-    }
-}
-
-statsGain['THREE'] = {
-    hp = { 
-        ['1-10'] = 6,
-        ['10-20'] = 7,
-        ['20-30'] = 7,
-        ['30-40'] = 8,
-        ['40-50'] = 8
-    },
-    mp = {
-        ['1-10'] = 3,
-        ['10-20'] = 4,
-        ['20-30'] = 5,
-        ['30-40'] = 5,
-        ['40-50'] = 6
-    },
-    str = {
-        ['1-10'] = 2,
-        ['10-20'] = 3,
-        ['20-30'] = 3,
-        ['30-40'] = 3,
-        ['40-50'] = 4
-    },
-    vit = {
-        ['1-10'] = 3,
-        ['10-20'] = 3,
-        ['20-30'] = 4,
-        ['30-40'] = 4,
-        ['40-50'] = 4
-    },
-    agi = {
-        ['1-10'] = 2,
-        ['10-20'] = 2,
-        ['20-30'] = 2,
-        ['30-40'] = 3,
-        ['40-50'] = 3
-    }
-}
-
-statsGain['FOUR'] = {
-    hp = { 
-        ['1-10'] = 8,
-        ['10-20'] = 9,
-        ['20-30'] = 10,
-        ['30-40'] = 10,
-        ['40-50'] = 11
-    },
-    mp = {
-        ['1-10'] = 1,
-        ['10-20'] = 2,
-        ['20-30'] = 2,
-        ['30-40'] = 2,
-        ['40-50'] = 3
-    },
-    str = {
-        ['1-10'] = 4,
-        ['10-20'] = 4,
-        ['20-30'] = 5,
-        ['30-40'] = 6,
-        ['40-50'] = 6
-    },
-    vit = {
-        ['1-10'] = 3,
-        ['10-20'] = 3,
-        ['20-30'] = 4,
-        ['30-40'] = 4,
-        ['40-50'] = 5
-    },
-    agi = {
-        ['1-10'] = 1,
-        ['10-20'] = 1,
-        ['20-30'] = 2,
-        ['30-40'] = 2,
-        ['40-50'] = 2
-    }
-}
-
 local dataSheet = {}
 
 dataSheet['ONE'] = {
@@ -196,7 +11,8 @@ dataSheet['ONE'] = {
     vit = 7,
     agi = 7,
     skills = {},
-    passives = {},
+    passiveSkills = {},
+    totalExp = 0,
 }
 
 dataSheet['TWO'] = {
@@ -208,7 +24,8 @@ dataSheet['TWO'] = {
     vit = 6,
     agi = 8,
     skills = {},
-    passives = {},
+    passiveSkills = {},
+    totalExp = 0
 }
 
 dataSheet['THREE'] = {
@@ -220,7 +37,8 @@ dataSheet['THREE'] = {
     vit = 8,
     agi = 7,
     skills = {},
-    passives = {},
+    passiveSkills = {},
+    totalExp = 0
 }
 
 dataSheet['FOUR'] = {
@@ -232,7 +50,8 @@ dataSheet['FOUR'] = {
     vit = 8,
     agi = 6,
     skills = {},
-    passives = {},
+    passiveSkills = {},
+    totalExp = 0
 }
 
 local P = {}
@@ -253,6 +72,7 @@ function P.new(ref)
     p.str = data.str
     p.baseAtk = data.str
     p.atk = p.baseAtk
+    p.vit = data.vit
     p.baseDef = data.vit
     p.def = data.baseDef
     p.baseAgi = data.agi
@@ -260,13 +80,19 @@ function P.new(ref)
     p.critRate = data.critRate or 64
     p.dodgeRate = data.dodgeRate or 0
     p.skills = data.skills or {}
+    p.passiveSkills = data.passiveSkills or {}
     p.status = {}
     p.strong = data.strong or {}
     p.immune = data.immune or {}
-    p.passives = data.passives or {}
+    p.passives = {}
+    p.totalExp = data.totalExp
     p.weapon = data.weapon or nil
     p.armor = data.armor or nil
     p.shield = data.shield or nil
+    
+    for i, ref in ipairs(p.passiveSkills) do
+        p.passives[ref] = true
+    end
 
     if p.weapon then
         p.baseAtk = p.baseAtk + p.weapon.atkPower;
@@ -298,7 +124,7 @@ function P.new(ref)
         end
     end
     
-    for k, v in ipairs(p.passives) do
+    for k, v in pairs(p.passives) do
         if k:sub(1, 7) == 'strong:' then
             if k then p.strong[k:sub(8)] = true end
         end

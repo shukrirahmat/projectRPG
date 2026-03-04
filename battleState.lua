@@ -16,7 +16,7 @@ battleState.killList = {}
 battleState.followUp = {}
 battleState.textTimer = 0
 battleState.textSpeed = 1
-battleState.battleLog = {}
+battleState.battleLog = {'Enemy encountered!'}
 battleState.bottomHeight = 180
 battleState.partyDied = false
 battleState.allEnemyDead = false
@@ -27,5 +27,6 @@ battleState.cursorTimer = 0
 battleState.cursor = false
 battleState.partyGold = 0
 battleState.partyItems = {}
+battleState.encounterMessage = true;
 
 return battleState;

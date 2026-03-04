@@ -15,8 +15,14 @@ function battle.load(party, enemies, gold, items)
 end
 
 function battle.update(dt)
-
-    if battleState.battleRunning or battleState.battleEnded then
+    
+    if battleState.encounterMessage then
+        battleState.textTimer = battleState.textTimer + dt
+        if battleState.textTimer > battleState.textSpeed * 0.5 then
+            battleState.encounterMessage = nil
+            battleState.battleLog = {}
+        end
+    elseif battleState.battleRunning or battleState.battleEnded then
         battleState.textTimer = battleState.textTimer + dt
         if battleState.animation then
             battleState.animation.timer = battleState.animation.timer + dt
@@ -42,7 +48,9 @@ end
 function battle.draw()
     hud.draw()
     enemySprites.draw()
-    if not battleState.battleRunning then
+    if battleState.encounterMessage then
+        menu.drawBattleLog()
+    elseif not battleState.battleRunning then
         menu.draw()
     elseif battleState.battleRunning and #battleState.battleLog > 0 then
         menu.drawBattleLog()
@@ -50,7 +58,7 @@ function battle.draw()
 
 
     --TEMPORARY
-    love.graphics.setColor(1, 1, 1)
+    --[[love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(font_small)
     for index, enemy in ipairs(battleState.enemies) do
         local text
@@ -72,11 +80,11 @@ function battle.draw()
             5 + (index - 1) * 20
         )
 
-    end
+    end]]
 end
 
 function battle.keypressed(key)
-    if not battleState.battleRunning then
+    if not battleState.battleRunning and not battleState.encounterMessage then
         if key == 'up' then
             battleInput.executeUp()
         elseif key == 'down' then

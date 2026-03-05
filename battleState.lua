@@ -23,10 +23,6 @@ battleState.allEnemyDead = false
 battleState.battleEnded = false
 battleState.animation = nil
 battleState.infoMode = false
-battleState.cursorTimer = 0
-battleState.cursor = false
-battleState.partyGold = 0
-battleState.partyItems = {}
 battleState.encounterMessage = true;
 
 return battleState;

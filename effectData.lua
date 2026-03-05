@@ -1,4 +1,5 @@
 local battleState = require('battleState')
+local gameState = require('gameState')
 local utils = require('utils')
 local effectCreator = require('effectCreator')
 
@@ -334,14 +335,14 @@ end
 local function stealGold(user, target, amount)
     if target.isPartyMember then
         amount = math.min(amount, battleState.partyGold)
-        battleState.partyGold = battleState.partyGold - amount;
+        gameState.partyGold = gameState.partyGold - amount;
     elseif not target.isPartyMember then
         amount = math.min(amount, target.stealableGold)
         target.stealableGold = target.stealableGold - amount;
     end
 
     if user.isPartyMember then
-        battleState.partyGold = battleState.partyGold + amount
+        gameState.partyGold = gameState.partyGold + amount
     elseif not user.isPartyMember then
         user.stealableGold = user.stealableGold + amount
     end

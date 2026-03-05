@@ -5,6 +5,7 @@ local gameState = require('gameState')
 local transition = require('transition')
 local trState = require('transitionState')
 local battle = require('battle')
+local battlerCreator = require('battlerCreator')
 
 local playerHandler = {}
 
@@ -78,10 +79,13 @@ end
 local function handleEncounter()
     
     local enemies = mapHandler.createEncounter()
-    local party = owState.party
-    local gold = gameState.partyGold
-    local items = gameState.partyItems
-    battle.load(party, enemies, gold, items)
+    local party = { 
+        battlerCreator.new(owState.party[1]),
+        battlerCreator.new(owState.party[2]),
+        battlerCreator.new(owState.party[3]),
+        battlerCreator.new(owState.party[4])
+    }
+    battle.load(party, enemies)
     
     trState.transitionType = 'battleTransition';
     gameState.currentState = transition;

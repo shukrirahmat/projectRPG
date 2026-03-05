@@ -11,7 +11,7 @@ function mapHandler.createEncounter()
     local rollTimes = 1
     local moreRoll = true
     local moreRollChance = 100
-    while moreRoll and rollTimes <= 8 do
+    while moreRoll and rollTimes <= owState.currentMap.maxEncounter do
         local roll_1 = math.random(0, 100)
         if roll_1 < moreRollChance then
             local roll_2 = math.random(1, #owState.currentMap.encounters)

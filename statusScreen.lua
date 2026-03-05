@@ -2,6 +2,7 @@ local owState = require('overworldState')
 local levelHandler = require('levelHandler')
 local actionData = require('actionData')
 local passiveData = require('passiveData')
+local battlerCreator = require('battlerCreator')
 
 local statusScreen = {}
 
@@ -193,7 +194,7 @@ function statusScreen.draw()
     love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle('line', 10, 10, windowWidth - 20, windowHeight - 20)
     
-    local member = owState.party[owState.statusScreen.position]
+    local member = battlerCreator.new(owState.party[owState.statusScreen.position])
     local panelSize = (windowWidth - 20) / 3
     local divider_1 = panelSize + 10
     local divider_2 = 2 * panelSize + 10

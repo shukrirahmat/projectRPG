@@ -10,8 +10,6 @@ local battle = {}
 function battle.load(party, enemies, gold, items)
     battleState.party = party
     battleState.enemies = enemies
-    battleState.partyGold = gold
-    battleState.partyItems = items
 end
 
 function battle.update(dt)

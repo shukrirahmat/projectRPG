@@ -1,4 +1,5 @@
 local battleState = require('battleState')
+local gameState = require('gameState')
 
 local U = {}
 
@@ -71,7 +72,7 @@ end
 
 function U.updateItemMenu(user)
     local itemList = {}
-    for k, v in pairs(battleState.partyItems) do
+    for k, v in pairs(gameState.partyItems) do
         table.insert(itemList, {item= v.item, amount = v.amount })
     end
 
@@ -288,14 +289,14 @@ function U.updateStatChange(target, stat)
 end
 
 function U.manageItems(item, mod)
-    if battleState.partyItems[item.ref] then
-        battleState.partyItems[item.ref].amount = battleState.partyItems[item.ref].amount + mod
-    elseif not battleState.partyItems[item.ref] and mod > 0 then
-        battleState.partyItems[item.ref] = {item = item , amount = mod}
+    if gameState.partyItems[item.ref] then
+        gameState.partyItems[item.ref].amount = gameState.partyItems[item.ref].amount + mod
+    elseif not gameState.partyItems[item.ref] and mod > 0 then
+        gameState.partyItems[item.ref] = {item = item , amount = mod}
     end
 
-    if battleState.partyItems[item.ref].amount < 1 then
-        battleState.partyItems[item.ref] = nil
+    if gameState.partyItems[item.ref].amount < 1 then
+        gameState.partyItems[item.ref] = nil
     end
 end
 
@@ -307,9 +308,6 @@ function U.calculateAttackDamage(attacker, target)
     if target.specialType == 'ARMORED' and attacker.passives['piercer'] then
         pierce = 2
     end
-    
-    print(target.name)
-    print(target.def)
 
     local damage = math.floor(attacker.atk/2) - math.floor(target.def/(3 * pierce))
     local mod = math.floor(damage*0.2)

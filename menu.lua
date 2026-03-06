@@ -403,6 +403,18 @@ function menu.drawBattleLog()
             textWidth
         )
     end
+    
+    if #battleState.rewardQueue > 0 and battleState.textTimer == 0 then
+        love.graphics.polygon(
+            'fill',
+            borderWidth / 2 - 10,
+            borderY + borderHeight - 15,
+            borderWidth / 2 + 10,
+            borderY + borderHeight - 15,
+            borderWidth/ 2,
+            borderY + borderHeight - 5
+        )
+    end
 end
 
 function menu.draw()

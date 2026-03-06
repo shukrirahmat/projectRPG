@@ -5,6 +5,8 @@ local actionCreator = require('actionCreator')
 local actionData = require('actionData')
 local effectCreator = require('effectCreator')
 local effectData = require('effectData')
+local levelHandler = require('levelHandler')
+local gameState = require('gameState')
 
 local loop = {}
 
@@ -175,7 +177,7 @@ function executeAction(action, isFollowUp)
         else
             toAct.execute(toAct, action.user, action.targets)
         end
-        
+
         if action.user.usingItem then
             action.user.usingItem = nil
         end
@@ -245,13 +247,80 @@ end
 
 function loop.run()
 
-    if battleState.battleEnded then
+    if battleState.battleEnded and #battleState.rewardQueue > 0 then
+        local aliveMember = {}
+        for i, member in ipairs(battleState.party) do
+            if not member.isDead then
+                table.insert(aliveMember, member)
+            end
+        end
+        if battleState.rewardQueue[1] == 'gainExp' then
+            local gainedExp = 0
+            for i, enemy in ipairs(battleState.enemies) do
+                gainedExp = gainedExp + enemy.exp;
+            end
+            for i, member in ipairs(aliveMember) do
+                member.totalExp = member.totalExp + math.ceil(gainedExp / #aliveMember)
+            end
+            battleState.battleLog = {}
+            utils.battleLogAdd('The party gained '..gainedExp..' EXP')
+            table.remove(battleState.rewardQueue, 1)
+            battleState.textTimer = 0
+        elseif battleState.rewardQueue[1] == 'levelUp' then
+            local hasLevelUp = false;
+            for i, member in ipairs(aliveMember) do
+                if member.totalExp >= levelHandler.expNeeded[member.lvl + 1] then
+                    member.lvl = member.lvl + 1;
+                    battleState.battleLog = {}
+                    utils.battleLogAdd(''..member.name..' has leveled up to LVL'..member.lvl..'')
+
+                    local gainRef = math.ceil(member.lvl/10)
+                    member.maxHp = member.maxHp + levelHandler.statsGain[member.name]['hp'][gainRef]
+                    utils.battleLogAdd('HP + '..levelHandler.statsGain[member.name]['hp'][gainRef]..'')
+                    member.maxMp = member.maxMp + levelHandler.statsGain[member.name]['mp'][gainRef]
+                    utils.battleLogAdd('MP + '..levelHandler.statsGain[member.name]['mp'][gainRef]..'')
+                    member.str = member.str + levelHandler.statsGain[member.name]['str'][gainRef]
+                    utils.battleLogAdd(
+                        'STRENGTH + '..levelHandler.statsGain[member.name]['str'][gainRef]..'')
+                    member.vit = member.vit + levelHandler.statsGain[member.name]['vit'][gainRef]
+                    utils.battleLogAdd(
+                        'VITALITY + '..levelHandler.statsGain[member.name]['vit'][gainRef]..'')
+                    member.agi = member.agi + levelHandler.statsGain[member.name]['agi'][gainRef]
+                    utils.battleLogAdd(
+                        'AGILITY + '..levelHandler.statsGain[member.name]['agi'][gainRef]..'')
+
+                    hasLevelUp = true
+                    break
+                end
+            end
+            if hasLevelUp then
+                battleState.textTimer = 0
+            else
+                table.remove(battleState.rewardQueue, 1)
+                battleState.textTimer = battleState.textSpeed
+            end
+        elseif battleState.rewardQueue[1] == 'gainGold' then
+            local gainedGold = 0
+            for i, enemy in ipairs(battleState.enemies) do
+                gainedGold = gainedGold + enemy.droppedGold;
+            end
+            gameState.partyGold = gameState.partyGold + gainedGold
+            battleState.battleLog = {}
+            utils.battleLogAdd('The enemies dropped '..gainedGold..' gold')
+            table.remove(battleState.rewardQueue, 1)
+            battleState.textTimer = 0
+        elseif battleState.rewardQueue[1] == 'quitBattle' then
+            battleState.battleLog = {}
+            battleState.textTimer = 0
+        end
+    elseif battleState.battleEnded then
         battleState.battleLog = {}
         if battleState.partyDied then
             utils.battleLogAdd('Party has been defeated')
         elseif battleState.allEnemyDead then
             utils.battleLogAdd('All enemy has been defeated')
         end
+        battleState.rewardQueue = {'gainExp', 'levelUp', 'gainGold', 'quitBattle'}
         battleState.textTimer = 0
     elseif #battleState.killList > 0 then
         local toKill = battleState.killList[1]
@@ -282,7 +351,6 @@ function loop.run()
         else
             battleState.textTimer = 5
         end        
-
     elseif #battleState.followUp > 0 then
         local action = battleState.followUp[1]
         table.remove(battleState.followUp, 1)

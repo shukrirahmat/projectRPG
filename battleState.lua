@@ -24,5 +24,6 @@ battleState.battleEnded = false
 battleState.animation = nil
 battleState.infoMode = false
 battleState.encounterMessage = true;
+battleState.rewardQueue = {}
 
 return battleState;

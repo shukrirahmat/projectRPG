@@ -16,21 +16,25 @@ function battle.update(dt)
     
     if battleState.encounterMessage then
         battleState.textTimer = battleState.textTimer + dt
-        if battleState.textTimer > battleState.textSpeed * 0.5 then
+        if battleState.textTimer >= battleState.textSpeed * 0.5 then
             battleState.encounterMessage = nil
             battleState.battleLog = {}
         end
     elseif battleState.battleRunning or battleState.battleEnded then
-        battleState.textTimer = battleState.textTimer + dt
+        
+        if #battleState.rewardQueue == 0 then
+            battleState.textTimer = battleState.textTimer + dt
+        end
+        
         if battleState.animation then
             battleState.animation.timer = battleState.animation.timer + dt
             if battleState.animation.tick >= battleState.animation.maxTick then
                 battleState.animation = nil
-            elseif battleState.animation.timer > battleState.animation.speed then
+            elseif battleState.animation.timer >= battleState.animation.speed then
                 battleState.animation.tick = battleState.animation.tick + 1
                 battleState.animation.timer = 0;
             end
-        elseif battleState.textTimer > battleState.textSpeed then
+        elseif battleState.textTimer >= battleState.textSpeed then
             loop.run()
         end
     end
@@ -82,7 +86,11 @@ function battle.draw()
 end
 
 function battle.keypressed(key)
-    if not battleState.battleRunning and not battleState.encounterMessage then
+    if #battleState.rewardQueue > 0 then
+        if key == 'z' then
+            battleState.textTimer = battleState.textSpeed
+        end
+    elseif not battleState.battleRunning and not battleState.encounterMessage then
         if key == 'up' then
             battleInput.executeUp()
         elseif key == 'down' then

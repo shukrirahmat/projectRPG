@@ -11,7 +11,8 @@ local dataSheet = {
         agi = 3,
         sprite = slime_sprite,
         spriteHeight = monsterSpriteDimension/2.2,
-        gold = 5
+        gold = 5,
+        exp = 150
     },
     ['goblin'] = {
         lvl = 2,
@@ -22,7 +23,8 @@ local dataSheet = {
         agi = 8,
         sprite = goblin_sprite,
         spriteHeight = monsterSpriteDimension/4,
-        gold = 8
+        gold = 8,
+        exp = 150
     },
 }
 
@@ -58,6 +60,7 @@ function enemyCreator.new(species, name)
     battler.stealableItem = data.stealableItem or nil
     battler.stealableGold = data.gold or 0
     battler.droppedGold = data.gold or 0
+    battler.exp = data.exp or 0
 
     return battler
 end

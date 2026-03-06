@@ -12,7 +12,7 @@ local function handleExecutor(user, target)
         if ref == 0 then 
             accuracy = 20
         elseif ref == 1 then
-            acurracy = 5
+            accuracy = 5
         elseif ref == 2 then
             accuracy = 0
         end

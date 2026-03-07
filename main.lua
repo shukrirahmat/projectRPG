@@ -1,12 +1,15 @@
 require('globals')
 local stateManager = require('stateManager')
+local gameState = require('gameState')
+local field = require('states.field')
 
 function love.load()
     math.randomseed(os.time())
     love.window.setMode(windowWidth, windowHeight)
     
     stateManager.initiate()
-    stateManager.switch('field')    
+    field.load()
+    stateManager.switch(field)    
 end
 
 function love.update(dt)

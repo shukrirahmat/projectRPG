@@ -2,7 +2,6 @@ local gameState = require('gameState')
 local memberCreator = require('entities.memberCreator')
 local overworld = require('maps.overworld')
 local sprites = require('graphics.sprites')
-local field = require('states.field')
 
 local stateManager = {}
 
@@ -22,14 +21,13 @@ function stateManager.initiate()
 end
 
 function stateManager.switch(state)
-    if state == 'field' then
-        gameState.currentState = field
-        field.load()
+    if gameState.currentState ~= state then
+        gameState.currentState = state
     end
 end
 
 function stateManager.update(dt)
-    gameState.currentState.update()
+    gameState.currentState.update(dt)
 end
 
 function stateManager.draw()

@@ -44,4 +44,5 @@ function fieldMapper.drawPlayer(state)
     )
 end
 
+
 return fieldMapper

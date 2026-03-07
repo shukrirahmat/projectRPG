@@ -1,7 +1,5 @@
 local gameState = require('gameState')
-local stateManager = require('stateManager')
 local sprites = require('graphics.sprites')
-local transition = require('states.transition')
 
 local fieldMovement = {}
 
@@ -66,23 +64,18 @@ local function getNextMove(currentMove)
     return nil
 end
 
-local function travelTo(mapName)
-    local nextMap = require('maps.'..mapName..'')  
-    transition.load('travel', gameState.currentState, nextMap)
-    stateManager.switch(transition)
-end
-
 local function handlePostMovement(state)
     local spotCoordinate = ''..gameState.playerPos.x..','..gameState.playerPos.y..''
     local spot = gameState.currentMap.spots[spotCoordinate]
     if spot then
         state.currentMove = nil
         if spot.category == 'gates' then
-            travelTo(spot.to)
+            local nextMap = require('maps.'..spot.to..'')
+            state.isEntering = nextMap
             return
         end
     end
-    
+
     state.currentMove = getNextMove(state.currentMove)
 end
 
@@ -119,6 +112,28 @@ function fieldMovement.movePlayer(dt, state)
         state.camera.y = state.camera.y - dir.dy * state.tileSize
         state.moveTimer = state.moveSpeed
         handlePostMovement(state)
+    end
+end
+
+function fieldMovement.changeLocation(dt, state)
+    state.transition = 'fadeOut'
+    state.transitionTimer = state.transitionTimer - dt
+    if state.transitionTimer <= 0 then
+        state.transition = nil
+        state.transitionTimer = state.transitionSpeed
+        local nextMap = state.isEntering;
+        gameState.currentMap = nextMap
+        gameState.playerPos = nextMap.startPos
+        gameState.playerSprite = sprites.player_front[1]
+        state.manager.switch('field')
+    end
+end
+
+function fieldMovement.doFadeIn(dt, state)
+    state.transitionTimer = state.transitionTimer - dt
+    if state.transitionTimer <= 0 then
+        state.transition = nil
+        state.transitionTimer = state.transitionSpeed
     end
 end
 

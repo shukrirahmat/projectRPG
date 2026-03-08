@@ -30,40 +30,6 @@ local directions = {
     }
 }
 
-local function getNextMove(currentMove)
-    --[[if owState.onMenu then
-        return nil
-    end]]
-
-    if currentMove == 'up' then
-        if love.keyboard.isDown('up') then return 'up'
-        elseif love.keyboard.isDown('right') then return 'right'
-        elseif love.keyboard.isDown('left') then return 'left'
-        elseif love.keyboard.isDown('down') then return 'down'
-        end
-    elseif currentMove == 'down' then
-        if love.keyboard.isDown('down') then return 'down'
-        elseif love.keyboard.isDown('left') then return 'left'
-        elseif love.keyboard.isDown('right') then return 'right'
-        elseif love.keyboard.isDown('up') then return 'up'
-        end
-    elseif currentMove == 'right' then
-        if love.keyboard.isDown('right') then return 'right'
-        elseif love.keyboard.isDown('down') then return 'down'
-        elseif love.keyboard.isDown('up') then return 'up'
-        elseif love.keyboard.isDown('left') then return 'left'
-        end
-    elseif currentMove == 'left' then
-        if love.keyboard.isDown('left') then return 'left'
-        elseif love.keyboard.isDown('up') then return 'up'
-        elseif love.keyboard.isDown('down') then return 'down'
-        elseif love.keyboard.isDown('right') then return 'right'
-        end
-    end
-
-    return nil
-end
-
 local function handlePostMovement(state)
     
     local spotCoordinate = ''..gameState.playerPos.x..','..gameState.playerPos.y..''
@@ -90,26 +56,25 @@ local function handlePostMovement(state)
             state.encounterChance = math.floor(state.encounterChance * 0.8)
         end
     end
-
-    state.currentMove = getNextMove(state.currentMove)
 end
 
 
 function fieldMovement.movePlayer(dt, state)
+    state.moveTimer = state.moveTimer + dt
+    
     local dir = directions[state.currentMove]
-    state.moveTimer = state.moveTimer - dt
     gameState.playerSprite = dir.sprite[1]
 
     if not dir.boundCheck() then
-        state.currentMove = getNextMove(state.currentMove)
-        state.moveTimer = state.moveSpeed
+        state.currentMove = nil
+        state.moveTimer = 0
         return
     end
 
     local progress = state.moveTimer / state.moveSpeed
-    local shiftAmount = (1 - progress) * state.tileSize
+    local shiftAmount = progress * state.tileSize
 
-    if state.moveTimer > 0 then
+    if state.moveTimer < state.moveSpeed then
         state.mapShift[dir.axis] = dir.dy ~= 0 and dir.dy * shiftAmount or dir.dx * shiftAmount
         local step = math.abs(state.mapShift[dir.axis]) / state.tileSize
         if step <= 0.25 then
@@ -125,13 +90,13 @@ function fieldMovement.movePlayer(dt, state)
         gameState.playerPos.y = gameState.playerPos.y + dir.dy
         state.camera.x = state.camera.x - dir.dx * state.tileSize
         state.camera.y = state.camera.y - dir.dy * state.tileSize
-        state.moveTimer = state.moveSpeed
+        state.moveTimer = 0
+        state.currentMove = nil
         handlePostMovement(state)
     end
 end
 
 function fieldMovement.changeLocation(dt, state)
-    
     state.transition.timer = state.transition.timer + dt
     if state.transition.timer >= state.transition.max then
         state.transition = nil
@@ -144,7 +109,6 @@ function fieldMovement.changeLocation(dt, state)
 end
 
 function fieldMovement.encounterEnemies(dt, state)
-    
     state.transition.timer = state.transition.timer + dt
     if state.transition.timer >= state.transition.max then
         --state.transition = nil

@@ -14,8 +14,8 @@ function field.load(stateManager, var)
     state.camera = {}
     state.camera.x = windowWidth/2 - (gameState.playerPos.x - 0.5) * state.tileSize
     state.camera.y = windowHeight/2 - (gameState.playerPos.y - 0.5) * state.tileSize
-    state.moveSpeed = 0.25
-    state.moveTimer = state.moveSpeed
+    state.moveSpeed = 0.4
+    state.moveTimer = 0
     state.mapShift = { x = 0, y = 0 }
     state.isEntering = nil
     state.isEncountering = nil

@@ -72,7 +72,7 @@ local function handlePostMovement(state)
         state.currentMove = nil
         if spot.category == 'gates' then
             local nextMap = require('maps.'..spot.to..'')
-            state.transition = 'fadeOut'
+            state.transition = {cat = 'fadeOut', timer = 0, max = 0.5 }
             state.isEntering = nextMap
             return
         end
@@ -83,7 +83,7 @@ local function handlePostMovement(state)
         if roll == 1 then
             state.currentMove = nil
             state.encounterChance = gameState.currentMap.encounterRate
-            state.transition = 'enemyEncounter'
+            state.transition = {cat = 'enemyEncounter', timer = 0, max = 1 }
             state.isEncountering = true;
             return
         else
@@ -131,31 +131,32 @@ function fieldMovement.movePlayer(dt, state)
 end
 
 function fieldMovement.changeLocation(dt, state)
-    state.transitionTimer = state.transitionTimer - dt
-    if state.transitionTimer <= 0 then
+    
+    state.transition.timer = state.transition.timer + dt
+    if state.transition.timer >= state.transition.max then
         state.transition = nil
-        state.transitionTimer = state.transitionSpeed
         local nextMap = state.isEntering;
         gameState.currentMap = nextMap
         gameState.playerPos = nextMap.startPos
         gameState.playerSprite = sprites.player_front[1]
-        state.manager.switch('field')
+        state.manager.switch('field', {fadesIn = true})
     end
 end
 
 function fieldMovement.encounterEnemies(dt, state)
-    state.transitionTimer = state.transitionTimer - dt
-    if state.transitionTimer <= 0 then
-        state.transition = nil
+    
+    state.transition.timer = state.transition.timer + dt
+    if state.transition.timer >= state.transition.max then
+        --state.transition = nil
         --state.transitionTimer = state.transitionSpeed
     end
 end
 
 function fieldMovement.doFadeIn(dt, state)
-    state.transitionTimer = state.transitionTimer - dt
-    if state.transitionTimer <= 0 then
+    state.transition.timer = state.transition.timer + dt
+    if state.transition.timer >= state.transition.max then
         state.transition = nil
-        state.transitionTimer = state.transitionSpeed
+        state.fadesIn = nil
     end
 end
 

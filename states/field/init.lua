@@ -17,17 +17,19 @@ function field.load(stateManager, var)
     state.moveSpeed = 0.25
     state.moveTimer = state.moveSpeed
     state.mapShift = { x = 0, y = 0 }
-    state.transitionSpeed = 1
-    state.transitionTimer = state.transitionSpeed
-    state.transition = 'fadeIn'
     state.isEntering = nil
     state.isEncountering = nil
     state.currentMove = nil
     state.encounterChance = gameState.currentMap.encounterRate
+    
+    if var and var.fadesIn then
+        state.fadesIn = true;
+        state.transition = { cat = 'fadeIn', timer = 0, max = 0.5 }
+    end
 end
 
 function field.update(dt)
-    if state.transition == 'fadeIn' then
+    if state.fadesIn then
         fieldMovement.doFadeIn(dt, state)
     elseif state.isEntering then
         fieldMovement.changeLocation(dt, state)
@@ -50,11 +52,10 @@ function field.draw()
     end
 end
 
-function field.keypressed(key)
-    if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
-        if state.currentMove == nil then
-            state.currentMove = key
-        end
+function field.keypressed(key) 
+    if state.currentMove == nil
+    and (key == 'up' or key == 'down' or key == 'left' or key == 'right')  then
+        state.currentMove = key
     end
 end
 

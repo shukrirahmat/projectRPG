@@ -1,7 +1,7 @@
 local transitions = {}
 
 local function drawFadeIn(state)
-    local opacity = state.transitionTimer / state.transitionSpeed;
+    local opacity = 1 - state.transition.timer / state.transition.max;
     love.graphics.setColor(0, 0, 0, opacity)
     love.graphics.rectangle(
         'fill',
@@ -14,7 +14,7 @@ local function drawFadeIn(state)
 end
 
 local function drawFadeOut(state)
-    local opacity = 1 - state.transitionTimer / state.transitionSpeed
+    local opacity = state.transition.timer / state.transition.max
     love.graphics.setColor(0, 0, 0, opacity)
     love.graphics.rectangle(
         'fill',
@@ -28,7 +28,7 @@ end
 
 local function drawBattleTransition(state)
     
-    local progress = state.transitionTimer / state.transitionSpeed
+    local progress = state.transition.timer / state.transition.max
     
     love.graphics.setColor(0, 0, 0)
     love.graphics.polygon(
@@ -36,8 +36,8 @@ local function drawBattleTransition(state)
         0,
         0,
         0,
-        ( 1 - progress ) * windowWidth,
-        ( 1 - progress ) * windowWidth,
+        progress  * windowWidth,
+        progress * windowWidth,
         0
     )
     
@@ -45,10 +45,10 @@ local function drawBattleTransition(state)
         'fill',
         windowWidth,
         0,
-        windowWidth - ( 1 - progress ) * windowWidth,
+        windowWidth - progress  * windowWidth,
         0,
         windowWidth,
-        ( 1 - progress ) * windowWidth
+        progress * windowWidth
     )
     
     love.graphics.polygon(
@@ -56,8 +56,8 @@ local function drawBattleTransition(state)
         0,
         windowHeight,
         0,
-        windowHeight - ( 1 - progress ) * windowWidth,
-        ( 1 - progress ) * windowWidth,
+        windowHeight - progress * windowWidth,
+        progress * windowWidth,
         windowHeight
     )
     
@@ -65,19 +65,19 @@ local function drawBattleTransition(state)
         'fill',
         windowWidth,
         windowHeight,
-        windowWidth - ( 1 - progress ) * windowWidth,
+        windowWidth - progress * windowWidth,
         windowHeight,
         windowWidth,
-        windowHeight - ( 1 - progress ) * windowWidth
+        windowHeight - progress * windowWidth
     )
 end
 
 function transitions.draw(state)
-    if state.transition == 'fadeIn' then
+    if state.transition.cat == 'fadeIn' then
         drawFadeIn(state)
-    elseif state.transition == 'fadeOut' then
+    elseif state.transition.cat == 'fadeOut' then
         drawFadeOut(state)
-    elseif state.transition == 'enemyEncounter' then
+    elseif state.transition.cat == 'enemyEncounter' then
         drawBattleTransition(state)
     end
 end    

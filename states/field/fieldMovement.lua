@@ -65,14 +65,29 @@ local function getNextMove(currentMove)
 end
 
 local function handlePostMovement(state)
+    
     local spotCoordinate = ''..gameState.playerPos.x..','..gameState.playerPos.y..''
     local spot = gameState.currentMap.spots[spotCoordinate]
     if spot then
         state.currentMove = nil
         if spot.category == 'gates' then
             local nextMap = require('maps.'..spot.to..'')
+            state.transition = 'fadeOut'
             state.isEntering = nextMap
             return
+        end
+    end
+    
+    if state.encounterChance then
+        local roll = math.random(1, state.encounterChance)
+        if roll == 1 then
+            state.currentMove = nil
+            state.encounterChance = gameState.currentMap.encounterRate
+            state.transition = 'enemyEncounter'
+            state.isEncountering = true;
+            return
+        else
+            state.encounterChance = math.floor(state.encounterChance * 0.8)
         end
     end
 
@@ -116,7 +131,6 @@ function fieldMovement.movePlayer(dt, state)
 end
 
 function fieldMovement.changeLocation(dt, state)
-    state.transition = 'fadeOut'
     state.transitionTimer = state.transitionTimer - dt
     if state.transitionTimer <= 0 then
         state.transition = nil
@@ -126,6 +140,14 @@ function fieldMovement.changeLocation(dt, state)
         gameState.playerPos = nextMap.startPos
         gameState.playerSprite = sprites.player_front[1]
         state.manager.switch('field')
+    end
+end
+
+function fieldMovement.encounterEnemies(dt, state)
+    state.transitionTimer = state.transitionTimer - dt
+    if state.transitionTimer <= 0 then
+        state.transition = nil
+        --state.transitionTimer = state.transitionSpeed
     end
 end
 

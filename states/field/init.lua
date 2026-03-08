@@ -17,11 +17,13 @@ function field.load(stateManager, var)
     state.moveSpeed = 0.25
     state.moveTimer = state.moveSpeed
     state.mapShift = { x = 0, y = 0 }
-    state.transitionSpeed = 0.25
+    state.transitionSpeed = 1
     state.transitionTimer = state.transitionSpeed
     state.transition = 'fadeIn'
     state.isEntering = nil
+    state.isEncountering = nil
     state.currentMove = nil
+    state.encounterChance = gameState.currentMap.encounterRate
 end
 
 function field.update(dt)
@@ -29,6 +31,8 @@ function field.update(dt)
         fieldMovement.doFadeIn(dt, state)
     elseif state.isEntering then
         fieldMovement.changeLocation(dt, state)
+    elseif state.isEncountering then
+        fieldMovement.encounterEnemies(dt, state)
     elseif state.currentMove then
         fieldMovement.movePlayer(dt, state)
     elseif not state.currentMove then

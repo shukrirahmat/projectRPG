@@ -7,8 +7,7 @@ local stateManager = {}
 
 stateManager.states = 
 {
-    field = require('states.field'),
-    transition = require('states.transition')
+    field = require('states.field')
 }
 
 function stateManager.initiate()

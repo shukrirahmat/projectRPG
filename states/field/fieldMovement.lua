@@ -1,5 +1,6 @@
 local gameState = require('gameState')
 local sprites = require('graphics.sprites')
+local fieldEncounter = require('states.field.fieldEncounter')
 
 local fieldMovement = {}
 
@@ -50,7 +51,7 @@ local function handlePostMovement(state)
             state.currentMove = nil
             state.encounterChance = gameState.currentMap.encounterRate
             state.transition = {cat = 'enemyEncounter', timer = 0, max = 1 }
-            state.isEncountering = true;
+            state.isEncountering = fieldEncounter.generate(state)
             return
         else
             state.encounterChance = math.floor(state.encounterChance * 0.8)
@@ -75,7 +76,7 @@ function fieldMovement.movePlayer(dt, state)
     local shiftAmount = progress * state.tileSize
 
     if state.moveTimer < state.moveSpeed then
-        state.mapShift[dir.axis] = dir.dy ~= 0 and dir.dy * shiftAmount or dir.dx * shiftAmount
+        state.mapShift[dir.axis] = math.floor(dir.dy ~= 0 and dir.dy * shiftAmount or dir.dx * shiftAmount)
         local step = math.abs(state.mapShift[dir.axis]) / state.tileSize
         if step <= 0.25 then
             gameState.playerSprite = dir.sprite[2]
@@ -111,8 +112,9 @@ end
 function fieldMovement.encounterEnemies(dt, state)
     state.transition.timer = state.transition.timer + dt
     if state.transition.timer >= state.transition.max then
-        --state.transition = nil
-        --state.transitionTimer = state.transitionSpeed
+        state.transition = nil
+        local encounter = state.isEncountering
+        state.manager.switch('battle', {party = encounter.party, enemies = encounter.enemies})
     end
 end
 

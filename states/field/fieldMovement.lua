@@ -137,4 +137,18 @@ function fieldMovement.doFadeIn(dt, state)
     end
 end
 
+function fieldMovement.handleHoldMovement(dt, state)
+    if state.currentMove then return end
+
+    if love.keyboard.isDown("up") then
+        state.currentMove = 'up'
+    elseif love.keyboard.isDown("down") then
+        state.currentMove = 'down'
+    elseif love.keyboard.isDown("left") then
+        state.currentMove = 'left'
+    elseif love.keyboard.isDown("right") then
+        state.currentMove = 'right'
+    end
+end
+
 return fieldMovement

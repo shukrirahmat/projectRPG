@@ -26,15 +26,13 @@ end
 
 function field.update(dt)
     if state.transition == 'fadeIn' then
-        state.transitionTimer = state.transitionTimer - dt
-        if state.transitionTimer <= 0 then
-            state.transition = nil
-            state.transitionTimer = state.transitionSpeed
-        end
+        fieldMovement.doFadeIn(dt, state)
     elseif state.isEntering then
         fieldMovement.changeLocation(dt, state)
     elseif state.currentMove then
         fieldMovement.movePlayer(dt, state)
+    elseif not state.currentMove then
+        fieldMovement.handleHoldMovement(dt, state)
     end
 end
 

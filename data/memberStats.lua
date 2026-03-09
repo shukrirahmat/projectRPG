@@ -27,7 +27,8 @@ memberStats[2] = {
     skills = {},
     passiveSkills = {},
     status = {},
-    totalExp = 0
+    totalExp = 0,
+    status = {['POISON'] = true, ['WOUND'] = true, ['BARRIER'] = true}
 }
 
 memberStats[3] = {

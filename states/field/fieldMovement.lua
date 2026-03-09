@@ -60,7 +60,7 @@ local function handlePostMovement(state)
 end
 
 
-function fieldMovement.movePlayer(dt, state)
+function fieldMovement.movePlayer(state, dt)
     state.moveTimer = state.moveTimer + dt
     
     local dir = directions[state.currentMove]
@@ -97,7 +97,7 @@ function fieldMovement.movePlayer(dt, state)
     end
 end
 
-function fieldMovement.changeLocation(dt, state)
+function fieldMovement.changeLocation(state, dt)
     state.transition.timer = state.transition.timer + dt
     if state.transition.timer >= state.transition.max then
         state.transition = nil
@@ -109,7 +109,7 @@ function fieldMovement.changeLocation(dt, state)
     end
 end
 
-function fieldMovement.encounterEnemies(dt, state)
+function fieldMovement.encounterEnemies(state, dt)
     state.transition.timer = state.transition.timer + dt
     if state.transition.timer >= state.transition.max then
         state.transition = nil
@@ -118,15 +118,7 @@ function fieldMovement.encounterEnemies(dt, state)
     end
 end
 
-function fieldMovement.doFadeIn(dt, state)
-    state.transition.timer = state.transition.timer + dt
-    if state.transition.timer >= state.transition.max then
-        state.transition = nil
-        state.fadesIn = nil
-    end
-end
-
-function fieldMovement.handleHoldMovement(dt, state)
+function fieldMovement.handleHoldMovement(state, dt)
     if state.currentMove then return end
 
     if love.keyboard.isDown("up") then

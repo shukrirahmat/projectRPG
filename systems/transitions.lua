@@ -72,6 +72,14 @@ local function drawBattleTransition(state)
     )
 end
 
+function transitions.runFadeIn(state, dt)
+    state.transition.timer = state.transition.timer + dt
+    if state.transition.timer >= state.transition.max then
+        state.transition = nil
+        state.fadesIn = nil
+    end
+end
+
 function transitions.draw(state)
     if state.transition.cat == 'fadeIn' then
         drawFadeIn(state)

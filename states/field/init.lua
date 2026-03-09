@@ -30,15 +30,15 @@ end
 
 function field.update(dt)
     if state.fadesIn then
-        fieldMovement.doFadeIn(dt, state)
+        transitions.runFadeIn(state, dt)
     elseif state.isEntering then
-        fieldMovement.changeLocation(dt, state)
+        fieldMovement.changeLocation(state, dt)
     elseif state.isEncountering then
-        fieldMovement.encounterEnemies(dt, state)
+        fieldMovement.encounterEnemies(state, dt)
     elseif state.currentMove then
-        fieldMovement.movePlayer(dt, state)
+        fieldMovement.movePlayer(state, dt)
     elseif not state.currentMove then
-        fieldMovement.handleHoldMovement(dt, state)
+        fieldMovement.handleHoldMovement(state, dt)
     end
 end
 

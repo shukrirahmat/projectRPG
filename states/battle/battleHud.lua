@@ -5,15 +5,14 @@ function battleHud.draw(state)
     local borderX = 10
     local borderY = 10
     local borderWidth = 120
-    local borderHeight = 100
+    local borderHeight = 90
     local innerX = borderX + 20
     local innerY = borderY + 5
     local innerWidth = borderWidth - 40
 
 
     for index, member in ipairs(state.party) do
-
-        --MOVE DOWNWARD FOR ANIMATION
+        
         local shiftY = 0
         local hpBit = 0
 
@@ -70,13 +69,13 @@ function battleHud.draw(state)
         )
 
         love.graphics.setFont(font_large)
-        local hudStat = {'HP' , 'MP', 'Lv'}
-        local values = {member.currentHp + hpBit, member.currentMp, member.lvl}
+        local hudStat = {'HP' , 'MP'}
+        local values = {member.currentHp + hpBit, member.currentMp}
         for i, stat in ipairs(hudStat) do
             love.graphics.printf(
                 stat, 
                 innerX + (index - 1) * (borderWidth + borderX),
-                innerY + shiftY + 20 + (i - 1) * 20,
+                innerY + shiftY + 25 + (i - 1) * 25,
                 innerWidth/2,
                 'left'
             )
@@ -85,7 +84,7 @@ function battleHud.draw(state)
             love.graphics.printf(
                 value, 
                 innerX + innerWidth/2 + (index - 1) * (borderWidth + borderX),
-                innerY + shiftY + 20 + (i - 1) * 20,
+                innerY + shiftY + 25 + (i - 1) * 25,
                 innerWidth/2,
                 'right'
             )

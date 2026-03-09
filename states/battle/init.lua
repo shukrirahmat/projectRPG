@@ -1,5 +1,9 @@
 local gameState = require('gameState')
 local battleHud = require('states.battle.battleHud')
+local battleSprites = require('states.battle.battleSprites')
+local battleMenu = require('states.battle.battleMenu')
+local battleLog = require('states.battle.battleLog')
+local transitions = require('systems.transitions')
 
 local battle = {}
 
@@ -23,20 +27,47 @@ function battle.load(stateManager, var)
     state.followUp = {}
     state.textTimer = 0
     state.textSpeed = 1
-    state.battleLog = {'Enemy encountered!'}
-    state.bottomMenuHeight = 180
+    state.battleLog = {}
+    state.menuHeight = 180
+    state.menuItemHeight = (state.menuHeight - 20) / 4
     state.partyDied = false
     state.allEnemyDead = false
     state.battleEnded = false
     state.animation = nil
-    state.encounterMessage = true;
+    state.encounterMessage = {'Enemies encountered!'}
+    state.transition = { cat = 'fadeIn', timer = 0, max = 0.5 }
+    state.fadesIn = true;
 end
 
 function battle.update(dt)
+    if state.fadesIn then
+        transitions.runFadeIn(state, dt)
+    end
+    
+    if state.encounterMessage then
+        battleLog.showEncounterMessage(state, dt)
+    end
 end
 
 function battle.draw()
-    battleHud.draw(state)
+
+    battleSprites.draw(state)
+
+    if not state.encounterMessage then
+        battleHud.draw(state)
+    end
+
+    if not state.encounterMessage then
+        battleMenu.draw(state)
+    end
+
+    if state.transition then
+        transitions.draw(state)
+    end
+
+    if #state.battleLog > 0 then
+        battleLog.draw(state)
+    end
 end
 
 function battle.keypressed(key)

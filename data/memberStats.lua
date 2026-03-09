@@ -9,7 +9,7 @@ memberStats[1] = {
     str = 8,
     vit = 7,
     agi = 7,
-    skills = {},
+    skills = {'healI'},
     passiveSkills = {},
     status = {},
     totalExp = 0,
@@ -24,11 +24,10 @@ memberStats[2] = {
     str = 6,
     vit = 6,
     agi = 8,
-    skills = {},
+    skills = {'flameI', 'infernoI'},
     passiveSkills = {},
     status = {},
     totalExp = 0,
-    status = {['POISON'] = true, ['WOUND'] = true, ['BARRIER'] = true}
 }
 
 memberStats[3] = {
@@ -40,7 +39,7 @@ memberStats[3] = {
     str = 7,
     vit = 8,
     agi = 7,
-    skills = {},
+    skills = {'healAllI', 'auraCharge'},
     passiveSkills = {},
     status = {},
     totalExp = 0

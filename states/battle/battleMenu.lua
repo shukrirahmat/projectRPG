@@ -1,5 +1,6 @@
 local drawHelper = require('utils.drawHelper')
 local actionData = require('data.actionData')
+local gameState = require('gameState')
 
 local battleMenu = {}
 
@@ -53,7 +54,7 @@ local function drawLeftMenu(state, menu)
 end
 
 local function drawCharacterMenu(state)
-    local leftMenu = drawLeftMenu(state.characterMenu)
+    local leftMenu = drawLeftMenu(state, state.characterMenu)
 
     local borderHeight = 30
     local borderX = leftMenu.borderX
@@ -179,6 +180,7 @@ function drawTargetMenu(state, refX, refY, refWidth)
 end
 
 function drawDescriptionText(state, x, y, data)
+    local height = state.menuHeight
     local itemHeight = state.menuItemHeight
     local width = (windowWidth - 10)/4 - 10
     love.graphics.setColor(1, 1, 1)
@@ -304,7 +306,7 @@ end
 
 
 function drawMiddleMenu(state, menu, isTargeting)
-    local leftMenu = drawCharacterMenu()
+    local leftMenu = drawCharacterMenu(state)
 
     local borderX = leftMenu.borderX + leftMenu.borderWidth + 10
     local borderY = leftMenu.borderY
@@ -363,6 +365,62 @@ function battleMenu.draw(state)
     elseif state.currentMenu == state.itemMenu then
         drawMiddleMenu(state, state.itemMenu, false)
     end
+end
+
+function battleMenu.menuReset(menu)
+    menu.position = 1
+end
+
+function battleMenu.menuUp(menu)
+    menu.position = menu.position - 1
+end
+
+function battleMenu.menuDown(menu)
+    menu.position = menu.position + 1
+end
+
+function battleMenu.updateTargetMenu(state, prevMenu, group)
+    local targetList = {}
+    for i, target in ipairs(group) do
+        if not target.isDead then
+            table.insert(targetList, target)
+        end
+    end
+    state.targetMenu.list = targetList
+    state.targetMenu.prevMenu = prevMenu
+end
+
+function battleMenu.updateSkillMenu(state , user)
+    local skillList = {}
+    if user.skills and #user.skills > 0 then
+        for _, skill in ipairs(user.skills) do
+            table.insert(skillList, skill)
+        end
+    end
+    state.skillMenu.user = user
+    state.skillMenu.list = skillList
+end
+
+function battleMenu.updateItemMenu(state, user)
+    local itemList = {}
+    for k, v in pairs(gameState.partyItems) do
+        table.insert(itemList, {item= v.item, amount = v.amount })
+    end
+
+    table.sort(itemList, function(a, b) return a.item.id < b.item.id end)
+    state.itemMenu.user = user
+    state.itemMenu.list = itemList
+end
+
+function battleMenu.updateDeadTargetMenu(state, prevMenu, group)
+    local targetList = {}
+    for _, target in ipairs(group) do
+        if target.isDead then
+            table.insert(targetList, target)
+        end
+    end
+    state.targetMenu.list = targetList
+    state.targetMenu.prevMenu = prevMenu
 end
 
 return battleMenu

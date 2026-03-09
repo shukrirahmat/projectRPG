@@ -1,10 +1,10 @@
 local battleLog = {}
 
 function battleLog.showEncounterMessage(state, dt)
-    state.textTimer = state.textTimer + dt
-    if state.textTimer < state.textSpeed then
+    state.actionTimer = state.actionTimer + dt
+    if state.actionTimer < state.actionSpeed then
         state.battleLog = state.encounterMessage
-    elseif state.textTimer >= state.textSpeed then
+    elseif state.actionTimer >= state.actionSpeed then
         state.battleLog = {}
         state.encounterMessage = nil
     end

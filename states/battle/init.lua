@@ -3,6 +3,7 @@ local battleHud = require('states.battle.battleHud')
 local battleSprites = require('states.battle.battleSprites')
 local battleMenu = require('states.battle.battleMenu')
 local battleLog = require('states.battle.battleLog')
+local battleInput = require('states.battle.battleInput')
 local transitions = require('systems.transitions')
 
 local battle = {}
@@ -20,13 +21,13 @@ function battle.load(stateManager, var)
     state.itemMenu = {position = 1}
     state.currentMenu = state.mainMenu
     state.battleRunning = false
-    state.actionList = {}
-    state.priorityList = {}
+    state.actionQueue = {}
+    state.priorityQueue = {}
     state.effectList = {}
     state.killList = {}
     state.followUp = {}
-    state.textTimer = 0
-    state.textSpeed = 1
+    state.actionTimer = 0
+    state.actionSpeed = 1
     state.battleLog = {}
     state.menuHeight = 180
     state.menuItemHeight = (state.menuHeight - 20) / 4
@@ -71,6 +72,21 @@ function battle.draw()
 end
 
 function battle.keypressed(key)
+    if not state.encounterMessage and not state.battleRunning then
+        if key == 'up' then
+            battleInput.executeUp(state)
+        elseif key == 'down' then
+            battleInput.executeDown(state)
+        elseif key == 'left' then
+            battleInput.executeLeft(state)
+        elseif key == 'right' then
+            battleInput.executeRight(state)
+        elseif key == 'z' then
+            battleInput.executeConfirm(state)
+        elseif key == 'x' then
+            battleInput.executeCancel(state)
+        end
+    end
 end
 
 return battle

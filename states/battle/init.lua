@@ -27,7 +27,7 @@ function battle.load(stateManager, var)
     state.priorityQueue = {}
     state.effectQueue = {}
     state.killQueue = {}
-    state.followUp = {}
+    state.followUpQueue = {}
     state.actionTimer = 0
     state.actionSpeed = 1
     state.battleLog = {}

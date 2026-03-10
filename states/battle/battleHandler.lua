@@ -89,6 +89,23 @@ function battleHandler.selectTargetRandomly(group)
     return selectedTarget
 end
 
+function battleHandler.reselectTargetWhenDead(state, selectedTarget)
+    local target
+    if selectedTarget.isPartyMember then
+        target = battleHandler.selectTargetRandomly(state.party)
+    else
+        target = battleHandler.selectTargetRandomly(state.enemies)
+    end
+    return target
+end
+
+function battleHandler.checkCannotMove(target)
+    if target.status['STUN'] then return true end
+    if target.status['SLEEP'] then return true end
+    if target.status['CONFUSE'] then return true end
+    return false
+end
+
 function battleHandler.removeAction(state, user)
     for i = #state.actionQueue, 1, -1 do
         if state.actionQueue[i].user == user then

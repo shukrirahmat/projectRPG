@@ -1,20 +1,22 @@
+local actions = require('systems.actions')
+
 local actionData = {}
 
 actionData['normalAtk'] = { 
-    execute = normalAttack, 
+    execute = actions.normalAttack, 
     cost = 0,
-    enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
+    enemyAnimation = 'enemyAtk'
 }
 actionData['secondAtk'] = {
     execute = secondAttack, 
     cost = 0, 
-    enemyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
+    enemyAnimation = 'enemyAtk'
 }
 
 actionData['counterAtk'] = {
     execute = counterAttack, 
     cost = 0, 
-    partyAnimation = {ref = 'enemyAtk', maxTick = 8, speed = 0.08}
+    partyAnimation = 'enemyAtk'
 }
 
 actionData['defend'] = { 

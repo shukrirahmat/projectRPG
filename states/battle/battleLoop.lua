@@ -130,11 +130,11 @@ end
 
 function applyEffect(state, effect)
     if effect.target and effect.target.isInvincible then
-        effectData['immune'].apply(effect.user, effect.target, effect.value)
+        effectData['immune'].apply(state, effect.user, effect.target, effect.value)
         return
     end
 
-    effectData[effect.ref].apply(effect.user, effect.target, effect.value)
+    effectData[effect.ref].apply(state, effect.user, effect.target, effect.value)
 
     if effect.target and effect.target.isPartyMember and effectData[effect.ref].partyAnimation then
         local aniRef = effectData[effect.ref].partyAnimation
@@ -184,9 +184,9 @@ function executeAction(state, action, isFollowUp)
 
     if canAct then
         if action.combo then
-            toAct.execute(toAct, action.user, action.targets, {combo = true})
+            toAct.execute(toAct, state, action.user, action.targets, {combo = true})
         else
-            toAct.execute(toAct, action.user, action.targets)
+            toAct.execute(toAct, state, action.user, action.targets)
         end
 
         if action.user.usingItem then
@@ -220,7 +220,7 @@ function executeAction(state, action, isFollowUp)
         end
     else
         local skillCanceled = actionData['skillCanceled']
-        skillCanceled.execute(skillCanceled, action.user, action.targets, toAct)
+        skillCanceled.execute(skillCanceled, state, action.user, action.targets, toAct)
     end
 end
 

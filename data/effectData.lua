@@ -1,7 +1,9 @@
+local effects = require('systems.effects')
+
 local effectData = {}
 
 effectData['damage'] = { 
-    apply = dealDamage , 
+    apply = effects.dealDamage , 
     partyAnimation = 'partyDamaged',
     enemyAnimation = 'enemyDamaged',
 }

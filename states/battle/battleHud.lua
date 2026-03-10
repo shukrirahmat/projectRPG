@@ -16,23 +16,15 @@ function battleHud.draw(state)
         local shiftY = 0
         local hpBit = 0
 
-        --[[if battleState.animation 
-        and battleState.animation.user == member 
-        and battleState.animation.ref == 'partyDamaged' then
-            if battleState.animation.tick <= 3 then
-                shiftY = battleState.animation.tick * 4
-            else
-                shiftY = math.max(0, (16 - (battleState.animation.tick) * 2))
-            end
-
-            local hpDrop = math.min(battleState.animation.value, member.currentHp)
-            local dropPerTick = math.floor(hpDrop/battleState.animation.maxTick)
-            if battleState.animation.tick < battleState.animation.maxTick then
-                hpBit = (battleState.animation.maxTick - battleState.animation.tick) * dropPerTick
-            else
-                hpBit = 0
-            end
-        end]]
+        if state.animation 
+        and state.animation.user == member 
+        and state.animation.ref == 'partyDamaged' then
+            local progress = state.animation.timer / state.animation.speed
+            shiftY = 20 * math.sin(progress * math.pi)
+            
+            local hpDrop = math.min(state.animation.value, member.currentHp)
+            hpBit = math.floor( hpDrop * (1 - progress))
+        end
 
         love.graphics.setColor(0, 0, 0)
         love.graphics.rectangle(

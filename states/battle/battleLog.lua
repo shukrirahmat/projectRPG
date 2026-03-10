@@ -10,6 +10,14 @@ function battleLog.showEncounterMessage(state, dt)
     end
 end
 
+function battleLog.addText(state, text)
+    if #state.battleLog >= 8 then
+        table.remove(state.battleLog, 1)
+    end
+
+    table.insert(state.battleLog, text)
+end
+
 function battleLog.draw(state)
     local borderX = 10
     local borderHeight = state.menuHeight

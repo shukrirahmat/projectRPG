@@ -4,6 +4,8 @@ local battleSprites = require('states.battle.battleSprites')
 local battleMenu = require('states.battle.battleMenu')
 local battleLog = require('states.battle.battleLog')
 local battleInput = require('states.battle.battleInput')
+local battleLoop = require('states.battle.battleLoop')
+local battleAnimation = require('states.battle.battleAnimation')
 local transitions = require('systems.transitions')
 
 local battle = {}
@@ -23,8 +25,8 @@ function battle.load(stateManager, var)
     state.battleRunning = false
     state.actionQueue = {}
     state.priorityQueue = {}
-    state.effectList = {}
-    state.killList = {}
+    state.effectQueue = {}
+    state.killQueue = {}
     state.followUp = {}
     state.actionTimer = 0
     state.actionSpeed = 1
@@ -44,21 +46,24 @@ function battle.update(dt)
     if state.fadesIn then
         transitions.runFadeIn(state, dt)
     end
-    
+
     if state.encounterMessage then
         battleLog.showEncounterMessage(state, dt)
+    elseif state.battleRunning then
+        battleLoop.run(state, dt)
+    end
+    
+    if state.animation then
+        battleAnimation.run(state, dt)
     end
 end
 
 function battle.draw()
 
     battleSprites.draw(state)
+    battleHud.draw(state)
 
-    if not state.encounterMessage then
-        battleHud.draw(state)
-    end
-
-    if not state.encounterMessage then
+    if not state.encounterMessage and not state.battleRunning then
         battleMenu.draw(state)
     end
 

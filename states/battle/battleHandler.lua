@@ -37,7 +37,7 @@ local function setEnemyAction(state)
                     elseif skill.aim == 'enemies' then
                         aoeTargets = state.party
                     end
-                    
+
                     if skill.scope == 'single' then
                         action = actionCreator.new(skillRef, enemy, {target})
                     elseif skill.scope == 'all' then
@@ -87,6 +87,19 @@ function battleHandler.selectTargetRandomly(group)
     end
 
     return selectedTarget
+end
+
+function battleHandler.removeAction(state, user)
+    for i = #state.actionQueue, 1, -1 do
+        if state.actionQueue[i].user == user then
+            table.remove(state.actionQueue, i)
+        end
+    end
+    for i = #state.priorityQueue, 1, -1 do
+        if state.priorityQueue[i].user == user then
+            table.remove(state.priorityQueue, i)
+        end
+    end
 end
 
 function battleHandler.getAbleCharID(state, currentID, where)

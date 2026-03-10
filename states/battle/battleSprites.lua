@@ -31,10 +31,11 @@ local function drawEnemySprite(state, enemy, index, shiftX, shiftY, tint)
 end
 
 local function drawAttackAnimation(state, enemy, index)
+    local progress = state.animation.timer / state.animation.speed
     for moveIndex, movement in ipairs(enemyMovement) do
-        if state.animation.tick == moveIndex then
+        if math.floor(progress * 10) == moveIndex then
             drawEnemySprite(state, enemy, index, movement.x, movement.y)
-        elseif state.animation.tick == 0 or state.animation.tick > #enemyMovement then
+        else
             drawEnemySprite(state, enemy, index, 0, 0)
         end
     end
@@ -49,32 +50,37 @@ local function drawTextOnEnemy(state, enemy, index, text, font, color)
     else
         love.graphics.setColor(1,1,1)
     end
+    local progress = state.animation.timer / state.animation.speed
     love.graphics.setFont(font)
     love.graphics.printf(
         text,
         spritePos.x,
-        spritePos.y + spritePos.height - 20 - state.animation.tick * 2,
+        spritePos.y + spritePos.height - 20 - (20 * progress),
         monsterSpriteDimension,
         'center'
     )
 end
 
 local function drawDamagedAnimation(state, enemy, index, color)
-    if state.animation.tick % 2 == 0 and state.animation.tick <= 4 then
+    local progress = state.animation.timer / state.animation.speed
+    local tick = math.floor(progress * 10)
+    if tick % 2 == 0 and tick <= 4 then
         drawEnemySprite(state, enemy, index, 0, 0)
-    elseif state.animation.tick > 4 then
+    elseif tick > 4 then
         drawEnemySprite(state, enemy, index, 0, 0)
     else
         drawEnemySprite(state, enemy, index, 0, 0, 0.1)
     end
 
-    if state.animation.tick > 1 then
+    if tick >= 1 then
         drawTextOnEnemy(state, enemy, index, state.animation.value, font_bold, color)
     end
 end
 
 local function drawImmuneAnimation(state, enemy, index)
-    if state.animation.tick == 1 or state.animation.tick == 2 then
+    local progress = state.animation.timer / state.animation.speed
+    local tick = math.floor(progress * 10)
+    if tick == 1 or tick == 2 then
         drawEnemySprite(state, enemy, index, 0, 0, 0.75)
     else
         drawEnemySprite(state, enemy, index, 0, 0)
@@ -82,21 +88,25 @@ local function drawImmuneAnimation(state, enemy, index)
 end
 
 local function drawDodgeAnimation(state, enemy, index, color)
-    if state.animation.tick == 1 or state.animation.tick == 2 then
+    local progress = state.animation.timer / state.animation.speed
+    local tick = math.floor(progress * 10)
+    if tick == 1 or tick == 2 then
         drawEnemySprite(state, enemy, index, 5, 0)
     else
         drawEnemySprite(state, enemy, index, 0, 0)
     end
-    
-    if state.animation.tick > 1 then
+
+    if tick >= 1 then
         drawTextOnEnemy(state, enemy, index, 'MISS', font_small, color)
     end
 end
 
 
 local function drawDeathAnimation(state, enemy, index)
-    local tint = math.max(0, 1 - state.animation.tick/8)
-    drawEnemySprite(state, enemy, index, 0, 0, tint)
+    if state.animation.ref == 'enemyDied' then
+        local tint = math.max(0, 1 - state.animation.timer / state.animation.speed)
+        drawEnemySprite(state, enemy, index, 0, 0, tint)
+    end
 end
 
 local function drawEnemyAnimation(state, enemy, index)

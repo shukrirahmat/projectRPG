@@ -5,7 +5,7 @@ local enemyData = {}
 
 enemyData['slime'] = {
     lvl = 1,
-    hp = 88,
+    hp = 9999,
     mp = 0,
     str = 16,
     vit = 1,
@@ -14,13 +14,14 @@ enemyData['slime'] = {
     spriteHeight = monsterSpriteDimension/2.2,
     gold = 50,
     exp = 150,
-    passiveSkills = {'counter'}
+    passiveSkills = {},
+    status = {}
     
 }
 
 enemyData['goblin'] = {
     lvl = 2,
-    hp = 99,
+    hp = 9999,
     mp = 0,
     str = 18,
     vit = 1,
@@ -29,7 +30,8 @@ enemyData['goblin'] = {
     spriteHeight = monsterSpriteDimension/4,
     gold = 80,
     exp = 150,
-    passiveSkills = {'counter'}
+    passiveSkills = {},
+    status = {}
 }
 
 return enemyData;

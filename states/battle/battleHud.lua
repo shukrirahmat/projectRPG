@@ -23,7 +23,7 @@ function battleHud.draw(state)
             shiftY = 15 * math.sin(progress * math.pi)
 
             local hpDrop = math.min(state.animation.value, member.currentHp)
-            hpBit = math.ceil( hpDrop * (1 - progress))
+            hpBit = math.floor( hpDrop * (1 - progress))
         end
 
         love.graphics.setColor(0, 0, 0)

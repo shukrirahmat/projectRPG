@@ -30,6 +30,29 @@ local function calculateCritDamage(attacker, target)
     return math.max(damage, 1)
 end
 
+local function barrierCheck(target, damage)
+    if target.status['BARRIER'] then
+        return math.floor(damage * 0.5)
+    else
+        return damage
+    end
+end
+
+local function passiveBoost(user, element, damage)
+    local passives = {'fireLord', 'iceLord', 'windLord', 'thunderLord', 'seraph', 'demonLord', 'leechLord'}
+    local elements = {'FIRE', 'ICE', 'WIND', 'BOLT', 'LIGHT', 'VOID', 'DRAIN'}
+
+    for i = 1, #elements do
+        if element == elements[i] and user.passives[passives[i]] == true then
+            local multiplier = 1.5
+            if elements[i] == 'DRAIN' then multiplier = 2 end
+            return math.floor(damage * multiplier)
+        end
+    end
+
+    return damage
+end
+
 local function checkResistance(element, target)
     if target.immune[element] then return 2 end
     if target.strong[element] then return 1 end
@@ -340,6 +363,40 @@ function actions.focus(self, state, user)
     local text = ''..user.name..' increases their focus';
     battleLog.addText(state, text)
     user.isFocused = { counter = 2 }
+end
+
+function actions.castDamageMagic(self, state, user, targets, special)
+
+    local text = ''..user.name..' casts '..self.name..'';
+    if special and special.combo then
+        text = 'Unleashed '..self.name..'';
+    end
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local var = self.variance or 0.2
+            local mod = math.floor(self.baseDamage * var)
+            local damage = self.baseDamage + math.random(-mod, mod)
+            local resistance = checkResistance(self.element, target)
+            local ref
+
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'resisted'
+                damage = math.floor(damage/2)
+            else
+                ref = 'damage'
+            end
+
+            damage = passiveBoost(user, self.element, damage)
+            damage = barrierCheck(target, damage)
+
+            local damageEffect = effectCreator.new(ref, user, target, damage)
+            table.insert(state.effectQueue, damageEffect)
+        end
+    end
 end
 
 return actions;

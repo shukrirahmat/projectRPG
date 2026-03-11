@@ -27,8 +27,8 @@ passiveData['ranged'] = {name = 'Ranged', desc = 'Normal attack will not be coun
 passiveData['piercer'] = {name = 'Piercer', desc = 'Attack goes through armored enemies defense'}
 passiveData['lightWielder'] = {name = 'Light Wielder', desc = 'Gain atk power when equipped with sword, dagger or fists'}
 passiveData['HeavyWielder'] = {name = 'Heavy Wielder', desc = 'Gain atk power when equipped with axe, hammer or spear'}
-passiveData['fireCombo'] = {name = 'Fire Combo', desc = 'Normal attack is followed by Flame I'}
-passiveData['iceCombo'] = {name = 'Ice Combo', desc = 'Normal attack is followed by Ice I'}
+passiveData['fireCombo'] = {name = 'Fire Combo', desc = 'Normal attack is followed by Flame I or II'}
+passiveData['iceCombo'] = {name = 'Ice Combo', desc = 'Normal attack is followed by Ice I or II'}
 passiveData['windCombo'] = {name = 'Wind Combo', desc = 'Normal attack is followed by Typhoon I'}
 passiveData['boltCombo'] = {name = 'Bolt Lord', desc = 'Normal attack is followed by Lightning I'}
 passiveData['manaSaver'] = {name = 'Mana Saver', desc = 'Magic attack have a chance to return back the MP cost after casting'}

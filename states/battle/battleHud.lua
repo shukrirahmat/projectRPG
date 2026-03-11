@@ -1,10 +1,12 @@
+local sprites = require('graphics.sprites')
+
 local battleHud = {}
 
 function battleHud.draw(state)
 
     local borderX = 10
     local borderY = 10
-    local borderWidth = 120
+    local borderWidth = 128
     local borderHeight = 90
     local innerX = borderX + 20
     local innerY = borderY + 5
@@ -80,6 +82,24 @@ function battleHud.draw(state)
                 innerWidth/2,
                 'right'
             )
+        end
+
+        local j = 1
+        local statusY = 0
+        for k, v in pairs(member.status) do
+            if j > 8 then
+                j = 1;
+                statusY = statusIconDimension;
+            end
+            local xpos = borderX + (index - 1) * (borderWidth + borderX) + (j - 1) * statusIconDimension
+            local ypos = borderY + borderHeight + statusY
+            love.graphics.draw(
+                sprites['status_Icons'],
+                sprites[k],
+                xpos,
+                ypos + shiftY
+            )
+            j = j + 1;
         end
     end
 end

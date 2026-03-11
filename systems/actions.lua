@@ -62,7 +62,7 @@ end
 local function checkMiss(user, target)
     if user.status['BLIND'] then
         local roll = math.random(1, 100)
-        if roll <= 75 then
+        if roll <= 60 then
             return true
         end
     end
@@ -155,13 +155,25 @@ end
 local function handleElementalCombo(state, user, target)
 
     if user.passives['fireCombo'] then
-        local followUp = actionCreator.new('flameI', user, {target})
+        local followUp;
+        local roll = math.random(1, 100)
+        if roll <= 10 then
+            followUp = actionCreator.new('flameII', user, {target})
+        else
+            followUp = actionCreator.new('flameI', user, {target})
+        end
         followUp.combo = true
         table.insert(state.followUpQueue, followUp)
     end
 
     if user.passives['iceCombo'] then
-        local followUp = actionCreator.new('frostI', user, {target})
+        local followUp;
+        local roll = math.random(1, 100)
+        if roll <= 5 then
+            followUp = actionCreator.new('frostII', user, {target})
+        else
+            followUp = actionCreator.new('frostI', user, {target})
+        end
         followUp.combo = true
         table.insert(state.followUpQueue, followUp)
     end
@@ -315,7 +327,7 @@ function actions.normalAttack(self, state, user, targets, special)
                 battleLog.addText(state, text)
                 local missedEffect = effectCreator.new('missed', user, target)
                 table.insert(state.effectQueue, missedEffect)
-                
+
                 if not special then
                     handleSecondAttack(state, user, target)
                 end

@@ -13,5 +13,6 @@ font_small:setFilter("nearest", "nearest")
 font_medium:setFilter("nearest", "nearest")
 font_large:setFilter("nearest", "nearest")
 monsterSpriteDimension = 128
+statusIconDimension = 16
 
 

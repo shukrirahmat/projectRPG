@@ -21,9 +21,15 @@ function enemyCreator.new(species, name)
     enemy.dodgeRate = data.dodgeRate or 0
     enemy.skill = data.skills or {}
     enemy.passiveSkills = data.passiveSkills or {}
-    enemy.status = data.status or {}
+    enemy.status = {}
     enemy.strong = data.strong or {}
     enemy.immune = data.immune or {}
+    
+    if data.status then
+        for k, v in pairs(data.status) do
+            enemy.status[k] = v
+        end
+    end
     
     local battler = battlerCreator.new(enemy)
     battler.isPartyMember = false;
@@ -31,10 +37,16 @@ function enemyCreator.new(species, name)
     battler.sprite = data.sprite
     battler.spriteHeight = data.spriteHeight
     battler.specialType = data.specialType
-    battler.stealableItem = data.stealableItem or nil
+    battler.stealableItem = {}
     battler.stealableGold = data.gold or 0
     battler.droppedGold = data.gold or 0
     battler.exp = data.exp or 0
+    
+    if data.stealableItem then
+        for k, v in pairs(data.stealableItem) do
+            battler.stealableItem[k] = v
+        end
+    end
 
     return battler
 end

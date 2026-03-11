@@ -74,7 +74,7 @@ local function statusClearAll(state, action)
     local user = action.user
 
     local cat1 = {'BLIND', 'SEAL', 'STUN'}
-    local rate = {10, 25, 60}
+    local rate = {20, 30, 60}
 
     for i, status in ipairs(cat1) do
         if user.status[status] then

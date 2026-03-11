@@ -43,6 +43,7 @@ function battle.load(stateManager, var)
 end
 
 function battle.update(dt)
+    
     if state.fadesIn then
         transitions.runFadeIn(state, dt)
     end

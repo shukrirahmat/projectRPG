@@ -74,7 +74,7 @@ memberStats[1] = {
     vit = 7,
     agi = 7,
     skills = {'flameI', 'flameII', 'flameIII', 'flameX', 'infernoI', 'infernoII', 'infernoIII', 'flameStrike', 'voidStrike'},
-    passiveSkills = {'dualWielder', 'fireLord'},
+    passiveSkills = {'dualWielder'},
     status = {},
     totalExp = 0,
 }
@@ -89,8 +89,7 @@ memberStats[2] = {
     vit = 6,
     agi = 8,
     skills = {'frostI', 'frostII', 'frostIII', 'blizzardI', 'blizzardII', 'blizzardIII', 'blizzardX'},
-    passiveSkills = {'dualWielder', 'iceLord'},
-    status = {},
+    passiveSkills = {'dualWielder'},
     totalExp = 0,
 }
 
@@ -105,7 +104,6 @@ memberStats[3] = {
     agi = 7,
     skills = {'typhoonI', 'typhoonII', 'typhoonIII', 'luminaI', 'luminaII', 'luminaIII'},
     passiveSkills = {'dualWielder', 'windLord', 'seraph'},
-    status = {},
     totalExp = 0
 }
 

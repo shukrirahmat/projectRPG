@@ -14,8 +14,7 @@ enemyData['slime'] = {
     spriteHeight = monsterSpriteDimension/2.2,
     gold = 50,
     exp = 150,
-    passiveSkills = {},
-    status = {}
+    passiveSkills = {}
     
 }
 
@@ -30,8 +29,8 @@ enemyData['goblin'] = {
     spriteHeight = monsterSpriteDimension/4,
     gold = 80,
     exp = 150,
-    passiveSkills = {},
-    status = {}
+    passiveSkills = {}
+    
 }
 
 return enemyData;

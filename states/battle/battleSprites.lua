@@ -1,3 +1,5 @@
+local sprites = require('graphics.sprites')
+
 local battleSprites = {}
 
 local enemyMovement = { 
@@ -11,8 +13,10 @@ local enemyMovement = {
 }
 
 local function getSpritePos(state, enemy, index, shiftX, shiftY)
-    local x = windowWidth/2 + (index - 1) * monsterSpriteDimension + shiftX 
-    - (monsterSpriteDimension/2) * #state.enemies;
+    local gap = 10
+    local initialDraw = windowWidth/2 + (index - 1) * (monsterSpriteDimension + gap)
+    local reposition = (monsterSpriteDimension/2) * #state.enemies + (#state.enemies - 1) * (gap/2)
+    local x =  initialDraw - reposition + shiftX
     local y = windowHeight/2 + shiftY  - monsterSpriteDimension/1.5
     local height = enemy.spriteHeight
     return {x = x, y = y, height = height}
@@ -129,6 +133,28 @@ local function drawEnemyAnimation(state, enemy, index)
     end
 end
 
+local function drawEnemyStatus(state, enemy, index)
+    local spritePos = getSpritePos(state, enemy, index, 0, 0)
+    local i = 1
+    local shift = 0
+    for k, v in pairs(enemy.status) do
+        if i > 8 then
+            i = 1;
+            shift = statusIconDimension;
+        end
+        local xpos = spritePos.x + (i - 1) * statusIconDimension
+        local ypos = monsterSpriteDimension + spritePos.y + shift
+        love.graphics.draw(
+            sprites['status_Icons'],
+            sprites[k],
+            xpos,
+            ypos
+        )
+        i = i + 1;
+    end
+end
+
+
 function battleSprites.draw(state)
     for index, enemy in ipairs(state.enemies) do
         if not enemy.isDead then
@@ -141,6 +167,8 @@ function battleSprites.draw(state)
         and state.animation and state.animation.user == enemy then
             drawDeathAnimation(state, enemy, index)
         end
+
+        drawEnemyStatus(state, enemy, index)
     end
 end
 

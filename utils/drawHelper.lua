@@ -14,7 +14,7 @@ function drawHelper.drawMenuIndicator(x, y, height)
     )
 end
 
- function drawHelper.drawDownwardArrow(x, y, width, height)
+function drawHelper.drawDownwardArrow(x, y, width, height)
     love.graphics.polygon(
         'fill',
         x + width/2 - 10,

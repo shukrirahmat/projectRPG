@@ -32,12 +32,14 @@ end
 
 local function drawAttackAnimation(state, enemy, index)
     local progress = state.animation.timer / state.animation.speed
-    for moveIndex, movement in ipairs(enemyMovement) do
-        if math.floor(progress * 10) == moveIndex then
-            drawEnemySprite(state, enemy, index, movement.x, movement.y)
-        else
-            drawEnemySprite(state, enemy, index, 0, 0)
-        end
+    local moveIndex = math.floor(progress * 10)
+
+    local movement = enemyMovement[moveIndex]
+
+    if movement then
+        drawEnemySprite(state, enemy, index, movement.x, movement.y)
+    else
+        drawEnemySprite(state, enemy, index, 0, 0)
     end
 end
 
@@ -64,12 +66,10 @@ end
 local function drawDamagedAnimation(state, enemy, index, color)
     local progress = state.animation.timer / state.animation.speed
     local tick = math.floor(progress * 10)
-    if tick % 2 == 0 and tick <= 4 then
-        drawEnemySprite(state, enemy, index, 0, 0)
-    elseif tick > 4 then
-        drawEnemySprite(state, enemy, index, 0, 0)
-    else
+    if tick == 1 or tick == 3 then
         drawEnemySprite(state, enemy, index, 0, 0, 0.1)
+    else
+        drawEnemySprite(state, enemy, index, 0, 0)
     end
 
     if tick >= 1 then
@@ -80,7 +80,7 @@ end
 local function drawImmuneAnimation(state, enemy, index)
     local progress = state.animation.timer / state.animation.speed
     local tick = math.floor(progress * 10)
-    if tick == 1 or tick == 2 then
+    if tick == 1 or tick == 2 or tick == 3  then
         drawEnemySprite(state, enemy, index, 0, 0, 0.75)
     else
         drawEnemySprite(state, enemy, index, 0, 0)
@@ -90,8 +90,10 @@ end
 local function drawDodgeAnimation(state, enemy, index, color)
     local progress = state.animation.timer / state.animation.speed
     local tick = math.floor(progress * 10)
-    if tick == 1 or tick == 2 then
-        drawEnemySprite(state, enemy, index, 5, 0)
+    if tick == 1 or tick == 3 then
+        drawEnemySprite(state, enemy, index, 3, 0)
+    elseif tick == 2 then
+        drawEnemySprite(state, enemy, index, 4, 0)
     else
         drawEnemySprite(state, enemy, index, 0, 0)
     end
@@ -112,17 +114,17 @@ end
 local function drawEnemyAnimation(state, enemy, index)
     if state.animation.ref == 'enemyAtk' then
         drawAttackAnimation(state, enemy, index)
-    elseif battleState.animation.ref == 'enemyDamaged' then
+    elseif state.animation.ref == 'enemyDamaged' then
         drawDamagedAnimation(state, enemy, index)
-    elseif battleState.animation.ref == 'enemyResisted' then
+    elseif state.animation.ref == 'enemyResisted' then
         drawDamagedAnimation(state, enemy, index, 'grey')
-    elseif battleState.animation.ref == 'enemyManaBurned' then
+    elseif state.animation.ref == 'enemyManaBurned' then
         drawDamagedAnimation(state, enemy, index, 'blue')
-    elseif battleState.animation.ref == 'enemyImmune' then
+    elseif state.animation.ref == 'enemyImmune' then
         drawImmuneAnimation(state, enemy, index)
-    elseif battleState.animation.ref == 'enemyDodged' then
+    elseif state.animation.ref == 'enemyDodged' then
         drawDodgeAnimation(state, enemy, index)
-    elseif battleState.animation.ref == 'enemyDodgedResist' then
+    elseif state.animation.ref == 'enemyDodgedResist' then
         drawDodgeAnimation(state, enemy, index, 'grey')
     end
 end

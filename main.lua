@@ -5,7 +5,7 @@ local gameState = require('gameState')
 function love.load()
     math.randomseed(os.time())
     love.window.setMode(windowWidth, windowHeight)
-    
+
     stateManager.initiate()
     stateManager.switch('field')    
 end

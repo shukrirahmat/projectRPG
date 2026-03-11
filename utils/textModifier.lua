@@ -6,4 +6,4 @@ end
 
 function text
 
-return textModifier
+    return textModifier

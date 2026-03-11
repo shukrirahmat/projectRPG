@@ -27,9 +27,9 @@ local function drawFadeOut(state)
 end
 
 local function drawBattleTransition(state)
-    
+
     local progress = state.transition.timer / state.transition.max
-    
+
     love.graphics.setColor(0, 0, 0)
     love.graphics.polygon(
         'fill',
@@ -40,7 +40,7 @@ local function drawBattleTransition(state)
         progress * windowWidth,
         0
     )
-    
+
     love.graphics.polygon(
         'fill',
         windowWidth,
@@ -50,7 +50,7 @@ local function drawBattleTransition(state)
         windowWidth,
         progress * windowWidth
     )
-    
+
     love.graphics.polygon(
         'fill',
         0,
@@ -60,7 +60,7 @@ local function drawBattleTransition(state)
         progress * windowWidth,
         windowHeight
     )
-    
+
     love.graphics.polygon(
         'fill',
         windowWidth,

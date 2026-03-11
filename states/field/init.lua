@@ -21,7 +21,7 @@ function field.load(stateManager, var)
     state.isEncountering = nil
     state.currentMove = nil
     state.encounterChance = gameState.currentMap.encounterRate
-    
+
     if var and var.fadesIn then
         state.fadesIn = true;
         state.transition = { cat = 'fadeIn', timer = 0, max = 0.5 }

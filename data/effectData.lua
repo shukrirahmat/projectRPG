@@ -4,18 +4,18 @@ local effectData = {}
 
 effectData['damage'] = { 
     apply = effects.dealDamage , 
-    partyAnimation = 'partyDamaged',
-    enemyAnimation = 'enemyDamaged',
+    partyAnimation = {ref ='partyDamaged', speed = 0.75},
+    enemyAnimation = {ref ='enemyDamaged', speed = 1}
 }
 
 effectData['resisted'] = { 
-    apply = dealDamage , 
-    partyAnimation = 'partyDamaged',
-    enemyAnimation = 'enemyResisted',
+    apply = effects.dealDamage , 
+    partyAnimation = {ref ='partyDamaged', speed = 0.75},
+    enemyAnimation = {ref ='enemyResisted', speed = 1}
 }
 effectData['immune'] = { 
-    apply = noEffect , 
-    enemyAnimation = 'enemyImmune',
+    apply = effects.noEffect , 
+    enemyAnimation = {ref ='enemyImmune', speed = 1}
 }
 
 effectData['skillCanceled'] = { 
@@ -36,30 +36,30 @@ effectData['revive'] = {
 
 effectData['mpDamage'] = {
     apply = dealMPDamage,
-    enemyAnimation = 'enemyManaBurned',
+    enemyAnimation = {ref ='enemyManaBurned', speed = 1}
 }
 
 effectData['mpResisted'] = {
     apply = dealMPDamage,
-    enemyAnimation = 'enemyManaBurned',
+    enemyAnimation = {ref ='enemyManaBurned', speed = 1}
 }
 
 effectData['instakill'] = { 
-    apply = instakill , 
+    apply = effects.instakill , 
 }
 
 effectData['missed'] = { 
-    apply = missed , 
-    enemyAnimation = 'enemyDodged',
+    apply = effects.missed , 
+    enemyAnimation = {ref ='enemyDodged', speed = 1}
 }
 
 effectData['missedResist'] = { 
     apply = missed , 
-    enemyAnimation = 'enemyDodgedResist',
+    enemyAnimation = {ref ='enemyDodgedResist', speed = 1}
 }
 
 effectData['addStatus'] = { 
-    apply = addStatus,
+    apply = effects.addStatus,
 }
 
 effectData['addStatChange'] = { 
@@ -67,13 +67,13 @@ effectData['addStatChange'] = {
 }
 
 effectData['clearStatus'] = {
-    apply = clearStatus,
+    apply = effects.clearStatus,
 }
 
 effectData['poisonDamage'] = { 
     apply = poisonDamage , 
-    partyAnimation = 'partyDamaged',
-    enemyAnimation = 'enemyDamaged',
+    partyAnimation = {ref ='partyDamaged', speed = 0.75},
+    enemyAnimation = {ref ='enemyDamaged', speed = 1}
 }
 
 effectData['curseEffect'] = { 
@@ -81,11 +81,11 @@ effectData['curseEffect'] = {
 }
 
 effectData['stealGold'] = { 
-    apply = stealGold,
+    apply = effects.stealGold,
 }
 
 effectData['stealItem'] = { 
-    apply = stealItem,
+    apply = effects.stealItem,
 }
 
 return effectData

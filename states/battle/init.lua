@@ -52,7 +52,7 @@ function battle.update(dt)
     elseif state.battleRunning then
         battleLoop.run(state, dt)
     end
-    
+
     if state.animation then
         battleAnimation.run(state, dt)
     end

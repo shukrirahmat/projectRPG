@@ -114,9 +114,9 @@ local function handleOnHitEffects(state, user, target)
             local ref = checkResistance(status[i], target)
             local accuracy
             if ref == 0 then 
-                accuracy = 20
+                accuracy = 25
             elseif ref == 1 then
-                acurracy = 5
+                accuracy = 10
             elseif ref == 2 then
                 accuracy = 0
             end
@@ -169,7 +169,7 @@ local function handleElementalCombo(state, user, target)
 end
 
 local function handleCounterAttack(state, user, target)
-    if target.passives['counter'] then
+    if target.passives['counter'] and not user.passives['ranged'] then
         if not target.status['SLEEP'] and not target.status['CONFUSE'] and not target.status['STUN'] then
             local counterAction = actionCreator.new('counterAtk', user, {target})
             table.insert(state.followUpQueue, counterAction)
@@ -180,7 +180,7 @@ end
 local function handleSecondAttack(state, user, target)
     local secondAttackChance = math.floor((user.agi - target.agi)/2)
     local secondAttack
-    if user.passives['dualWield'] then
+    if user.passives['dualWielder'] then
         secondAttack = true
     else
         secondAttack = math.random(1, 100) < secondAttackChance
@@ -292,9 +292,54 @@ function actions.normalAttack(self, state, user, targets, special)
                 battleLog.addText(state, text)
                 local missedEffect = effectCreator.new('missed', user, target)
                 table.insert(state.effectQueue, missedEffect)
+                
+                if not special then
+                    handleSecondAttack(state, user, target)
+                end
             end
         end
     end
+end
+
+function actions.secondAttack(self, state, user, targets)
+    local special = {cat ='secondAttack', text = 'attacks again!'}
+    actions.normalAttack(self, state, user, targets, special)
+end
+
+function actions.counterAttack(self, state, user, targets)
+    local special = {cat ='counter', text = 'counters!'}
+    actions.normalAttack(self, state, targets[1], {user}, special)
+end
+
+function actions.quickStrike(self, state, user, targets)
+    local special = {cat ='quickStrike', text = 'attacks swiftly!'}
+    actions.normalAttack(self, state, user, targets, special)
+end
+
+function actions.elementalStrike(self, state, user, targets)
+    local special = {cat = 'elemental', element = self.element, text = 'used '..self.name..''}
+    actions.normalAttack(self, state, user, targets, special)
+end
+
+function actions.desperation(self, state, user, targets)
+    local special = {cat = 'desperation', text = 'tries a desperation attack!'}
+    actions.normalAttack(self, state, user, targets, special)
+end
+
+function actions.stunned(self, state,user)
+    local text = ''..user.name..' is stunned and could not move!';
+    battleLog.addText(state, text)
+end
+
+function actions.defend(self, state, user)
+    user.isDefending = true
+    battleLog.addText(state, ''..user.name..' defends!')
+end
+
+function actions.focus(self, state, user)
+    local text = ''..user.name..' increases their focus';
+    battleLog.addText(state, text)
+    user.isFocused = { counter = 2 }
 end
 
 return actions;

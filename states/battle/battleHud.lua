@@ -12,7 +12,7 @@ function battleHud.draw(state)
 
 
     for index, member in ipairs(state.party) do
-        
+
         local shiftY = 0
         local hpBit = 0
 
@@ -20,10 +20,10 @@ function battleHud.draw(state)
         and state.animation.user == member 
         and state.animation.ref == 'partyDamaged' then
             local progress = state.animation.timer / state.animation.speed
-            shiftY = 20 * math.sin(progress * math.pi)
-            
+            shiftY = 15 * math.sin(progress * math.pi)
+
             local hpDrop = math.min(state.animation.value, member.currentHp)
-            hpBit = math.floor( hpDrop * (1 - progress))
+            hpBit = math.ceil( hpDrop * (1 - progress))
         end
 
         love.graphics.setColor(0, 0, 0)

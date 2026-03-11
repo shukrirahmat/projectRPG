@@ -5,22 +5,22 @@ local actionData = {}
 actionData['normalAtk'] = { 
     execute = actions.normalAttack, 
     cost = 0,
-    enemyAnimation = 'enemyAtk'
+    enemyAnimation = {ref = 'enemyAtk', speed = 0.8}
 }
 actionData['secondAtk'] = {
-    execute = secondAttack, 
+    execute = actions.secondAttack, 
     cost = 0, 
-    enemyAnimation = 'enemyAtk'
+    enemyAnimation = {ref = 'enemyAtk', speed = 0.8}
 }
 
 actionData['counterAtk'] = {
-    execute = counterAttack, 
+    execute = actions.counterAttack, 
     cost = 0, 
-    partyAnimation = 'enemyAtk'
+    partyAnimation = {ref = 'enemyAtk', speed = 0.8}
 }
 
 actionData['defend'] = { 
-    execute = defend, 
+    execute = actions.defend, 
     cost = 0, 
     priority = 2
 }
@@ -30,7 +30,7 @@ actionData['skillCanceled'] = {
 }
 
 actionData['stunned'] = {
-    execute = stunned
+    execute = actions.stunned
 }
 
 actionData['paralyzed'] = {
@@ -1197,7 +1197,7 @@ actionData['quickStrike'] = {
     desc = 'A fast normal attack that deals half the damage',
     aim = 'enemies',
     scope = 'single',
-    execute = quickStrike,
+    execute = actions.quickStrike,
     priority = 1
 }
 
@@ -1230,7 +1230,7 @@ actionData['flameStrike'] = {
     desc = 'A normal attack that are imbued with fire element',
     aim = 'enemies',
     scope = 'single',
-    execute = elementalStrike,
+    execute = actions.elementalStrike,
     element = 'FIRE'
 }
 
@@ -1241,18 +1241,18 @@ actionData['frostStrike'] = {
     desc = 'A normal attack that are imbued with ice element',
     aim = 'enemies',
     scope = 'single',
-    execute = elementalStrike,
+    execute = actions.elementalStrike,
     element = 'ICE'
 }
 
-actionData['ligtningStrike'] = {
+actionData['lightningStrike'] = {
     name = 'Lightning Strike', 
     tech = true,
     cost = 4, 
     desc = 'A normal attack that are imbued with bolt element',
     aim = 'enemies',
     scope = 'single',
-    execute = elementalStrike,
+    execute = actions.elementalStrike,
     element = 'BOLT'
 }
 
@@ -1263,7 +1263,7 @@ actionData['typhoonStrike'] = {
     desc = 'A normal attack that are imbued with wind element',
     aim = 'enemies',
     scope = 'single',
-    execute = elementalStrike,
+    execute = actions.elementalStrike,
     element = 'WIND'
 }
 
@@ -1274,7 +1274,7 @@ actionData['luminaStrike'] = {
     desc = 'A normal attack that are imbued with light element',
     aim = 'enemies',
     scope = 'single',
-    execute = elementalStrike,
+    execute = actions.elementalStrike,
     element = 'LIGHT'
 }
 
@@ -1285,7 +1285,7 @@ actionData['voidStrike'] = {
     desc = 'A normal attack that are imbued with void element',
     aim = 'enemies',
     scope = 'single',
-    execute = elementalStrike,
+    execute = actions.elementalStrike,
     element = 'VOID'
 }
 
@@ -1296,7 +1296,7 @@ actionData['focus'] = {
     desc = 'Ensure next normal attack to not miss',
     aim = 'allies',
     scope = 'self',
-    execute = focus,
+    execute = actions.focus,
 }
 
 actionData['ram'] = {
@@ -1316,7 +1316,7 @@ actionData['desperation'] = {
     desc = 'Attack that are more likely to land critical hits at low health',
     aim = 'enemies',
     scope = 'single',
-    execute = desperation,
+    execute = actions.desperation,
 }
 
 actionData['undo'] = {

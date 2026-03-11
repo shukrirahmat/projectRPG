@@ -18,6 +18,7 @@ function enemyCreator.new(species, name)
     enemy.vit = data.vit
     enemy.agi = data.agi
     enemy.critRate = 128
+    enemy.dodgeRate = data.dodgeRate or 0
     enemy.skill = data.skills or {}
     enemy.passiveSkills = data.passiveSkills or {}
     enemy.status = data.status or {}

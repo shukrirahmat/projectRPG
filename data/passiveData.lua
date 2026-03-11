@@ -1,6 +1,6 @@
 local passiveData = {}
 
-passiveData['dualWield'] = {name = 'Dual Wielder', desc = 'Attack twice regardless of agility'};
+passiveData['dualWielder'] = {name = 'Dual Wielder', desc = 'Attack twice regardless of agility'};
 passiveData['fireLord'] = {name = 'Fire Lord', desc = 'Fire magic deals more damage'}
 passiveData['iceLord'] = {name = 'Ice Lord', desc = 'Ice magic deals more damage'}
 passiveData['windLord'] = {name = 'Wind Lord', desc = 'Wind magic deals more damage'}

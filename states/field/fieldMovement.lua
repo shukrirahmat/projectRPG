@@ -32,7 +32,7 @@ local directions = {
 }
 
 local function handlePostMovement(state)
-    
+
     local spotCoordinate = ''..gameState.playerPos.x..','..gameState.playerPos.y..''
     local spot = gameState.currentMap.spots[spotCoordinate]
     if spot then
@@ -44,7 +44,7 @@ local function handlePostMovement(state)
             return
         end
     end
-    
+
     if state.encounterChance then
         local roll = math.random(1, state.encounterChance)
         if roll == 1 then
@@ -62,7 +62,7 @@ end
 
 function fieldMovement.movePlayer(state, dt)
     state.moveTimer = state.moveTimer + dt
-    
+
     local dir = directions[state.currentMove]
     gameState.playerSprite = dir.sprite[1]
 

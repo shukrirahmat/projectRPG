@@ -37,7 +37,7 @@ function fieldEncounter.generate(state)
             table.insert(enemies, enemy)
         end
     end
-    
+
     local party = {
         battlerCreator.new(gameState.party[1]),
         battlerCreator.new(gameState.party[2]),

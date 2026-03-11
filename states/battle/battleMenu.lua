@@ -218,90 +218,90 @@ function drawDescriptionText(state, x, y, data)
 end
 
 local function drawCurrentMenuPage(
-        state, currentPage, menu, borderX, borderY, borderWidth, borderHeight, isTargeting
-    )
-    local itemHeight = state.menuItemHeight
-    local pageStart = (currentPage - 1) * 8 + 1;
-    local pageEnd = math.min(#menu.list, pageStart + 7)
-    for i = pageStart, pageEnd do
+    state, currentPage, menu, borderX, borderY, borderWidth, borderHeight, isTargeting
+)
+local itemHeight = state.menuItemHeight
+local pageStart = (currentPage - 1) * 8 + 1;
+local pageEnd = math.min(#menu.list, pageStart + 7)
+for i = pageStart, pageEnd do
 
-        love.graphics.setFont(font_medium)
-        love.graphics.setColor(1, 1, 1)
-        if menu == state.skillMenu then
-            local skill = actionData[menu.list[i]]
-            if menu.user.currentMp < skill.cost then
-                love.graphics.setColor(0.25, 0.25, 0.25)
-            end
-        end
-
-        local x
-        if i % 2 == 0 then
-            x = borderX + borderWidth/2 + 10
-        else
-            x = borderX + 10
-        end
-        local itemPos = i - (currentPage - 1)*8
-        local y = borderY + 10 + (math.floor((itemPos - 1)/2)) * itemHeight
-
-        local name;
-        if menu == state.skillMenu then
-            local skill = actionData[menu.list[i]]
-            name = skill.name
-        elseif menu == state.itemMenu then
-            name = menu.list[i].item.name
-        end
-
-        love.graphics.printf(
-            name,
-            x + 20,
-            y,
-            borderWidth/2 - 40,
-            'left', 0, 1, 1, 0, -1 * (itemHeight/4)
-        )
-
-        love.graphics.setColor(1, 1, 1)
-        if menu.position == i then
-            drawHelper.drawMenuIndicator(x, y, itemHeight)
-            if isTargeting then
-                drawTargetMenu(
-                    state,
-                    borderX, 
-                    borderY, 
-                    borderWidth
-                )
-            else
-                local data = {}
-                if menu == state.skillMenu then
-                    local skill = actionData[menu.list[i]]
-                    data.cat = 'skill'
-                    data.desc = skill.desc
-                    data.cost = skill.cost
-                elseif menu == state.itemMenu then
-                    data.cat = 'item'
-                    data.desc = menu.list[i].item.desc
-                    data.amount = menu.list[i].amount
-                end
-
-                drawDescriptionText(
-                    state,
-                    borderX + borderWidth + 10,
-                    borderY,
-                    data
-                )
-            end
-        end
-        
-        if math.ceil(#menu.list/8) > 1 then
-            if math.ceil(menu.position / 8) == 1 then
-                drawHelper.drawDownwardArrow(borderX, borderY, borderWidth, borderHeight)
-            elseif math.ceil(menu.position / 8) == math.ceil(#menu.list / 8) then
-                drawHelper.drawUpwardArrow(borderX, borderY, borderWidth, borderHeight)
-            else
-                drawHelper.drawDownwardArrow(borderX, borderY, borderWidth, borderHeight)
-                drawHelper.drawUpwardArrow(borderX, borderY, borderWidth, borderHeight)
-            end
+    love.graphics.setFont(font_medium)
+    love.graphics.setColor(1, 1, 1)
+    if menu == state.skillMenu then
+        local skill = actionData[menu.list[i]]
+        if menu.user.currentMp < skill.cost then
+            love.graphics.setColor(0.25, 0.25, 0.25)
         end
     end
+
+    local x
+    if i % 2 == 0 then
+        x = borderX + borderWidth/2 + 10
+    else
+        x = borderX + 10
+    end
+    local itemPos = i - (currentPage - 1)*8
+    local y = borderY + 10 + (math.floor((itemPos - 1)/2)) * itemHeight
+
+    local name;
+    if menu == state.skillMenu then
+        local skill = actionData[menu.list[i]]
+        name = skill.name
+    elseif menu == state.itemMenu then
+        name = menu.list[i].item.name
+    end
+
+    love.graphics.printf(
+        name,
+        x + 20,
+        y,
+        borderWidth/2 - 40,
+        'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+    )
+
+    love.graphics.setColor(1, 1, 1)
+    if menu.position == i then
+        drawHelper.drawMenuIndicator(x, y, itemHeight)
+        if isTargeting then
+            drawTargetMenu(
+                state,
+                borderX, 
+                borderY, 
+                borderWidth
+            )
+        else
+            local data = {}
+            if menu == state.skillMenu then
+                local skill = actionData[menu.list[i]]
+                data.cat = 'skill'
+                data.desc = skill.desc
+                data.cost = skill.cost
+            elseif menu == state.itemMenu then
+                data.cat = 'item'
+                data.desc = menu.list[i].item.desc
+                data.amount = menu.list[i].amount
+            end
+
+            drawDescriptionText(
+                state,
+                borderX + borderWidth + 10,
+                borderY,
+                data
+            )
+        end
+    end
+
+    if math.ceil(#menu.list/8) > 1 then
+        if math.ceil(menu.position / 8) == 1 then
+            drawHelper.drawDownwardArrow(borderX, borderY, borderWidth, borderHeight)
+        elseif math.ceil(menu.position / 8) == math.ceil(#menu.list / 8) then
+            drawHelper.drawUpwardArrow(borderX, borderY, borderWidth, borderHeight)
+        else
+            drawHelper.drawDownwardArrow(borderX, borderY, borderWidth, borderHeight)
+            drawHelper.drawUpwardArrow(borderX, borderY, borderWidth, borderHeight)
+        end
+    end
+end
 end
 
 

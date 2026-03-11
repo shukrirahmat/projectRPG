@@ -1,3 +1,6 @@
+local actionData = require('data.actionData')
+local actionCreator = require('entities.actionCreator')
+
 local battleHandler = {}
 
 local function setPartyAction(state)
@@ -97,6 +100,21 @@ function battleHandler.reselectTargetWhenDead(state, selectedTarget)
         target = battleHandler.selectTargetRandomly(state.enemies)
     end
     return target
+end
+
+function battleHandler.updateStatChange(target, stat)
+    if stat == 'def' then
+        local buff = target.defBuff or 0
+        local debuff = target.defDebuff or 0
+        target.def = target.baseDef + buff - debuff
+    elseif stat == 'agi' then
+        local buff = target.agiBuff or 0
+        local debuff = target.agiDebuff or 0
+        target.agi = target.baseAgi + buff - debuff
+    elseif stat == 'atk' then
+        local buff = target.atkBuff or 0
+        target.atk = target.baseAtk + buff
+    end
 end
 
 function battleHandler.checkCannotMove(target)

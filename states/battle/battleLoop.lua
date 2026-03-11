@@ -95,7 +95,7 @@ local function handleDeath(state, target)
     target.currentHp = 0
     target.isDead = true
     target.status = {}
-    battleLog.addText(''..target.name..' defeated.')
+    battleLog.addText(state, ''..target.name..' defeated.')
     battleHandler.removeAction(state, target)
 
     if target.isPartyMember and checkIfAllDead(state.party) then
@@ -108,9 +108,9 @@ end
 local function handleBattleEnd(state)
     state.battleLog = {}
     if state.partyDied then
-        battleLog.addText('Party has been defeated')
+        battleLog.addText(state, 'Party has been defeated')
     elseif state.allEnemyDead then
-        battleLog.addText('All enemies has been defeated')
+        battleLog.addText(state, 'All enemies has been defeated')
     end
 end
 
@@ -119,10 +119,10 @@ local function doNextKill(state)
     table.remove(state.killQueue, 1)
     handleDeath(state, toKill)
     if not toKill.isPartyMember then
-        state.animation = animationCreator.new(toKill, 'enemyDied', state.actionSpeed)
+        state.animation = animationCreator.new(toKill, 'enemyDied', state.actionSpeed * 0.2)
     end
 
-    if (state.partyDied or state.allEnemyDead) and #state.effectQueue == 0 then
+    if (state.partyDied or state.allEnemyDead) then
         state.battleEnded = true
     end
     state.actionTimer = 0
@@ -137,12 +137,16 @@ function applyEffect(state, effect)
     effectData[effect.ref].apply(state, effect.user, effect.target, effect.value)
 
     if effect.target and effect.target.isPartyMember and effectData[effect.ref].partyAnimation then
-        local aniRef = effectData[effect.ref].partyAnimation
-        local animation = animationCreator.new(effect.target, aniRef, state.actionSpeed, effect.value)
+        local data = effectData[effect.ref].partyAnimation
+        local animation = animationCreator.new(
+            effect.target, data.ref, state.actionSpeed * data.speed, effect.value
+            )
         state.animation = animation
     elseif effect.target and not effect.target.isPartyMember and effectData[effect.ref].enemyAnimation then
-        local aniRef = effectData[effect.ref].enemyAnimation
-        local animation = animationCreator.new(effect.target, aniRef, state.actionSpeed, effect.value)
+        local data = effectData[effect.ref].enemyAnimation
+        local animation = animationCreator.new(
+            effect.target, data.ref, state.actionSpeed * data.speed, effect.value
+            )
         state.animation = animation
     end
 end
@@ -194,12 +198,16 @@ function executeAction(state, action, isFollowUp)
         end
 
         if not action.user.isPartyMember and toAct.enemyAnimation then
-            local aniRef = toAct.enemyAnimation
-            local animation = animationCreator.new(action.user, aniRef, state.actionSpeed)
+            local data = toAct.enemyAnimation
+            local animation = animationCreator.new(
+                action.user, data.ref, state.actionSpeed * data.speed
+                )
             state.animation = animation
         elseif action.user.isPartyMember and action.ref == 'counterAtk' then
-            local aniRef = toAct.partyAnimation
-            local animation = animationCreator.new(action.targets[1], aniDef, state.actionSpeed)
+            local data = toAct.partyAnimation
+            local animation = animationCreator.new(
+                action.targets[1], data.ref, state.actionSpeed * data.speed
+            )
             state.animation = animation
         end
 
@@ -357,9 +365,9 @@ local function doNextAction(state)
 end
 
 local function clearTemporaryStatus(state)
-    
+
     state.followUpQueue = {}
-    
+
     for _, group in ipairs({state.party, state.enemies}) do
         for _, character in ipairs(group) do
 
@@ -388,7 +396,7 @@ local function clearTemporaryStatus(state)
             if character.isCovered then
                 character.isCovered = nil
             end
-            
+
             if character.usingItem then
                 itemManager.manageItems(character.usingItem, 1)
                 character.usingItem = nil
@@ -410,7 +418,7 @@ end
 function battleLoop.run(state, dt)
     state.actionTimer = state.actionTimer + dt
     if state.actionTimer >= state.actionSpeed then
-        if state.battleEnded then
+        if state.battleEnded and #state.effectQueue == 0 then
             handleBattleEnd(state)
         elseif #state.killQueue > 0 then
             doNextKill(state)

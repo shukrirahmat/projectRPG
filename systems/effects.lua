@@ -2,6 +2,7 @@ local battleLog = require('states.battle.battleLog')
 local battleHandler = require('states.battle.battleHandler')
 local itemManager = require('systems.itemManager')
 local gameState = require('gameState')
+local effectCreator = require('entities.effectCreator')
 
 local effects = {}
 
@@ -25,7 +26,7 @@ function effects.dealDamage(state, user, target, value)
 
     for _, statusEf in ipairs({'SLEEP', 'CONFUSE'}) do
         if target.status[statusEf] then
-            local roll = math.random(1,4)
+            local roll = math.random(1,2)
             if roll == 1 then
                 local clearEffect = effectCreator.new('clearStatus', user, target, statusEf)
                 table.insert(state.effectQueue, clearEffect)
@@ -73,6 +74,20 @@ function effects.dealMPDamage(state, user, target, value)
     if target.currentMp <= 0 then
         target.currentMp = 0;
     end
+end
+
+function effects.poisonDamage(state, user, target, value)
+    local damage = value
+    target.currentHp = target.currentHp - damage;
+    battleLog.addText(state, ''..target.name..' loses '..damage..' HP to poison.');
+    if target.currentHp <= 0 then
+        table.insert(state.killQueue, target)
+    end
+end
+
+function effects.curseEffect(state, user, target)
+    battleLog.addText(state, ''..target.name..' died from the curse');
+    table.insert(state.killQueue, target)
 end
 
 function effects.stealItem(state, user, target, item)

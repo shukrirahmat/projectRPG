@@ -22,7 +22,7 @@ function fieldEncounter.generate(state)
                 encounterSet[enemyRef] = encounterSet[enemyRef] + 1
             end
             rollTimes = rollTimes + 1
-            moreRollChance = math.floor(moreRollChance * 0.8);
+            moreRollChance = math.floor(moreRollChance * 0.9);
         else
             moreRoll = false
         end

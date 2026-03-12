@@ -28,7 +28,7 @@ function battleHud.draw(state)
             if member.currentHp < 0 then
                 hpDrop = state.animation.value + member.currentHp
             end
-            hpBit = math.floor( hpDrop * (1 - progress)^2)
+            hpBit = math.floor( hpDrop * (1 - progress))
         end
 
         love.graphics.setColor(0, 0, 0)

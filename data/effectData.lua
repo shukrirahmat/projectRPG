@@ -71,13 +71,13 @@ effectData['clearStatus'] = {
 }
 
 effectData['poisonDamage'] = { 
-    apply = poisonDamage , 
+    apply = effects.poisonDamage , 
     partyAnimation = {ref ='partyDamaged', speed = 0.6},
     enemyAnimation = {ref ='enemyDamaged', speed = 1}
 }
 
 effectData['curseEffect'] = { 
-    apply = curseEffect,
+    apply = effects.curseEffect,
 }
 
 effectData['stealGold'] = { 

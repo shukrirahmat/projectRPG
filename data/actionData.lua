@@ -34,15 +34,15 @@ actionData['stunned'] = {
 }
 
 actionData['paralyzed'] = {
-    execute = paralyzed
+    execute = actions.paralyzed
 }
 
 actionData['confused'] = {
-    execute = confused
+    execute = actions.confused
 }
 
 actionData['sleeping'] = {
-    execute = sleeping
+    execute = actions.sleeping
 }
 
 actionData['flameI'] = {
@@ -570,7 +570,7 @@ actionData['sandstormI'] = {
     desc = 'Low chance to blind all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'BLIND',
     accuracy = 50
 }
@@ -582,7 +582,7 @@ actionData['sandstormII'] = {
     desc = 'High chance to blind all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'BLIND',
     accuracy = 80
 }
@@ -594,19 +594,19 @@ actionData['sealI'] = {
     desc = 'Low chance to seal abilities of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'SEAL',
     accuracy = 50
 }
 
 actionData['sealII'] = {
-    name = 'seal II', 
+    name = 'Seal II', 
     magic = true,
     cost = 5, 
     desc = 'High chance to seal abilities of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'SEAL',
     accuracy = 80
 }
@@ -618,7 +618,7 @@ actionData['tremorI'] = {
     desc = 'Low chance to stun of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'STUN',
     accuracy = 25
 }
@@ -630,7 +630,7 @@ actionData['tremorII'] = {
     desc = 'High chance to stun of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'STUN',
     accuracy = 50
 }
@@ -642,7 +642,7 @@ actionData['woundI'] = {
     desc = 'Low chance to leave all enemies wounded',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'WOUND',
     accuracy = 50
 }
@@ -654,7 +654,7 @@ actionData['woundII'] = {
     desc = 'High chance to leave all enemies wounded',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'WOUND',
     accuracy = 80
 }
@@ -666,7 +666,7 @@ actionData['toxinI'] = {
     desc = 'Chance to poison one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'POISON',
     accuracy = 80
 }
@@ -678,7 +678,7 @@ actionData['toxinII'] = {
     desc = 'Low chance to poison all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'POISON',
     accuracy = 50
 }
@@ -690,7 +690,7 @@ actionData['toxinIII'] = {
     desc = 'High chance to poison all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'POISON',
     accuracy = 80
 }
@@ -702,7 +702,7 @@ actionData['hexI'] = {
     desc = 'Chance to put a curse one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'CURSE',
     accuracy = 70
 }
@@ -714,7 +714,7 @@ actionData['hexII'] = {
     desc = 'Low chance to put a curse on all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'CURSE',
     accuracy = 40
 }
@@ -726,7 +726,7 @@ actionData['hexIII'] = {
     desc = 'High chance to put a curse on all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'CURSE',
     accuracy = 70
 }
@@ -738,7 +738,7 @@ actionData['paralyzeI'] = {
     desc = 'Chance to apply paralysis to one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'PARALYSIS',
     accuracy = 70
 }
@@ -750,7 +750,7 @@ actionData['paralyzeII'] = {
     desc = 'Low chance to apply paralysis to all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'PARALYSIS',
     accuracy = 40
 }
@@ -762,7 +762,7 @@ actionData['paralyzeIII'] = {
     desc = 'High chance to apply paralysis on all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'PARALYSIS',
     accuracy = 70
 }
@@ -774,7 +774,7 @@ actionData['slumberI'] = {
     desc = 'Chance to put one enemy to sleep',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'SLEEP',
     accuracy = 40
 }
@@ -786,7 +786,7 @@ actionData['slumberII'] = {
     desc = 'Low chance to put one all enemies to sleep',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'SLEEP',
     accuracy = 20
 }
@@ -798,7 +798,7 @@ actionData['slumberIII'] = {
     desc = 'High chance to put one all enemies to sleep',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'SLEEP',
     accuracy = 40
 }
@@ -810,7 +810,7 @@ actionData['confusionI'] = {
     desc = 'Chance to confuse one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'CONFUSE',
     accuracy = 40
 }
@@ -822,7 +822,7 @@ actionData['confusionII'] = {
     desc = 'Low chance to confuse all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'CONFUSE',
     accuracy = 20
 }
@@ -834,7 +834,7 @@ actionData['confusionIII'] = {
     desc = 'High chance to confuse all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'CONFUSE',
     accuracy = 40
 }

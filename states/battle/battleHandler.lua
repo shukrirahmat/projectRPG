@@ -1,5 +1,6 @@
 local actionData = require('data.actionData')
 local actionCreator = require('entities.actionCreator')
+local battleHelpers = require('utils.battleHelpers')
 
 local battleHandler = {}
 
@@ -8,7 +9,7 @@ local function setPartyAction(state)
         if not member.isDead then
             local action
             if member.status['STUN'] or member.status['SLEEP'] or member.status['CONFUSE'] then
-                local target = battleHandler.selectTargetRandomly(state.enemies)
+                local target = battleHelpers.selectTargetRandomly(state.enemies)
                 action = actionCreator.new('normalAtk', member, {target})
             elseif member.currentAction then
                 action = member.currentAction
@@ -23,7 +24,7 @@ local function setEnemyAction(state)
     for _, enemy in ipairs(state.enemies) do
         if not enemy.isDead then
             local action
-            local target = battleHandler.selectTargetRandomly(state.party)
+            local target = battleHelpers.selectTargetRandomly(state.party)
             if enemy.status['STUN'] or enemy.status['SLEEP'] or enemy.status['CONFUSE'] then
                 action = actionCreator.new('normalAtk', enemy, {target})
             else
@@ -34,6 +35,7 @@ local function setEnemyAction(state)
                 else
                     local skillRef = choices[rand]
                     local skill = actionData[skillRef]
+
                     local aoeTargets;
                     if skill.aim == 'allies' then 
                         aoeTargets = state.enemies
@@ -41,7 +43,9 @@ local function setEnemyAction(state)
                         aoeTargets = state.party
                     end
 
-                    if skill.scope == 'single' then
+                    if enemy.currentMp < skill.cost then
+                        action = actionCreator.new('normalAtk', enemy, {target})
+                    elseif skill.scope == 'single' then
                         action = actionCreator.new(skillRef, enemy, {target})
                     elseif skill.scope == 'all' then
                         action = actionCreator.new(skillRef, enemy, {unpack(aoeTargets)})
@@ -64,40 +68,12 @@ function battleHandler.sendActionIntoQueue(state, action)
     end
 end
 
-function battleHandler.selectTargetRandomly(group)
-    local availableTargets = {}
-
-    for _, target in ipairs(group) do
-        if not target.isDead then
-            table.insert(availableTargets, target)
-        end
-    end
-
-    local selectedTarget
-    local i = 1
-
-    while not selectedTarget do
-        if i == #availableTargets then
-            selectedTarget = availableTargets[i]
-        else
-            local chance = math.random(1, 10)
-            if chance < 5 then
-                i = i + 1
-            else
-                selectedTarget = availableTargets[i]
-            end
-        end
-    end
-
-    return selectedTarget
-end
-
 function battleHandler.reselectTargetWhenDead(state, selectedTarget)
     local target
     if selectedTarget.isPartyMember then
-        target = battleHandler.selectTargetRandomly(state.party)
+        target = battleHelpers.selectTargetRandomly(state.party)
     else
-        target = battleHandler.selectTargetRandomly(state.enemies)
+        target = battleHelpers.selectTargetRandomly(state.enemies)
     end
     return target
 end

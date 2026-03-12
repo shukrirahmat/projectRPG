@@ -23,9 +23,9 @@ local function statusApply(state, action)
     local user = action.user
 
     if user.status['POISON'] then
-        local rand = math.random(5, 20)
-        local ratio = rand * 0.01
-        local amount = math.floor(user.maxHp * ratio)
+        local baseAmount = math.floor(user.maxHp * 0.1)
+        local mod = math.floor(baseAmount*0.5)
+        local amount = baseAmount + math.random(-mod, mod)
         local poisonEffect = effectCreator.new('poisonDamage', user, user, amount)
         table.insert(state.effectQueue, poisonEffect)
     end

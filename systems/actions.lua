@@ -1,6 +1,7 @@
 local battleLog = require('states.battle.battleLog')
 local effectCreator = require('entities.effectCreator')
 local actionCreator = require('entities.actionCreator')
+local battleHelpers = require('utils.battleHelpers')
 
 local actions = {}
 
@@ -62,7 +63,7 @@ end
 local function checkMiss(user, target)
     if user.status['BLIND'] then
         local roll = math.random(1, 100)
-        if roll <= 60 then
+        if roll <= 70 then
             return true
         end
     end
@@ -361,9 +362,46 @@ function actions.desperation(self, state, user, targets)
     actions.normalAttack(self, state, user, targets, special)
 end
 
-function actions.stunned(self, state,user)
+function actions.stunned(self, state, user)
     local text = ''..user.name..' is stunned and could not move!';
     battleLog.addText(state, text)
+end
+
+function actions.paralyzed(self, state, user)
+    local text = "Paralysis disrupted "..user.name.."'s action!";
+    battleLog.addText(state, text)
+end
+
+function actions.sleeping(self, state, user)
+    local text = ''..user.name..' is sleeping soundly!';
+    battleLog.addText(state, text)
+end
+
+function actions.confused(self, state, user)
+
+    local textList = {
+        'is rolling on the ground laughing.',
+        'is dancing happily.',
+        'is crying for no apparent reason.',
+        'pretends to be dead.',
+        "picks at it's nose",
+    }
+
+    local target
+    local roll = math.random(1,5)
+    if roll == 1 then
+        local textRoll = math.random(1, #textList)
+        local text = ''..user.name..' '..textList[textRoll]..'';
+        battleLog.addText(state, text)
+    elseif roll == 2 then
+        target = battleHelpers.selectTargetRandomly(battleHelpers.getOppositeGroup(state, user))
+        actions.normalAttack(self, state, user, {target}, 
+            {cat = 'confused', text = 'attacks while being confused!'})
+    elseif roll >= 3 then
+        target = battleHelpers.selectTargetRandomly(battleHelpers.getOwnGroup(state, user))
+        actions.normalAttack(self, state, user, {target}, 
+            {cat = 'confused', text = 'attacks while being confused!'})
+    end
 end
 
 function actions.skillCanceled(self, state, user, targets, skill)

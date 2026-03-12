@@ -22,7 +22,10 @@ actionData['counterAtk'] = {
 actionData['defend'] = { 
     execute = actions.defend, 
     cost = 0, 
-    priority = 2
+    priority = 2,
+    scope = 'self',
+    aim = 'allies',
+    scope = 'self'
 }
 
 actionData['skillCanceled'] = { 
@@ -846,7 +849,7 @@ actionData['healI'] = {
     desc = 'Recover small amount of HP to one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castHeal,
+    execute = actions.castHeal,
     healAmount = 50
 }
 
@@ -857,8 +860,8 @@ actionData['healII'] = {
     desc = 'Recover medium amount of HP to one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castHeal,
-    healAmount = 100
+    execute = actions.castHeal,
+    healAmount = 120
 }
 
 actionData['healIII'] = {
@@ -868,7 +871,7 @@ actionData['healIII'] = {
     desc = 'Recover large amount of HP to one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castHeal,
+    execute = actions.castHeal,
     healAmount = 300
 }
 
@@ -879,7 +882,8 @@ actionData['fullHeal'] = {
     desc = 'Recover HP of one ally to full',
     aim = 'allies',
     scope = 'single',
-    execute = castHeal
+    execute = actions.castHeal,
+    healAmount = 999
 }
 
 actionData['healAllI'] = {
@@ -889,7 +893,7 @@ actionData['healAllI'] = {
     desc = 'Recover medium amount of HP to all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castHeal,
+    execute = actions.castHeal,
     healAmount = 80
 }
 
@@ -900,8 +904,8 @@ actionData['healAllII'] = {
     desc = 'Recover large amount of HP to all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castHeal,
-    healAmount = 250
+    execute = actions.castHeal,
+    healAmount = 200
 }
 
 actionData['neutralize'] = {
@@ -1095,7 +1099,7 @@ actionData['frail'] = {
     accuracy = 100
 }
 
-actionData['frail All'] = {
+actionData['frailAll'] = {
     name = 'Frail All', 
     magic = true,
     cost = 5, 

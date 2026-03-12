@@ -102,7 +102,7 @@ memberStats[3] = {
     str = 7,
     vit = 8,
     agi = 7,
-    skills = {'manaBurnI', 'manaBurnII', 'exorciseI', 'exorciseII'},
+    skills = {'healI', 'healII', 'healIII', 'fullHeal'},
     passiveSkills = {'dualWielder', 'windLord', 'seraph'},
     totalExp = 0
 }
@@ -116,7 +116,7 @@ memberStats[4] = {
     str = 20,
     vit = 8,
     agi = 6,
-    skills = {'lightningI', 'lightningII', 'lightningIII', 'deathI', 'deathII', 'deathIII'},
+    skills = {'healAllI', 'healAllII', 'deathI', 'deathII', 'deathIII'},
     passiveSkills = {'dualWielder', 'thunderLord', 'demonLord'},
     status = {},
     totalExp = 0

@@ -50,7 +50,7 @@ local function setEnemyAction(state)
                     elseif skill.scope == 'all' then
                         action = actionCreator.new(skillRef, enemy, {unpack(aoeTargets)})
                     elseif skill.scope == 'self' then
-                        action = actionCreator(skillRef, enemy, {enemy})
+                        action = actionCreator.new(skillRef, enemy, {enemy})
                     end
                 end
             end

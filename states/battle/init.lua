@@ -56,10 +56,6 @@ function battle.update(dt)
             battleAnimation.run(state, dt)
         end
     end
-
-    --[[if state.animation then
-        battleAnimation.run(state, dt)
-    end]]
 end
 
 function battle.draw()
@@ -77,6 +73,16 @@ function battle.draw()
 
     if #state.battleLog > 0 then
         battleLog.draw(state)
+    end
+    
+    --TEMPORARY
+    love.graphics.setFont(font_medium)
+    for i, enemy in ipairs(state.enemies) do
+        love.graphics.print(
+            ''..enemy.name..' '..enemy.currentHp..'/'..enemy.maxHp..'',
+            windowWidth * 0.75,
+            10 + (i - 1) * 25
+        )
     end
 end
 

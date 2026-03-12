@@ -8,16 +8,6 @@ local effects = {}
 
 function effects.dealDamage(state, user, target, value)
     local damage = value
-    if target.isDefending then
-        damage = math.max(math.floor(damage/2), 1)
-    end
-
-    if target.passives['lastStand'] then
-        if damage >= target.currentHp and target.currentHp > 1 then
-            damage = target.currentHp - 1;
-        end
-    end
-
     target.currentHp = target.currentHp - damage;
     battleLog.addText(state, ''..target.name..' takes '..damage..' damage.');
     if target.currentHp <= 0 then
@@ -58,11 +48,6 @@ end
 
 function effects.recovery(state, user, target, value)
     local amount = math.min(target.maxHp - target.currentHp, value)
-
-    if target.status['WOUND'] then
-        amount = math.floor(amount * 0.5)
-    end
-
     target.currentHp = math.min(target.maxHp, target.currentHp + amount)
     battleLog.addText(state,''..target.name..' recovers '..amount..' HP.');
 end

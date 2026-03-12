@@ -5,6 +5,32 @@ local battleHelpers = require('utils.battleHelpers')
 
 local actions = {}
 
+local function dealDamage(state, user, target, damage, ref)
+
+    if ref ~= 'immune' then
+        if target.isDefending then
+            damage = math.max(math.floor(damage/2), 1)
+        end
+
+        if target.passives['lastStand'] then
+            if damage >= target.currentHp and target.currentHp > 1 then
+                damage = target.currentHp - 1;
+            end
+        end
+    end
+
+    local damageEffect = effectCreator.new(ref, user, target, damage)        
+    table.insert(state.effectQueue, damageEffect)
+end
+
+local function recoverHP(state, user, target, amount)
+    if target.status['WOUND'] then
+        amount = math.floor(amount * 0.5)
+    end    
+    local recoverEffect = effectCreator.new('recover', user, target, amount)
+    table.insert(state.effectQueue, recoverEffect)
+end
+
 local function calculateAttackDamage(attacker, target)    
 
     local pierce = 1
@@ -307,11 +333,9 @@ function actions.normalAttack(self, state, user, targets, special)
                 battleLog.addText(state, text)
 
                 if resisted then
-                    local resistedEffect = effectCreator.new('resisted', user, target, damage)        
-                    table.insert(state.effectQueue, resistedEffect)
+                    dealDamage(state, user, target, damage, 'resisted')
                 else
-                    local damageEffect = effectCreator.new('damage', user, target, damage)        
-                    table.insert(state.effectQueue, damageEffect)
+                    dealDamage(state, user, target, damage, 'damage')
                 end
 
                 handleOnHitEffects(state, user, target)
@@ -454,9 +478,7 @@ function actions.castDamageMagic(self, state, user, targets, special)
 
             damage = passiveBoost(user, self.element, damage)
             damage = barrierCheck(target, damage)
-
-            local damageEffect = effectCreator.new(ref, user, target, damage)
-            table.insert(state.effectQueue, damageEffect)
+            dealDamage(state, user, target, damage, ref)
         end
     end
 end
@@ -487,9 +509,8 @@ function actions.useAura(self, state, user, targets)
             else
                 ref = 'damage'
             end
-
-            local damageEffect = effectCreator.new(ref, user, target, damage)
-            table.insert(state.effectQueue, damageEffect)
+            
+            dealDamage(state, user, target, damage, ref)
         end
     end
 end
@@ -526,14 +547,11 @@ function actions.castDrain(self, state, user, targets)
 
             damage = passiveBoost(user, self.element, damage)
             damage = barrierCheck(target, damage)
-
-            local damageEffect = effectCreator.new(ref, user, target, damage)
-            table.insert(state.effectQueue, damageEffect)
+            dealDamage(state, user, target, damage, ref)
 
             if ref ~= 'immune' then
                 local amount = math.min(damage, target.currentHp)
-                local recoverEffect = effectCreator.new('recover', user, user, amount)
-                table.insert(state.effectQueue, recoverEffect)
+                recoverHP(state, user, user, amount)
             end
         end
     end
@@ -583,8 +601,7 @@ function actions.castDrakebane(self, state, user, targets)
                 damage = 1
             end
 
-            local damageEffect = effectCreator.new('damage', user, target, damage)
-            table.insert(state.effectQueue, damageEffect)
+            dealDamage(state, user, target, damage, 'damage')
         end
     end
 end
@@ -662,6 +679,26 @@ function actions.castStatusEffect(self, state, user, targets)
                     table.insert(state.effectQueue, missEffect)
                 end
             end
+        end
+    end
+end
+
+function actions.castHeal(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local amount
+            if self.healAmount == 999 then
+                amount = target.maxHp - target.currentHp
+            else
+                amount = self.healAmount
+                local mod = math.floor(amount * 0.2)
+                amount = amount + math.random(-mod, mod)
+            end
+
+            recoverHP(state, user, target, amount)
         end
     end
 end

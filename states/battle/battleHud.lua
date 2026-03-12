@@ -23,9 +23,12 @@ function battleHud.draw(state)
         and state.animation.ref == 'partyDamaged' then
             local progress = state.animation.timer / state.animation.speed
             shiftY = 15 * math.sin(progress * math.pi)
-
-            local hpDrop = math.min(state.animation.value, member.currentHp)
-            hpBit = math.floor( hpDrop * (1 - progress))
+            
+            local hpDrop = state.animation.value
+            if member.currentHp < 0 then
+                hpDrop = state.animation.value + member.currentHp
+            end
+            hpBit = math.floor( hpDrop * (1 - progress)^2)
         end
 
         love.graphics.setColor(0, 0, 0)
@@ -64,7 +67,8 @@ function battleHud.draw(state)
 
         love.graphics.setFont(font_large)
         local hudStat = {'HP' , 'MP'}
-        local values = {member.currentHp + hpBit, member.currentMp}
+        local hpValue = math.max(0, member.currentHp + hpBit)
+        local values = {hpValue, member.currentMp}
         for i, stat in ipairs(hudStat) do
             love.graphics.printf(
                 stat, 

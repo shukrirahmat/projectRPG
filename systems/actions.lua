@@ -366,6 +366,18 @@ function actions.stunned(self, state,user)
     battleLog.addText(state, text)
 end
 
+function actions.skillCanceled(self, state, user, targets, skill)
+    local text
+    if skill.magic then
+        text = ''..user.name..' casts '..skill.name..'';
+    else
+        text = ''..user.name..' tried to used '..skill.name..'';
+    end
+    battleLog.addText(state, text)
+    local noSkilleffect = effectCreator.new('skillCanceled', user, targets)
+    table.insert(state.effectQueue, noSkilleffect)
+end
+
 function actions.defend(self, state, user)
     user.isDefending = true
     battleLog.addText(state, ''..user.name..' defends!')
@@ -407,6 +419,211 @@ function actions.castDamageMagic(self, state, user, targets, special)
 
             local damageEffect = effectCreator.new(ref, user, target, damage)
             table.insert(state.effectQueue, damageEffect)
+        end
+    end
+end
+
+function actions.useAura(self, state, user, targets)
+
+    local text = ''..user.name..' uses '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+
+            local baseDamage = math.floor(user.str * self.auraRatio)
+            local mod = math.floor(baseDamage * 0.2)
+            local damage = baseDamage + math.random(-mod, mod)
+
+            if user.isAuraCharged then
+                damage = math.floor(damage * 2.5)
+            end
+
+            local resistance = checkResistance(self.element, target)
+            local ref
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'resisted'
+                damage = math.floor(damage/2)
+            else
+                ref = 'damage'
+            end
+
+            local damageEffect = effectCreator.new(ref, user, target, damage)
+            table.insert(state.effectQueue, damageEffect)
+        end
+    end
+end
+
+function actions.auraCharge(self, state, user)
+    local text = ''..user.name..' charged itself';
+    battleLog.addText(state, text)
+    user.isAuraCharged = { counter = 2 }
+end
+
+function actions.castDrain(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+
+            local hpBonus = math.floor(user.maxHp * self.drainBonus)
+            local baseDamage = self.baseDamage + hpBonus
+            local mod = math.floor(baseDamage * 0.2)
+
+            local damage = baseDamage + math.random(-mod, mod)
+            local resistance = checkResistance(self.element, target)
+            local ref
+
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'resisted'
+                damage = math.floor(damage/2)
+            else
+                ref = 'damage'
+            end
+
+            damage = passiveBoost(user, self.element, damage)
+            damage = barrierCheck(target, damage)
+
+            local damageEffect = effectCreator.new(ref, user, target, damage)
+            table.insert(state.effectQueue, damageEffect)
+
+            if ref ~= 'immune' then
+                local amount = math.min(damage, target.currentHp)
+                local recoverEffect = effectCreator.new('recover', user, user, amount)
+                table.insert(state.effectQueue, recoverEffect)
+            end
+        end
+    end
+end
+
+function actions.castManaBurn(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+
+            local mod = math.floor(self.baseDamage * 0.2)
+            local burnAmount = self.baseDamage + math.random(-mod, mod)
+            local resistance = checkResistance(self.element, target)
+            local ref
+
+            if resistance == 2 then 
+                ref = 'immune'
+            elseif resistance == 1 then
+                ref = 'mpResisted'
+                burnAmount = math.floor(burnAmount/2)
+            else
+                ref = 'mpDamage'
+            end
+
+            damage = barrierCheck(target, burnAmount)
+
+            local damageEffect = effectCreator.new(ref, user, target, burnAmount)
+            table.insert(state.effectQueue, damageEffect)
+        end
+    end
+end
+
+function actions.castDrakebane(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do 
+        if not target.isDead then
+
+            local damage;
+            if target.specialType and target.specialType == 'DRAGON' then
+                local mod = math.floor(self.baseDamage * 0.2)
+                damage = self.baseDamage + math.random(-mod, mod)
+            else
+                damage = 1
+            end
+
+            local damageEffect = effectCreator.new('damage', user, target, damage)
+            table.insert(state.effectQueue, damageEffect)
+        end
+    end
+end
+
+function actions.castExorcise(self, state, user, targets)
+
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+
+            if target.specialType and target.specialType == 'UNDEAD' then
+                local chance = math.random(1, 100)
+                if chance <= self.accuracy then
+                    local killEffect = effectCreator.new('instakill', user, target)
+                    table.insert(state.effectQueue, killEffect)
+                else
+                    local missEffect = effectCreator.new('missed', user, target)
+                    table.insert(state.effectQueue, missEffect)
+                end
+            else
+                local immuneEffect = effectCreator.new('immune', user, target)
+                table.insert(state.effectQueue, immuneEffect)
+            end
+        end
+    end
+end
+
+function actions.castStatusEffect(self, state, user, targets)
+
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+
+            local accuracy = self.accuracy
+            local resistance = checkResistance(self.element, target)
+            if resistance == 2 then 
+                local immuneEffect = effectCreator.new('immune', user, target)
+                table.insert(state.effectQueue, immuneEffect)
+            else
+                if resistance == 1 then
+                    accuracy = math.floor(accuracy / 2)
+                end
+
+                local chance = math.random(1, 100)
+                if chance <= accuracy then
+                    if self.element == 'DEATH' then
+                        local killEffect = effectCreator.new('instakill', user, target)
+                        table.insert(state.effectQueue, killEffect)
+                    else
+                        local statusEffect;
+                        if self.element == 'STEEL'
+                        or self.element == 'FLEET'
+                        or self.element == 'FRAIL'
+                        or self.element == 'SNARE'
+                        or self.element == 'MIGHT' then
+                            statusEffect = effectCreator.new('addStatChange', 
+                                user, target, self.element)
+                        else
+                            statusEffect = effectCreator.new('addStatus', 
+                                user, target, self.element)
+                        end
+                        table.insert(state.effectQueue, statusEffect)
+                    end
+                else
+                    local missEffect
+                    if resistance == 1 then
+                        missEffect = effectCreator.new('missedResist', user, target)
+                    else
+                        missEffect = effectCreator.new('missed', user, target)
+                    end
+                    table.insert(state.effectQueue, missEffect)
+                end
+            end
         end
     end
 end

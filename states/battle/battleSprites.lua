@@ -36,7 +36,7 @@ end
 
 local function drawAttackAnimation(state, enemy, index)
     local progress = state.animation.timer / state.animation.speed
-    local moveIndex = math.floor(progress * 10)
+    local moveIndex = math.floor(progress * 7)
 
     local movement = enemyMovement[moveIndex]
 

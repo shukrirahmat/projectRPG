@@ -52,11 +52,14 @@ function battle.update(dt)
         battleLog.showEncounterMessage(state, dt)
     elseif state.battleRunning then
         battleLoop.run(state, dt)
+        if state.animation then
+            battleAnimation.run(state, dt)
+        end
     end
 
-    if state.animation then
+    --[[if state.animation then
         battleAnimation.run(state, dt)
-    end
+    end]]
 end
 
 function battle.draw()

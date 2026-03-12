@@ -20,7 +20,6 @@ function effects.dealDamage(state, user, target, value)
     target.currentHp = target.currentHp - damage;
     battleLog.addText(state, ''..target.name..' takes '..damage..' damage.');
     if target.currentHp <= 0 then
-        target.currentHp = 0;
         table.insert(state.killQueue, target)
     end
 
@@ -46,6 +45,34 @@ end
 
 function effects.missed(state, user, target)
     battleLog.addText(state, 'It missed '..target.name..'!');
+end
+
+function effects.skillCanceled(state, user, target)
+    if user.status['SEAL'] then
+        battleLog.addText(state, 'But '..user.name..' abilities were sealed!');
+    else
+        battleLog.addText(state, 'But '..user.name..' do not have enough mana!');
+    end
+end
+
+function effects.recovery(state, user, target, value)
+    local amount = math.min(target.maxHp - target.currentHp, value)
+
+    if target.status['WOUND'] then
+        amount = math.floor(amount * 0.5)
+    end
+
+    target.currentHp = math.min(target.maxHp, target.currentHp + amount)
+    battleLog.addText(state,''..target.name..' recovers '..amount..' HP.');
+end
+
+function effects.dealMPDamage(state, user, target, value)
+    local burnAmount = value
+    target.currentMp = target.currentMp - burnAmount;
+    battleLog.addText(state, ''..target.name..' loses '..burnAmount..' MP.');
+    if target.currentMp <= 0 then
+        target.currentMp = 0;
+    end
 end
 
 function effects.stealItem(state, user, target, item)
@@ -140,6 +167,78 @@ function effects.addStatus(state, user, target, status)
         target.status['BARRIER'] = {countdown = 5}
     else    
         target.status[status] = true;
+    end
+end
+
+function effects.addStatChange(state, user, target, status)
+
+    local text
+    if status == 'STEEL' then
+        text = {
+            ""..target.name.."'s defensive power is increased",
+            ""..target.name.."'s defensive power is increased further",
+            ""..target.name.."'s defensive power is at maximum"
+        }
+    elseif status == 'FRAIL' then
+        text = {
+            ""..target.name.."'s defensive power is reduced",
+            ""..target.name.."'s defensive power is reduced further",
+            ""..target.name.."'s defensive power cannot be reduced further"
+        }
+    elseif status == 'FLEET' then
+        text = {
+            ""..target.name.."'s agility is increased",
+            ""..target.name.."'s agility is increased further",
+            ""..target.name.."'s agility is at maximum"
+        }
+    elseif status == 'SNARE' then
+        text = {
+            ""..target.name.."'s agility is reduced",
+            ""..target.name.."'s agility is reduced further",
+            ""..target.name.."'s agility cannot be reduced further"
+        }
+    elseif status == 'MIGHT' then
+        text = {
+            ""..target.name.."'s attack power is increased",
+            ""..target.name.."'s attack power duration is reinforced"
+        }
+    end
+
+
+    if target.status[status] then
+        if status == 'MIGHT' then
+            target.status[status].countdown = 5
+            battleLog.addText(state, text[2])
+        else
+            if target.status[status].stack < 2 then
+                target.status[status].stack = target.status[status].stack + 1
+                target.status[status].countdown = 5
+                battleLog.addText(state, text[2])
+            elseif target.status[status].stack >= 2 then
+                target.status[status].countdown = 5
+                battleLog.addText(state, text[3])
+            end
+        end
+    else
+        target.status[status] = { stack = 1, countdown = 5}
+        battleLog.addText(state, text[1])
+    end
+
+    if status == 'STEEL' then
+        target.defBuff = math.floor(target.baseDef * 0.3 * target.status['STEEL'].stack)
+        battleHandler.updateStatChange(target, 'def')
+    elseif status == 'FRAIL' then
+        target.defDebuff = math.floor(target.baseDef * 0.3 * target.status['FRAIL'].stack)
+        battleHandler.updateStatChange(target, 'def')
+    elseif status == 'FLEET' then
+        target.agiBuff = math.floor(target.baseAgi * 0.3 * target.status['FLEET'].stack)
+        battleHandler.updateStatChange(target, 'agi')
+    elseif status == 'SNARE' then
+        target.agiDebuff = math.floor(target.baseAgi * 0.3 * target.status['SNARE'].stack)
+        battleHandler.updateStatChange(target, 'agi')
+    elseif status == 'MIGHT' then
+        target.atkBuff = math.floor(target.baseAtk * 0.8)
+        battleHandler.updateStatChange(target, 'atk')
     end
 end
 

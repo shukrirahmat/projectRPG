@@ -5,18 +5,18 @@ local actionData = {}
 actionData['normalAtk'] = { 
     execute = actions.normalAttack, 
     cost = 0,
-    enemyAnimation = {ref = 'enemyAtk', speed = 0.8}
+    enemyAnimation = {ref = 'enemyAtk', speed = 0.7}
 }
 actionData['secondAtk'] = {
     execute = actions.secondAttack, 
     cost = 0, 
-    enemyAnimation = {ref = 'enemyAtk', speed = 0.8}
+    enemyAnimation = {ref = 'enemyAtk', speed = 0.7}
 }
 
 actionData['counterAtk'] = {
     execute = actions.counterAttack, 
     cost = 0, 
-    partyAnimation = {ref = 'enemyAtk', speed = 0.8}
+    partyAnimation = {ref = 'enemyAtk', speed = 0.7}
 }
 
 actionData['defend'] = { 
@@ -26,7 +26,7 @@ actionData['defend'] = {
 }
 
 actionData['skillCanceled'] = { 
-    execute = skillCanceled
+    execute = actions.skillCanceled
 }
 
 actionData['stunned'] = {
@@ -370,7 +370,7 @@ actionData['auraI'] = {
     desc = 'Deals damage to all enemies using small percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = useAura,
+    execute = actions.useAura,
     element = 'AURA',
     auraRatio = 0.1
 }
@@ -382,7 +382,7 @@ actionData['auraII'] = {
     desc = 'Deals damage to all enemies using medium percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = useAura,
+    execute = actions.useAura,
     element = 'AURA',
     auraRatio = 0.2
 }
@@ -394,7 +394,7 @@ actionData['auraIII'] = {
     desc = 'Deals damage to all enemies using high percentage of strength',
     aim = 'enemies',
     scope = 'all',
-    execute = useAura,
+    execute = actions.useAura,
     element = 'AURA',
     auraRatio = 0.4
 }
@@ -406,7 +406,7 @@ actionData['auraBlastI'] = {
     desc = 'Deals damage to one enemies using high percentage of strength',
     aim = 'enemies',
     scope = 'single',
-    execute = useAura,
+    execute = actions.useAura,
     element = 'AURA',
     auraRatio = 0.8
 }
@@ -418,9 +418,9 @@ actionData['auraBlastII'] = {
     desc = 'Deals damage to one enemies using very high percentage of strength',
     aim = 'enemies',
     scope = 'single',
-    execute = useAura,
+    execute = actions.useAura,
     element = 'AURA',
-    auraRatio = 1.5
+    auraRatio = 1.2
 }
 
 actionData['auraCharge'] = {
@@ -430,7 +430,7 @@ actionData['auraCharge'] = {
     desc = 'Next aura magic will deal 2.5 more damage',
     aim = 'allies',
     scope = 'self',
-    execute = auraCharge,
+    execute = actions.auraCharge,
 }
 
 actionData['drainI'] = {
@@ -440,7 +440,7 @@ actionData['drainI'] = {
     desc = 'Deals damage to one enemy and recovers the same amount',
     aim = 'enemies',
     scope = 'single',
-    execute = castDrain,
+    execute = actions.castDrain,
     element = 'DRAIN',
     baseDamage = 20,
     drainBonus = 0.1
@@ -453,7 +453,7 @@ actionData['drainII'] = {
     desc = 'Deals large damage to one enemy and recovers the same amount',
     aim = 'enemies',
     scope = 'single',
-    execute = castDrain,
+    execute = actions.castDrain,
     element = 'DRAIN',
     baseDamage = 60,
     drainBonus = 0.25
@@ -466,7 +466,7 @@ actionData['manaBurnI'] = {
     desc = 'Reduce small amount of all enemies MP',
     aim = 'enemies',
     scope = 'all',
-    execute = castManaBurn,
+    execute = actions.castManaBurn,
     element = 'MANABURN',
     baseDamage = 10,
 }
@@ -478,7 +478,7 @@ actionData['manaBurnII'] = {
     desc = 'Reduce large amount of all enemies MP',
     aim = 'enemies',
     scope = 'all',
-    execute = castManaBurn,
+    execute = actions.castManaBurn,
     element = 'MANABURN',
     baseDamage = 25,
 }
@@ -490,7 +490,7 @@ actionData['drakebaneI'] = {
     desc = 'Deals large damage to dragons',
     aim = 'enemies',
     scope = 'single',
-    execute = castDracoBomb,
+    execute = actions.castDrakebane,
     baseDamage = 150
 }
 
@@ -501,7 +501,7 @@ actionData['drakebaneII'] = {
     desc = 'Deals very large damage to dragons',
     aim = 'enemies',
     scope = 'single',
-    execute = castDracoBomb,
+    execute = actions.castDrakebane,
     baseDamage = 300
 }
 
@@ -512,7 +512,7 @@ actionData['exorciseI'] = {
     desc = 'High chance to instantly kill an undead enemies',
     aim = 'enemies',
     scope = 'single',
-    execute = castExorcism,
+    execute = actions.castExorcise,
     accuracy = 80
 }
 
@@ -523,7 +523,7 @@ actionData['exorciseII'] = {
     desc = 'High chance to instantly kill all undead enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castExorcism,
+    execute = actions.castExorcise,
     accuracy = 80
 }
 
@@ -534,7 +534,7 @@ actionData['deathI'] = {
     desc = 'Chance to instantly kill one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'DEATH',
     accuracy = 30
 }
@@ -546,7 +546,7 @@ actionData['deathII'] = {
     desc = 'Low chance to instantly kill all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'DEATH',
     accuracy = 15
 }
@@ -558,7 +558,7 @@ actionData['deathIII'] = {
     desc = 'High chance to instantly kill all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'DEATH',
     accuracy = 30
 }

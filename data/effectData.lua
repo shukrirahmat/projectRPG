@@ -4,13 +4,13 @@ local effectData = {}
 
 effectData['damage'] = { 
     apply = effects.dealDamage , 
-    partyAnimation = {ref ='partyDamaged', speed = 0.75},
+    partyAnimation = {ref ='partyDamaged', speed = 0.6},
     enemyAnimation = {ref ='enemyDamaged', speed = 1}
 }
 
 effectData['resisted'] = { 
     apply = effects.dealDamage , 
-    partyAnimation = {ref ='partyDamaged', speed = 0.75},
+    partyAnimation = {ref ='partyDamaged', speed = 0.6},
     enemyAnimation = {ref ='enemyResisted', speed = 1}
 }
 effectData['immune'] = { 
@@ -19,11 +19,11 @@ effectData['immune'] = {
 }
 
 effectData['skillCanceled'] = { 
-    apply = skillCanceled , 
+    apply = effects.skillCanceled , 
 }
 
 effectData['recover'] = {
-    apply = recovery,
+    apply = effects.recovery,
 }
 
 effectData['mpRecover'] = {
@@ -35,12 +35,12 @@ effectData['revive'] = {
 }
 
 effectData['mpDamage'] = {
-    apply = dealMPDamage,
+    apply = effects.dealMPDamage,
     enemyAnimation = {ref ='enemyManaBurned', speed = 1}
 }
 
 effectData['mpResisted'] = {
-    apply = dealMPDamage,
+    apply = effects.dealMPDamage,
     enemyAnimation = {ref ='enemyManaBurned', speed = 1}
 }
 
@@ -54,7 +54,7 @@ effectData['missed'] = {
 }
 
 effectData['missedResist'] = { 
-    apply = missed , 
+    apply = effects.missed , 
     enemyAnimation = {ref ='enemyDodgedResist', speed = 1}
 }
 
@@ -63,7 +63,7 @@ effectData['addStatus'] = {
 }
 
 effectData['addStatChange'] = { 
-    apply = addStatChange,
+    apply = effects.addStatChange,
 }
 
 effectData['clearStatus'] = {
@@ -72,7 +72,7 @@ effectData['clearStatus'] = {
 
 effectData['poisonDamage'] = { 
     apply = poisonDamage , 
-    partyAnimation = {ref ='partyDamaged', speed = 0.75},
+    partyAnimation = {ref ='partyDamaged', speed = 0.6},
     enemyAnimation = {ref ='enemyDamaged', speed = 1}
 }
 

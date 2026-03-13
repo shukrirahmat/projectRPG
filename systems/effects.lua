@@ -29,6 +29,10 @@ function effects.noEffect(state, user, target)
     battleLog.addText(state,'It had no effect on '..target.name..'');
 end
 
+function effects.nothingHappens(state, user, target)
+    battleLog.addText(state,'But nothing happens!')
+end
+
 function effects.instakill(state, user, target)
     target.currentHp = 0;
     table.insert(state.killQueue, target)
@@ -71,7 +75,7 @@ function effects.poisonDamage(state, user, target, value)
 end
 
 function effects.curseEffect(state, user, target)
-    battleLog.addText(state, ''..target.name..' died from the curse');
+    battleLog.addText(state, ''..target.name..' died from the curse.');
     table.insert(state.killQueue, target)
 end
 
@@ -225,16 +229,16 @@ function effects.addStatChange(state, user, target, status)
     end
 
     if status == 'STEEL' then
-        target.defBuff = math.floor(target.baseDef * 0.3 * target.status['STEEL'].stack)
+        target.defBuff = math.floor(target.baseDef * 0.4 * target.status['STEEL'].stack)
         battleHandler.updateStatChange(target, 'def')
     elseif status == 'FRAIL' then
-        target.defDebuff = math.floor(target.baseDef * 0.3 * target.status['FRAIL'].stack)
+        target.defDebuff = math.floor(target.baseDef * 0.4 * target.status['FRAIL'].stack)
         battleHandler.updateStatChange(target, 'def')
     elseif status == 'FLEET' then
-        target.agiBuff = math.floor(target.baseAgi * 0.3 * target.status['FLEET'].stack)
+        target.agiBuff = math.floor(target.baseAgi * 0.4 * target.status['FLEET'].stack)
         battleHandler.updateStatChange(target, 'agi')
     elseif status == 'SNARE' then
-        target.agiDebuff = math.floor(target.baseAgi * 0.3 * target.status['SNARE'].stack)
+        target.agiDebuff = math.floor(target.baseAgi * 0.4 * target.status['SNARE'].stack)
         battleHandler.updateStatChange(target, 'agi')
     elseif status == 'MIGHT' then
         target.atkBuff = math.floor(target.baseAtk * 0.8)
@@ -245,25 +249,25 @@ end
 function effects.clearStatus(state, user, target, status)
     if status == 'BLIND' then
         target.status['BLIND'] = nil
-        battleLog.addText(state, "Sand has been cleared in "..target.name.."'s eyes")
+        battleLog.addText(state, "Sand has been cleared in "..target.name.."'s eyes.")
     elseif status == 'SEAL' then
         target.status['SEAL'] = nil
-        battleLog.addText(state, ""..target.name.." abilites is no longer sealed")
+        battleLog.addText(state, ""..target.name.." abilites is no longer sealed.")
     elseif status == 'STUN' then
         target.status['STUN'] = nil
-        battleLog.addText(state, ""..target.name.." is no longer stunned")
+        battleLog.addText(state, ""..target.name.." is no longer stunned.")
     elseif status == 'WOUND' then
         target.status['WOUND'] = nil
-        battleLog.addText(state, ""..target.name.."'s wound has been mended")
+        battleLog.addText(state, ""..target.name.."'s wound has been mended.")
     elseif status == 'PARALYSIS' then
         target.status['PARALYSIS'] = nil
-        battleLog.addText(state, ""..target.name.." is no longer paralyzed")
+        battleLog.addText(state, ""..target.name.." is no longer paralyzed.")
     elseif status == 'SLEEP' then
         target.status['SLEEP'] = nil
-        battleLog.addText(state, ""..target.name.." is woken from sleep")
+        battleLog.addText(state, ""..target.name.." is woken from sleep.")
     elseif status == 'CONFUSE' then
         target.status['CONFUSE'] = nil
-        battleLog.addText(state, ""..target.name.." is not confused anymore")
+        battleLog.addText(state, ""..target.name.." is not confused anymore.")
     elseif status == 'POISON' then
         target.status['POISON'] = nil
         for i, effect in ipairs(state.effectQueue) do
@@ -271,7 +275,7 @@ function effects.clearStatus(state, user, target, status)
                 table.remove(state.effectQueue, i)
             end
         end
-        battleLog.addText(state, ""..target.name.." recovered from poisoned")
+        battleLog.addText(state, ""..target.name.." recovered from poisoned.")
     elseif status == 'CURSE' then
         target.status['CURSE'] = nil
         for i, effect in ipairs(state.effectQueue) do
@@ -279,17 +283,17 @@ function effects.clearStatus(state, user, target, status)
                 table.remove(state.effectQueue, i)
             end
         end
-        battleLog.addText(state, "The curse have been lifted from "..target.name.."")
+        battleLog.addText(state, "The curse have been lifted from "..target.name..".")
     elseif status == 'STEEL' then
         target.status['STEEL'] = nil
         target.defBuff = nil
         battleHandler.updateStatChange(target, 'def')
-        battleLog.addText(state, ""..target.name.."'s defense increase has expired")
+        battleLog.addText(state, ""..target.name.."'s defense increase has expired.")
     elseif status == 'FLEET' then
         target.status['FLEET'] = nil
         target.agiBuff = nil
         battleHandler.updateStatChange(target, 'agi')
-        battleLog.addText(state, ""..target.name.."'s agility increase has expired")
+        battleLog.addText(state, ""..target.name.."'s agility increase has expired.")
     elseif status == 'FRAIL' then
         target.status['FRAIL'] = nil
         target.defDebuff = nil
@@ -299,15 +303,15 @@ function effects.clearStatus(state, user, target, status)
         target.status['SNARE'] = nil
         target.agiDebuff = nil
         utils.updateStatChange(target, 'agi')
-        battleLog.addText(state, ""..target.name.."'s agility reduction has expired")
+        battleLog.addText(state, ""..target.name.."'s agility reduction has expired.")
     elseif status == 'MIGHT' then
         target.status['MIGHT'] = nil
         target.atkBuff = nil
         battleHandler.updateStatChange(target, 'atk')
-        battleLog.addText(state, ""..target.name.."'s attack power increase has expired")
+        battleLog.addText(state, ""..target.name.."'s attack power increase has expired.")
     elseif status == 'BARRIER' then
         target.status['BARRIER'] = nil
-        battleLog.addText(state, ""..target.name.."'s barrier has disappeared")
+        battleLog.addText(state, ""..target.name.."'s barrier has disappeared.")
     end
 end
 

@@ -779,7 +779,7 @@ actionData['slumberI'] = {
     scope = 'single',
     execute = actions.castStatusEffect,
     element = 'SLEEP',
-    accuracy = 40
+    accuracy = 50
 }
 
 actionData['slumberII'] = {
@@ -791,7 +791,7 @@ actionData['slumberII'] = {
     scope = 'all',
     execute = actions.castStatusEffect,
     element = 'SLEEP',
-    accuracy = 20
+    accuracy = 25
 }
 
 actionData['slumberIII'] = {
@@ -803,7 +803,7 @@ actionData['slumberIII'] = {
     scope = 'all',
     execute = actions.castStatusEffect,
     element = 'SLEEP',
-    accuracy = 40
+    accuracy = 50
 }
 
 actionData['confusionI'] = {
@@ -815,7 +815,7 @@ actionData['confusionI'] = {
     scope = 'single',
     execute = actions.castStatusEffect,
     element = 'CONFUSE',
-    accuracy = 40
+    accuracy = 50
 }
 
 actionData['confusionII'] = {
@@ -827,7 +827,7 @@ actionData['confusionII'] = {
     scope = 'all',
     execute = actions.castStatusEffect,
     element = 'CONFUSE',
-    accuracy = 20
+    accuracy = 25
 }
 
 actionData['confusionIII'] = {
@@ -839,7 +839,7 @@ actionData['confusionIII'] = {
     scope = 'all',
     execute = actions.castStatusEffect,
     element = 'CONFUSE',
-    accuracy = 40
+    accuracy = 50
 }
 
 actionData['healI'] = {
@@ -915,7 +915,7 @@ actionData['neutralize'] = {
     desc = 'Remove poison from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'POISON'
 }
 
@@ -926,7 +926,7 @@ actionData['neutralizeAll'] = {
     desc = 'Remove poison from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'POISON'
 }
 
@@ -937,7 +937,7 @@ actionData['purify'] = {
     desc = 'Remove curse from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'CURSE'
 }
 
@@ -948,7 +948,7 @@ actionData['purifyAll'] = {
     desc = 'Remove curse from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'CURSE'
 }
 
@@ -959,7 +959,7 @@ actionData['mendAll'] = {
     desc = 'Remove wound from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'WOUND'
 }
 
@@ -970,7 +970,7 @@ actionData['dispel'] = {
     desc = 'Remove paralysis from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'PARALYSIS'
 }
 
@@ -981,7 +981,7 @@ actionData['dispelAll'] = {
     desc = 'Remove paralysis from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'PARALYSIS'
 }
 
@@ -992,7 +992,7 @@ actionData['alarm'] = {
     desc = 'Awake one ally from sleep',
     aim = 'allies',
     scope = 'single',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'SLEEP'
 }
 
@@ -1003,7 +1003,7 @@ actionData['alarmAll'] = {
     desc = 'Awake all allies from sleep',
     aim = 'allies',
     scope = 'all',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'SLEEP'
 }
 
@@ -1014,7 +1014,7 @@ actionData['sooth'] = {
     desc = 'Remove confusion from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'CONFUSE'
 }
 
@@ -1025,7 +1025,7 @@ actionData['soothAll'] = {
     desc = 'Remove confusion from all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castRemoveStatus,
+    execute = actions.castRemoveStatus,
     status = 'CONFUSE'
 }
 
@@ -1036,7 +1036,7 @@ actionData['cleanse'] = {
     desc = 'Remove poison, curse, wound, paralysis, sleep and confusion from one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castRemoveStatus,
+    execute = actions.castCleanse,
 }
 
 actionData['steel'] = {
@@ -1046,7 +1046,7 @@ actionData['steel'] = {
     desc = 'Increase the defensive power of one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'STEEL',
     accuracy = 100
 }
@@ -1058,7 +1058,7 @@ actionData['steelAll'] = {
     desc = 'Increase the defensive power of all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'STEEL',
     accuracy = 100
 }
@@ -1070,7 +1070,7 @@ actionData['fleet'] = {
     desc = 'Increase the agility of one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'FLEET',
     accuracy = 100
 }
@@ -1082,7 +1082,7 @@ actionData['fleetAll'] = {
     desc = 'Increase the agility of all allies',
     aim = 'allies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'FLEET',
     accuracy = 100
 }
@@ -1094,7 +1094,7 @@ actionData['frail'] = {
     desc = 'Reduce the defensive power of one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'FRAIL',
     accuracy = 100
 }
@@ -1106,7 +1106,7 @@ actionData['frailAll'] = {
     desc = 'Reduce the defensive power of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'FRAIL',
     accuracy = 100
 }
@@ -1118,7 +1118,7 @@ actionData['snare'] = {
     desc = 'Reduce the agility of one enemy',
     aim = 'enemies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'SNARE',
     accuracy = 100
 }
@@ -1130,7 +1130,7 @@ actionData['snareAll'] = {
     desc = 'Reduce the agility of all enemies',
     aim = 'enemies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'SNARE',
     accuracy = 100
 }
@@ -1164,7 +1164,7 @@ actionData['barrier'] = {
     desc = 'Summons barrier that reduce magic damage toward allies',
     aim = 'allies',
     scope = 'all',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'BARRIER',
     accuracy = 100
 }
@@ -1176,7 +1176,7 @@ actionData['might'] = {
     desc = 'Increases the attack power of one ally',
     aim = 'allies',
     scope = 'single',
-    execute = castStatusEffect,
+    execute = actions.castStatusEffect,
     element = 'MIGHT',
     accuracy = 100
 }

@@ -18,6 +18,10 @@ effectData['immune'] = {
     enemyAnimation = {ref ='enemyImmune', speed = 1}
 }
 
+effectData['nothing'] = { 
+    apply = effects.nothingHappens
+}
+
 effectData['skillCanceled'] = { 
     apply = effects.skillCanceled , 
 }

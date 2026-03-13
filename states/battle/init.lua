@@ -79,9 +79,18 @@ function battle.draw()
     love.graphics.setFont(font_medium)
     for i, enemy in ipairs(state.enemies) do
         love.graphics.print(
-            ''..enemy.name..' '..enemy.currentHp..'/'..enemy.maxHp..'',
-            windowWidth * 0.75,
+            ''..enemy.name..' '..enemy.currentHp..'/'..enemy.maxHp..' '..enemy.atk..' '..enemy.def..' '..enemy.agi..'',
+            windowWidth * 0.6,
             10 + (i - 1) * 25
+        )
+    end
+    
+    love.graphics.setFont(font_medium)
+    for i, char in ipairs(state.party) do
+        love.graphics.print(
+            ''..char.name..' '..char.atk..' '..char.def..' '..char.agi..'',
+            windowWidth * 0.6,
+            100 + (i - 1) * 25
         )
     end
 end

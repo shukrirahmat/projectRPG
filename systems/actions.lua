@@ -436,7 +436,7 @@ function actions.skillCanceled(self, state, user, targets, skill)
         text = ''..user.name..' tried to used '..skill.name..'';
     end
     battleLog.addText(state, text)
-    local noSkilleffect = effectCreator.new('skillCanceled', user, targets)
+    local noSkilleffect = effectCreator.new('skillCanceled', user, user)
     table.insert(state.effectQueue, noSkilleffect)
 end
 
@@ -635,6 +635,12 @@ function actions.castStatusEffect(self, state, user, targets)
 
     local text = ''..user.name..' casts '..self.name..'';
     battleLog.addText(state, text)
+    
+    if self.scope == 'single' and self.aim == 'allies' and targets[1].isDead then
+        local effect = effectCreator.new('nothing', user, user)
+        table.insert(state.effectQueue, effect)
+        return
+    end
 
     for i, target in ipairs(targets) do
         if not target.isDead then
@@ -686,7 +692,13 @@ end
 function actions.castHeal(self, state, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     battleLog.addText(state, text)
-
+    
+    if self.scope == 'single' and targets[1].isDead then
+        local effect = effectCreator.new('nothing', user, user)
+        table.insert(state.effectQueue, effect)
+        return
+    end
+    
     for i, target in ipairs(targets) do
         if not target.isDead then
             local amount
@@ -699,6 +711,51 @@ function actions.castHeal(self, state, user, targets)
             end
 
             recoverHP(state, user, target, amount)
+        end
+    end
+end
+
+function actions.castRemoveStatus(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+    
+    if self.scope == 'single' and targets[1].isDead then
+        local effect = effectCreator.new('nothing', user, user)
+        table.insert(state.effectQueue, effect)
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            if target.status[self.status] then
+                local clear = effectCreator.new('clearStatus', user, target, self.status)
+                table.insert(state.effectQueue, clear)
+            else
+                local immuneEffect = effectCreator.new('immune', user, target)
+                table.insert(state.effectQueue, immuneEffect)
+            end
+        end
+    end
+end
+
+function actions.castCleanse(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+    
+    if self.scope == 'single' and targets[1].isDead then
+        local effect = effectCreator.new('nothing', user, user)
+        table.insert(state.effectQueue, effect)
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            for i, status in ipairs({'POISON', 'CURSE', 'WOUND', 'SLEEP', 'CONFUSE', 'PARALYSIS'}) do
+                if target.status[status] then
+                    local clear = effectCreator.new('clearStatus', user, target, status)
+                    table.insert(state.effectQueue, clear)
+                end
+            end
         end
     end
 end

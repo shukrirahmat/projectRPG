@@ -81,8 +81,7 @@ local function skillMenuProceed(state)
 end
 
 local function itemMenuProceed(state)
-    local item = state.itemMenu.list[state.itemMenu.position].item
-    local ref = item.ref
+    local ref = state.itemMenu.list[state.itemMenu.position].item
     local data = actionData[ref]
     local user = state.party[state.characterMenu.charID]
     local userID = state.characterMenu.charID
@@ -97,8 +96,8 @@ local function itemMenuProceed(state)
         if #state.targetMenu.list == 1 then
             local target = group[1]
             user.currentAction = actionCreator.new(ref, user, {target})
-            user.usingItem = item
-            itemManager.manageItems(item, -1)
+            user.usingItem = ref
+            itemManager.manageItems(ref, -1)
             nextCharacter(state, userID)
         elseif #state.targetMenu.list > 1 then
             state.currentMenu = state.targetMenu
@@ -110,13 +109,13 @@ local function itemMenuProceed(state)
         battleMenu.menuReset(state.targetMenu)
     elseif data.scope == 'all' then
         user.currentAction = actionCreator.new(ref, user, {unpack(group)})
-        user.usingItem = item
-        itemManager.manageItems(item, -1)
+        user.usingItem = ref
+        itemManager.manageItems(ref, -1)
         nextCharacter(state, userID)
     elseif data.scope == 'self' then
         user.currentAction = actionCreator.new(ref, user, {user})
-        user.usingItem = item
-        itemManager.manageItems(item, -1)
+        user.usingItem = ref
+        itemManager.manageItems(ref, -1)
         nextCharacter(userID)
     end
 end
@@ -130,11 +129,10 @@ local function targetMenuProceed(state)
         local ref = state.skillMenu.list[state.skillMenu.position]
         user.currentAction = actionCreator.new(ref, user, {target})
     elseif state.targetMenu.prevMenu == state.itemMenu then
-        local item = state.itemMenu.list[state.itemMenu.position].item
-        local ref = item.ref
+        local ref = state.itemMenu.list[state.itemMenu.position].item
         user.currentAction = actionCreator.new(ref, user, {target})
-        user.usingItem = item
-        itemManager.manageItems(item, -1)
+        user.usingItem = ref
+        itemManager.manageItems(ref, -1)
     end
     local userID = state.characterMenu.charID
     nextCharacter(state, userID)

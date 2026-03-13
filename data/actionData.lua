@@ -875,8 +875,8 @@ actionData['healIII'] = {
     healAmount = 300
 }
 
-actionData['fullHeal'] = {
-    name = 'Full Heal', 
+actionData['HealX'] = {
+    name = 'Heal X', 
     magic = true,
     cost = 10, 
     desc = 'Recover HP of one ally to full',
@@ -886,8 +886,8 @@ actionData['fullHeal'] = {
     healAmount = 999
 }
 
-actionData['healAllI'] = {
-    name = 'Heal All I', 
+actionData['allHealI'] = {
+    name = 'All Heal I', 
     magic = true,
     cost = 12, 
     desc = 'Recover medium amount of HP to all allies',
@@ -897,8 +897,8 @@ actionData['healAllI'] = {
     healAmount = 80
 }
 
-actionData['healAllII'] = {
-    name = 'Heal All II', 
+actionData['allHealII'] = {
+    name = 'All Heal II', 
     magic = true,
     cost = 20, 
     desc = 'Recover large amount of HP to all allies',
@@ -908,8 +908,8 @@ actionData['healAllII'] = {
     healAmount = 200
 }
 
-actionData['neutralize'] = {
-    name = 'Neutralize', 
+actionData['neutralizeI'] = {
+    name = 'Neutralize I', 
     magic = true,
     cost = 2, 
     desc = 'Remove poison from one ally',
@@ -919,8 +919,8 @@ actionData['neutralize'] = {
     status = 'POISON'
 }
 
-actionData['neutralizeAll'] = {
-    name = 'Neutralize All', 
+actionData['neutralizeII'] = {
+    name = 'Neutralize II', 
     magic = true,
     cost = 5, 
     desc = 'Remove poison from all allies',
@@ -930,8 +930,8 @@ actionData['neutralizeAll'] = {
     status = 'POISON'
 }
 
-actionData['purify'] = {
-    name = 'Purify', 
+actionData['purifyI'] = {
+    name = 'Purify I', 
     magic = true,
     cost = 3, 
     desc = 'Remove curse from one ally',
@@ -941,8 +941,8 @@ actionData['purify'] = {
     status = 'CURSE'
 }
 
-actionData['purifyAll'] = {
-    name = 'Purify All', 
+actionData['purifyII'] = {
+    name = 'Purify II', 
     magic = true,
     cost = 6, 
     desc = 'Remove curse from all allies',
@@ -952,8 +952,8 @@ actionData['purifyAll'] = {
     status = 'CURSE'
 }
 
-actionData['mendAll'] = {
-    name = 'Mend All', 
+actionData['mend'] = {
+    name = 'Mend', 
     magic = true,
     cost = 8, 
     desc = 'Remove wound from all allies',
@@ -963,8 +963,8 @@ actionData['mendAll'] = {
     status = 'WOUND'
 }
 
-actionData['dispel'] = {
-    name = 'Dispel', 
+actionData['dispelI'] = {
+    name = 'Dispel I', 
     magic = true,
     cost = 3, 
     desc = 'Remove paralysis from one ally',
@@ -974,8 +974,8 @@ actionData['dispel'] = {
     status = 'PARALYSIS'
 }
 
-actionData['dispelAll'] = {
-    name = 'Dispel All', 
+actionData['dispelII'] = {
+    name = 'Dispel II', 
     magic = true,
     cost = 6, 
     desc = 'Remove paralysis from all allies',
@@ -985,8 +985,8 @@ actionData['dispelAll'] = {
     status = 'PARALYSIS'
 }
 
-actionData['alarm'] = {
-    name = 'Alarm', 
+actionData['alarmI'] = {
+    name = 'Alarm I', 
     magic = true,
     cost = 3, 
     desc = 'Awake one ally from sleep',
@@ -996,8 +996,8 @@ actionData['alarm'] = {
     status = 'SLEEP'
 }
 
-actionData['alarmAll'] = {
-    name = 'Alarm All', 
+actionData['alarmII'] = {
+    name = 'Alarm II', 
     magic = true,
     cost = 6, 
     desc = 'Awake all allies from sleep',
@@ -1007,8 +1007,8 @@ actionData['alarmAll'] = {
     status = 'SLEEP'
 }
 
-actionData['sooth'] = {
-    name = 'Sooth', 
+actionData['soothI'] = {
+    name = 'Sooth I', 
     magic = true,
     cost = 3, 
     desc = 'Remove confusion from one ally',
@@ -1018,8 +1018,8 @@ actionData['sooth'] = {
     status = 'CONFUSE'
 }
 
-actionData['soothAll'] = {
-    name = 'Sooth All', 
+actionData['soothII'] = {
+    name = 'Sooth II', 
     magic = true,
     cost = 6, 
     desc = 'Remove confusion from all allies',
@@ -1039,8 +1039,8 @@ actionData['cleanse'] = {
     execute = actions.castCleanse,
 }
 
-actionData['steel'] = {
-    name = 'Steel', 
+actionData['steelI'] = {
+    name = 'Steel I', 
     magic = true,
     cost = 2, 
     desc = 'Increase the defensive power of one ally',
@@ -1051,8 +1051,8 @@ actionData['steel'] = {
     accuracy = 100
 }
 
-actionData['steelAll'] = {
-    name = 'Steel All', 
+actionData['steelII'] = {
+    name = 'Steel II', 
     magic = true,
     cost = 5, 
     desc = 'Increase the defensive power of all allies',
@@ -1063,8 +1063,8 @@ actionData['steelAll'] = {
     accuracy = 100
 }
 
-actionData['fleet'] = {
-    name = 'Fleet', 
+actionData['fleetI'] = {
+    name = 'Fleet I', 
     magic = true,
     cost = 2, 
     desc = 'Increase the agility of one ally',
@@ -1075,8 +1075,8 @@ actionData['fleet'] = {
     accuracy = 100
 }
 
-actionData['fleetAll'] = {
-    name = 'Fleet All', 
+actionData['fleetII'] = {
+    name = 'Fleet II', 
     magic = true,
     cost = 5, 
     desc = 'Increase the agility of all allies',
@@ -1087,8 +1087,8 @@ actionData['fleetAll'] = {
     accuracy = 100
 }
 
-actionData['frail'] = {
-    name = 'Frail', 
+actionData['frailI'] = {
+    name = 'Frail I', 
     magic = true,
     cost = 2, 
     desc = 'Reduce the defensive power of one enemy',
@@ -1099,8 +1099,8 @@ actionData['frail'] = {
     accuracy = 100
 }
 
-actionData['frailAll'] = {
-    name = 'Frail All', 
+actionData['frailI'] = {
+    name = 'Frail II', 
     magic = true,
     cost = 5, 
     desc = 'Reduce the defensive power of all enemies',
@@ -1111,8 +1111,8 @@ actionData['frailAll'] = {
     accuracy = 100
 }
 
-actionData['snare'] = {
-    name = 'Snare', 
+actionData['snareI'] = {
+    name = 'Snare I', 
     magic = true,
     cost = 2, 
     desc = 'Reduce the agility of one enemy',
@@ -1123,8 +1123,8 @@ actionData['snare'] = {
     accuracy = 100
 }
 
-actionData['snareAll'] = {
-    name = 'Snare All', 
+actionData['snareII'] = {
+    name = 'Snare II', 
     magic = true,
     cost = 5, 
     desc = 'Reduce the agility of all enemies',
@@ -1135,8 +1135,8 @@ actionData['snareAll'] = {
     accuracy = 100
 }
 
-actionData['revive'] = {
-    name = 'Revive', 
+actionData['reviveI'] = {
+    name = 'Revive I', 
     magic = true,
     cost = 25, 
     desc = 'Revive one dead ally with some HP',
@@ -1146,8 +1146,8 @@ actionData['revive'] = {
     reviveRatio = 25
 }
 
-actionData['fullRevive'] = {
-    name = 'Full Revive', 
+actionData['reviveII'] = {
+    name = 'Revive II', 
     magic = true,
     cost = 50, 
     desc = 'Revive one dead ally with full HP',

@@ -1,5 +1,4 @@
 local sprites = require('graphics.sprites')
-local itemCreator = require('entities.itemCreator')
 
 local enemyData = {}
 

@@ -78,15 +78,15 @@ function battlerCreator.new(member)
         end
     end
 
-    if battler.passives['keenEye+'] then
+    if battler.passives['keenEyeII'] then
         battler.critRate = 8
-    elseif battler.passives['keenEye'] then
+    elseif battler.passives['keenEyeI'] then
         battler.critRate = 16
     end
 
-    if battler.passives['evasion+'] then
+    if battler.passives['evasionII'] then
         battler.dodgeRate = 2
-    elseif battler.passives['evasion'] then
+    elseif battler.passives['evasionI'] then
         battler.dodgeRate = 4
     end
 
@@ -103,13 +103,13 @@ function battlerCreator.new(member)
     end
 
     if battler.passives['lightWielder'] 
-    and battler.weapon and battler.weapon.weaponWeight == 'LIGHTWEIGHT' then
+    and battler.weapon and battler.weapon.class == 'LIGHTWEIGHT' then
         battler.baseAtk = battler.baseAtk * 1.5
         battler.atk = battler.baseAtk
     end
 
     if battler.passives['heavyWielder'] 
-    and battler.weapon and battler.weapon.weaponWeight == 'HEAVYWEIGHT' then
+    and battler.weapon and battler.weapon.class == 'HEAVYWEIGHT' then
         battler.baseAtk = battler.baseAtk * 1.5
         battler.atk = battler.baseAtk
     end

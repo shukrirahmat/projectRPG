@@ -190,7 +190,7 @@ local function handleElementalCombo(state, user, target)
             followUp = actionCreator.new('flameI', user, {target})
         end
         followUp.combo = true
-        table.insert(state.followUpQueue, followUp)
+        table.insert(state.followUpQueue, 1, followUp)
     end
 
     if user.passives['iceCombo'] then
@@ -202,7 +202,7 @@ local function handleElementalCombo(state, user, target)
             followUp = actionCreator.new('frostI', user, {target})
         end
         followUp.combo = true
-        table.insert(state.followUpQueue, followUp)
+        table.insert(state.followUpQueue, 1, followUp)
     end
 
     if user.passives['windCombo'] then
@@ -214,7 +214,7 @@ local function handleElementalCombo(state, user, target)
         end
         local followUp = actionCreator.new('typhoonI', user, targets)
         followUp.combo = true
-        table.insert(state.followUpQueue, followUp)
+        table.insert(state.followUpQueue, 1, followUp)
     end
 
     if user.passives['boltCombo'] then
@@ -226,12 +226,21 @@ local function handleElementalCombo(state, user, target)
         end
         local followUp = actionCreator.new('lightningI', user, targets)
         followUp.combo = true
-        table.insert(state.followUpQueue, followUp)
+        table.insert(state.followUpQueue, 1, followUp)
     end
 end
 
 local function handleCounterAttack(state, user, target)
-    if target.passives['counter'] and not user.passives['ranged'] then
+    if not user.passives['ranged'] then
+        local countering = false
+        if target.passives['counterII'] then
+            countering = true
+        elseif target.passives['counterI'] then
+            countering = math.random(1, 2) == 1
+        end
+        
+        if not countering then return end
+        
         if not target.status['SLEEP'] and not target.status['CONFUSE'] and not target.status['STUN'] then
             local counterAction = actionCreator.new('counterAtk', user, {target})
             table.insert(state.followUpQueue, counterAction)

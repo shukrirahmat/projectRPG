@@ -4,32 +4,32 @@ local enemyData = {}
 
 enemyData['slime'] = {
     lvl = 1,
-    hp = 9999,
-    mp = 50,
-    str = 100,
-    vit = 80,
-    agi = 150,
+    hp = 8,
+    mp = 0,
+    str = 5,
+    vit = 1,
+    agi = 2,
     sprite = sprites['slime'],
     spriteHeight = monsterSpriteDimension/2.2,
-    gold = 50,
-    exp = 150,
-    skills = {'hexIII'},
+    gold = 5,
+    exp = 8,
+    skills = {},
     passiveSkills = {}
     
 }
 
 enemyData['goblin'] = {
     lvl = 2,
-    hp = 9999,
-    mp = 50,
-    str = 100,
-    vit = 80,
-    agi = 150,
+    hp = 15,
+    mp = 0,
+    str = 8,
+    vit = 2,
+    agi = 4,
     sprite = sprites['goblin'],
     spriteHeight = monsterSpriteDimension/4,
-    gold = 80,
-    exp = 150,
-    skills = {'paralyzeIII'},
+    gold = 12,
+    exp = 16,
+    skills = {},
     passiveSkills = {}
     
 }

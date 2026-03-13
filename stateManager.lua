@@ -25,10 +25,7 @@ function stateManager.initiate()
     gameState.playerPos = overworld.startPos
     gameState.playerSprite = sprites.player_front[1]
     gameState.partyGold = 0
-    gameState.partyItems = {
-        ['holyWater'] = 10 ,
-        ['wigglyGrass'] = 10
-        }
+    gameState.partyItems = {}
 end
 
 function stateManager.switch(state, var)

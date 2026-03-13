@@ -8,10 +8,10 @@ passiveData['thunderLord'] = {name = 'Thunder Lord', desc = 'Bolt magic deals mo
 passiveData['seraph'] = {name = 'Seraph', desc = 'Light magic deals more damage'}
 passiveData['demonLord'] = {name = 'Demon Lord', desc = 'Void magic deals more damage'}
 passiveData['leechLord'] = {name = 'Leech Lord', desc = 'Drain magic deals more damage'}
-passiveData['keenEye'] = {name = 'Keen Eye', desc = 'increase critical hit chance'}
-passiveData['keenEye+'] = {name = 'Keen Eye +', desc = 'increate ciritical hit chance further'}
-passiveData['evasion'] = {name = 'Evasion', desc = 'chance to dodge normal attack'}
-passiveData['evasion+'] = {name = 'Evasion +', desc = 'higher chance to dodge normal attack'}
+passiveData['keenEyeI'] = {name = 'Keen Eye I', desc = 'increase critical hit chance'}
+passiveData['keenEyeII '] = {name = 'Keen Eye II', desc = 'increate ciritical hit chance further'}
+passiveData['evasionI'] = {name = 'Evasion I', desc = 'chance to dodge normal attack'}
+passiveData['evasionII'] = {name = 'Evasion II', desc = 'higher chance to dodge normal attack'}
 passiveData['arcaneProtection'] = {name = 'Arcane Protection', 
     desc = 'gain strong resistance to fire, ice, wind and bolt'}
 passiveData['celestialProtection'] = {name = 'Celestial Protection', 
@@ -22,7 +22,8 @@ passiveData['basher'] = {name = 'Basher', desc = 'chance to stun the enemy on no
 passiveData['executor'] = {name = 'Executor', desc = 'chance to instantly kill enemy on normal attack'}
 passiveData['pincher'] = {name = 'Pincher', desc = 'Normal attack steals money from the enemy'}
 passiveData['snatcher'] = {name = 'Snatcher', desc = 'Normal attack may steal item from the enemy'}
-passiveData['counter'] = {name = 'Counter', desc = 'Counters when hit with normal attack'}
+passiveData['counterI'] = {name = 'Counter', desc = '50% chance to counters when hit with normal attack'}
+passiveData['counterII'] = {name = 'Counter', desc = 'Always counters when hit with normal attack'}
 passiveData['ranged'] = {name = 'Ranged', desc = 'Normal attack will not be countered'}
 passiveData['piercer'] = {name = 'Piercer', desc = 'Attack goes through armored enemies defense'}
 passiveData['lightWielder'] = {name = 'Light Wielder', desc = 'Gain atk power when equipped with sword, dagger or fists'}

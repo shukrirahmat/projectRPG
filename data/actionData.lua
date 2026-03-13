@@ -93,7 +93,7 @@ actionData['flameX'] = {
     scope = 'single',
     execute = actions.castDamageMagic,
     element = 'FIRE',
-    baseDamage = 250
+    baseDamage = 240
 }
 
 actionData['frostI'] = {

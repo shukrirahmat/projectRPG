@@ -6,6 +6,7 @@ local battleLog = require('states.battle.battleLog')
 local battleInput = require('states.battle.battleInput')
 local battleLoop = require('states.battle.battleLoop')
 local battleAnimation = require('states.battle.battleAnimation')
+local testingDetails = require('states.battle.testingDetails')
 local transitions = require('systems.transitions')
 
 local battle = {}
@@ -76,23 +77,7 @@ function battle.draw()
     end
     
     --TEMPORARY
-    love.graphics.setFont(font_medium)
-    for i, enemy in ipairs(state.enemies) do
-        love.graphics.print(
-            ''..enemy.name..' '..enemy.currentHp..'/'..enemy.maxHp..' '..enemy.atk..' '..enemy.def..' '..enemy.agi..'',
-            windowWidth * 0.6,
-            10 + (i - 1) * 25
-        )
-    end
-    
-    love.graphics.setFont(font_medium)
-    for i, char in ipairs(state.party) do
-        love.graphics.print(
-            ''..char.name..' '..char.atk..' '..char.def..' '..char.agi..'',
-            windowWidth * 0.6,
-            100 + (i - 1) * 25
-        )
-    end
+    testingDetails.draw(state)
 end
 
 function battle.keypressed(key)

@@ -111,7 +111,7 @@ local function handleBattleEnd(state)
     if state.partyDied then
         battleLog.addText(state, 'Party has been defeated')
     elseif state.allEnemyDead then
-        battleLog.addText(state, 'All enemies has been defeated')
+        battleLog.addText(state, 'Battle won!')
     end
 end
 

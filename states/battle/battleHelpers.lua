@@ -44,4 +44,32 @@ function battleHelpers.selectTargetRandomly(group)
     return selectedTarget
 end
 
+function battleHelpers.removeAction(state, user)
+    for i = #state.actionQueue, 1, -1 do
+        if state.actionQueue[i].user == user then
+            table.remove(state.actionQueue, i)
+        end
+    end
+    for i = #state.priorityQueue, 1, -1 do
+        if state.priorityQueue[i].user == user then
+            table.remove(state.priorityQueue, i)
+        end
+    end
+end
+
+function battleHelpers.updateStatChange(target, stat)
+    if stat == 'def' then
+        local buff = target.defBuff or 0
+        local debuff = target.defDebuff or 0
+        target.def = target.baseDef + buff - debuff
+    elseif stat == 'agi' then
+        local buff = target.agiBuff or 0
+        local debuff = target.agiDebuff or 0
+        target.agi = target.baseAgi + buff - debuff
+    elseif stat == 'atk' then
+        local buff = target.atkBuff or 0
+        target.atk = target.baseAtk + buff
+    end
+end
+
 return battleHelpers

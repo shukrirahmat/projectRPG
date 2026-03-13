@@ -1,6 +1,6 @@
 local actionData = require('data.actionData')
 local actionCreator = require('entities.actionCreator')
-local battleHelpers = require('utils.battleHelpers')
+local battleHelpers = require('states.battle.battleHelpers')
 
 local battleHandler = {}
 
@@ -78,39 +78,11 @@ function battleHandler.reselectTargetWhenDead(state, selectedTarget)
     return target
 end
 
-function battleHandler.updateStatChange(target, stat)
-    if stat == 'def' then
-        local buff = target.defBuff or 0
-        local debuff = target.defDebuff or 0
-        target.def = target.baseDef + buff - debuff
-    elseif stat == 'agi' then
-        local buff = target.agiBuff or 0
-        local debuff = target.agiDebuff or 0
-        target.agi = target.baseAgi + buff - debuff
-    elseif stat == 'atk' then
-        local buff = target.atkBuff or 0
-        target.atk = target.baseAtk + buff
-    end
-end
-
 function battleHandler.checkCannotMove(target)
     if target.status['STUN'] then return true end
     if target.status['SLEEP'] then return true end
     if target.status['CONFUSE'] then return true end
     return false
-end
-
-function battleHandler.removeAction(state, user)
-    for i = #state.actionQueue, 1, -1 do
-        if state.actionQueue[i].user == user then
-            table.remove(state.actionQueue, i)
-        end
-    end
-    for i = #state.priorityQueue, 1, -1 do
-        if state.priorityQueue[i].user == user then
-            table.remove(state.priorityQueue, i)
-        end
-    end
 end
 
 function battleHandler.getAbleCharID(state, currentID, where)

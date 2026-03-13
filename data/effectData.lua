@@ -31,11 +31,11 @@ effectData['recover'] = {
 }
 
 effectData['mpRecover'] = {
-    apply = mpRecovery,
+    apply = effects.mpRecovery,
 }
 
 effectData['revive'] = {
-    apply = revival,
+    apply = effects.revive,
 }
 
 effectData['mpDamage'] = {

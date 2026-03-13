@@ -1,5 +1,6 @@
 local battleLog = require('states.battle.battleLog')
 local battleHandler = require('states.battle.battleHandler')
+local battleHelpers = require('states.battle.battleHelpers')
 local animationCreator = require('entities.animationCreator')
 local effectCreator = require('entities.effectCreator')
 local actionCreator = require('entities.actionCreator')
@@ -96,7 +97,7 @@ local function handleDeath(state, target)
     target.isDead = true
     target.status = {}
     battleLog.addText(state, ''..target.name..' defeated.')
-    battleHandler.removeAction(state, target)
+    battleHelpers.removeAction(state, target)
 
     if target.isPartyMember and checkIfAllDead(state.party) then
         state.partyDied = true

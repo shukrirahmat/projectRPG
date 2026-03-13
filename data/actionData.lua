@@ -1142,7 +1142,7 @@ actionData['revive'] = {
     desc = 'Revive one dead ally with some HP',
     aim = 'allies',
     scope = 'dead',
-    execute = castRevive,
+    execute = actions.castRevive,
     reviveRatio = 25
 }
 
@@ -1153,7 +1153,7 @@ actionData['fullRevive'] = {
     desc = 'Revive one dead ally with full HP',
     aim = 'allies',
     scope = 'dead',
-    execute = castRevive,
+    execute = actions.castRevive,
     reviveRatio = 100
 }
 
@@ -1188,8 +1188,7 @@ actionData['guardian'] = {
     desc = 'Protects all allies from any attacks for one turn while also disabling them',
     aim = 'allies',
     scope = 'all',
-    execute = castGuardian,
-    element = 'GUARDIAN',
+    execute = actions.castGuardian,
     accuracy = 100,
     priority = 3
 }
@@ -1205,17 +1204,6 @@ actionData['quickStrike'] = {
     priority = 1
 }
 
-actionData['hiddenBlades'] = {
-    name = 'Hidden Blades', 
-    tech = true,
-    cost = 0, 
-    desc = 'Quickly throw sharp daggers to all enemies that also might stun them',
-    aim = 'enemies',
-    scope = 'all',
-    execute = hiddenBlades,
-    priority = 1
-}
-
 actionData['cover'] = {
     name = 'Cover', 
     tech = true,
@@ -1223,7 +1211,7 @@ actionData['cover'] = {
     desc = 'Cover an ally from any attack',
     aim = 'allies',
     scope = 'single',
-    execute = cover,
+    execute = actions.cover,
     priority = 2
 }
 
@@ -1310,7 +1298,7 @@ actionData['ram'] = {
     desc = 'Charges into an enemy, and take some recoil damage',
     aim = 'enemies',
     scope = 'single',
-    execute = ram,
+    execute = actions.ram,
 }
 
 actionData['desperation'] = {
@@ -1327,10 +1315,10 @@ actionData['undo'] = {
     name = 'Undo', 
     tech = true,
     cost = 0, 
-    desc = 'Remove defense and agility debuffs from self',
+    desc = 'Remove Frail and Snare debuffs from self',
     aim = 'allies',
     scope = 'self',
-    execute = undo,
+    execute = actions.undo,
 }
 
 actionData['healingTonic'] = {
@@ -1339,8 +1327,18 @@ actionData['healingTonic'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useTonic,
+    execute = actions.useTonic,
     healAmount = 40
+}
+
+actionData['potentTonic'] = {
+    name = 'Potent Tonic', 
+    item = true,
+    cost = 0, 
+    aim = 'allies',
+    scope = 'single',
+    execute = actions.useTonic,
+    healAmount = 80
 }
 
 actionData['prismTonic'] = {
@@ -1349,7 +1347,8 @@ actionData['prismTonic'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useTonic,
+    execute = actions.useTonic,
+    healAmount = 999
 }
 
 actionData['goldenNectar'] = {
@@ -1358,7 +1357,7 @@ actionData['goldenNectar'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useNectar,
+    execute = actions.useNectar,
     mpHealAmount = 40
 }
 
@@ -1368,7 +1367,7 @@ actionData['antidote'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useStatusRecovery,
+    execute = actions.useStatusRecovery,
     status = 'POISON'
 }
 
@@ -1378,7 +1377,7 @@ actionData['holyWater'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useStatusRecovery,
+    execute = actions.useStatusRecovery,
     status = 'CURSE'
 }
 
@@ -1388,7 +1387,7 @@ actionData['bandage'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useStatusRecovery,
+    execute = actions.useStatusRecovery,
     status = 'WOUND'
 }
 
@@ -1398,7 +1397,7 @@ actionData['wigglyGrass'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useStatusRecovery,
+    execute = actions.useStatusRecovery,
     status = 'PARALYSIS'
 }
 
@@ -1408,7 +1407,7 @@ actionData['fairyBell'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useStatusRecovery,
+    execute = actions.useStatusRecovery,
     status = 'SLEEP'
 }
 
@@ -1418,7 +1417,7 @@ actionData['clarityBrew'] = {
     cost = 0, 
     aim = 'allies',
     scope = 'single',
-    execute = useStatusRecovery,
+    execute = actions.useStatusRecovery,
     status = 'CONFUSE'
 }
 

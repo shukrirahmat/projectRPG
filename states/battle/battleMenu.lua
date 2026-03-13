@@ -118,7 +118,7 @@ function drawTargetMenu(state, refX, refY, refWidth)
         love.graphics.setFont(font_medium)
         love.graphics.setColor(1, 1, 1)
         love.graphics.printf(
-            'There is no available target',
+            'There is no available target.',
             targetX + 10,
             targetY,
             targetWidth - 20,
@@ -404,7 +404,7 @@ end
 function battleMenu.updateItemMenu(state, user)
     local itemList = {}
     for k, v in pairs(gameState.partyItems) do
-        table.insert(itemList, {item= v.item, amount = v.amount })
+        table.insert(itemList, {item = v.item, amount = v.amount })
     end
 
     table.sort(itemList, function(a, b) return a.item.id < b.item.id end)

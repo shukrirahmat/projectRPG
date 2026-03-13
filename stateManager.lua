@@ -1,5 +1,6 @@
 local gameState = require('gameState')
 local memberCreator = require('entities.memberCreator')
+local itemCreator = require('entities.itemCreator')
 local overworld = require('maps.overworld')
 local sprites = require('graphics.sprites')
 
@@ -25,7 +26,10 @@ function stateManager.initiate()
     gameState.playerPos = overworld.startPos
     gameState.playerSprite = sprites.player_front[1]
     gameState.partyGold = 0
-    gameState.partyItems = {}
+    gameState.partyItems = {
+        ['holyWater'] = {item = itemCreator.new('holyWater'), amount = 10 },
+        ['wigglyGrass'] = {item = itemCreator.new('wigglyGrass'), amount = 10 }
+        }
 end
 
 function stateManager.switch(state, var)

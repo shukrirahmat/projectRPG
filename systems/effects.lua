@@ -1,5 +1,5 @@
 local battleLog = require('states.battle.battleLog')
-local battleHandler = require('states.battle.battleHandler')
+local battleHelpers = require('states.battle.battleHelpers')
 local itemManager = require('systems.itemManager')
 local gameState = require('gameState')
 local effectCreator = require('entities.effectCreator')
@@ -54,6 +54,19 @@ function effects.recovery(state, user, target, value)
     local amount = math.min(target.maxHp - target.currentHp, value)
     target.currentHp = math.min(target.maxHp, target.currentHp + amount)
     battleLog.addText(state,''..target.name..' recovers '..amount..' HP.');
+end
+
+function effects.mpRecovery(state, user, target, value)
+    local amount = math.min(target.maxMp - target.currentMp, value)
+    target.currentMp = math.min(target.maxMp, target.currentMp + amount)
+    battleLog.addText(state, ''..target.name..' recovers '..amount..' MP.');
+end
+
+function effects.revive(state, user, target, value)
+    target.isDead = false
+    target.currentHp = value
+
+    battleLog.addText(state,''..target.name..' has been revived');
 end
 
 function effects.dealMPDamage(state, user, target, value)
@@ -230,19 +243,19 @@ function effects.addStatChange(state, user, target, status)
 
     if status == 'STEEL' then
         target.defBuff = math.floor(target.baseDef * 0.4 * target.status['STEEL'].stack)
-        battleHandler.updateStatChange(target, 'def')
+        battleHelpers.updateStatChange(target, 'def')
     elseif status == 'FRAIL' then
         target.defDebuff = math.floor(target.baseDef * 0.4 * target.status['FRAIL'].stack)
-        battleHandler.updateStatChange(target, 'def')
+        battleHelpers.updateStatChange(target, 'def')
     elseif status == 'FLEET' then
         target.agiBuff = math.floor(target.baseAgi * 0.4 * target.status['FLEET'].stack)
-        battleHandler.updateStatChange(target, 'agi')
+        battleHelpers.updateStatChange(target, 'agi')
     elseif status == 'SNARE' then
         target.agiDebuff = math.floor(target.baseAgi * 0.4 * target.status['SNARE'].stack)
-        battleHandler.updateStatChange(target, 'agi')
+        battleHelpers.updateStatChange(target, 'agi')
     elseif status == 'MIGHT' then
         target.atkBuff = math.floor(target.baseAtk * 0.8)
-        battleHandler.updateStatChange(target, 'atk')
+        battleHelpers.updateStatChange(target, 'atk')
     end
 end
 
@@ -287,27 +300,27 @@ function effects.clearStatus(state, user, target, status)
     elseif status == 'STEEL' then
         target.status['STEEL'] = nil
         target.defBuff = nil
-        battleHandler.updateStatChange(target, 'def')
+        battleHelpers.updateStatChange(target, 'def')
         battleLog.addText(state, ""..target.name.."'s defense increase has expired.")
     elseif status == 'FLEET' then
         target.status['FLEET'] = nil
         target.agiBuff = nil
-        battleHandler.updateStatChange(target, 'agi')
+        battleHelpers.updateStatChange(target, 'agi')
         battleLog.addText(state, ""..target.name.."'s agility increase has expired.")
     elseif status == 'FRAIL' then
         target.status['FRAIL'] = nil
         target.defDebuff = nil
-        battleHandler.updateStatChange(target, 'def')
+        battleHelpers.updateStatChange(target, 'def')
         battleLog.addText(state, ""..target.name.."'s defense reduction has expired")
     elseif status == 'SNARE' then
         target.status['SNARE'] = nil
         target.agiDebuff = nil
-        utils.updateStatChange(target, 'agi')
+        battleHelpers.updateStatChange(target, 'agi')
         battleLog.addText(state, ""..target.name.."'s agility reduction has expired.")
     elseif status == 'MIGHT' then
         target.status['MIGHT'] = nil
         target.atkBuff = nil
-        battleHandler.updateStatChange(target, 'atk')
+        battleHelpers.updateStatChange(target, 'atk')
         battleLog.addText(state, ""..target.name.."'s attack power increase has expired.")
     elseif status == 'BARRIER' then
         target.status['BARRIER'] = nil

@@ -1,7 +1,7 @@
 local battleLog = require('states.battle.battleLog')
 local effectCreator = require('entities.effectCreator')
 local actionCreator = require('entities.actionCreator')
-local battleHelpers = require('utils.battleHelpers')
+local battleHelpers = require('states.battle.battleHelpers')
 
 local actions = {}
 
@@ -509,7 +509,7 @@ function actions.useAura(self, state, user, targets)
             else
                 ref = 'damage'
             end
-            
+
             dealDamage(state, user, target, damage, ref)
         end
     end
@@ -635,7 +635,7 @@ function actions.castStatusEffect(self, state, user, targets)
 
     local text = ''..user.name..' casts '..self.name..'';
     battleLog.addText(state, text)
-    
+
     if self.scope == 'single' and self.aim == 'allies' and targets[1].isDead then
         local effect = effectCreator.new('nothing', user, user)
         table.insert(state.effectQueue, effect)
@@ -692,13 +692,13 @@ end
 function actions.castHeal(self, state, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     battleLog.addText(state, text)
-    
+
     if self.scope == 'single' and targets[1].isDead then
         local effect = effectCreator.new('nothing', user, user)
         table.insert(state.effectQueue, effect)
         return
     end
-    
+
     for i, target in ipairs(targets) do
         if not target.isDead then
             local amount
@@ -718,7 +718,7 @@ end
 function actions.castRemoveStatus(self, state, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     battleLog.addText(state, text)
-    
+
     if self.scope == 'single' and targets[1].isDead then
         local effect = effectCreator.new('nothing', user, user)
         table.insert(state.effectQueue, effect)
@@ -741,7 +741,7 @@ end
 function actions.castCleanse(self, state, user, targets)
     local text = ''..user.name..' casts '..self.name..'';
     battleLog.addText(state, text)
-    
+
     if self.scope == 'single' and targets[1].isDead then
         local effect = effectCreator.new('nothing', user, user)
         table.insert(state.effectQueue, effect)
@@ -755,6 +755,153 @@ function actions.castCleanse(self, state, user, targets)
                     local clear = effectCreator.new('clearStatus', user, target, status)
                     table.insert(state.effectQueue, clear)
                 end
+            end
+        end
+    end
+end
+
+function actions.castRevive(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then 
+            local immuneEffect = effectCreator.new('immune', user, target)
+            table.insert(state.effectQueue, immuneEffect)
+        else
+            local percentage = 100
+            if self.reviveRatio < 100 then
+                percentage = math.random(1, self.reviveRatio)
+            end
+
+            local amount = math.floor(target.maxHp * percentage * 0.01)
+            local reviveEffect = effectCreator.new('revive', user, target, amount)
+            table.insert(state.effectQueue, reviveEffect)
+        end
+    end
+end
+
+function actions.castGuardian(self, state, user, targets)
+    local text = ''..user.name..' casts '..self.name..'';
+    battleLog.addText(state, text)
+
+    if user.isPartyMember then
+        for i, member in ipairs(state.party) do
+            member.isInvincible = true
+            battleHelpers.removeAction(state, member)
+        end
+    elseif not user.isPartyMember then
+        for i, enemy in ipairs(state.enemies) do
+            enemy.isInvincible = true
+            battleHelpers.removeAction(state, enemy)
+        end
+    end
+end
+
+function actions.cover(self, state, user, targets)
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            if target == user then
+                battleLog.addText(state,''..user.name..' covers itself from attacks!')
+            else
+                target.isCovered = { coveredBy = user }
+                battleLog.addText(state,''..user.name..' covers '..target.name..' from attacks!')
+            end
+        end
+    end
+end
+
+function actions.ram(self, state, user, targets)
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            battleLog.addText(state,''..user.name..' rams into '..target.name..'!')
+            local baseDamage = math.floor(user.currentHp*0.6) - math.floor(target.def/3)
+            local mod = math.floor(baseDamage*0.2)
+            local damage = math.max(1, baseDamage + math.random(-mod, mod))
+            dealDamage(state, user, target, damage, 'damage')
+
+            local ownDamage = math.floor(user.currentHp*0.2)
+            local ownMod = math.floor(ownDamage*0.2)
+            local recoil = math.max(1, ownDamage + math.random(-ownMod, ownMod))
+            dealDamage(state, user, user, recoil, 'damage')
+        end
+    end
+end
+
+function actions.undo(self, state, user, target)
+    local text = ''..user.name..' undo debuffs on itself';
+    battleLog.addText(state, text)
+    user.status['FRAIL'] = nil
+    user.defDebuff = nil
+    battleHelpers.updateStatChange(user, 'def')
+    user.status['SNARE'] = nil
+    user.agiDebuff = nil
+    battleHelpers.updateStatChange(user, 'agi')
+end
+
+function actions.useTonic(self, state, user, targets)
+    local text = ''..user.name..' used '..self.name..'';
+    battleLog.addText(state, text)
+    
+    if self.scope == 'single' and targets[1].isDead then
+        local effect = effectCreator.new('nothing', user, user)
+        table.insert(state.effectQueue, effect)
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local amount
+            if self.healAmount == 999 then
+                amount = target.maxHp - target.currentHp
+            else
+                amount = self.healAmount
+            end
+
+            recoverHP(state, user, target, amount)
+        end
+    end
+end
+
+function actions.useNectar(self, state, user, targets)
+    local text = ''..user.name..' used '..self.name..'';
+    battleLog.addText(state, text)
+    
+    if self.scope == 'single' and targets[1].isDead then
+        local effect = effectCreator.new('nothing', user, user)
+        table.insert(state.effectQueue, effect)
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            local amount
+            amount = self.mpHealAmount
+
+            local recoverEffect = effectCreator.new('mpRecover', user, target, amount)
+            table.insert(state.effectQueue, recoverEffect)
+        end
+    end
+end
+
+function actions.useStatusRecovery(self, state, user, targets)
+    local text = ''..user.name..' used '..self.name..'';
+    battleLog.addText(state, text)
+    
+    if self.scope == 'single' and targets[1].isDead then
+        local effect = effectCreator.new('nothing', user, user)
+        table.insert(state.effectQueue, effect)
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if not target.isDead then
+            if target.status[self.status] then
+                local clear = effectCreator.new('clearStatus', user, target, self.status)
+                table.insert(state.effectQueue, clear)
+            else
+                local immuneEffect = effectCreator.new('immune', user, target)
+                table.insert(state.effectQueue, immuneEffect)
             end
         end
     end

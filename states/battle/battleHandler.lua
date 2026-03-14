@@ -1,6 +1,7 @@
 local actionData = require('data.actionData')
 local actionCreator = require('entities.actionCreator')
 local battleHelpers = require('states.battle.battleHelpers')
+local gameState = require('gameState')
 
 local battleHandler = {}
 
@@ -129,5 +130,22 @@ function battleHandler.runBattle(state)
     state.battleRunning = true
     state.actionTimer = state.actionSpeed - 0.5
 end
+
+function battleHandler.exitBattle(state, dt)
+    state.actionTimer = state.actionTimer + dt
+    if state.actionTimer >= state.actionSpeed * 2 then
+        for i, member in ipairs(state.party) do
+            gameState.party[i].isDead = member.isDead;
+            gameState.party[i].currentHp = member.currentHp
+            gameState.party[i].currentMp = member.currentMp
+            gameState.party[i].status['POISON'] = member.status['POISON']
+            gameState.party[i].status['CURSE'] = member.status['CURSE']
+            gameState.party[i].status['WOUND'] = member.status['WOUND']
+            gameState.party[i].status['PARALYSIS'] = member.status['PARALYSIS']
+        end
+        state.manager.switch('reward')
+    end
+end
+
 
 return battleHandler

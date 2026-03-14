@@ -1,6 +1,8 @@
 local testingDetails = {}
 
 function testingDetails.draw(state)
+    
+    love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(font_small)
     for i, enemy in ipairs(state.enemies) do
         love.graphics.printf(

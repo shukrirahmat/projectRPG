@@ -8,7 +8,8 @@ local stateManager = {}
 stateManager.states = 
 {
     field = require('states.field'),
-    battle = require('states.battle')
+    battle = require('states.battle'),
+    reward = require('states.reward')
 }
 
 function stateManager.initiate()

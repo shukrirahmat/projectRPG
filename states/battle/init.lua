@@ -5,6 +5,7 @@ local battleMenu = require('states.battle.battleMenu')
 local battleLog = require('states.battle.battleLog')
 local battleInput = require('states.battle.battleInput')
 local battleLoop = require('states.battle.battleLoop')
+local battleHandler = require('states.battle.battleHandler')
 local battleAnimation = require('states.battle.battleAnimation')
 local testingDetails = require('states.battle.testingDetails')
 local transitions = require('systems.transitions')
@@ -41,6 +42,7 @@ function battle.load(stateManager, var)
     state.encounterMessage = {'Enemies encountered!'}
     state.transition = { cat = 'fadeIn', timer = 0, max = 0.5 }
     state.fadesIn = true;
+    state.exitBattle = false;
 end
 
 function battle.update(dt)
@@ -51,6 +53,8 @@ function battle.update(dt)
 
     if state.encounterMessage then
         battleLog.showEncounterMessage(state, dt)
+    elseif state.exitBattle then
+        battleHandler.exitBattle(state, dt)
     elseif state.battleRunning then
         battleLoop.run(state, dt)
         if state.animation then

@@ -33,7 +33,7 @@ function battle.load(stateManager, var)
     state.actionTimer = 0
     state.actionSpeed = 1
     state.battleLog = {}
-    state.menuHeight = 180
+    state.menuHeight = gameState.textHeight
     state.menuItemHeight = (state.menuHeight - 20) / 4
     state.partyDied = false
     state.allEnemyDead = false

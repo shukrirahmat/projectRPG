@@ -7,7 +7,7 @@ function battleHud.draw(state)
     local borderX = 10
     local borderY = 10
     local borderWidth = 128
-    local borderHeight = 90
+    local borderHeight = 96
     local innerX = borderX + 20
     local innerY = borderY + 5
     local innerWidth = borderWidth - 40
@@ -17,11 +17,12 @@ function battleHud.draw(state)
 
         local shiftY = 0
         local hpBit = 0
+        local progress;
 
         if state.animation 
         and state.animation.user == member 
         and state.animation.ref == 'partyDamaged' then
-            local progress = state.animation.timer / state.animation.speed
+            progress = state.animation.timer / state.animation.speed
             shiftY = 15 * math.sin(progress * math.pi)
 
             local hpDrop = state.animation.value
@@ -42,8 +43,6 @@ function battleHud.draw(state)
 
         if member.isDead then
             love.graphics.setColor(0.25, 0.25, 0.25)
-        elseif (member.currentHp / member.maxHp) <= 0.2 then
-            love.graphics.setColor(0.97, 0.28, 0.11)
         else
             love.graphics.setColor(1, 1, 1)
         end
@@ -73,20 +72,65 @@ function battleHud.draw(state)
             love.graphics.printf(
                 stat, 
                 innerX + (index - 1) * (borderWidth + borderX),
-                innerY + shiftY + 25 + (i - 1) * 25,
+                innerY + shiftY + 25 + (i - 1) * 28,
                 innerWidth*0.25,
                 'left'
             )
         end
         for i, value in ipairs(values) do
+            if member.isDead then
+                love.graphics.setColor(0.25, 0.25, 0.25)
+            elseif i == 1 and value/member.maxHp <= 0.2 then
+                love.graphics.setColor(0.97, 0.28, 0.11)
+            else
+                love.graphics.setColor(1, 1, 1)
+            end
             love.graphics.printf(
                 value, 
                 innerX + innerWidth*0.25 + (index - 1) * (borderWidth + borderX),
-                innerY + shiftY + 25 + (i - 1) * 25,
+                innerY + shiftY + 25 + (i - 1) * 28,
                 innerWidth*0.75,
                 'right'
             )
         end
+
+        for n = 1, 2 do
+            love.graphics.setColor(0.25, 0.25, 0.25)
+            love.graphics.rectangle(
+                'line',
+                innerX + (index - 1) * (borderWidth + borderX),
+                innerY + shiftY + 46 + (n - 1) * 28,
+                innerWidth,
+                5
+            )
+
+            local bar;
+            if n == 1 then
+                love.graphics.setColor(0, 0.85, 0.4)
+                local hpBar;
+                if progress then
+                    hpBar = math.max(0, (((1-progress)^2) * state.animation.value + member.currentHp)/member.maxHp)
+                else
+                    hpBar = (math.max(0, member.currentHp) / member.maxHp)
+                end
+                bar = innerWidth * hpBar
+            else
+                if member.isDead then
+                    love.graphics.setColor(0.25, 0.25, 0.25)
+                else
+                    love.graphics.setColor(0.50, 0, 0.85)
+                end
+                bar = innerWidth * (member.currentMp / member.maxMp)
+            end
+            love.graphics.rectangle(
+                'fill',
+                innerX + (index - 1) * (borderWidth + borderX),
+                innerY + shiftY + 46 + (n - 1) * 28,
+                bar,
+                5
+            )
+        end
+
 
         local j = 1
         local statusY = 0

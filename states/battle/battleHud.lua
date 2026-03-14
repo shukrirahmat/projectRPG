@@ -8,9 +8,9 @@ function battleHud.draw(state)
     local borderY = 10
     local borderWidth = 128
     local borderHeight = 96
-    local innerX = borderX + 20
+    local innerX = borderX + 15
     local innerY = borderY + 5
-    local innerWidth = borderWidth - 40
+    local innerWidth = borderWidth - 30
 
 
     for index, member in ipairs(state.party) do

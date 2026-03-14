@@ -1,4 +1,5 @@
 local memberStats = require('data.memberStats')
+local expData = require('data.expData')
 
 local memberCreator = {}
 
@@ -28,6 +29,9 @@ function memberCreator.new(id)
     member.shield = data.shield or nil
     member.armor = data.armor or nil
     member.sprite = data.sprite
+    
+    local nextExp = expData[member.lvl + 1] - member.totalExp
+    member.nextExp = nextExp
     
     return member
 end

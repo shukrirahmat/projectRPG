@@ -27,6 +27,7 @@ function memberCreator.new(id)
     member.weapon = data.weapon or nil
     member.shield = data.shield or nil
     member.armor = data.armor or nil
+    member.sprite = data.sprite
     
     return member
 end

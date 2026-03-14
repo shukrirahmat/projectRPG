@@ -30,6 +30,12 @@ sprites['player_left'] = {
 
 sprites['gate'] = love.graphics.newImage('graphics/images/gate.png')
 
+--PARTY SPRITES--
+sprites['member_one'] = love.graphics.newImage('graphics/images/one.png')
+sprites['member_two'] = love.graphics.newImage('graphics/images/two.png')
+sprites['member_three'] = love.graphics.newImage('graphics/images/three.png')
+sprites['member_four'] = love.graphics.newImage('graphics/images/four.png')
+
 --ENEMY SPRITES--
 
 sprites['slime'] = love.graphics.newImage('graphics/images/slime.png')

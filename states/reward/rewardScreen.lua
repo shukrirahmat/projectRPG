@@ -13,12 +13,29 @@ function rewardScreen.draw()
         local boxX = startX + 5 + (i - 1) * (boxWidth + 10)
         local boxY = startY
         
+        love.graphics.setColor(1, 1, 1)
         love.graphics.rectangle(
             'line',
             boxX,
             boxY,
             boxWidth,
             boxHeight
+        )
+        
+        local spriteX = boxX + boxWidth * 0.5 - monsterSpriteDimension * 0.5
+        local spriteY = boxY + 20
+        
+        love.graphics.draw(
+            member.sprite,
+            spriteX,
+            spriteY
+        )
+        love.graphics.rectangle(
+            'line',
+            spriteX,
+            spriteY,
+            monsterSpriteDimension,
+            monsterSpriteDimension
         )
     end
 end

@@ -1,3 +1,5 @@
+local sprites = require('graphics.sprites')
+
 local ogStats = {}
 
 ogStats[1] = {
@@ -75,6 +77,7 @@ memberStats[1] = {
     passiveSkills = {},
     status = {},
     totalExp = 0,
+    sprite = sprites['member_one']
 }
 
 memberStats[2] = {
@@ -90,6 +93,7 @@ memberStats[2] = {
     passiveSkills = {},
     status = {},
     totalExp = 0,
+    sprite = sprites['member_two']
 }
 
 memberStats[3] = {
@@ -104,7 +108,8 @@ memberStats[3] = {
     skills = {},
     passiveSkills = {},
     status = {},
-    totalExp = 0
+    totalExp = 0,
+    sprite = sprites['member_three']
 }
 
 memberStats[4] = {
@@ -119,7 +124,8 @@ memberStats[4] = {
     skills = {},
     passiveSkills = {},
     status = {},
-    totalExp = 0
+    totalExp = 0,
+    sprite = sprites['member_four']
 }
 
 return memberStats

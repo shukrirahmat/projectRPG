@@ -33,6 +33,7 @@ function battlerCreator.new(member)
     battler.weapon = member.weapon or nil
     battler.armor = member.armor or nil
     battler.shield = member.shield or nil
+    battler.sprite = member.sprite
     
     for i, ref in ipairs(battler.passiveSkills) do
         battler.passives[ref] = true

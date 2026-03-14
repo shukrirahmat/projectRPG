@@ -24,6 +24,7 @@ function enemyCreator.new(species, name)
     enemy.status = {}
     enemy.strong = data.strong or {}
     enemy.immune = data.immune or {}
+    enemy.sprite = data.sprite
     
     if data.status then
         for k, v in pairs(data.status) do
@@ -34,7 +35,6 @@ function enemyCreator.new(species, name)
     local battler = battlerCreator.new(enemy)
     battler.isPartyMember = false;
     battler.species = species
-    battler.sprite = data.sprite
     battler.spriteHeight = data.spriteHeight
     battler.specialType = data.specialType
     battler.stealableItem = {}

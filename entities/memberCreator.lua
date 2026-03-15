@@ -28,10 +28,7 @@ function memberCreator.new(id)
     member.shield = data.shield or nil
     member.armor = data.armor or nil
     member.sprite = data.sprite
-    
     member.totalExp = data.totalExp
-    member.displayExp = data.totalExp
-    member.nextExp = function () return expData[member.lvl + 1] - member.totalExp end
     
     return member
 end

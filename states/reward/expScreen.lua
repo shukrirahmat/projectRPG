@@ -1,5 +1,6 @@
 local gameState = require('gameState')
 local expData = require('data.expData')
+local partyManager = require('systems.partyManager')
 
 local expScreen = {}
 
@@ -17,10 +18,10 @@ local function setAliveMember()
     return alive
 end
 
-function expScreen.distribute(totalExp)
+function expScreen.start(totalExp)
     state.isDistributing = true
     state.timer = 0
-    state.speed = 0.05    
+    state.speed = 0.08    
     state.aliveMember = setAliveMember()
     
     state.expPerMember = math.floor(totalExp / #state.aliveMember) 
@@ -31,6 +32,10 @@ function expScreen.isDistributing()
     return state.isDistributing
 end
 
+function expScreen.skip()
+    state.speed = 0.01
+end
+
 function expScreen.update(dt)
     if not state.isDistributing then return end
     state.timer = state.timer + dt
@@ -38,10 +43,7 @@ function expScreen.update(dt)
     while state.timer >= state.speed and state.remainingExp > 0 do
         state.timer = state.timer - state.speed
         for i, member in ipairs(state.aliveMember) do
-            member.totalExp = member.totalExp + 1
-            if member.totalExp >= expData[member.lvl + 1] then
-                member.lvl = member.lvl + 1
-            end
+            partyManager.increaseExp(member, 1)
         end
         state.remainingExp = state.remainingExp - 1
     end
@@ -104,9 +106,7 @@ function expScreen.draw()
         local nextWidth = innerWidth
 
         love.graphics.setFont(font_small)
-        love.graphics.printf('Next: '..member.nextExp()..'', nextX, nextY, nextWidth, 'right')
-
-
+        love.graphics.printf('Next: '..partyManager.getNextExp(member)..'', nextX, nextY, nextWidth, 'right')
     end
 end
 

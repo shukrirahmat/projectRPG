@@ -76,7 +76,7 @@ memberStats[1] = {
     skills = {},
     passiveSkills = {},
     status = {},
-    totalExp = 3,
+    totalExp = 0,
     sprite = sprites['member_one']
 }
 

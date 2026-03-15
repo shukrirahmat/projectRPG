@@ -24,14 +24,14 @@ function memberCreator.new(id)
     member.status = data.status or {}
     member.strong = data.strong or {}
     member.immune = data.immune or {}
-    member.totalExp = data.totalExp
     member.weapon = data.weapon or nil
     member.shield = data.shield or nil
     member.armor = data.armor or nil
     member.sprite = data.sprite
     
-    local nextExp = expData[member.lvl + 1] - member.totalExp
-    member.nextExp = nextExp
+    member.totalExp = data.totalExp
+    member.displayExp = data.totalExp
+    member.nextExp = function () return expData[member.lvl + 1] - member.totalExp end
     
     return member
 end

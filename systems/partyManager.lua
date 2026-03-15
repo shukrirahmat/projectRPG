@@ -1,5 +1,6 @@
 local expData = require('data.expData')
 local statGain = require('data.statGain')
+local textBox = require('systems.textBox')
 
 local partyManager = {}
 
@@ -14,7 +15,7 @@ local function levelUp(member)
     member.vit = member.vit + data['vit'][statIndex]
     member.agi = member.agi + data['agi'][statIndex]
     
-    return {lvl = member.lvl}
+    textBox.start(''..member.name..' has leveled up to LVL '..member.lvl..'!')
 end
     
 

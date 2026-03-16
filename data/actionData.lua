@@ -1111,7 +1111,7 @@ actionData['frailI'] = {
     accuracy = 100
 }
 
-actionData['frailI'] = {
+actionData['frailII'] = {
     name = 'Frail II', 
     magic = true,
     cost = 5, 

@@ -28,7 +28,7 @@ function battleLog.draw(state)
 
     local textX = borderX + 20
     local textY = borderY + 10
-    local textLineHeight = 25
+    local textLineHeight = (borderHeight - 20) / 4
     local textWidth = borderWidth - textX * 2 
 
     love.graphics.setColor(1, 1, 1)

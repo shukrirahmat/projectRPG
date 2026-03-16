@@ -22,16 +22,17 @@ end
 
 function expScreen.start(totalExp)
     state.isDistributing = true
+    state.levelUpQueue = {}
     state.aliveMember = setAliveMember()
     state.expPerMember = math.floor(totalExp / #state.aliveMember)
-    state.speed = math.max(1, math.floor(state.expPerMember * 0.5))
-    
+    state.speed = math.max(1, math.floor(state.expPerMember * 0.75))
+
     for i, member in ipairs(gameState.party) do
         member.displayExp = member.totalExp
         member.displayLvl = member.lvl
         if not member.isDead then
             local levelUps = partyManager.increaseExp(member, state.expPerMember)
-            
+
             for i, data in ipairs(levelUps) do
                 table.insert(state.levelUpQueue, data)
             end
@@ -44,7 +45,7 @@ function expScreen.isDistributing()
 end
 
 function expScreen.skip()
-   for i, member in ipairs(state.aliveMember) do
+    for i, member in ipairs(state.aliveMember) do
         member.displayExp = member.totalExp
         member.displayLvl = member.lvl
     end
@@ -71,10 +72,12 @@ function expScreen.update(dt)
     if allFinished then 
         state.isDistributing = false
         for i, data in ipairs(state.levelUpQueue) do
-            textBox.queue(''..data.member.name..' has leveled up to LVL '..data.lvl..'.')
+            local textLines = {}
+            table.insert(textLines, ''..data.member.name..' has leveled up to LVL '..data.lvl..'!')
             if data.skill then
-                textBox.queue(''..data.member.name..' has learned '..data.skill..'.')
+                table.insert(textLines, 'Learned: '..data.skill..'.')
             end
+            textBox.queue(textLines)
         end
     end
 end
@@ -115,6 +118,15 @@ function expScreen.draw()
 
         love.graphics.setFont(font_large)
         love.graphics.printf('LVL '..member.displayLvl..'', lvlX, lvlY, lvlWidth, 'left')
+
+        local plusX = innerX
+        local plusY = nameY + 43
+        local plusWidth = innerWidth
+
+        if not member.isDead then
+            love.graphics.setFont(font_medium)
+            love.graphics.printf('+ '..state.expPerMember..' EXP', plusX, plusY, plusWidth, 'right')
+        end
 
         local barX = innerX
         local barY = lvlY + 27

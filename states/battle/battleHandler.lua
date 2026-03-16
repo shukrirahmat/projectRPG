@@ -143,13 +143,25 @@ function battleHandler.exitBattle(state, dt)
             gameState.party[i].status['WOUND'] = member.status['WOUND']
             gameState.party[i].status['PARALYSIS'] = member.status['PARALYSIS']
         end
-        
+
         local expGained = 0
+        local goldGained = 0
+        local itemDropped = {}
         for i, enemy in ipairs(state.enemies) do
             expGained = expGained + enemy.exp
+            goldGained = goldGained + enemy.goldDrop
+
+            if enemy.itemDrop then
+                for k,v in pairs(enemy.itemDrop) do
+                    local success = math.random(1, v) == 1
+                    if success then
+                        table.insert(itemDropped, {ref = k, dropper = enemy.name})
+                    end
+                end
+            end
         end
-        
-        state.manager.switch('reward', {exp = expGained})
+
+        state.manager.switch('reward', {exp = expGained, gold = goldGained, items = itemDropped})
     end
 end
 

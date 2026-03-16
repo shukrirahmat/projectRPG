@@ -7,7 +7,7 @@ gameState.playerSprite = nil
 gameState.party = {}
 gameState.partyGold = 0
 gameState.partyItems = {}
-gameState.textHeight = 120
-gameState.textSpeed = 0.05
+gameState.textHeight = 140
+gameState.textSpeed = 0.02
 
 return gameState

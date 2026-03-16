@@ -4,11 +4,12 @@ local textBox = {}
 
 local text = {
     queue = {}
-    }
+}
 
-function textBox.start(string)
+function textBox.start(strings)
     text.isActive = true
-    text.string = string
+    text.lines = strings
+    text.currentLine = 1
     text.visible = 0
     text.timer = 0
     text.speed = gameState.textSpeed
@@ -16,16 +17,16 @@ function textBox.start(string)
     text.blinkSpeed = 1
 end
 
-function textBox.queue(string)
-    table.insert(text.queue, string)
+function textBox.queue(strings)
+    table.insert(text.queue, strings)
 end
 
 function textBox.skip()
-    text.visible = #text.string
+    text.visible = #text.lines[text.currentLine]
 end
 
 function textBox.isFinished()
-    return text.visible == #text.string
+    return text.visible == #text.lines[text.currentLine]
 end
 
 function textBox.isBusy()
@@ -36,26 +37,36 @@ function textBox.isActive()
     return text.isActive
 end
 
+function textBox.advance()
+    if text.currentLine < #text.lines then
+        text.currentLine = text.currentLine + 1
+        text.visible = 0
+        text.timer = 0
+    else
+        textBox.close()
+    end
+end
+
 function textBox.close()
     text.isActive = false;
-    text.string = '';
+    text.lines = {}
     text.visible = 0
 end
 
 function textBox.update(dt)
-    
+
     if not text.isActive and #text.queue > 0 then
         textBox.start(table.remove(text.queue, 1))
     end
-    
+
     if not text.isActive then return end
-    
+
     text.timer = text.timer + dt
-    while text.timer >= text.speed and text.visible < #text.string do
+    while text.timer >= text.speed and text.visible < #text.lines[text.currentLine] do
         text.visible = text.visible + 1
         text.timer = text.timer - text.speed
     end
-    
+
     text.blink = text.blink + dt
     if text.blink >= text.blinkSpeed then
         text.blink = text.blink - text.blinkSpeed
@@ -70,7 +81,7 @@ function textBox.draw()
 
     local textX = borderX + 20
     local textY = borderY + 10
-    local textLineHeight = 25
+    local textLineHeight = (borderHeight - 20) / 4
     local textWidth = borderWidth - textX * 2 
 
     love.graphics.setColor(1, 1, 1)
@@ -82,16 +93,20 @@ function textBox.draw()
         borderHeight
     )
 
-    if text.visible > 0 then
-        love.graphics.setFont(font_large)
+    love.graphics.setFont(font_large)
+    for i = 1, text.currentLine do
+        local line = text.lines[i]
+        if i == text.currentLine then
+            line = line:sub(1, math.min(text.visible, #line))
+        end
         love.graphics.printf(
-            text.string:sub(1, text.visible),
+            line,
             textX,
-            textY,
+            textY + (i - 1) * textLineHeight,
             textWidth
         )
     end
-    
+
     if textBox.isFinished() and (text.blink / text.blinkSpeed) <= 0.5 then
         love.graphics.setColor(1, 1, 1)
         love.graphics.polygon(

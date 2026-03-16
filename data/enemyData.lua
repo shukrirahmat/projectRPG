@@ -12,7 +12,8 @@ enemyData['slime'] = {
     sprite = sprites['slime'],
     spriteHeight = monsterSpriteDimension/2.2,
     gold = 5,
-    exp = 80,
+    exp = 8,
+    itemDrop = {['healingTonic'] = 8},
     skills = {},
     passiveSkills = {}
     

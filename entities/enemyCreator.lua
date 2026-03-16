@@ -39,7 +39,8 @@ function enemyCreator.new(species, name)
     battler.specialType = data.specialType
     battler.stealableItem = {}
     battler.stealableGold = data.gold or 0
-    battler.droppedGold = data.gold or 0
+    battler.goldDrop = data.gold or 0
+    battler.itemDrop = data.itemDrop or nil
     battler.exp = data.exp or 0
     
     if data.stealableItem then

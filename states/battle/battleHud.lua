@@ -133,6 +133,7 @@ function battleHud.draw(state)
         end
 
 
+        love.graphics.setColor(1, 1, 1)
         local j = 1
         local statusY = 0
         for k, v in pairs(member.status) do

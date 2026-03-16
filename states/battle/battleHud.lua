@@ -56,7 +56,7 @@ function battleHud.draw(state)
         )
 
 
-        love.graphics.setFont(font_mediumMono)
+        love.graphics.setFont(font_medium)
         love.graphics.printf(
             member.name,
             innerX + (index - 1) * (borderWidth + gap),
@@ -107,7 +107,7 @@ function battleHud.draw(state)
 
             local bar;
             if n == 1 then
-                love.graphics.setColor(0, 0.85, 0.4)
+                love.graphics.setColor(0.75, 0.75, 0.75)
                 local hpBar;
                 if progress then
                     hpBar = math.max(0, (((1-progress)^2) * state.animation.value + member.currentHp)/member.maxHp)
@@ -119,7 +119,7 @@ function battleHud.draw(state)
                 if member.isDead then
                     love.graphics.setColor(0.25, 0.25, 0.25)
                 else
-                    love.graphics.setColor(0.50, 0, 0.85)
+                    love.graphics.setColor(0.75, 0.75, 0.75)
                 end
                 bar = innerWidth * (member.currentMp / member.maxMp)
             end

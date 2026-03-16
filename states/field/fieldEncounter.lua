@@ -32,7 +32,7 @@ function fieldEncounter.generate(state)
 
     for k, v in pairs(encounterSet) do
         for i = 1, v do
-            local name = ''..k:upper()..''..i..''
+            local name = ''..k:sub(1, 1):upper()..''..k:sub(2)..' #'..i..''
             local enemy = enemyCreator.new(k, name)
             table.insert(enemies, enemy)
         end

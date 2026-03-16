@@ -40,7 +40,7 @@ function battleLog.draw(state)
         borderHeight
     )
 
-    love.graphics.setFont(font_text)
+    love.graphics.setFont(font_large)
     for index, text in ipairs(state.battleLog) do
         love.graphics.printf(
             text,

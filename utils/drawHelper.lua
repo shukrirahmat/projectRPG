@@ -38,4 +38,10 @@ function drawHelper.drawUpwardArrow(x, y, width, height)
     )
 end
 
+function drawHelper.centeredText(ref)
+    local font = love.graphics.getFont()
+    local textHeight = font:getHeight()
+    return (ref - textHeight) * 0.5
+end
+
 return drawHelper;

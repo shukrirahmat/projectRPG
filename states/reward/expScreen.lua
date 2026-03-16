@@ -72,6 +72,9 @@ function expScreen.update(dt)
         state.isDistributing = false
         for i, data in ipairs(state.levelUpQueue) do
             textBox.queue(''..data.member.name..' has leveled up to LVL '..data.lvl..'.')
+            if data.skill then
+                textBox.queue(''..data.member.name..' has learned '..data.skill..'.')
+            end
         end
     end
 end
@@ -81,7 +84,7 @@ function expScreen.draw()
     local startX = 20
     local startY = 20
     local boxWidth = ((windowWidth - startX * 2) / 4) - 10
-    local boxHeight = windowHeight - 10 - gameState.textHeight - 10 - startY
+    local boxHeight = windowHeight - 20 - gameState.textHeight - 20 - startY
 
     for i, member in ipairs(gameState.party) do
 
@@ -103,18 +106,18 @@ function expScreen.draw()
         local nameY = spriteY + monsterSpriteDimension + 10
         local nameWidth = innerWidth
 
-        love.graphics.setFont(font_medium)
+        love.graphics.setFont(font_large)
         love.graphics.printf(member.name, nameX, nameY, nameWidth, 'center')
 
         local lvlX = innerX
         local lvlY = nameY + 40
         local lvlWidth = innerWidth
 
-        love.graphics.setFont(font_medium)
+        love.graphics.setFont(font_large)
         love.graphics.printf('LVL '..member.displayLvl..'', lvlX, lvlY, lvlWidth, 'left')
 
         local barX = innerX
-        local barY = lvlY + 25
+        local barY = lvlY + 27
         local barWidth = innerWidth
 
         love.graphics.rectangle('line', barX, barY, innerWidth, 15)
@@ -131,7 +134,7 @@ function expScreen.draw()
         local nextExp = expData[member.displayLvl + 1]
         local remainingExp = math.ceil(nextExp - member.displayExp)
 
-        love.graphics.setFont(font_small)
+        love.graphics.setFont(font_medium)
         love.graphics.printf('Next: '..remainingExp..'', nextX, nextY, nextWidth, 'right')
     end
 end

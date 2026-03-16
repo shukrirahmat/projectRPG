@@ -7,9 +7,9 @@ local battleMenu = {}
 
 local function drawLeftMenu(state, menu)
     local borderHeight = state.menuHeight
-    local borderX = 10
-    local borderY = windowHeight - borderHeight - 10
-    local borderWidth = (windowWidth - 10)/4 - 10
+    local borderX = 20
+    local borderY = windowHeight - borderHeight - 20
+    local borderWidth = (windowWidth - 60)/4
     local itemX = borderX + 10
     local itemY = borderY + 10
     local itemWidth = borderWidth - 20
@@ -19,7 +19,7 @@ local function drawLeftMenu(state, menu)
     love.graphics.rectangle('line', borderX, borderY, borderWidth, borderHeight)
 
     love.graphics.setColor(1, 1, 1)
-    love.graphics.setFont(font_medium)
+    love.graphics.setFont(font_large)
     for i, item in ipairs(menu.list) do
         if menu == state.characterMenu
         and state.party[state.characterMenu.charID].status['SEAL']
@@ -31,9 +31,9 @@ local function drawLeftMenu(state, menu)
         love.graphics.printf(
             item,
             itemX,
-            itemY + (i - 1) * itemHeight,
+            itemY + drawHelper.centeredText(itemHeight) + (i - 1) * itemHeight,
             itemWidth,
-            'center', 0, 1, 1, 0, -1 * (itemHeight/4)
+            'center'
         )
         if menu.position == i then
             drawHelper.drawMenuIndicator(
@@ -57,15 +57,11 @@ end
 local function drawCharacterMenu(state)
     local leftMenu = drawLeftMenu(state, state.characterMenu)
 
-    local borderHeight = 30
+    local borderHeight = 96
     local borderX = leftMenu.borderX
     local borderY = leftMenu.borderY - borderHeight
-    local borderWidth = leftMenu.borderWidth / 2
-    local nameX = borderX + 5
-    local nameY = borderY + 5
-    local nameWidth = borderWidth - 10
+    local borderWidth = 96
 
-    love.graphics.setFont(font_small)
     love.graphics.setColor(0, 0, 0)
     love.graphics.rectangle(
         'fill',
@@ -82,16 +78,17 @@ local function drawCharacterMenu(state)
         borderWidth,
         borderHeight
     )
-
-
+    
     local id = state.characterMenu.charID
-    local charName = state.party[id].name
-    love.graphics.printf(
-        charName,
-        nameX,
-        nameY,
-        nameWidth,
-        'center'
+    local char = state.party[id]
+    
+    love.graphics.draw(
+        char.sprite,
+        borderX,
+        borderY - 1,
+        0,
+        0.75,
+        0.75
     )
     return leftMenu;
 end
@@ -99,7 +96,7 @@ end
 function drawTargetMenu(state, refX, refY, refWidth)
     local borderX = refX + refWidth + 10
     local borderY = refY
-    local borderWidth = (windowWidth - 10)/4 - 10;
+    local borderWidth = (windowWidth - 60)/4;
     local borderHeight = state.menuHeight
     local targetX = borderX + 10
     local targetY = borderY + 10
@@ -116,14 +113,13 @@ function drawTargetMenu(state, refX, refY, refWidth)
     )
 
     if #state.targetMenu.list < 1 then
-        love.graphics.setFont(font_medium)
+        love.graphics.setFont(font_large)
         love.graphics.setColor(1, 1, 1)
         love.graphics.printf(
-            'There is no available target.',
+            'There is no available target',
             targetX + 10,
-            targetY,
-            targetWidth - 20,
-            'left', 0, 1, 1, 0, -1 * (targetHeight/4)
+            targetY + drawHelper.centeredText(targetHeight),
+            targetWidth - 20
         )
         return
     end
@@ -146,15 +142,14 @@ function drawTargetMenu(state, refX, refY, refWidth)
         currentPage = secondPage
     end
 
-    love.graphics.setFont(font_medium)
+    love.graphics.setFont(font_large)
     love.graphics.setColor(1, 1, 1)
     for i, target in ipairs(currentPage) do
         love.graphics.printf(
             target.name,
             targetX + 20,
-            targetY + (i - 1) * targetHeight,
-            targetWidth - 20,
-            'left', 0, 1, 1, 0, -1 * (targetHeight/4)
+            targetY + drawHelper.centeredText(targetHeight) + (i - 1) * targetHeight,
+            targetWidth - 20
         )
         local pointer
         if currentPage == firstPage then
@@ -183,7 +178,7 @@ end
 function drawDescriptionText(state, x, y, data)
     local height = state.menuHeight
     local itemHeight = state.menuItemHeight
-    local width = (windowWidth - 10)/4 - 10
+    local width = (windowWidth - 60)/4
     love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle(
         'line',
@@ -203,18 +198,16 @@ function drawDescriptionText(state, x, y, data)
     love.graphics.printf(
         topText,
         x + 20,
-        y + 10,
-        width - 20,
-        'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+        y + 10 + drawHelper.centeredText(itemHeight),
+        width - 20
     )
     love.graphics.line(x, y + itemHeight + 10, x + width, y + itemHeight + 10)
-    love.graphics.setFont(font_small)
+    love.graphics.setFont(font_large)
     love.graphics.printf(
         data.desc,
         x + 20,
-        y + itemHeight + 10,
-        width - 40,
-        'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+        y + itemHeight + 10 + drawHelper.centeredText(itemHeight),
+        width - 40
     )
 end
 
@@ -224,7 +217,7 @@ local function drawCurrentMenuPage(state, currentPage, menu, borderX, borderY, b
     local pageEnd = math.min(#menu.list, pageStart + 7)
     for i = pageStart, pageEnd do
 
-        love.graphics.setFont(font_medium)
+        love.graphics.setFont(font_large)
         love.graphics.setColor(1, 1, 1)
         if menu == state.skillMenu then
             local skill = actionData[menu.list[i]]
@@ -254,9 +247,8 @@ local function drawCurrentMenuPage(state, currentPage, menu, borderX, borderY, b
         love.graphics.printf(
             name,
             x + 20,
-            y,
-            borderWidth/2 - 40,
-            'left', 0, 1, 1, 0, -1 * (itemHeight/4)
+            y + drawHelper.centeredText(itemHeight),
+            borderWidth/2 - 40
         )
 
         love.graphics.setColor(1, 1, 1)
@@ -311,8 +303,9 @@ function drawMiddleMenu(state, menu, isTargeting)
 
     local borderX = leftMenu.borderX + leftMenu.borderWidth + 10
     local borderY = leftMenu.borderY
-    local borderWidth = (windowWidth - 10)/2 - 10
+    local borderWidth = (windowWidth - 60)/2
     local borderHeight = state.menuHeight
+    local itemHeight = state.menuItemHeight
 
     love.graphics.setColor(1,1,1)
     love.graphics.rectangle(
@@ -331,12 +324,12 @@ function drawMiddleMenu(state, menu, isTargeting)
         elseif menu == state.itemMenu then
             text = 'Party did not have any consumable items'
         end
-        love.graphics.setFont(font_small)
+        love.graphics.setFont(font_large)
         love.graphics.printf(
             text,
-            borderX + 10,
-            borderY + 10,
-            borderWidth - 20,
+            borderX + 20,
+            borderY + 10 + drawHelper.centeredText(itemHeight),
+            borderWidth - 40,
             'left'
         )
     else        

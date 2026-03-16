@@ -1,4 +1,6 @@
 local expData = require('data.expData')
+local learnData = require('data.learnData')
+local actionData = require('data.actionData')
 local statGain = require('data.statGain')
 local textBox = require('systems.textBox')
 
@@ -15,9 +17,17 @@ local function levelUp(member)
     member.vit = member.vit + data['vit'][statIndex]
     member.agi = member.agi + data['agi'][statIndex]
     
+    local skillName = nil
+    local skillRef = learnData[member.id][member.lvl] or nil
+    if skillRef then
+        table.insert(member.skills, skillRef)
+        skillName = actionData[skillRef].name
+    end
+    
     return {
         member = member,
-        lvl = member.lvl
+        lvl = member.lvl,
+        skill = skillName
     }
 end
 

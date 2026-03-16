@@ -617,6 +617,18 @@ actionData['sealII'] = {
 actionData['tremorI'] = {
     name = 'Tremor I', 
     magic = true,
+    cost = 2, 
+    desc = 'May stun one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = actions.castStatusEffect,
+    element = 'STUN',
+    accuracy = 50
+}
+
+actionData['tremorII'] = {
+    name = 'Tremor II', 
+    magic = true,
     cost = 5, 
     desc = 'Low chance to stun of all enemies',
     aim = 'enemies',
@@ -626,8 +638,8 @@ actionData['tremorI'] = {
     accuracy = 25
 }
 
-actionData['tremorII'] = {
-    name = 'Tremor II', 
+actionData['tremorIII'] = {
+    name = 'Tremor III', 
     magic = true,
     cost = 8, 
     desc = 'High chance to stun of all enemies',

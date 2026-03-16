@@ -56,7 +56,7 @@ function battleHud.draw(state)
         )
 
 
-        love.graphics.setFont(font_medium)
+        love.graphics.setFont(font_mediumMono)
         love.graphics.printf(
             member.name,
             innerX + (index - 1) * (borderWidth + gap),
@@ -65,7 +65,7 @@ function battleHud.draw(state)
             'center'
         )
 
-        love.graphics.setFont(font_xlarge)
+        love.graphics.setFont(font_xlargeMono)
         local hudStat = {'HP' , 'MP'}
         local hpValue = math.max(0, member.currentHp + hpBit)
         local values = {hpValue, member.currentMp}
@@ -102,7 +102,7 @@ function battleHud.draw(state)
                 innerX + (index - 1) * (borderWidth + gap),
                 innerY + shiftY + 48 + (n - 1) * 28,
                 innerWidth,
-                5
+                4
             )
 
             local bar;
@@ -128,7 +128,7 @@ function battleHud.draw(state)
                 innerX + (index - 1) * (borderWidth + gap),
                 innerY + shiftY + 48 + (n - 1) * 28,
                 bar,
-                5
+                4
             )
         end
 

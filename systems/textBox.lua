@@ -83,7 +83,7 @@ function textBox.draw()
     )
 
     if text.visible > 0 then
-        love.graphics.setFont(font_text)
+        love.graphics.setFont(font_large)
         love.graphics.printf(
             text.string:sub(1, text.visible),
             textX,

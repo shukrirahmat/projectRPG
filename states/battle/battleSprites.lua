@@ -77,7 +77,7 @@ local function drawDamagedAnimation(state, enemy, index, color)
     end
 
     if tick >= 1 then
-        drawTextOnEnemy(state, enemy, index, state.animation.value, font_bold, color)
+        drawTextOnEnemy(state, enemy, index, state.animation.value, font_boldMono, color)
     end
 end
 
@@ -103,7 +103,7 @@ local function drawDodgeAnimation(state, enemy, index, color)
     end
 
     if tick >= 1 then
-        drawTextOnEnemy(state, enemy, index, 'MISS', font_small, color)
+        drawTextOnEnemy(state, enemy, index, 'MISS', font_mediumMono, color)
     end
 end
 

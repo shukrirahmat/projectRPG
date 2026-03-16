@@ -133,7 +133,7 @@ end
 
 function battleHandler.exitBattle(state, dt)
     state.actionTimer = state.actionTimer + dt
-    if state.actionTimer >= state.actionSpeed * 2 then
+    if state.actionTimer >= state.actionSpeed then
         for i, member in ipairs(state.party) do
             gameState.party[i].isDead = member.isDead;
             gameState.party[i].currentHp = member.currentHp

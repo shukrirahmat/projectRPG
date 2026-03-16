@@ -15,19 +15,22 @@ local function levelUp(member)
     member.vit = member.vit + data['vit'][statIndex]
     member.agi = member.agi + data['agi'][statIndex]
     
-    textBox.start(''..member.name..' has leveled up to LVL '..member.lvl..'!')
-end
-    
-
-function partyManager.getNextExp(member)
-    return expData[member.lvl + 1] - member.totalExp
+    return {
+        member = member,
+        lvl = member.lvl
+    }
 end
 
 function partyManager.increaseExp(member, exp)
+    local lvlUps = {}
+    
     member.totalExp = member.totalExp + exp
-    if member.totalExp >= expData[member.lvl + 1] then
-        return levelUp(member)
+    
+    while member.totalExp >= expData[member.lvl + 1] do
+        table.insert(lvlUps, levelUp(member))
     end
+    
+    return lvlUps;
 end
 
 

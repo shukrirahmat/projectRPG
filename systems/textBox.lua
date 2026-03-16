@@ -2,16 +2,22 @@ local gameState = require('gameState')
 
 local textBox = {}
 
-local text = {}
+local text = {
+    queue = {}
+    }
 
 function textBox.start(string)
-    text.open = true
+    text.isActive = true
     text.string = string
     text.visible = 0
     text.timer = 0
     text.speed = gameState.textSpeed
     text.blink = 0
     text.blinkSpeed = 1
+end
+
+function textBox.queue(string)
+    table.insert(text.queue, string)
 end
 
 function textBox.skip()
@@ -22,17 +28,28 @@ function textBox.isFinished()
     return text.visible == #text.string
 end
 
-function textBox.isOpen()
-    return text.open
+function textBox.isBusy()
+    return text.isActive or #text.queue > 0
+end
+
+function textBox.isActive()
+    return text.isActive
 end
 
 function textBox.close()
-    text.open = false;
+    text.isActive = false;
     text.string = '';
     text.visible = 0
 end
 
 function textBox.update(dt)
+    
+    if not text.isActive and #text.queue > 0 then
+        textBox.start(table.remove(text.queue, 1))
+    end
+    
+    if not text.isActive then return end
+    
     text.timer = text.timer + dt
     while text.timer >= text.speed and text.visible < #text.string do
         text.visible = text.visible + 1
@@ -46,14 +63,14 @@ function textBox.update(dt)
 end
 
 function textBox.draw()
-    local borderX = 10
+    local borderX = 20
     local borderHeight = gameState.textHeight
-    local borderY = windowHeight - borderHeight - 10
+    local borderY = windowHeight - borderHeight - 20
     local borderWidth = windowWidth - borderX * 2
 
     local textX = borderX + 20
     local textY = borderY + 10
-    local textLineHeight = 20
+    local textLineHeight = 25
     local textWidth = borderWidth - textX * 2 
 
     love.graphics.setColor(1, 1, 1)
@@ -75,7 +92,7 @@ function textBox.draw()
         )
     end
     
-    if textBox.isFinished and (text.blink / text.blinkSpeed) <= 0.5 then
+    if textBox.isFinished() and (text.blink / text.blinkSpeed) <= 0.5 then
         love.graphics.setColor(1, 1, 1)
         love.graphics.polygon(
             'fill',

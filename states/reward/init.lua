@@ -11,7 +11,7 @@ function reward.load(stateManager, var)
 end
 
 function reward.update(dt)
-    if textBox.isOpen() then
+    if textBox.isBusy() then
         textBox.update(dt)
     elseif expScreen.isDistributing() then
         expScreen.update(dt)
@@ -19,14 +19,14 @@ function reward.update(dt)
 end
 
 function reward.draw()
-    if textBox.isOpen() then
+    if textBox.isActive() then
         textBox.draw()
     end
     expScreen.draw()
 end
 
 function reward.keypressed(key)
-    if textBox.isOpen() and key == 'z' then
+    if textBox.isActive() and key == 'z' then
         if textBox.isFinished() then
             textBox.close()
         else

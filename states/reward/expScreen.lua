@@ -1,11 +1,13 @@
 local gameState = require('gameState')
 local expData = require('data.expData')
 local partyManager = require('systems.partyManager')
+local textBox = require('systems.textBox')
 
 local expScreen = {}
 
 local state = {
     isDistributing = false,
+    levelUpQueue = {}
 }
 
 local function setAliveMember()
@@ -20,12 +22,21 @@ end
 
 function expScreen.start(totalExp)
     state.isDistributing = true
-    state.timer = 0
-    state.speed = 0.08    
     state.aliveMember = setAliveMember()
+    state.expPerMember = math.floor(totalExp / #state.aliveMember)
+    state.speed = math.max(1, math.floor(state.expPerMember * 0.5))
     
-    state.expPerMember = math.floor(totalExp / #state.aliveMember) 
-    state.remainingExp = state.expPerMember
+    for i, member in ipairs(gameState.party) do
+        member.displayExp = member.totalExp
+        member.displayLvl = member.lvl
+        if not member.isDead then
+            local levelUps = partyManager.increaseExp(member, state.expPerMember)
+            
+            for i, data in ipairs(levelUps) do
+                table.insert(state.levelUpQueue, data)
+            end
+        end
+    end
 end
 
 function expScreen.isDistributing()
@@ -33,23 +44,35 @@ function expScreen.isDistributing()
 end
 
 function expScreen.skip()
-    state.speed = 0.01
+   for i, member in ipairs(state.aliveMember) do
+        member.displayExp = member.totalExp
+        member.displayLvl = member.lvl
+    end
 end
 
 function expScreen.update(dt)
     if not state.isDistributing then return end
-    state.timer = state.timer + dt
-    
-    while state.timer >= state.speed and state.remainingExp > 0 do
-        state.timer = state.timer - state.speed
-        for i, member in ipairs(state.aliveMember) do
-            partyManager.increaseExp(member, 1)
+
+    local allFinished = true
+    for i, member in ipairs(state.aliveMember) do
+
+        if member.displayExp < member.totalExp then
+            allFinished = false
+
+            member.displayExp = math.min(member.displayExp + state.speed * dt, member.totalExp)
+
+            local requiredExp = expData[member.displayLvl + 1]
+            if requiredExp and member.displayExp >= requiredExp then
+                member.displayLvl = member.displayLvl + 1
+            end
         end
-        state.remainingExp = state.remainingExp - 1
     end
-    
-    if state.remainingExp <= 0 then
+
+    if allFinished then 
         state.isDistributing = false
+        for i, data in ipairs(state.levelUpQueue) do
+            textBox.queue(''..data.member.name..' has leveled up to LVL '..data.lvl..'.')
+        end
     end
 end
 
@@ -88,7 +111,7 @@ function expScreen.draw()
         local lvlWidth = innerWidth
 
         love.graphics.setFont(font_medium)
-        love.graphics.printf('LVL '..member.lvl..'', lvlX, lvlY, lvlWidth, 'left')
+        love.graphics.printf('LVL '..member.displayLvl..'', lvlX, lvlY, lvlWidth, 'left')
 
         local barX = innerX
         local barY = lvlY + 25
@@ -96,17 +119,20 @@ function expScreen.draw()
 
         love.graphics.rectangle('line', barX, barY, innerWidth, 15)
 
-        local currentExp = member.totalExp - expData[member.lvl]
-        local filled = innerWidth * (currentExp / (expData[member.lvl + 1] - expData[member.lvl]))
+        local currentExp = member.displayExp - expData[member.displayLvl]
+        local diffExp = expData[member.displayLvl + 1] - expData[member.displayLvl]
+        local filled = innerWidth * (currentExp / diffExp)
 
         love.graphics.rectangle('fill', barX, barY, filled, 15)
 
         local nextX = innerX
         local nextY = barY + 20
         local nextWidth = innerWidth
+        local nextExp = expData[member.displayLvl + 1]
+        local remainingExp = math.ceil(nextExp - member.displayExp)
 
         love.graphics.setFont(font_small)
-        love.graphics.printf('Next: '..partyManager.getNextExp(member)..'', nextX, nextY, nextWidth, 'right')
+        love.graphics.printf('Next: '..remainingExp..'', nextX, nextY, nextWidth, 'right')
     end
 end
 

@@ -4,8 +4,8 @@ local battleHud = {}
 
 function battleHud.draw(state)
 
-    local borderX = 10
-    local borderY = 10
+    local borderX = 20
+    local borderY = 20
     local borderWidth = 128
     local borderHeight = 96
     local innerX = borderX + 15
@@ -32,10 +32,11 @@ function battleHud.draw(state)
             hpBit = math.floor( hpDrop * (1 - progress)^2)
         end
 
+        local gap = 10
         love.graphics.setColor(0, 0, 0)
         love.graphics.rectangle(
             'fill',
-            borderX + (index - 1) * (borderWidth + borderX),
+            borderX + (index - 1) * (borderWidth + gap),
             borderY + shiftY,
             borderWidth,
             borderHeight
@@ -48,32 +49,32 @@ function battleHud.draw(state)
         end
         love.graphics.rectangle(
             'line',
-            borderX + (index - 1) * (borderWidth + borderX),
+            borderX + (index - 1) * (borderWidth + gap),
             borderY + shiftY,
             borderWidth,
             borderHeight
         )
 
 
-        love.graphics.setFont(font_small)
+        love.graphics.setFont(font_medium)
         love.graphics.printf(
             member.name,
-            innerX + (index - 1) * (borderWidth + borderX),
+            innerX + (index - 1) * (borderWidth + gap),
             innerY + shiftY,
             innerWidth,
             'center'
         )
 
-        love.graphics.setFont(font_large)
+        love.graphics.setFont(font_xlarge)
         local hudStat = {'HP' , 'MP'}
         local hpValue = math.max(0, member.currentHp + hpBit)
         local values = {hpValue, member.currentMp}
         for i, stat in ipairs(hudStat) do
             love.graphics.printf(
                 stat, 
-                innerX + (index - 1) * (borderWidth + borderX),
+                innerX + (index - 1) * (borderWidth + gap),
                 innerY + shiftY + 25 + (i - 1) * 28,
-                innerWidth*0.25,
+                innerWidth*0.4,
                 'left'
             )
         end
@@ -87,9 +88,9 @@ function battleHud.draw(state)
             end
             love.graphics.printf(
                 value, 
-                innerX + innerWidth*0.25 + (index - 1) * (borderWidth + borderX),
+                innerX + innerWidth*0.4 + (index - 1) * (borderWidth + gap),
                 innerY + shiftY + 25 + (i - 1) * 28,
-                innerWidth*0.75,
+                innerWidth*0.6,
                 'right'
             )
         end
@@ -98,8 +99,8 @@ function battleHud.draw(state)
             love.graphics.setColor(0.25, 0.25, 0.25)
             love.graphics.rectangle(
                 'line',
-                innerX + (index - 1) * (borderWidth + borderX),
-                innerY + shiftY + 46 + (n - 1) * 28,
+                innerX + (index - 1) * (borderWidth + gap),
+                innerY + shiftY + 48 + (n - 1) * 28,
                 innerWidth,
                 5
             )
@@ -124,8 +125,8 @@ function battleHud.draw(state)
             end
             love.graphics.rectangle(
                 'fill',
-                innerX + (index - 1) * (borderWidth + borderX),
-                innerY + shiftY + 46 + (n - 1) * 28,
+                innerX + (index - 1) * (borderWidth + gap),
+                innerY + shiftY + 48 + (n - 1) * 28,
                 bar,
                 5
             )

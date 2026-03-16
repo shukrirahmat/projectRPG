@@ -1,3 +1,5 @@
+local gameState = require('gameState')
+
 local battleLog = {}
 
 function battleLog.showEncounterMessage(state, dt)
@@ -11,7 +13,7 @@ function battleLog.showEncounterMessage(state, dt)
 end
 
 function battleLog.addText(state, text)
-    if #state.battleLog >= 8 then
+    if #state.battleLog >= 4 then
         table.remove(state.battleLog, 1)
     end
 
@@ -19,14 +21,14 @@ function battleLog.addText(state, text)
 end
 
 function battleLog.draw(state)
-    local borderX = 10
-    local borderHeight = state.menuHeight
-    local borderY = windowHeight - borderHeight - 10
+    local borderX = 20
+    local borderHeight = gameState.textHeight
+    local borderY = windowHeight - borderHeight - 20
     local borderWidth = windowWidth - borderX * 2
 
     local textX = borderX + 20
     local textY = borderY + 10
-    local textLineHeight = 20
+    local textLineHeight = 25
     local textWidth = borderWidth - textX * 2 
 
     love.graphics.setColor(1, 1, 1)

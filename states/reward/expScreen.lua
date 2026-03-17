@@ -38,6 +38,10 @@ function expScreen.start(totalExp)
             end
         end
     end
+    
+    state.displayOn = false;
+    state.displayTimer = 0;
+    state.displayEnd = 0.5;
 end
 
 function expScreen.isDistributing()
@@ -48,6 +52,18 @@ function expScreen.skip()
     for i, member in ipairs(state.aliveMember) do
         member.displayExp = member.totalExp
         member.displayLvl = member.lvl
+    end
+end
+
+function expScreen.isDisplayOn()
+    return state.displayOn
+end
+
+function expScreen.updateDisplay(dt)
+    if state.displayOn then return end
+    state.displayTimer = state.displayTimer + dt
+    if state.displayTimer >= state.displayEnd then
+        state.displayOn = true
     end
 end
 
@@ -84,6 +100,7 @@ end
 
 function expScreen.draw()
 
+    local displayProgress = math.min(1, state.displayTimer / state.displayEnd)
     local startX = 20
     local startY = 20
     local boxWidth = ((windowWidth - startX * 2) / 4) - 10
@@ -95,13 +112,14 @@ function expScreen.draw()
         local boxY = startY
         local innerX = boxX + 15
         local innerWidth = boxWidth - 30
-
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.rectangle('line', boxX, boxY, boxWidth, boxHeight)
+        
+        love.graphics.setScissor(boxX, boxY + (boxHeight / 2) * (1 - displayProgress), 
+            boxWidth, boxHeight * displayProgress)
 
         local spriteX = boxX + boxWidth * 0.5 - monsterSpriteDimension * 0.5
         local spriteY = boxY + 20
-
+        
+        love.graphics.setColor(1, 1, 1)
         love.graphics.draw(member.sprite, spriteX, spriteY)
         love.graphics.rectangle('line', spriteX, spriteY, monsterSpriteDimension, monsterSpriteDimension)
 
@@ -148,6 +166,12 @@ function expScreen.draw()
 
         love.graphics.setFont(font_medium)
         love.graphics.printf('Next: '..remainingExp..'', nextX, nextY, nextWidth, 'right')
+        
+        love.graphics.setScissor()
+        
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle('line', boxX, boxY + (boxHeight / 2) * (1 - displayProgress), 
+            boxWidth, boxHeight * displayProgress)
     end
 end
 

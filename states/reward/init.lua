@@ -19,6 +19,10 @@ function reward.update(dt)
         textBox.update(dt)
     end
     
+    if not expScreen.isDisplayOn() then
+        expScreen.updateDisplay(dt)
+    end
+    
     if not textBox.isBusy() and expScreen.isDistributing() then
         expScreen.update(dt)
     end

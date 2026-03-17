@@ -13,7 +13,6 @@ function reward.load(stateManager, var)
     textBox.start({'Gained '..var.exp..' EXP.'})
     expScreen.start(var.exp)
     spoils.start(var.gold, var.items)
-    --state.exiting = false
     state.phase = 'intro'
 end
 

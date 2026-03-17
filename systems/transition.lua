@@ -5,6 +5,52 @@ local state = {
     timer = 0
 }
 
+local function drawBattleTransition()
+
+    local progress = state.timer / state.speed
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.polygon(
+        'fill',
+        0,
+        0,
+        0,
+        progress  * windowWidth,
+        progress * windowWidth,
+        0
+    )
+
+    love.graphics.polygon(
+        'fill',
+        windowWidth,
+        0,
+        windowWidth - progress  * windowWidth,
+        0,
+        windowWidth,
+        progress * windowWidth
+    )
+
+    love.graphics.polygon(
+        'fill',
+        0,
+        windowHeight,
+        0,
+        windowHeight - progress * windowWidth,
+        progress * windowWidth,
+        windowHeight
+    )
+
+    love.graphics.polygon(
+        'fill',
+        windowWidth,
+        windowHeight,
+        windowWidth - progress * windowWidth,
+        windowHeight,
+        windowWidth,
+        windowHeight - progress * windowWidth
+    )
+end
+
 local function drawFadeOut()
     local opacity = state.timer / state.speed
     love.graphics.setColor(0, 0, 0, opacity)
@@ -18,7 +64,7 @@ local function drawFadeOut()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-local function drawFadeIn(state)
+local function drawFadeIn()
     local opacity = 1 - state.timer / state.speed;
     love.graphics.setColor(0, 0, 0, opacity)
     love.graphics.rectangle(
@@ -58,6 +104,8 @@ function transition.draw()
         drawFadeOut()
     elseif state.ref == 'fadeIn' then
         drawFadeIn()
+    elseif state.ref == 'battle' then
+        drawBattleTransition()
     end
 end
 

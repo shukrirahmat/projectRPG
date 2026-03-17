@@ -35,6 +35,7 @@ sprites['member_one'] = love.graphics.newImage('graphics/images/one.png')
 sprites['member_two'] = love.graphics.newImage('graphics/images/two.png')
 sprites['member_three'] = love.graphics.newImage('graphics/images/three.png')
 sprites['member_four'] = love.graphics.newImage('graphics/images/four.png')
+sprites['coffin'] = love.graphics.newImage('graphics/images/coffin.png')
 
 --ENEMY SPRITES--
 

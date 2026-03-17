@@ -2,6 +2,7 @@ local gameState = require('gameState')
 local expData = require('data.expData')
 local partyManager = require('systems.partyManager')
 local textBox = require('systems.textBox')
+local sprites = require('graphics.sprites')
 
 local expScreen = {}
 
@@ -118,9 +119,11 @@ function expScreen.draw()
 
         local spriteX = boxX + boxWidth * 0.5 - monsterSpriteDimension * 0.5
         local spriteY = boxY + 20
+        local sprite = member.sprite
+        if member.isDead then sprite = sprites['coffin'] end
         
         love.graphics.setColor(1, 1, 1)
-        love.graphics.draw(member.sprite, spriteX, spriteY)
+        love.graphics.draw(sprite, spriteX, spriteY)
         love.graphics.rectangle('line', spriteX, spriteY, monsterSpriteDimension, monsterSpriteDimension)
 
         local nameX = innerX

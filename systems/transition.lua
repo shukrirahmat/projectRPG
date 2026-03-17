@@ -18,6 +18,19 @@ local function drawFadeOut()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
+local function drawFadeIn(state)
+    local opacity = 1 - state.timer / state.speed;
+    love.graphics.setColor(0, 0, 0, opacity)
+    love.graphics.rectangle(
+        'fill',
+        0,
+        0,
+        windowWidth,
+        windowHeight
+    )
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 function transition.start(var)
     state.active = true;
     state.ref = var.ref
@@ -43,6 +56,8 @@ function transition.draw()
     
     if state.ref == 'fadeOut' then
         drawFadeOut()
+    elseif state.ref == 'fadeIn' then
+        drawFadeIn()
     end
 end
 

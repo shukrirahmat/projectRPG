@@ -105,7 +105,7 @@ function fieldMovement.changeLocation(state, dt)
         gameState.currentMap = nextMap
         gameState.playerPos = nextMap.startPos
         gameState.playerSprite = sprites.player_front[1]
-        state.manager.switch('field', {fadesIn = true})
+        state.manager.switch('field')
     end
 end
 

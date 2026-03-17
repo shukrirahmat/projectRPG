@@ -64,7 +64,7 @@ function reward.update(dt)
     end
 
     if state.phase == 'exiting' then
-        state.manager.switch('field', {fadesIn = true})
+        state.manager.switch('field')
     end
 end
 

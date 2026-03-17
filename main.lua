@@ -7,7 +7,7 @@ function love.load()
     love.window.setMode(windowWidth, windowHeight)
 
     stateManager.initiate()
-    stateManager.switch('field')    
+    stateManager.switch('field') 
 end
 
 function love.update(dt)

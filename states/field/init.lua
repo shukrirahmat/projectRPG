@@ -1,7 +1,7 @@
 local gameState = require('gameState')
 local fieldMapper = require('states.field.fieldMapper')
 local fieldMovement = require('states.field.fieldMovement')
-local transitions = require('systems.transitions')
+local transition = require('systems.transition')
 
 local field = {}
 
@@ -21,15 +21,21 @@ function field.load(stateManager, var)
     state.isEncountering = nil
     state.currentMove = nil
     state.encounterChance = gameState.currentMap.encounterRate
-
-    if var and var.fadesIn then
-        state.fadesIn = true;
-        state.transition = { cat = 'fadeIn', timer = 0, max = 0.5 }
-    end
+    
+    state.phase = 'fadeIn'
+    transition.start({ref = 'fadeIn', speed = 0.5})
 end
 
 function field.update(dt)
-    if state.fadesIn then
+    if state.phase == 'fadeIn' then
+        transition.update(dt)
+        if transition.notActive() then
+            state.phase = 'idle'
+        end
+    end
+    
+    
+    --[[if state.fadesIn then
         transitions.runFadeIn(state, dt)
     elseif state.isEntering then
         fieldMovement.changeLocation(state, dt)
@@ -39,7 +45,7 @@ function field.update(dt)
         fieldMovement.movePlayer(state, dt)
     elseif not state.currentMove then
         fieldMovement.handleHoldMovement(state, dt)
-    end
+    end]]
 end
 
 function field.draw()

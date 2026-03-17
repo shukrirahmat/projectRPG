@@ -1,5 +1,6 @@
 local gameState = require('gameState')
 local encounter = require('states.field.encounter')
+local mapper = require('states.field.mapper')
 local sprites = require('graphics.sprites')
 
 local movement = {}
@@ -36,25 +37,16 @@ local directions = {
 local function handlePostMovement(state)
     local spotCoordinate = ''..gameState.playerPos.x..','..gameState.playerPos.y..''
     local spot = gameState.currentMap.spots[spotCoordinate]
+    
     if spot then
-        move.active = false
         if spot.category == 'gates' then
             move.nextMap = require('maps.'..spot.to..'')
             move.isChangingLocation = true
-            return
         end
     end
 
-    if state.encounterChance then
-        local roll = math.random(1, state.encounterChance)
-        if roll == 1 then
-            move.active = false
-            state.encounterChance = gameState.currentMap.encounterRate
-            encounter.start();
-            return
-        else
-            state.encounterChance = math.floor(state.encounterChance * 0.8)
-        end
+    if not spot and encounter.hasEncounter() then
+        encounter.attempt()
     end
 
     move.active = false
@@ -64,17 +56,17 @@ function movement.checkHold()
     if move.active then return end
 
     if love.keyboard.isDown('up') then
-        movement.start('up')
+        movement.load('up')
     elseif love.keyboard.isDown('down') then
-        movement.start('down')
+        movement.load('down')
     elseif love.keyboard.isDown('left') then
-        movement.start('left')
+        movement.load('left')
     elseif love.keyboard.isDown('right') then
-        movement.start('right')
+        movement.load('right')
     end
 end
 
-function movement.start(key)
+function movement.load(key)
     move.active = true
     move.key = key
     move.timer = 0
@@ -101,7 +93,7 @@ function movement.changeLocation()
     move.isChangingLocation = false
 end
 
-function movement.update(dt, state)
+function movement.update(dt)
     move.timer = move.timer + dt
 
     local dir = directions[move.key]
@@ -114,26 +106,13 @@ function movement.update(dt, state)
     end
 
     local progress = move.timer / move.speed
-    local shiftAmount = progress * state.tileSize
 
     if move.timer < move.speed then
-        state.mapShift[dir.axis] = math.floor(dir.dy ~= 0 and dir.dy * shiftAmount or dir.dx * shiftAmount)
-        local step = math.abs(state.mapShift[dir.axis]) / state.tileSize
-        if step <= 0.25 then
-            gameState.playerSprite = dir.sprite[2]
-        elseif step <= 0.5 then
-            gameState.playerSprite = dir.sprite[1]
-        elseif step <= 0.75 then
-            gameState.playerSprite = dir.sprite[3]
-        end
+        mapper.shiftMap(dir, progress)
     else
-        state.mapShift[dir.axis] = 0
-        gameState.playerPos.x = gameState.playerPos.x + dir.dx
-        gameState.playerPos.y = gameState.playerPos.y + dir.dy
-        state.camera.x = state.camera.x - dir.dx * state.tileSize
-        state.camera.y = state.camera.y - dir.dy * state.tileSize
+        mapper.stopMovement(dir)
         move.timer = 0
-        handlePostMovement(state)
+        handlePostMovement()
     end
 end
 

@@ -6,7 +6,7 @@ local text = {
     queue = {}
 }
 
-function textBox.start(strings)
+function textBox.load(strings)
     text.isActive = true
     text.lines = strings
     text.currentLine = 1
@@ -56,7 +56,7 @@ end
 function textBox.update(dt)
 
     if not text.isActive and #text.queue > 0 then
-        textBox.start(table.remove(text.queue, 1))
+        textBox.load(table.remove(text.queue, 1))
     end
 
     if not text.isActive then return end

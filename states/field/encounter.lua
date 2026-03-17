@@ -9,15 +9,43 @@ local state = {
     isEncountering = false;
 }
 
+function encounter.load()
+    state.chance = gameState.currentMap.encounterRate or nil
+
+    if state.chance then
+        state.hasEncounter = true
+    else
+        state.hasEncounter = false
+    end
+
+    state.battlers = nil
+    state.isEncountering = false
+end
+
+function encounter.hasEncounter()
+    return state.hasEncounter
+end
+
 function encounter.isEncountering()
     return state.isEncountering
 end
+
+function encounter.attempt()
+    local roll = math.random(1, state.chance)
+    if roll == 1 then
+        state.chance = gameState.currentMap.encounterRate
+        encounter.start();
+    else
+        state.chance = math.floor(state.chance * 0.8)
+    end
+end
+
 
 function encounter.setup()
     local battlers = state.battlers
     state.isEncountering = false
     state.battlers = nil
-    
+
     return battlers
 end
 

@@ -10,9 +10,9 @@ local state = {}
 
 function reward.load(stateManager, var)
     state.manager = stateManager
-    textBox.start({'Gained '..var.exp..' EXP.'})
-    expScreen.start(var.exp)
-    spoils.start(var.gold, var.items)
+    textBox.load({'Gained '..var.exp..' EXP.'})
+    expScreen.load(var.exp)
+    spoils.load(var.gold, var.items)
     state.phase = 'intro'
 end
 
@@ -50,7 +50,7 @@ function reward.update(dt)
     if state.phase == 'spoilsText' then
         textBox.update(dt)
         if not textBox.isBusy() then
-            transition.start({ref = 'fadeOut', speed = 0.5})
+            transition.load({ref = 'fadeOut', speed = 0.5})
             state.phase = 'transitionOut'
         end
     end

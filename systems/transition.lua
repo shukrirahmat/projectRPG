@@ -77,7 +77,7 @@ local function drawFadeIn()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function transition.start(var)
+function transition.load(var)
     state.active = true;
     state.ref = var.ref
     state.timer = 0

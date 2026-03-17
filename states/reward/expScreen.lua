@@ -21,7 +21,7 @@ local function setAliveMember()
     return alive
 end
 
-function expScreen.start(totalExp)
+function expScreen.load(totalExp)
     state.isDistributing = true
     state.levelUpQueue = {}
     state.aliveMember = setAliveMember()

@@ -7,7 +7,7 @@ local spoils = {}
 
 local state = {}
 
-function spoils.start(gold, items)
+function spoils.load(gold, items)
     state.active = true
     state.gold = gold
     state.items = items

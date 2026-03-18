@@ -8,7 +8,7 @@ local battleLoop = require('states.battle.battleLoop')
 local battleHandler = require('states.battle.battleHandler')
 local battleAnimation = require('states.battle.battleAnimation')
 local testingDetails = require('states.battle.testingDetails')
-local transitions = require('systems.transitions')
+local transition = require('systems.transition')
 
 local battle = {}
 
@@ -40,14 +40,48 @@ function battle.load(stateManager, var)
     state.battleEnded = false
     state.animation = nil
     state.encounterMessage = {'Enemies encountered!'}
-    state.transition = { cat = 'fadeIn', timer = 0, max = 0.5 }
-    state.fadesIn = true;
     state.exitBattle = false;
+    
+    transition.load({ref = 'fadeIn', speed = 0.5})
+    state.phase = 'intro'
 end
 
 function battle.update(dt)
     
-    if state.fadesIn then
+    if state.phase == 'intro' then
+        transition.update(dt)
+        battleLog.showEncounterMessage(state, dt)
+        if not transition.isActive() and not state.encounterMessage then
+            state.phase = 'menuInput'
+        end
+    end
+    
+    if state.phase == 'menuInput' then
+        if state.battleRunning then
+            state.phase = 'battleRunning'
+        end
+    end
+    
+    if state.phase == 'battleRunning' then
+        battleLoop.run(state, dt)
+        if state.animation then
+            battleAnimation.run(state, dt)
+        end
+        
+        if not state.battleRunning then
+            if state.exitBattle then
+                state.phase = 'exiting'
+            else
+                state.phase = 'menuInput'
+            end
+        end
+    end
+    
+    if state.phase == 'exiting' then
+        battleHandler.exitBattle(state, dt)
+    end
+    
+    --[[if state.fadesIn then
         transitions.runFadeIn(state, dt)
     end
 
@@ -60,7 +94,7 @@ function battle.update(dt)
         if state.animation then
             battleAnimation.run(state, dt)
         end
-    end
+    end]]
 end
 
 function battle.draw()
@@ -68,12 +102,12 @@ function battle.draw()
     battleSprites.draw(state)
     battleHud.draw(state)
 
-    if not state.encounterMessage and not state.battleRunning then
+    if state.phase == 'menuInput' then
         battleMenu.draw(state)
     end
 
-    if state.transition then
-        transitions.draw(state)
+    if transition.isActive() then
+        transition.draw()
     end
 
     if #state.battleLog > 0 then

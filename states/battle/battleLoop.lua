@@ -112,9 +112,10 @@ local function handleBattleEnd(state)
         battleLog.addText(state, 'Party has been defeated')
     elseif state.allEnemyDead then
         battleLog.addText(state, 'Battle won!')
-        state.exitBattle = true;
-        state.actionTimer = 0
     end
+    state.exitBattle = true;
+    state.battleRunning = false;
+    state.actionTimer = 0
 end
 
 local function doNextKill(state)
@@ -143,13 +144,13 @@ function applyEffect(state, effect)
         local data = effectData[effect.ref].partyAnimation
         local animation = animationCreator.new(
             effect.target, data.ref, state.actionSpeed * data.speed, effect.value
-            )
+        )
         state.animation = animation
     elseif effect.target and not effect.target.isPartyMember and effectData[effect.ref].enemyAnimation then
         local data = effectData[effect.ref].enemyAnimation
         local animation = animationCreator.new(
             effect.target, data.ref, state.actionSpeed * data.speed, effect.value
-            )
+        )
         state.animation = animation
     end
 end
@@ -204,7 +205,7 @@ function executeAction(state, action, isFollowUp)
             local data = toAct.enemyAnimation
             local animation = animationCreator.new(
                 action.user, data.ref, state.actionSpeed * data.speed
-                )
+            )
             state.animation = animation
         elseif action.user.isPartyMember and action.ref == 'counterAtk' then
             local data = toAct.partyAnimation

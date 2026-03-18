@@ -74,15 +74,21 @@ function textBox.update(dt)
 end
 
 function textBox.draw()
-    local borderX = 20
-    local borderHeight = gameState.textHeight
-    local borderY = windowHeight - borderHeight - 20
-    local borderWidth = windowWidth - borderX * 2
+    
+    local marginX = 20
+    local marginY = marginX
+    local paddingX = 20
+    local paddingY = 10
 
-    local textX = borderX + 20
-    local textY = borderY + 10
-    local textLineHeight = (borderHeight - 20) / 4
-    local textWidth = borderWidth - textX * 2 
+    local borderX = marginX
+    local borderHeight = state.height
+    local borderY = windowHeight - borderHeight - marginY
+    local borderWidth = windowWidth - marginX * 2
+
+    local textX = borderX + paddingX
+    local textY = borderY + paddingY
+    local lineHeight = (borderHeight - paddingY * 2) / 4
+    local textWidth = borderWidth - paddingX * 2  
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle(
@@ -102,7 +108,7 @@ function textBox.draw()
         love.graphics.printf(
             line,
             textX,
-            textY + (i - 1) * textLineHeight,
+            textY + (i - 1) * lineHeight,
             textWidth
         )
     end

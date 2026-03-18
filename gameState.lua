@@ -9,5 +9,6 @@ gameState.partyGold = 0
 gameState.partyItems = {}
 gameState.textHeight = 140
 gameState.textSpeed = 0.02
+gameState.battleSpeed = 1
 
 return gameState

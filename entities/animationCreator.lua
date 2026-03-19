@@ -5,7 +5,6 @@ function animationCreator.new(user, ref, speed, value)
     
     animation.user = user
     animation.ref = ref
-    animation.timer = 0
     animation.speed = speed
     animation.value = value
 

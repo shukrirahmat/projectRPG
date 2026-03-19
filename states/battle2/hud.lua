@@ -8,37 +8,40 @@ local state = {}
 function hud.load(party)
     state.party = party
     state.timer = 0
-    state.speed = gameState.battleSpeed
-    state.takingDamage = false
+    state.speed = nil
+    state.isAnimating = false
+    state.animation = nil 
 end
 
-function hud.istakingDamage()
-    return state.takingDamage
+function hud.isAnimating()
+    return state.isAnimating
 end
 
-function hud.takeDamage(member, damage)
-    state.takingDamage = { member = member, damage = damage}
+function hud.animate(animation)
+    state.animation = animation
+    state.isAnimating = true
 end
 
 function hud.update(dt)
-    if not state.takingDamage then return end
-    
+    if not state.isAnimating then return end
+
     state.timer = state.timer + dt
-    if state.timer >=  state.speed then
+    if state.timer >=  state.animation.speed then
         state.timer = 0
-        state.takingDamage = false
+        state.isAnimating = false
+        state.animation = nil
     end
 end
 
 function hud.draw()
-    
+
     local marginX = 20
     local marginY = marginX
     local borderWidth = 128
     local borderHeight = 96
     local paddingX = 15
     local paddingY = 5
-    
+
     local borderX = marginX
     local borderY = marginY
     local innerX = borderX + paddingX
@@ -52,13 +55,15 @@ function hud.draw()
         local hpBit = 0
         local progress;
 
-        if state.takingDamage and state.takingDamage.member == member then
+        if state.isAnimating 
+        and state.animation.user == member
+        and state.animation.ref == 'partyDamaged' then
             progress = state.timer / state.speed
             shiftY = 15 * math.sin(progress * math.pi)
 
-            local hpDrop = state.takingDamage.damage
+            local hpDrop = state.animation.value
             if member.currentHp < 0 then
-                hpDrop = state.takingDamage.damage + member.currentHp
+                hpDrop = state.animation.value + member.currentHp
             end
             hpBit = math.floor( hpDrop * (1 - progress)^2)
         end
@@ -94,7 +99,7 @@ function hud.draw()
             innerWidth,
             'center'
         )
-        
+
         local statY = 25
         local statLineHeight = 28
 
@@ -111,7 +116,7 @@ function hud.draw()
                 'left'
             )
         end
-        
+
         for i, value in ipairs(values) do
             if member.isDead then
                 love.graphics.setColor(0.25, 0.25, 0.25)
@@ -128,7 +133,7 @@ function hud.draw()
                 'right'
             )
         end
-        
+
         local barY = 48
         local barLineHeight = statLineHeight
         local barHeight = 4
@@ -147,8 +152,10 @@ function hud.draw()
             if n == 1 then
                 love.graphics.setColor(0.75, 0.75, 0.75)
                 local hpRatio;
-                if progress then
-                    hpRatio = math.max(0, (((1-progress)^2) * state.takingDamage.damage 
+                if state.isAnimating 
+                and state.animation.user == member
+                and state.animation.ref == 'partyDamaged' then
+                    hpRatio = math.max(0, (((1-progress)^2) * state.animation.value 
                             + member.currentHp)/member.maxHp)
                 else
                     hpRatio = (math.max(0, member.currentHp) / member.maxHp)

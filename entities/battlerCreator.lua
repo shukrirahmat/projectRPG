@@ -114,6 +114,10 @@ function battlerCreator.new(member)
         battler.baseAtk = battler.baseAtk * 1.5
         battler.atk = battler.baseAtk
     end
+    
+    function battler:cannotAct()
+        return self.status['STUN'] or self.status['SLEEP'] or self.status['CONFUSE']
+    end
 
     return battler
 end

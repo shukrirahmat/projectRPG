@@ -1,6 +1,8 @@
 local transition = require('systems.transition')
 local logger = require('states.battle2.logger')
 local hud = require('states.battle2.hud')
+local enemySprites = require('states.battle2.enemySprites')
+local menu = require('states.battle2.menu')
 
 local battle = {}
 
@@ -15,6 +17,8 @@ function battle.load(stateManager, var)
     transition.load({ref = 'fadeIn', speed = 0.5})
     logger.load('Enemies encountered!')
     hud.load(state.party)
+    enemySprites.load(state.enemies)
+    menu.load(state.party, state.enemies)
     state.phase = 'intro'
 end
 
@@ -24,14 +28,21 @@ function battle.update(dt)
         transition.update(dt)
         logger.update(dt)
         if not transition.isActive() and not logger.isActive() then
-            state.phase = 'menuInput'
+            menu.start()
+            state.phase = 'menu'
         end
     end
+
 end
 
 function battle.draw()
-    
+
     hud.draw()
+    enemySprites.draw()
+
+    if menu.isActive() then
+        menu.draw()
+    end
 
     if logger.isActive() then
         logger.draw()
@@ -43,6 +54,9 @@ function battle.draw()
 end
 
 function battle.keypressed(key)
+    if menu.isActive() then
+        menu.keypressed(key)
+    end
 end
 
 return battle

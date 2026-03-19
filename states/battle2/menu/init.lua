@@ -1,5 +1,6 @@
-local mainMenu = require('states.battle2.mainMenu')
-local battlerMenu = require('states.battle2.battlerMenu')
+local mainMenu = require('states.battle2.menu.mainMenu')
+local battlerMenu = require('states.battle2.menu.battlerMenu')
+local targetMenu = require('states.battle2.menu.targetMenu')
 
 local menu = {}
 
@@ -22,30 +23,39 @@ function menu.load(party, enemies)
     state.currentMenu = nil
     mainMenu.load(menu, state)
     battlerMenu.load(menu, state)
+    targetMenu.load(menu, state)
 end
 
 function menu.start()
     state.isActive = true
-    menu.toMain()
+    mainMenu.reset()
+    menu.switch(mainMenu)
 end
 
 function menu.finish()
     state.isActive = false
+    -----TEST---
+    for i, member in ipairs(state.party) do
+        print(member.currentAction.user.name)
+        print(member.currentAction.ref)
+        print(member.currentAction.targets[1].name)
+        print('****')
+    end
+    -------------
 end
 
 function menu.isActive()
     return state.isActive
 end
 
-function menu.toMain()
-    state.currentMenu = mainMenu
-    mainMenu.reset()
+function menu.switch(menu)
+    state.currentMenu = menu
 end
 
-function menu.toBattler(index)
-    battlerMenu.setBattler(index)
-    battlerMenu.reset()
-    state.currentMenu = battlerMenu
+function menu.openTarget()
+    targetMenu.open(state.currentMenu)
+    targetMenu.reset()
+    menu.switch(targetMenu)
 end
 
 function menu.previousBattler()
@@ -60,10 +70,14 @@ function menu.previousBattler()
         end
     end
     
-    if found then 
-        menu.toBattler(index)
+    if found then
+        battlerMenu.reset()
+        battlerMenu.setBattler(index)
+        battlerMenu.currentBattler().currentAction = nil;
+        menu.switch(battlerMenu)
     else
-        menu.toMain()
+        mainMenu.reset()
+        menu.switch(mainMenu)
     end
 end
 
@@ -73,6 +87,8 @@ function menu.nextBattler()
     if state.currentMenu == mainMenu then
         index = 1
     elseif state.currentMenu == battlerMenu then
+        index = battlerMenu.getIndex() + 1
+    elseif state.currentMenu == targetMenu then
         index = battlerMenu.getIndex() + 1
     end
     
@@ -86,7 +102,9 @@ function menu.nextBattler()
     end
     
     if found then 
-        menu.toBattler(index)
+        battlerMenu.reset()
+        battlerMenu.setBattler(index)
+        menu.switch(battlerMenu)
     else
         menu.finish()
     end

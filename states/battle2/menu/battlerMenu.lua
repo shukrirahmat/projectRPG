@@ -17,15 +17,13 @@ local function moveDown()
 end
 
 local function confirm()
-    return
+    if state.position == 1 then
+        state.menu.openTarget()
+    end
 end
 
 local function back()
     state.menu.previousBattler()
-end
-
-local function currentBattler()
-    return state.party[state.battlerIndex]
 end
 
 function battlerMenu.load(menu, menuState)
@@ -38,6 +36,8 @@ function battlerMenu.load(menu, menuState)
     state.gap = menuState.gap
     state.paddingX = menuState.paddingX
     state.paddingY = menuState.paddingY
+    
+    state.borderWidth = (state.width - state.gap * 2) / 4
     
     state.party = menuState.party
     state.position = 1
@@ -52,12 +52,20 @@ function battlerMenu.setBattler(index)
     state.battlerIndex = index
 end
 
+function battlerMenu.currentBattler()
+    return state.party[state.battlerIndex]
+end
+
 function battlerMenu.reset()
     state.position = 1
 end
 
 function battlerMenu.getIndex()
     return state.battlerIndex
+end
+
+function battlerMenu.getWidth()
+    return state.borderWidth
 end
 
 function battlerMenu.keypressed(key)
@@ -76,7 +84,7 @@ function battlerMenu.draw()
     local borderHeight = state.height
     local borderX = state.marginX
     local borderY = windowHeight - borderHeight - state.marginY
-    local borderWidth = (state.width - state.gap * 2) / 4
+    local borderWidth = state.borderWidth
     local itemX = borderX + state.paddingX
     local itemY = borderY + state.paddingY
     local itemWidth = borderWidth - state.paddingX * 2
@@ -89,7 +97,7 @@ function battlerMenu.draw()
     love.graphics.setFont(font_large)
     for i, item in ipairs(state.list) do
         
-        if i == 2 and currentBattler().status['SEAL'] then
+        if i == 2 and battlerMenu.currentBattler().status['SEAL'] then
             love.graphics.setColor(0.25, 0.25, 0.25)
         end
         
@@ -132,7 +140,7 @@ function battlerMenu.draw()
     )
     
     love.graphics.draw(
-        currentBattler().sprite,
+        battlerMenu.currentBattler().sprite,
         spriteX,
         spriteY - 1,
         0,

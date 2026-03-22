@@ -1,6 +1,7 @@
 local actionData = require('data.actionData')
 local actionCreator = require('entities.actionCreator')
 local drawHelper = require('utils.drawHelper')
+local itemManager = require('systems.itemManager')
 
 local targetMenu = {}
 
@@ -21,6 +22,12 @@ end
 local function confirm()
     state.isActive = false;
     state.battler.currentAction = actionCreator.new(state.ref, state.battler, {state.list[state.position]})
+    
+    if state.action.item then
+        state.battler.usingItem = state.ref
+        itemManager.manageItems(state.ref, -1)
+    end
+    
     state.result = { ref = 'nextBattler', prevMenu = state.prevMenu }
 end
 
@@ -46,6 +53,7 @@ function targetMenu.load(menuState, prevMenu, ref, battler)
     state.ref = ref
 
     state.action = actionData[ref]
+    
     if state.action.aim == 'enemies' then
         for i, enemy in ipairs(state.enemies) do
             if not enemy.isDead then

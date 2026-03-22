@@ -15,7 +15,7 @@ end
 local function moveDown()
     if state.position + 2 <= #state.list then
         state.position = state.position + 2
-    elseif state.position + 1 == #state.list then
+    elseif state.position % 2 == 0 and state.position + 1 == #state.list then
         state.position = state.position + 1
     end
 end

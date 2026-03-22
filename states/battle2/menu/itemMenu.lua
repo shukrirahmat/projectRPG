@@ -1,7 +1,11 @@
 local drawHelper = require('utils.drawHelper')
 local actionData = require('data.actionData')
+local actionCreator = require('entities.actionCreator')
+local gameState = require('gameState')
+local itemData = require('data.itemData')
+local itemManager = require('systems.itemManager')
 
-local skillMenu = {}
+local itemMenu = {}
 
 local state = {}
 
@@ -14,7 +18,7 @@ end
 local function moveDown()
     if state.position + 2 <= #state.list then
         state.position = state.position + 2
-    elseif state.position + 1 == #state.list then
+    elseif state.position % 2 == 0 and state.position + 1 == #state.list then
         state.position = state.position + 1
     end
 end
@@ -31,11 +35,43 @@ local function moveRight()
     end
 end
 
-local function back()
-    state.menu.switch(state.prevMenu)
+local function confirm()
+    local itemRef = state.list[state.position].item
+    local skill = actionData[itemRef]
+
+    if skill.scope =='single' then
+        state.isTargeting = true
+        state.result = { ref = 'useItem', item = itemRef, battler = state.battler }
+    elseif skill.scope == 'all' then
+        local group = state.enemies
+        if skill.aim == 'allies' then
+            group = state.party
+        end
+        local action = actionCreator.new(itemRef, state.battler, {unpack(group)})
+        state.battler.currentAction = action
+        state.battler.usingItem = itemRef
+        itemManager.manageItems(itemRef, -1)
+        state.result = { ref = 'nextBattler' }
+        state.isActive = false
+    elseif skill.scope =='self' then
+        local action = actionCreator.new(itemRef, state.battler, {state.battler})
+        state.battler.currentAction = action
+        state.battler.usingItem = itemRef
+        itemManager.manageItems(itemRef, -1)
+        state.result = { ref = 'nextBattler' }
+        state.isActive = false
+    elseif skill.scope =='dead' then
+        state.isTargeting = true
+        state.result = { ref = 'useItem', item = itemRef, battler = state.battler}
+    end
 end
 
-local function drawDescriptionText(skill)
+local function back()
+    state.isActive = false;
+    state.result = { ref = 'back', prevMenu = state.prevMenu }
+end
+
+local function drawDescriptionText(itemObject)
     local x = state.borderX + state.borderWidth + state.gap
     local y = windowHeight - state.marginY - state.height
     local width = (state.width - state.gap * 2) / 4
@@ -47,8 +83,10 @@ local function drawDescriptionText(skill)
         width,
         state.height
     )
+    
+    local usable = itemData[itemObject.item]
 
-    local header = 'MP cost: '..skill.cost..''
+    local header = 'Have left: '..itemObject.amount..''
     love.graphics.printf(
         header,
         x + state.paddingX,
@@ -60,15 +98,20 @@ local function drawDescriptionText(skill)
         x + width, y + state.itemHeight + state.paddingY * 1.5)
     love.graphics.setFont(font_large)
     love.graphics.printf(
-        skill.desc,
+        usable.desc,
         x + state.paddingX,
         y + state.itemHeight + state.paddingY * 2 + drawHelper.centeredText(state.itemHeight),
         width - state.paddingX * 2
     )
 end
 
-function skillMenu.load(menu, menuState)
-    state.menu = menu
+------------------------------------------
+-----------------PUBLIC-------------------
+------------------------------------------
+
+function itemMenu.load(menuState, prevMenu, battler)
+    state.isActive = true
+
     state.height = menuState.height
     state.itemHeight = menuState.itemHeight
     state.marginX = menuState.marginX
@@ -77,58 +120,50 @@ function skillMenu.load(menu, menuState)
     state.gap = menuState.gap
     state.paddingX = menuState.paddingX
     state.paddingY = menuState.paddingY
-    state.borderX = 0
+    state.borderX = state.marginX + prevMenu.getWidth() + state.gap
     state.borderWidth = (state.width - state.gap * 2) / 2
     state.size = 8
-    
+
     state.party = menuState.party
     state.enemies = menuState.enemies
 
     state.position = 1
     state.list = {}
-    state.prevMenu = nil
-    state.battler = nil
-end
-
-function skillMenu.reset()
-    state.position = 1
-end
-
-function skillMenu.setup(prevMenu)
-    state.list = {}
     state.prevMenu = prevMenu
-    state.battler = prevMenu.currentBattler()
+    state.battler = battler
+    state.isTargeting = false
 
-    if state.battler.skills and #state.battler.skills > 0 then
-        for i, skill in ipairs(state.battler.skills) do
-            table.insert(state.list, skill)
-        end
+    for k, v in pairs(gameState.partyItems) do
+        local id = itemData[k].id
+        table.insert(state.list, {item = k, amount = v, id = id})
     end
-    state.borderX = state.marginX + prevMenu.getWidth() + state.gap
+
+    table.sort(state.list, function(a, b) return a.id < b.id end)
 end
 
-function skillMenu.getWidth()
-    return state.borderWidth
+function itemMenu.getResult()
+    local result = state.result
+    state.result = nil
+    return result
 end
 
-function skillMenu.keypressed(key)
-    if key == 'up' then
-        moveUp()
-    elseif key == 'down' then
-        moveDown()
-    elseif key == 'left' then
-        moveLeft()
-    elseif key == 'right' then
-        moveRight()
-    elseif key == 'z' then
-        confirm()
-    elseif key == 'x' then
-        back()
-    end
+function itemMenu.isActive()
+    return state.isActive
 end
 
-function skillMenu.draw(isTargeting)
-    state.prevMenu.draw()
+function itemMenu.getWidth()
+    return state.borderWidth + state.prevMenu.getWidth() + state.gap
+end
+
+function itemMenu.close()
+    state.isActive = false
+end
+
+function itemMenu.cancelTargetting()
+    state.isTargeting = false
+end
+
+function itemMenu.draw()
 
     local borderX = state.borderX
     local borderY = windowHeight - state.marginY - state.height
@@ -136,7 +171,8 @@ function skillMenu.draw(isTargeting)
     local borderHeight = state.height
     local itemX = borderX + state.paddingX
     local itemY = borderY + state.paddingY
-    local itemWidth = (borderWidth / 2) - state.paddingY * 2
+    local textWidth = borderWidth - state.paddingX
+    local itemWidth = (borderWidth / 2) - state.paddingX * 2
     local itemHeight = state.itemHeight
     local cursorSpace = 20
 
@@ -150,14 +186,13 @@ function skillMenu.draw(isTargeting)
     )
 
     if #state.list == 0 then
-        local name = state.battler.name
-        local text =''..name..' have not learned any skills.'
+        local text ='The party do not have any consumable items.'
         love.graphics.setFont(font_large)
         love.graphics.printf(
             text,
             itemX,
             itemY + drawHelper.centeredText(itemHeight),
-            itemWidth,
+            textWidth,
             'left'
         )
         return
@@ -171,30 +206,27 @@ function skillMenu.draw(isTargeting)
         love.graphics.setFont(font_large)
         love.graphics.setColor(1, 1, 1)
 
-        local skill = actionData[state.list[i]]
-        if state.battler.currentMp < skill.cost then
-            love.graphics.setColor(0.25, 0.25, 0.25)
-        end
+        local usable = itemData[state.list[i].item]
 
-        local skillX = borderX + state.paddingX
+        local usableX = borderX + state.paddingX
         if i % 2 == 0 then
-            skillX = skillX + borderWidth / 2
+            usableX = usableX + borderWidth / 2
         end
         local skillPos = math.ceil((((i - 1) % state.size) + 1) / 2)
-        local skillY = borderY + state.paddingY + (skillPos - 1) * itemHeight
+        local usableY = borderY + state.paddingY + (skillPos - 1) * itemHeight
 
         love.graphics.printf(
-            skill.name,
-            skillX + cursorSpace,
-            skillY + drawHelper.centeredText(itemHeight),
+            usable.name,
+            usableX + cursorSpace,
+            usableY + drawHelper.centeredText(itemHeight),
             itemWidth
         )
 
         love.graphics.setColor(1, 1, 1)
         if state.position == i then
-            drawHelper.drawMenuIndicator(skillX, skillY, itemHeight)
-            if not isTargeting then
-                drawDescriptionText(skill)
+            drawHelper.drawMenuIndicator(usableX, usableY, itemHeight)
+            if not state.isTargeting then
+                drawDescriptionText(state.list[i])
             end
         end
 
@@ -211,4 +243,25 @@ function skillMenu.draw(isTargeting)
     end
 end
 
-return skillMenu
+function itemMenu.keypressed(key)
+    if #state.list > 0 then
+        if key == 'up' then
+            moveUp()
+        elseif key == 'down' then
+            moveDown()
+        elseif key == 'left' then
+            moveLeft()
+        elseif key == 'right' then
+            moveRight()
+        elseif key == 'z' then
+            confirm()
+        end
+    end
+
+    if key == 'x' then
+        back()
+    end
+end
+
+
+return itemMenu

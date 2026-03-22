@@ -2,6 +2,7 @@ local mainMenu = require('states.battle2.menu.mainMenu')
 local partyMenu = require('states.battle2.menu.partyMenu')
 local targetMenu = require('states.battle2.menu.targetMenu')
 local skillMenu = require('states.battle2.menu.skillMenu')
+local itemMenu = require('states.battle2.menu.itemMenu')
 
 local menu = {}
 
@@ -58,6 +59,11 @@ function menu.update(dt)
             elseif result.ref == 'chooseSkill' then
                 skillMenu.load(state, partyMenu, result.battler)
                 state.phase = 'skillMenu'
+            elseif result.ref == 'nextBattler' then
+                partyMenu.nextBattler(state)
+            elseif result.ref == 'chooseItem' then
+                itemMenu.load(state, partyMenu, result.battler)
+                state.phase = 'itemMenu'
             end
         end
     end
@@ -68,6 +74,8 @@ function menu.update(dt)
             if result.ref == 'nextBattler' then
                 if result.prevMenu == skillMenu then
                     skillMenu.close()
+                elseif result.prevMenu == itemMenu then
+                    itemMenu.close()
                 end
                 partyMenu.nextBattler(state)
                 state.phase = 'partyMenu'
@@ -77,11 +85,14 @@ function menu.update(dt)
                 elseif result.prevMenu == skillMenu then
                     skillMenu.cancelTargetting()
                     state.phase = 'skillMenu'
+                elseif result.prevMenu == itemMenu then
+                    itemMenu.cancelTargetting()
+                    state.phase = 'itemMenu'
                 end
             end
         end
     end
-    
+
     if state.phase == 'skillMenu' then
         local result = skillMenu.getResult()
         if result then
@@ -99,6 +110,22 @@ function menu.update(dt)
         end
     end
 
+    if state.phase == 'itemMenu' then
+        local result = itemMenu.getResult()
+        if result then
+            if result.ref == 'back' then
+                if result.prevMenu == partyMenu then
+                    state.phase = 'partyMenu'
+                end
+            elseif result.ref == 'nextBattler' then
+                partyMenu.nextBattler(state)
+                state.phase = 'partyMenu'
+            elseif result.ref == 'useItem' then
+                targetMenu.load(state, itemMenu, result.item, result.battler)
+                state.phase = 'targetMenu'
+            end
+        end
+    end
 end
 
 function menu.draw()
@@ -106,6 +133,7 @@ function menu.draw()
     if partyMenu.isActive() then partyMenu.draw() end
     if targetMenu.isActive() then targetMenu.draw() end
     if skillMenu.isActive() then skillMenu.draw() end
+    if itemMenu.isActive() then itemMenu.draw() end
 end
 
 function menu.keypressed(key)
@@ -113,6 +141,7 @@ function menu.keypressed(key)
     if state.phase == 'partyMenu' then partyMenu.keypressed(key) end
     if state.phase == 'targetMenu' then targetMenu.keypressed(key) end
     if state.phase == 'skillMenu' then skillMenu.keypressed(key) end
+    if state.phase == 'itemMenu' then itemMenu.keypressed(key) end
 end
 
 return menu

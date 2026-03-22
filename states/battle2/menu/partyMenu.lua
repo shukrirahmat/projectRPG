@@ -1,4 +1,6 @@
 local drawHelper = require('utils.drawHelper')
+local actionCreator = require('entities.actionCreator')
+local itemManager = require('systems.itemManager')
 
 local partyMenu = {}
 
@@ -15,6 +17,10 @@ local function previousBattler(index)
             state.battlerIndex = index
             state.battler = battler
             state.battler.currentAction = nil
+            if state.battler.usingItem then
+                itemManager.manageItems(state.battler.usingItem, 1)
+                state.battler.usingItem = nil
+            end
         end
     end
     
@@ -61,6 +67,11 @@ local function confirm()
         state.result = { ref = 'attack', battler = state.battler }
     elseif state.position == 2 then
         state.result = { ref = 'chooseSkill', battler = state.battler }
+    elseif state.position == 3 then
+        state.battler.currentAction = actionCreator.new('defend', state.battler, {state.battler})
+        state.result = { ref = 'nextBattler' }
+    elseif state.position == 4 then
+        state.result = { ref = 'chooseItem', battler = state.battler }
     end
 end
 

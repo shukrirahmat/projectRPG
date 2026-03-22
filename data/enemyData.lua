@@ -1,4 +1,5 @@
 local sprites = require('graphics.sprites')
+local enemyAction = require('data.enemyAction')
 
 local enemyData = {}
 
@@ -14,8 +15,8 @@ enemyData['slime'] = {
     gold = 5,
     exp = 12,
     itemDrop = {['healingTonic'] = 8},
-    skills = {},
-    passiveSkills = {}
+    passiveSkills = {},
+    actionFunc = enemyAction['slime']
     
 }
 
@@ -30,8 +31,8 @@ enemyData['goblin'] = {
     spriteHeight = monsterSpriteDimension/4,
     gold = 12,
     exp = 16,
-    skills = {},
-    passiveSkills = {}
+    passiveSkills = {},
+    actionFunc = enemyAction['goblin']
     
 }
 

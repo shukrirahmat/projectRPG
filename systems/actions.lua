@@ -437,6 +437,9 @@ function actions.confused(self, state, user)
     end
 end
 
+function actions.noAction(self, state, user)
+end
+
 function actions.skillCanceled(self, state, user, targets, skill)
     local text
     if skill.magic then

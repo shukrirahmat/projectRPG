@@ -33,6 +33,10 @@ actionData['skillCanceled'] = {
     execute = actions.skillCanceled
 }
 
+actionData['noAction'] = { 
+    execute = actions.noAction
+}
+
 actionData['stunned'] = {
     execute = actions.stunned
 }

@@ -26,7 +26,6 @@ function stateManager.initiate()
     gameState.playerPos = overworld.startPos
     gameState.playerSprite = sprites.player_front[1]
     gameState.partyGold = 0
-    gameState.partyItems = { ['healingTonic'] = 10, ['antidote'] = 5, ['fairyBell'] = 3}
 end
 
 function stateManager.switch(state, var)

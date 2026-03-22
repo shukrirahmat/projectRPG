@@ -7,7 +7,7 @@ function enemyCreator.new(species, name)
 
     local data = enemyData[species]
     
-    enemy = {}
+    local enemy = {}
     enemy.name = name
     enemy.lvl = data.lvl
     enemy.maxHp = data.hp
@@ -42,11 +42,20 @@ function enemyCreator.new(species, name)
     battler.goldDrop = data.gold or 0
     battler.itemDrop = data.itemDrop or nil
     battler.exp = data.exp or 0
+    battler.actionFunc = data.actionFunc
     
     if data.stealableItem then
         for k, v in pairs(data.stealableItem) do
             battler.stealableItem[k] = v
         end
+    end
+    
+    function battler:getAgi()
+        return self.agi
+    end
+    
+    function battler:getEnemyAction()
+        return self.actionFunction(self)
     end
 
     return battler

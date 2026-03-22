@@ -19,8 +19,7 @@ function battlerCreator.new(member)
     battler.vit = member.vit
     battler.baseDef = member.vit
     battler.def = battler.baseDef
-    battler.baseAgi = member.agi
-    battler.agi = battler.baseAgi
+    battler.agi = member.agi
     battler.critRate = member.critRate or 64
     battler.dodgeRate = member.dodgeRate or 0
     battler.skills = member.skills or {}

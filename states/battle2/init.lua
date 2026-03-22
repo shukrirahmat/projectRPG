@@ -3,6 +3,7 @@ local logger = require('states.battle2.logger')
 local hud = require('states.battle2.hud')
 local enemySprites = require('states.battle2.enemySprites')
 local menu = require('states.battle2.menu')
+local runner = require('states.battle2.runner')
 
 local battle = {}
 
@@ -35,14 +36,16 @@ function battle.update(dt)
     if state.phase == 'menu' then
         menu.update(dt)
         if not menu.isActive() then
-            --TEST--
-            for i, member in ipairs(state.party) do
-                print(member.currentAction.user.name)
-                print(member.currentAction.ref)
-                print(member.currentAction.targets[1].name)
-                print('****')
-            end
-            state.phase = 'doneTest'
+            runner.load(state.party, state.enemies)
+            state.phase = 'running'
+        end
+    end
+    
+    if state.phase == 'running' then
+        runner.update(dt)
+        if not runner.isActive() then
+            menu.load(state.party, state.enemies)
+            state.phase = 'menu'
         end
     end
 end

@@ -5,7 +5,7 @@ local battleHelpers = require('states.battle.battleHelpers')
 
 local actions = {}
 
-local function dealDamage(state, user, target, damage, ref)
+local function createDamageEffect(user, target, damage, ref)
 
     if ref ~= 'immune' then
         if target.isDefending then
@@ -19,8 +19,7 @@ local function dealDamage(state, user, target, damage, ref)
         end
     end
 
-    local damageEffect = effectCreator.new(ref, user, target, damage)        
-    table.insert(state.effectQueue, damageEffect)
+    return = effectCreator.new(ref, user, target, damage)        
 end
 
 local function recoverHP(state, user, target, amount)
@@ -38,8 +37,8 @@ local function calculateAttackDamage(attacker, target)
         pierce = 2
     end
 
-    local damage = math.floor(attacker.atk/2) - math.floor(target.def/(3 * pierce))
-    local mod = math.floor(damage*0.2)
+    local damage = math.floor(attacker:getAtk()/2) - math.floor(target:getDef()/(3 * pierce))
+    local mod = math.floor(damage * 0.2)
     damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)
 end
@@ -51,7 +50,7 @@ local function calculateCritDamage(attacker, target)
         pierce = 2
     end
 
-    local damage = math.floor(attacker.atk/2 * 3) - math.floor(target.def/(6 * pierce))
+    local damage = math.floor(attacker:getAtk()/2 * 3) - math.floor(target:getDef()/(6 * pierce))
     local mod = math.floor(damage*0.2)
     damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)
@@ -124,7 +123,7 @@ local function handleExecutor(user, target)
     return false
 end
 
-local function handleSteal(state, user, target)
+local function handleSteal(user, target)
 
     if user.isPartyMember and target.isPartyMember then
         return
@@ -134,29 +133,34 @@ local function handleSteal(state, user, target)
         return
     end
 
+    local effects = {}
+
     if user.passives['pincher'] then
         local baseAmount = user.lvl * 5
         local mod = math.floor(baseAmount * 0.5)
         local amount = baseAmount + math.random(-mod, mod)
         local stealEffect = effectCreator.new('stealGold', user, target, amount)
-        table.insert(state.effectQueue, stealEffect)
+        table.insert(effects, stealEffect)
     end
 
-    --PARTY EXCLUSIVES
     if user.passives['snatcher'] then
         if target.stealableItem then
             local roll = math.random(1, target.stealableItem.rate)
             if roll == 1 then
                 local stealEffect = effectCreator.new('stealItem', user, target, target.stealableItem.item)
-                table.insert(state.effectQueue, stealEffect)
+                table.insert(effects, stealEffect)
             end
         end
     end
+
+    return effects
 end
 
-local function handleOnHitEffects(state, user, target)
+local function handleOnHitEffects(user, target)
     local psv = {'basher'}
     local status = {'STUN'}
+
+    local effects = {}
 
     for i = 1, #psv do
         local p = psv[i]
@@ -172,14 +176,18 @@ local function handleOnHitEffects(state, user, target)
             end
             local roll = math.random(1, 100)
             if roll <= accuracy then
-                statusEffect = effectCreator.new('addStatus', user, target, status[i])
-                table.insert(state.effectQueue, statusEffect)
+                local effect =  effectCreator.new('addStatus', user, target, status[i])
+                table.insert(effects, effect)
             end
         end
     end
+
+    return effects
 end
 
-local function handleElementalCombo(state, user, target)
+local function handleElementalCombo(user, target)
+
+    local followUps = {}
 
     if user.passives['fireCombo'] then
         local followUp;
@@ -190,7 +198,7 @@ local function handleElementalCombo(state, user, target)
             followUp = actionCreator.new('flameI', user, {target})
         end
         followUp.combo = true
-        table.insert(state.followUpQueue, 1, followUp)
+        table.insert(followUps, followUp)
     end
 
     if user.passives['iceCombo'] then
@@ -202,7 +210,7 @@ local function handleElementalCombo(state, user, target)
             followUp = actionCreator.new('frostI', user, {target})
         end
         followUp.combo = true
-        table.insert(state.followUpQueue, 1, followUp)
+        table.insert(followUps, followUp)
     end
 
     if user.passives['windCombo'] then
@@ -214,7 +222,7 @@ local function handleElementalCombo(state, user, target)
         end
         local followUp = actionCreator.new('typhoonI', user, targets)
         followUp.combo = true
-        table.insert(state.followUpQueue, 1, followUp)
+        table.insert(followUps, followUp)
     end
 
     if user.passives['boltCombo'] then
@@ -226,11 +234,13 @@ local function handleElementalCombo(state, user, target)
         end
         local followUp = actionCreator.new('lightningI', user, targets)
         followUp.combo = true
-        table.insert(state.followUpQueue, 1, followUp)
+        table.insert(followUps, followUp)
     end
+
+    return followUps
 end
 
-local function handleCounterAttack(state, user, target)
+local function handleCounterAttack(user, target)
     if not user.passives['ranged'] then
         local countering = false
         if target.passives['counterII'] then
@@ -238,18 +248,17 @@ local function handleCounterAttack(state, user, target)
         elseif target.passives['counterI'] then
             countering = math.random(1, 2) == 1
         end
-        
+
         if not countering then return end
-        
-        if not target.status['SLEEP'] and not target.status['CONFUSE'] and not target.status['STUN'] then
-            local counterAction = actionCreator.new('counterAtk', user, {target})
-            table.insert(state.followUpQueue, counterAction)
+
+        if not target:cannotAct() then
+            return = actionCreator.new('counterAtk', user, {target})
         end
     end
 end
 
-local function handleSecondAttack(state, user, target)
-    local secondAttackChance = math.floor((user.agi - target.agi)/2)
+local function handleSecondAttack(user, target)
+    local secondAttackChance = math.floor((user:getAgi() - target:getAgi())/2)
     local secondAttack
     if user.passives['dualWielder'] then
         secondAttack = true
@@ -258,37 +267,35 @@ local function handleSecondAttack(state, user, target)
     end
 
     if secondAttack then
-        local followUp = actionCreator.new('secondAtk', user, {target})
-        table.insert(state.followUpQueue, followUp)
+        return actionCreator.new('secondAtk', user, {target})
     end
 end
 
-function actions.normalAttack(self, state, user, targets, special)
+function actions.normalAttack(self, user, targets, special)
 
     for i, target in ipairs(targets) do
         if not target.isDead then
-            local damage;
-            local text;
-            local miss;
-            local resisted;
-            local crit;
 
+            local text = ''..user.name..' attacks!'
             if special then
                 text = ''..user.name..' '..special.text..''
-            else
-                text = ''..user.name..' attacks!'
             end
 
-            miss = checkMiss(user, target)
+            local miss = checkMiss(user, target)
 
             if not miss or user.isFocused then
                 if handleExecutor(user, target) then
-                    battleLog.addText(state, text)
-                    local killEffect = effectCreator.new('instakill', user, target)
-                    table.insert(state.effectQueue, killEffect)
-                    handleSteal(state, user, target)
-                    return
+                    local result = {}
+                    result.log = text
+                    result.effect = {effectCreator.new('instakill', user, target)}
+                    local stealEffect = handleSteal(user, target)
+                    for i, effect in ipairs(stealEffect) do
+                        table.insert(result.effect, effect)
+                    end
+                    return result
                 end
+
+                local crit
 
                 if special and special.cat == 'desperation' then
                     if (user.currentHp/user.maxHp) <= 0.2 then
@@ -297,20 +304,21 @@ function actions.normalAttack(self, state, user, targets, special)
                         crit = false
                     end
                     if not crit then
-                        battleLog.addText(state, text)
-                        local immuneEffect = effectCreator.new('immune', user, target, damage)        
-                        table.insert(state.effectQueue, immuneEffect)
-                        return
+                        local result = {}
+                        result.log = text
+                        result.effect = {effectCreator.new('immune', user, target)}     
+                        return result
                     end
                 else
                     crit = math.random(1, user.critRate) == 1
                 end
 
+                local damage = calculateAttackDamage(user, target)
+                local resisted = false
+
                 if crit then
                     damage = calculateCritDamage(user, target)
                     text = ''..text..' Critical hit!';
-                else
-                    damage = calculateAttackDamage(user, target)
                 end
 
                 if special and special.cat == 'quickStrike' then
@@ -332,38 +340,64 @@ function actions.normalAttack(self, state, user, targets, special)
                         damage = math.floor(damage * 0.5)
                         resisted = true;
                     elseif res == 2 then
-                        battleLog.addText(state, text)
-                        local immuneEffect = effectCreator.new('immune', user, target, damage)        
-                        table.insert(state.effectQueue, immuneEffect)
-                        return
+                        local result = {}
+                        result.log = text
+                        result.effect = {effectCreator.new('immune', user, target)}     
+                        return result
                     end
                 end
 
-                battleLog.addText(state, text)
+                local result = {}
+                result.log = text
+                result.effect = {}
+                result.followUp = {}
 
                 if resisted then
-                    dealDamage(state, user, target, damage, 'resisted')
+                    table.insert(result.effect, createDamageEffect(user, target, damage, 'resisted'))
                 else
-                    dealDamage(state, user, target, damage, 'damage')
+                    table.insert(result.effect, createDamageEffect(user, target, damage, 'resisted'))
                 end
 
-                handleOnHitEffects(state, user, target)
-                handleSteal(state, user, target)
-                handleElementalCombo(state, user, target)
+                local onHitEffects = handleOnHitEffects(user, target)
+                for i, effect in ipairs(onHitEffects) do
+                    table.insert(result.effect, effect)
+                end
+
+                local stealEffect = handleSteal(user, target)
+                for i, effect in ipairs(stealEffect) do
+                    table.insert(result.effect, effect)
+                end
+
+                local elementalCombo = handleElementalCombo(user, target)
+                for i, combo in ipairs(elementalCombo) do
+                    table.insert(result.followUp, combo)
+                end
 
                 if not special then
-                    handleCounterAttack(state, user, target)
-                    handleSecondAttack(state, user, target)
+                    if handleCounterAttack(user, target) then
+                        table.insert(result.followUp, handleCounterAttack(user, target))
+                    end
+                    if handleSecondAttack(user, target) then
+                        table.insert(result.followUp, handleSecondAttack(user, target))
+                    end
                 elseif special and special.cat ~= 'counter' then
-                    handleCounterAttack(state, user, target)
+                    if handleCounterAttack(user, target) then
+                        table.insert(result.followUp, handleCounterAttack(user, target))
+                    end
                 end
             else
-                battleLog.addText(state, text)
+                local result = {}
+                result.log = text
+                result.effect = {}
+                result.followUp = {}
+
                 local missedEffect = effectCreator.new('missed', user, target)
-                table.insert(state.effectQueue, missedEffect)
+                table.insert(result.effect, missedEffect)
 
                 if not special then
-                    handleSecondAttack(state, user, target)
+                    if handleSecondAttack(user, target) then
+                        table.insert(result.followUp, handleSecondAttack(user, target))
+                    end
                 end
             end
         end
@@ -854,7 +888,7 @@ end
 function actions.useTonic(self, state, user, targets)
     local text = ''..user.name..' used '..self.name..'';
     battleLog.addText(state, text)
-    
+
     if self.scope == 'single' and targets[1].isDead then
         local effect = effectCreator.new('nothing', user, user)
         table.insert(state.effectQueue, effect)
@@ -878,7 +912,7 @@ end
 function actions.useNectar(self, state, user, targets)
     local text = ''..user.name..' used '..self.name..'';
     battleLog.addText(state, text)
-    
+
     if self.scope == 'single' and targets[1].isDead then
         local effect = effectCreator.new('nothing', user, user)
         table.insert(state.effectQueue, effect)
@@ -899,7 +933,7 @@ end
 function actions.useStatusRecovery(self, state, user, targets)
     local text = ''..user.name..' used '..self.name..'';
     battleLog.addText(state, text)
-    
+
     if self.scope == 'single' and targets[1].isDead then
         local effect = effectCreator.new('nothing', user, user)
         table.insert(state.effectQueue, effect)

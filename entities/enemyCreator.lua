@@ -50,10 +50,6 @@ function enemyCreator.new(species, name)
         end
     end
     
-    function battler:getAgi()
-        return self.agi
-    end
-    
     function battler:getEnemyAction()
         return self.actionFunction(self)
     end

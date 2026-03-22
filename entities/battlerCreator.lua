@@ -14,11 +14,7 @@ function battlerCreator.new(member)
     battler.maxMp = member.maxMp
     battler.currentMp = member.currentMp
     battler.str = member.str
-    battler.baseAtk = member.str
-    battler.atk = battler.baseAtk
     battler.vit = member.vit
-    battler.baseDef = member.vit
-    battler.def = battler.baseDef
     battler.agi = member.agi
     battler.critRate = member.critRate or 64
     battler.dodgeRate = member.dodgeRate or 0
@@ -33,14 +29,12 @@ function battlerCreator.new(member)
     battler.armor = member.armor or nil
     battler.shield = member.shield or nil
     battler.sprite = member.sprite
-    
+
     for i, ref in ipairs(battler.passiveSkills) do
         battler.passives[ref] = true
     end
 
     if battler.weapon then
-        battler.baseAtk = battler.baseAtk + battler.weapon.atkPower;
-        battler.atk = battler.baseAtk
         if battler.weapon.passives then
             for k, v in pairs(battler.weapon.passives) do
                 battler.passives[k] = true
@@ -49,8 +43,6 @@ function battlerCreator.new(member)
     end
 
     if battler.armor then
-        battler.baseDef = battler.baseDef + battler.armor.defPower;
-        battler.def = battler.baseDef
         if battler.armor.passives then
             for k, v in pairs(battler.armor.passives) do
                 battler.passives[k] = true
@@ -59,20 +51,18 @@ function battlerCreator.new(member)
     end
 
     if battler.shield then
-        battler.baseDef = battler.baseDef + battler.shield.defPower;
-        battler.def = battler.baseDef
         if battler.shield.passives then
             for k, v in pairs(battler.shield.passives) do
                 battler.passives[k] = true
             end
         end
     end
-    
+
     for k, v in pairs(battler.passives) do
         if k:sub(1, 7) == 'strong:' then
             if k then battler.strong[k:sub(8)] = true end
         end
-        
+
         if k:sub(1, 7) == 'immune:' then
             if k then battler.immune[k:sub(8)] = true end
         end
@@ -102,18 +92,31 @@ function battlerCreator.new(member)
         battler.strong['VOID'] = true
     end
 
-    if battler.passives['lightWielder'] 
-    and battler.weapon and battler.weapon.class == 'LIGHTWEIGHT' then
-        battler.baseAtk = battler.baseAtk * 1.5
-        battler.atk = battler.baseAtk
+    function battler:getAtk()
+        local atk = self.str
+        if self.weapon then
+            atk = atk + self.weapon.atkPower
+            if self.weapon.class == 'LIGHTWEIGHT' and self.passives['lightwielder'] then
+                atk = atk * 1.5
+            elseif self.weapon.class == 'HEAVYWEIGHT' and self.passives['heavyWielder'] then
+                atk = atk * 1.5
+            end
+        end
+        return atk
     end
 
-    if battler.passives['heavyWielder'] 
-    and battler.weapon and battler.weapon.class == 'HEAVYWEIGHT' then
-        battler.baseAtk = battler.baseAtk * 1.5
-        battler.atk = battler.baseAtk
+    function battler:getDef()
+        local def = self.vit
+        if self.armor then
+            def = def + self.armor.defPower
+        end
+        if self.shield then
+            def = def + self.shield.defPower
+        end
+        return def
     end
-    
+
+
     function battler:cannotAct()
         return self.status['STUN'] or self.status['SLEEP'] or self.status['CONFUSE']
     end

@@ -18,45 +18,37 @@ end
 
 local function confirm()
     if state.position == 1 then
-        state.isActive = nil
-        state.result = { ref = 'fight'}
-    elseif state.position == 2 then
-        state.isActive = nil
-        state.result = { ref = 'flee' }
+        state.menu.nextBattler()
     end
 end
 
-------------------------------------------
------------------PUBLIC-------------------
-------------------------------------------
-
-function mainMenu.load(menuState)
-    state.marginX = menuState.marginX
-    state.marginY = menuState.marginY
-    state.paddingX = menuState.paddingX
-    state.paddingY = menuState.paddingY
-    state.width = menuState.width
+function mainMenu.load(menu, menuState)  
+    state.menu = menu
     state.height = menuState.height
     state.itemHeight = menuState.itemHeight
+    state.marginX = menuState.marginX
+    state.marginY = menuState.marginY
+    state.width = menuState.width
     state.gap = menuState.gap
-    
-    state.party = menuState.party
-    state.enemies = menuState.enemies
+    state.paddingX = menuState.paddingX
+    state.paddingY = menuState.paddingY
     
     state.position = 1
-    state.list = {'FIGHT', 'FLEE'}
-    state.isActive = true
-    state.result = nil
+    state.list = {'FIGHT', 'FLEE'}    
 end
 
-function mainMenu.isActive()
-    return state.isActive
+function mainMenu.reset()
+    state.position = 1
 end
 
-function mainMenu.getResult()
-    local result = state.result
-    state.result = nil
-    return result
+function mainMenu.keypressed(key)
+    if key == 'up' then
+        moveUp()
+    elseif key == 'down' then
+        moveDown()
+    elseif key == 'z' then
+        confirm()
+    end
 end
 
 function mainMenu.draw()
@@ -91,16 +83,5 @@ function mainMenu.draw()
         end
     end
 end
-
-function mainMenu.keypressed(key)
-    if key == 'up' then
-        moveUp()
-    elseif key == 'down' then
-        moveDown()
-    elseif key == 'z' then
-        confirm()
-    end
-end
-
 
 return mainMenu

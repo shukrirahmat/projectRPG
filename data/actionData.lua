@@ -5,7 +5,9 @@ local actionData = {}
 actionData['normalAtk'] = { 
     execute = actions.normalAttack, 
     cost = 0,
-    enemyAnimation = {ref = 'enemyAtk', speed = 0.7}
+    enemyAnimation = {ref = 'enemyAtk', speed = 0.7},
+    aim = 'enemies',
+    scope = 'single'
 }
 actionData['secondAtk'] = {
     execute = actions.secondAttack, 
@@ -24,8 +26,7 @@ actionData['defend'] = {
     cost = 0, 
     priority = 2,
     scope = 'self',
-    aim = 'allies',
-    scope = 'self'
+    aim = 'allies'
 }
 
 actionData['skillCanceled'] = { 

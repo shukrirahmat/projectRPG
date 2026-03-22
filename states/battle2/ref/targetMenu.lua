@@ -1,17 +1,25 @@
-local actionData = require('data.actionData')
-local actionCreator = require('entities.actionCreator')
 local drawHelper = require('utils.drawHelper')
+local actionCreator = require('entities.actionCreator')
 
 local targetMenu = {}
 
 local state = {}
 
+local function setEnemiesTarget()
+    state.list = {}    
+    for i, enemy in ipairs(state.enemies) do
+        if not enemy.isDead then
+            table.insert(state.list, enemy)
+        end
+    end
+end
+
 local function moveUp()
     if state.position > 1 then
         state.position = state.position - 1
-    end
-
 end
+
+    end
 local function moveDown()
     if state.position < #state.list then
         state.position = state.position + 1
@@ -19,64 +27,17 @@ local function moveDown()
 end
 
 local function confirm()
-    state.isActive = false;
-    state.battler.currentAction = actionCreator.new(state.ref, state.battler, {state.list[state.position]})
-    state.result = { ref = 'nextBattler', prevMenu = state.prevMenu }
+    local target = state.list[state.position]
+    state.battler.currentAction = actionCreator.new(state.action, state.battler, {target})
+    state.menu.nextBattler()
 end
 
 local function back()
-    state.isActive = false;
-    state.result = { ref = 'back', prevMenu = state.prevMenu }
+    state.menu.switch(state.prevMenu)
 end
 
-------------------------------------------
------------------PUBLIC-------------------
-------------------------------------------
-
-function targetMenu.load(menuState, prevMenu, ref, battler)
-
-    state.party = menuState.party
-    state.enemies = menuState.enemies
-    state.battler = battler
-    state.prevMenu = prevMenu
-    state.result = nil
-    state.position = 1
-    state.list = {}
-    state.isActive = nil
-    state.ref = ref
-
-    state.action = actionData[ref]
-    if state.action.aim == 'enemies' then
-        for i, enemy in ipairs(state.enemies) do
-            if not enemy.isDead then
-                table.insert(state.list, enemy)
-            end
-        end
-        if #state.list == 1 then
-            state.battler.currentAction = actionCreator.new(ref, state.battler, {state.list[1]})
-            state.result = { ref = 'nextBattler' , prevMenu = state.prevMenu }
-            return
-        end
-    end
-
-    if state.action.aim == 'allies' then
-        if state.action.scope == 'dead' then
-            for i, deadMember in ipairs(state.party) do
-                if deadMember.isDead then
-                    table.insert(state.list, deadMember)
-                end
-            end
-        else
-            for i, member in ipairs(state.party) do
-                if not member.isDead then
-                    table.insert(state.list, member)
-                end
-            end
-        end
-    end
-    
-    state.isActive = true
-
+function targetMenu.load(menu, menuState)
+    state.menu = menu
     state.height = menuState.height
     state.itemHeight = menuState.itemHeight
     state.marginX = menuState.marginX
@@ -85,20 +46,52 @@ function targetMenu.load(menuState, prevMenu, ref, battler)
     state.gap = menuState.gap
     state.paddingX = menuState.paddingX
     state.paddingY = menuState.paddingY
-    state.borderX = state.marginX + state.prevMenu.getWidth() + state.gap
+    state.borderX = 0
+
+    state.position = 1
+    state.list = {}
+    state.prevMenu = nil
+    state.party = menuState.party
+    state.enemies = menuState.enemies
+    state.battler = nil
 end
 
-function targetMenu.getResult()
-    local result = state.result
-    state.result = nil
-    return result
+function targetMenu.reset()
+    state.position = 1
 end
 
-function targetMenu.isActive()
-    return state.isActive
+function targetMenu.setup(prevMenu, action, battler, aim)
+    state.battler = battler
+    state.borderX = state.marginX + prevMenu.getWidth() + state.gap
+    state.action = action
+    if aim == 'enemies' then
+        setEnemiesTarget()
+    end
+end
+
+function targetMenu.isSingular()
+    return #state.list == 1
+end
+
+function targetMenu.getTargetOne()
+    return state.list[1]
+end
+
+function targetMenu.keypressed(key)
+    if key == 'up' then
+        moveUp()
+    elseif key == 'down' then
+        moveDown()
+    elseif key == 'x' then
+        back()
+    elseif key == 'z' then
+        confirm()
+    end
 end
 
 function targetMenu.draw()
+    state.prevMenu.draw()
+
     local borderX = state.borderX
     local borderY = windowHeight - state.marginY - state.height
     local borderWidth = (state.width - state.gap * 2) / 4
@@ -170,18 +163,6 @@ function targetMenu.draw()
         else
             drawHelper.drawUpwardArrow(borderX, borderY, borderWidth, borderHeight)
         end
-    end
-end
-
-function targetMenu.keypressed(key)
-    if key == 'up' then
-        moveUp()
-    elseif key == 'down' then
-        moveDown()
-    elseif key == 'x' then
-        back()
-    elseif key == 'z' then
-        confirm()
     end
 end
 

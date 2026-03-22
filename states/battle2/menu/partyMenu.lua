@@ -1,8 +1,48 @@
 local drawHelper = require('utils.drawHelper')
 
-local battlerMenu = {}
+local partyMenu = {}
 
 local state = {}
+
+local function previousBattler(index)
+    local canAct = false
+    while not canAct and index > 0 do
+        local battler = state.party[index]
+        if battler.isDead or battler:cannotAct() then
+            index = index - 1
+        else
+            canAct = true
+            state.battlerIndex = index
+            state.battler = battler
+            state.battler.currentAction = nil
+        end
+    end
+    
+    if not canAct then
+        state.isActive = false
+        state.result = { ref = 'toMain' }
+    end
+end
+
+local function setBattler(index)
+    local canAct = false
+    while not canAct and index <= #state.party do
+        local battler = state.party[index]
+        if battler.isDead or battler:cannotAct() then
+            index = index + 1
+        else
+            canAct = true
+            state.battlerIndex = index
+            state.battler = battler
+            state.battler.currentAction = nil
+        end
+    end
+    
+    if not canAct then
+        state.isActive = false
+        state.result = { ref = 'finished' }
+    end
+end
 
 local function moveUp()
     if state.position > 1 then
@@ -18,69 +58,67 @@ end
 
 local function confirm()
     if state.position == 1 then
-        state.menu.openTarget()
+        state.result = { ref = 'attack', battler = state.battler }
+    elseif state.position == 2 then
+        state.result = { ref = 'chooseSkill', battler = state.battler }
     end
 end
 
 local function back()
-    state.menu.previousBattler()
+    previousBattler(state.battlerIndex - 1)
 end
 
-function battlerMenu.load(menu, menuState)
-    state.menu = menu
-    state.height = menuState.height
-    state.itemHeight = menuState.itemHeight
+------------------------------------------
+-----------------PUBLIC-------------------
+------------------------------------------
+
+
+function partyMenu.load(menuState, index)
     state.marginX = menuState.marginX
     state.marginY = menuState.marginY
-    state.width = menuState.width
-    state.gap = menuState.gap
     state.paddingX = menuState.paddingX
     state.paddingY = menuState.paddingY
-    
-    state.borderWidth = (state.width - state.gap * 2) / 4
+    state.width = menuState.width
+    state.height = menuState.height
+    state.itemHeight = menuState.itemHeight
+    state.gap = menuState.gap
     
     state.party = menuState.party
+    state.enemies = menuState.enemies
+    
     state.position = 1
     state.list = {'ATTACK', 'SKILL', 'DEFEND', 'ITEM'}
-    state.battlerIndex = 1
+    state.isActive = true
+    state.result = nil
+    
+    state.borderWidth = (state.width - state.gap * 2) / 4
     state.spriteRatio = 0.75
     state.spriteHeight = monsterSpriteDimension * state.spriteRatio
     state.spriteWidth = state.spriteHeight
+    
+    setBattler(index)
 end
 
-function battlerMenu.setBattler(index)
-    state.battlerIndex = index
+function partyMenu.nextBattler(menuState)
+    local index = state.battlerIndex + 1
+    partyMenu.load(menuState, index)
 end
 
-function battlerMenu.currentBattler()
-    return state.party[state.battlerIndex]
+function partyMenu.isActive()
+    return state.isActive
 end
 
-function battlerMenu.reset()
-    state.position = 1
+function partyMenu.getResult()
+    local result = state.result
+    state.result = nil
+    return result
 end
 
-function battlerMenu.getIndex()
-    return state.battlerIndex
-end
-
-function battlerMenu.getWidth()
+function partyMenu.getWidth()
     return state.borderWidth
 end
 
-function battlerMenu.keypressed(key)
-    if key == 'up' then
-        moveUp()
-    elseif key == 'down' then
-        moveDown()
-    elseif key == 'z' then
-        confirm()
-    elseif key == 'x' then
-        back()
-    end
-end
-
-function battlerMenu.draw()
+function partyMenu.draw()
     local borderHeight = state.height
     local borderX = state.marginX
     local borderY = windowHeight - borderHeight - state.marginY
@@ -97,7 +135,7 @@ function battlerMenu.draw()
     love.graphics.setFont(font_large)
     for i, item in ipairs(state.list) do
         
-        if i == 2 and battlerMenu.currentBattler().status['SEAL'] then
+        if i == 2 and state.battler.status['SEAL'] then
             love.graphics.setColor(0.25, 0.25, 0.25)
         end
         
@@ -140,7 +178,7 @@ function battlerMenu.draw()
     )
     
     love.graphics.draw(
-        battlerMenu.currentBattler().sprite,
+        state.battler.sprite,
         spriteX,
         spriteY - 1,
         0,
@@ -149,4 +187,16 @@ function battlerMenu.draw()
     )
 end
 
-return battlerMenu
+function partyMenu.keypressed(key)
+    if key == 'up' then
+        moveUp()
+    elseif key == 'down' then
+        moveDown()
+    elseif key == 'z' then
+        confirm()
+    elseif key == 'x' then
+        back()
+    end
+end
+
+return partyMenu

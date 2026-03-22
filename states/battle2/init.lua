@@ -18,7 +18,6 @@ function battle.load(stateManager, var)
     logger.load('Enemies encountered!')
     hud.load(state.party)
     enemySprites.load(state.enemies)
-    menu.load(state.party, state.enemies)
     state.phase = 'intro'
 end
 
@@ -28,11 +27,24 @@ function battle.update(dt)
         transition.update(dt)
         logger.update(dt)
         if not transition.isActive() and not logger.isActive() then
-            menu.start()
+            menu.load(state.party, state.enemies)
             state.phase = 'menu'
         end
     end
 
+    if state.phase == 'menu' then
+        menu.update(dt)
+        if not menu.isActive() then
+            --TEST--
+            for i, member in ipairs(state.party) do
+                print(member.currentAction.user.name)
+                print(member.currentAction.ref)
+                print(member.currentAction.targets[1].name)
+                print('****')
+            end
+            state.phase = 'doneTest'
+        end
+    end
 end
 
 function battle.draw()

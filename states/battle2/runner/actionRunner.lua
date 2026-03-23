@@ -1,6 +1,9 @@
 local actionData = require('data.actionData')
 local helpers = require('states.battle2.runner.helpers')
 local actionCreator = require('entities.actionCreator')
+local effectCreator = require('entities.effectCreator')
+local animationCreator = require('entities.animationCreator')
+local gameState = require('gameState')
 
 local actionRunner = {}
 
@@ -24,7 +27,7 @@ end
 local function getNextPriorityIndex()
     local index
     local highestSpeed = -1
-    
+
     for i, action in ipairs(state.priorityQueue) do
         local speed = actionData[action.ref].priority
         if speed > highestSpeed then
@@ -32,7 +35,7 @@ local function getNextPriorityIndex()
             index = i
         end
     end
-    
+
     return index
 end
 
@@ -59,7 +62,7 @@ local function redirectTarget(action)
             end
         end
     end
-    
+
     return action
 end
 
@@ -83,9 +86,75 @@ local function statusCheck(action)
     return action
 end
 
-local function runAction(action)
+local function runAction(action, isFollowUp)
     action = redirectTarget(action)
     action = statusCheck(action)
+    local data = actionData[action.ref]
+    local canAct = true
+    local result = {}
+
+    if data.magic or data.tech then
+        if action.user.status['SEAL'] then
+            canAct = false
+        elseif isFollowUp then
+            canAct = true
+        elseif action.user.currentMp >= data.cost then
+            action.user.currentMp = action.user.currentMp - data.cost
+        else
+            canAct = false
+        end
+    end
+
+    if canAct then
+        if action.combo then
+            result = action:execute(action.user, action.targets, {combo = true})
+        else
+            result = action:execute(action.user, action.targets)
+        end
+
+        if action.user.usingItem then
+            action.user.usingItem = nil
+        end
+
+        if not action.user.isPartyMember and data.enemyAnimation then
+            local aniData = data.enemyAnimation
+            local animation = animationCreator.new(
+                action.user, aniData.ref, gameState.battleSpeed * aniData.speed
+            )
+            result.animation = animation
+        elseif action.user.isPartyMember and action.ref == 'counterAtk' then
+            local aniData = data.partyAnimation
+            local animation = animationCreator.new(
+                action.targets[1], aniData.ref, gameState.battleSpeed * aniData.speed
+            )
+            result.animation = animation
+        end
+
+        if data.magic then
+            if action.user.passives['echoMagic'] and not isFollowUp then
+                local roll = math.random(1, 4)
+                if roll == 1 then
+                    if result.followUp then
+                        table.insert(result.followUp, action)
+                    else
+                        result.followUp = {table.insert(result.followUp, action)}
+                    end
+                end
+            end
+            if action.user.passives['manaSaver'] and not isFollowUp then
+                local roll = math.random(1, 4)
+                if roll == 1 then
+                    local effect = effectCreator.new('mpRecover', action.user, action.user, data.cost)
+                    table.insert(result.effect, effect)
+                end
+            end
+        end
+    else
+        local skillCanceled = actionData['skillCanceled']
+        local result = skillCanceled:execute(action.user, action.targets, data)
+    end
+    
+    state.result = result
 end
 
 
@@ -116,7 +185,7 @@ function actionRunner.runNext()
         action = state.actionQueue[index]
         table.remove(state.actionQueue, index)
     end
-    
+
     runAction(action)
 end
 

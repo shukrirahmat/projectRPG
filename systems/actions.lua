@@ -385,6 +385,8 @@ function actions.normalAttack(self, user, targets, special)
                         table.insert(result.followUp, handleCounterAttack(user, target))
                     end
                 end
+                
+                return result
             else
                 local result = {}
                 result.log = text
@@ -399,6 +401,8 @@ function actions.normalAttack(self, user, targets, special)
                         table.insert(result.followUp, handleSecondAttack(user, target))
                     end
                 end
+                
+                return result
             end
         end
     end
@@ -481,9 +485,11 @@ function actions.skillCanceled(self, state, user, targets, skill)
     else
         text = ''..user.name..' tried to used '..skill.name..'';
     end
-    battleLog.addText(state, text)
-    local noSkilleffect = effectCreator.new('skillCanceled', user, user)
-    table.insert(state.effectQueue, noSkilleffect)
+    local result = {}
+    result.text = text
+    result.effect = effectCreator.new('skillCanceled', user, user)
+    
+    return result
 end
 
 function actions.defend(self, state, user)

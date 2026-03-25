@@ -51,7 +51,7 @@ function enemyCreator.new(species, name)
     end
     
     function battler:getEnemyAction()
-        return self.actionFunction(self)
+        return self.actionFunc.get()
     end
 
     return battler

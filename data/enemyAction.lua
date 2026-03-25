@@ -2,13 +2,13 @@ local enemyAction = {}
 
 enemyAction['slime'] = {
     get = function(user) 
-        'normalAtk'
+        return 'normalAtk'
     end
 }
 
 enemyAction['goblin'] = {
     get = function(user) 
-        'normalAtk'
+        return 'normalAtk'
     end
 }
 

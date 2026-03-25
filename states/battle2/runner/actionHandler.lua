@@ -5,7 +5,7 @@ local effectCreator = require('entities.effectCreator')
 local animationCreator = require('entities.animationCreator')
 local gameState = require('gameState')
 
-local actionRunner = {}
+local actionHandler = {}
 
 local state = {}
 
@@ -52,7 +52,7 @@ end
 local function redirectTarget(action)
     if #action.targets == 1 and action.targets[1].isDead 
     and actionData[action.ref].aim ~= 'allies' then
-        action.targets = reselectTargetWhenDead(action.targets[1])
+        action.targets = {reselectTargetWhenDead(action.targets[1])}
     end
 
     for i, target in ipairs(action.targets) do
@@ -89,9 +89,9 @@ end
 local function runAction(action, isFollowUp)
     action = redirectTarget(action)
     action = statusCheck(action)
+
     local data = actionData[action.ref]
     local canAct = true
-    local result = {}
 
     if data.magic or data.tech then
         if action.user.status['SEAL'] then
@@ -105,53 +105,56 @@ local function runAction(action, isFollowUp)
         end
     end
 
-    if canAct then
-        if action.combo then
-            result = action:execute(action.user, action.targets, {combo = true})
-        else
-            result = action:execute(action.user, action.targets)
-        end
-
-        if action.user.usingItem then
-            action.user.usingItem = nil
-        end
-
-        if not action.user.isPartyMember and data.enemyAnimation then
-            local aniData = data.enemyAnimation
-            local animation = animationCreator.new(
-                action.user, aniData.ref, gameState.battleSpeed * aniData.speed
-            )
-            result.animation = animation
-        elseif action.user.isPartyMember and action.ref == 'counterAtk' then
-            local aniData = data.partyAnimation
-            local animation = animationCreator.new(
-                action.targets[1], aniData.ref, gameState.battleSpeed * aniData.speed
-            )
-            result.animation = animation
-        end
-
-        if data.magic then
-            if action.user.passives['echoMagic'] and not isFollowUp then
-                local roll = math.random(1, 4)
-                if roll == 1 then
-                    if result.followUp then
-                        table.insert(result.followUp, action)
-                    else
-                        result.followUp = {table.insert(result.followUp, action)}
-                    end
-                end
-            end
-            if action.user.passives['manaSaver'] and not isFollowUp then
-                local roll = math.random(1, 4)
-                if roll == 1 then
-                    local effect = effectCreator.new('mpRecover', action.user, action.user, data.cost)
-                    table.insert(result.effect, effect)
-                end
-            end
-        end
-    else
+    if not canAct then
         local skillCanceled = actionData['skillCanceled']
-        local result = skillCanceled:execute(action.user, action.targets, data)
+        state.result = skillCanceled:execute(action.user, action.targets, data)
+        return
+    end
+
+    local result;
+    
+    if action.combo then
+        result = data:execute(action.user, action.targets, {combo = true})
+    else
+        result = data:execute(action.user, action.targets)
+    end
+
+    if action.user.usingItem then
+        action.user.usingItem = nil
+    end
+
+    if not action.user.isPartyMember and data.enemyAnimation then
+        local aniData = data.enemyAnimation
+        local animation = animationCreator.new(
+            action.user, aniData.ref, gameState.battleSpeed * aniData.speed
+        )
+        result.animation = animation
+    elseif action.user.isPartyMember and action.ref == 'counterAtk' then
+        local aniData = data.partyAnimation
+        local animation = animationCreator.new(
+            action.targets[1], aniData.ref, gameState.battleSpeed * aniData.speed
+        )
+        result.animation = animation
+    end
+
+    if data.magic then
+        if action.user.passives['echoMagic'] and not isFollowUp then
+            local roll = math.random(1, 4)
+            if roll == 1 then
+                if result.followUps then
+                    table.insert(result.followUps, action)
+                else
+                    result.followUps = {table.insert(result.followUps, action)}
+                end
+            end
+        end
+        if action.user.passives['manaSaver'] and not isFollowUp then
+            local roll = math.random(1, 4)
+            if roll == 1 then
+                local effect = effectCreator.new('mpRecover', action.user, action.user, data.cost)
+                table.insert(result.effects, effect)
+            end
+        end
     end
     
     state.result = result
@@ -163,13 +166,25 @@ end
 ----------------PUBLIC-------------------
 -----------------------------------------
 
-function actionRunner.load(actionQueue, priorityQueue)
+function actionHandler.load(actionQueue, priorityQueue, party, enemies)
     state.actionQueue = actionQueue
     state.priorityQueue = priorityQueue
+    state.followUpQueue = {}
+    state.party = party
+    state.enemies = enemies
     state.isFinished = false
+    state.result = nil
+    state.checkedFollowUps = false
 end
 
-function actionRunner.runNext()
+function actionHandler.addFollowUp(followUps)
+    for i, followUp in ipairs(followUps) do
+        table.insert(state.followUpQueue, followUp)
+    end
+    state.checkedFollowUps = false
+end
+
+function actionHandler.runNext()
     if #state.actionQueue == 0 and #state.priorityQueue == 0 then
         state.isFinished = true
         return
@@ -185,9 +200,56 @@ function actionRunner.runNext()
         action = state.actionQueue[index]
         table.remove(state.actionQueue, index)
     end
-
+    
     runAction(action)
+    state.result.user = action.user
+    state.checkedFollowUps = false
 end
 
-return actionRunner
+function actionHandler.runNextFollowUp()
+    if #state.followUpQueue == 0 then
+        state.checkedFollowUps = true
+        return
+    end
+    
+    local action = state.followUpQueue[1]
+    table.remove(state.followUpQueue, 1)
+    
+    if action.ref == 'secondAtk' or action.ref == 'counterAtk' then
+        if action.targets[1].isDead or action.user:cannotMove() then
+            return
+        end
+    end
+    
+    runAction()
+end
+
+function actionHandler.getResult()
+    local result = state.result
+    state.result = nil
+    return result
+end
+
+function actionHandler.checkedFollowUps()
+    return state.checkedFollowUps
+end
+
+function actionHandler.isFinished()
+    return state.isFinished
+end
+
+function actionHandler.removeAction(user)
+    for i = #state.actionQueue, 1, -1 do
+        if state.actionQueue[i].user == user then
+            table.remove(state.actionQueue, i)
+        end
+    end
+    for i = #state.priorityQueue, 1, -1 do
+        if state.priorityQueue[i].user == user then
+            table.remove(state.priorityQueue, i)
+        end
+    end
+end
+
+return actionHandler
 

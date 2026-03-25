@@ -8,7 +8,6 @@ local state = {}
 function hud.load(party)
     state.party = party
     state.timer = 0
-    state.speed = nil
     state.isAnimating = false
     state.animation = nil 
 end
@@ -58,7 +57,7 @@ function hud.draw()
         if state.isAnimating 
         and state.animation.user == member
         and state.animation.ref == 'partyDamaged' then
-            progress = state.timer / state.speed
+            progress = state.timer / state.animation.speed
             shiftY = 15 * math.sin(progress * math.pi)
 
             local hpDrop = state.animation.value

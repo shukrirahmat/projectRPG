@@ -115,6 +115,11 @@ function battlerCreator.new(member)
         end
         return def
     end
+    
+    function battler:getAgi()
+        local agi = self.agi
+        return agi
+    end
 
 
     function battler:cannotAct()

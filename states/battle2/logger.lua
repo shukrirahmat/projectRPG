@@ -5,12 +5,24 @@ local logger = {}
 local state = {}
 
 function logger.load(text)
-    state.text = text
+    state.text = {text}
     state.isActive = true
     state.timer = 0
     state.speed = gameState.battleSpeed
     state.height = gameState.textHeight
 end
+
+function logger.add(text)
+    
+    if #state.text > 4 then
+        table.remove(state.text, 1)
+    end
+    
+    table.insert(state.text, text)
+    state.isActive = true
+    state.timer = 0
+end
+
 
 function logger.isActive()
     return state.isActive
@@ -22,7 +34,6 @@ function logger.update(dt)
     state.timer = state.timer + dt
     if state.timer >= state.speed then
         state.timer = 0
-        state.text = nil
         state.isActive = false
     end
 end
@@ -53,13 +64,15 @@ function logger.draw()
         borderHeight
     )
 
-    love.graphics.setFont(font_large)
-    love.graphics.printf(
-        state.text,
-        textX,
-        textY,
-        textWidth
-    )
+    for i, text in ipairs(state.text) do
+        love.graphics.setFont(font_large)
+        love.graphics.printf(
+            text,
+            textX,
+            textY + (i - 1) * lineHeight,
+            textWidth
+        )
+    end
 end
 
 return logger

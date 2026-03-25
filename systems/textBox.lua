@@ -81,7 +81,7 @@ function textBox.draw()
     local paddingY = 10
 
     local borderX = marginX
-    local borderHeight = state.height
+    local borderHeight = gameState.textHeight
     local borderY = windowHeight - borderHeight - marginY
     local borderWidth = windowWidth - marginX * 2
 

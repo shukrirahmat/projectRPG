@@ -6,23 +6,28 @@ local effectCreator = require('entities.effectCreator')
 
 local effects = {}
 
-function effects.dealDamage(state, user, target, value)
-    local damage = value
+function effects.dealDamage(user, target, damage)
+    local text;
+    local kill;
+    local effects;
+    
     target.currentHp = target.currentHp - damage;
-    battleLog.addText(state, ''..target.name..' takes '..damage..' damage.');
+    text = ''..target.name..' takes '..damage..' damage.'
+    
     if target.currentHp <= 0 then
-        table.insert(state.killQueue, target)
+        kill = target
     end
 
-    for _, statusEf in ipairs({'SLEEP', 'CONFUSE'}) do
+    for i, statusEf in ipairs({'SLEEP', 'CONFUSE'}) do
         if target.status[statusEf] then
             local roll = math.random(1,2)
             if roll == 1 then
-                local clearEffect = effectCreator.new('clearStatus', user, target, statusEf)
-                table.insert(state.effectQueue, clearEffect)
+                effects = {effectCreator.new('clearStatus', user, target, statusEf)}
             end
         end
     end
+    
+    return { text = text, kill = kill, effects = effects}
 end
 
 function effects.noEffect(state, user, target)

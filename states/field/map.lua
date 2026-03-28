@@ -1,4 +1,5 @@
-local tiles = require('maps.tiles')
+local tiles = require('graphics.tiles')
+local gates = require('graphics.gates')
 
 local map = {}
 
@@ -26,6 +27,20 @@ function map.draw()
                 (x - 1) * tile_size + camera.x - shift.x,
                 (y - 1) * tile_size + camera.y - shift.y
             )
+
+            if current_map.events[''..x..','..y..''] then
+                local event = current_map.events[''..x..','..y..'']
+                local sprite;
+                if event.type == 'gate' then
+                    sprite = gates.get_gate(event.spriteID)
+                end
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.draw(
+                    sprite,
+                    (x - 1) * tile_size + camera.x - shift.x,
+                    (y - 1) * tile_size + camera.y - shift.y
+                )
+            end
         end
     end
 end
@@ -40,7 +55,7 @@ function map.move(direction, progress)
     end
 
     local step = math.abs(shift[direction.axis]) / tile_size
-    
+
     return step
 end
 

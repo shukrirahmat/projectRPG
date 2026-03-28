@@ -1,6 +1,5 @@
 local field = require('states.field')
-local overworld = require('maps.overworld')
-local tiles = require('maps.tiles')
+local graphics = require('graphics')
 
 local game = {}
 
@@ -11,8 +10,9 @@ game.move_speed = 0.5
 
 function game.load()
     
-    tiles.load()
-    game.switch_state('field', {map = overworld, position = overworld.start_position})
+    graphics.load()
+    
+    game.switch_state('field', {map = 'overworld'})
     
 end
 

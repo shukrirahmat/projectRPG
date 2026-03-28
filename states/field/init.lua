@@ -4,8 +4,11 @@ local map = require('states.field.map')
 local field = {}
 
 function field.load(game, var)
-    player.load(game, var.position, map)
-    map.load(var.map, player)
+    local current_map = require('maps.'..var.map..'')
+    local start_position = var.position or current_map.start_position
+    
+    player.load(game, start_position, map)
+    map.load(current_map, player)
 end
 
 function field.update(dt)

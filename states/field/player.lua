@@ -90,12 +90,14 @@ function player.update(dt)
         local progress = move_timer / move_speed
         if move_timer < move_speed then
             local step = map.move(direction, progress)
-            if step <= 0.25 then
-                current_sprite = direction.sprite[2]
-            elseif step <= 0.5 then
+            if step < 0.5 then
                 current_sprite = direction.sprite[1]
-            elseif step <= 0.75 then
-                current_sprite = direction.sprite[3]
+            elseif step < 1 then
+                if position[direction.axis] % 2 == 0 then
+                    current_sprite = direction.sprite[3]
+                else
+                    current_sprite = direction.sprite[2]
+                end
             end
         else
             player.stop(direction)

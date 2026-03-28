@@ -1,11 +1,17 @@
 local overworld = {}
 
-overworld.size = { x = 15, y = 7 }
-overworld.startPos = { x = 8, y = 4 }
-overworld.floor = { r = 0.6, g = 0.9, b = 0.6 }
-overworld.spots = 
-{
-    ['2,2'] = { x = 2 , y = 2 , category = 'gates', to = 'stage_1'}
+overworld.name = 'overworld'
+overworld.width = 15
+overworld.height = 7
+overworld.start_position = { x = 8, y = 4 }
+overworld.tiles = {
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 }
 
-return overworld;
+return overworld

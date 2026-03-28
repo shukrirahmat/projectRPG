@@ -1,23 +1,19 @@
-require('globals')
-local stateManager = require('stateManager')
-local gameState = require('gameState')
+local game = require('game')
 
 function love.load()
     math.randomseed(os.time())
-    love.window.setMode(windowWidth, windowHeight)
-
-    stateManager.initiate()
-    stateManager.switch('field') 
+    love.window.setMode(1024, 576)
+    game.load()
 end
 
 function love.update(dt)
-    stateManager.update(dt)
+    game.update(dt)
 end
 
 function love.draw()
-    stateManager.draw()
+    game.draw()
 end
 
 function love.keypressed(key)
-    stateManager.keypressed(key)
+    game.keypressed(key)
 end

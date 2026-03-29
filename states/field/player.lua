@@ -1,81 +1,56 @@
+local player_sprites = require('graphics.player_sprites')
+
 local player = {}
 
-local game
-local map
-local sprites
-local front_sprites
-local back_sprites
-local right_sprites
-local left_sprites
-local current_sprite
-local position
-
+local field = nil
+local position = nil
+local current_map = nil
+local current_sprite = nil
 local is_moving = false
 local move_timer = 0
 local move_speed = 0
 local move_direction = nil
+local directions = nil
 
-local directions = {
+
+function player.load(_field, _current_map, _start_position)
+    
+    field = _field
+    position = _start_position
+    current_map = _current_map
+    current_sprite = player_sprites.get_quad('front')[1]
+    move_speed = 0.3
+    
+    directions = {
     up = {
         dx = 0, dy = -1,
         axis = "y",
+        sprite = player_sprites.get_quad('back'),
         can_move = function() return position.y > 1 end
     },
     down = {
         dx = 0, dy = 1,
         axis = "y",
-        can_move = function() return position.y < map.get_height() end
+        sprite = player_sprites.get_quad('front'),
+        can_move = function() return position.y < current_map.height end
     },
     left = {
         dx = -1, dy = 0,
         axis = "x",
+        sprite = player_sprites.get_quad('left'),
         can_move = function() return position.x > 1 end
     },
     right = {
         dx = 1, dy = 0,
         axis = "x",
-        can_move = function() return position.x < map.get_width() end
+        sprite = player_sprites.get_quad('right'),
+        can_move = function() return position.x < current_map.width end
     }
 }
-
-
-function player.load(_game, _position, _map)
-
-    sprites = love.graphics.newImage('assets/images/player.png')
-    front_sprites = {
-        love.graphics.newQuad(0, 0, 64, 64, 192, 256),
-        love.graphics.newQuad(64, 0, 64, 64, 192, 256),
-        love.graphics.newQuad(128, 0, 64, 64, 192, 256)
-    }
-    back_sprites = {
-        love.graphics.newQuad(0, 64, 64, 64, 192, 256),
-        love.graphics.newQuad(64, 64, 64, 64, 192, 256),
-        love.graphics.newQuad(128, 64, 64, 64, 192, 256)
-    }
-    right_sprites = {
-        love.graphics.newQuad(0, 128, 64, 64, 192, 256),
-        love.graphics.newQuad(64, 128, 64, 64, 192, 256),
-        love.graphics.newQuad(128, 128, 64, 64, 192, 256)
-    }
-    left_sprites = {
-        love.graphics.newQuad(0, 192, 64, 64, 192, 256),
-        love.graphics.newQuad(64, 192, 64, 64, 192, 256),
-        love.graphics.newQuad(128, 192, 64, 64, 192, 256)
-    }
-
-    current_sprite = front_sprites[1]
-    directions.up.sprite = back_sprites
-    directions.down.sprite = front_sprites
-    directions.right.sprite = right_sprites
-    directions.left.sprite = left_sprites
-
-
-    position = _position
-    map = _map
-    move_speed = _game.move_speed
+    
 end
 
-function player.update(dt)
+function player.update(dt, mapper)
     if is_moving then
         move_timer = move_timer + dt
         local direction = directions[move_direction]
@@ -89,7 +64,7 @@ function player.update(dt)
 
         local progress = move_timer / move_speed
         if move_timer < move_speed then
-            local step = map.move(direction, progress)
+            local step = mapper.move(direction, progress)
             if step < 0.5 then
                 current_sprite = direction.sprite[1]
             elseif step < 1 then
@@ -100,21 +75,32 @@ function player.update(dt)
                 end
             end
         else
-            player.stop(direction)
+            player.stop(direction, mapper)
+            player.execute_events(mapper)
         end
     else
         player.check_hold_movement()
     end
 end
 
-function player.stop(direction)
+function player.stop(direction, mapper)
     is_moving = false
     move_timer = 0
     current_sprite = direction.sprite[1]
     position.x = position.x + direction.dx
     position.y = position.y + direction.dy
-    map.stop(direction)
+    mapper.stop(direction)
 end
+
+function player.execute_events()
+    local event = current_map.events[''..position.x..','..position.y..'']
+    if event then
+        if event.type == 'gate' then
+            field.change_area(event.to)
+        end
+    end
+end
+
 
 function player.check_hold_movement()
     if is_moving then return end
@@ -130,18 +116,15 @@ function player.check_hold_movement()
     end
 end
 
-function player.draw()
+function player.draw(camera, tile_size)
+    
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(
-        sprites,
+        player_sprites.get_sprite(),
         current_sprite,
-        (position.x - 1) * map.get_tile_size() + map.get_camera().x,
-        (position.y - 1) * map.get_tile_size() + map.get_camera().y
+        (position.x - 1) * tile_size + camera.x,
+        (position.y - 1) * tile_size + camera.y
     )
-end
-
-function player.get_position()
-    return position
 end
 
 function player.move(key)

@@ -1,26 +1,28 @@
 local tiles = require('graphics.tiles')
 local gates = require('graphics.gates')
 
-local map = {}
+local mapper = {}
 
 local tile_size = 64
 local camera = {}
-local shift = { x = 0, y = 0}
-local current_map
-local player
+local shift = {}
+local current_map = nil
 
-function map.load(_current_map, _player)
+function mapper.load(_field, _current_map, _start_position)
+    
     current_map = _current_map
-    player = _player
-    camera.x = love.graphics.getWidth()/2 - (player.get_position().x - 0.5) * tile_size
-    camera.y = love.graphics.getHeight()/2 - (player.get_position().y - 0.5) * tile_size
+    camera.x = love.graphics.getWidth()/2 - (_start_position.x - 0.5) * tile_size
+    camera.y = love.graphics.getHeight()/2 - (_start_position.y - 0.5) * tile_size
+    shift.x = 0
+    shift.y = 0
+    
 end
 
-function map.draw()
+function mapper.draw()
     for y = 1, current_map.height do
         for x = 1, current_map.width do
             local id = current_map.tiles[y][x]
-            local tile = tiles.get_tile(id)
+            local tile = tiles.get_sprite(id)
             love.graphics.setColor(1, 1, 1)
             love.graphics.draw(
                 tile,
@@ -32,7 +34,7 @@ function map.draw()
                 local event = current_map.events[''..x..','..y..'']
                 local sprite;
                 if event.type == 'gate' then
-                    sprite = gates.get_gate(event.spriteID)
+                    sprite = gates.get_sprite(event.spriteID)
                 end
                 love.graphics.setColor(1, 1, 1)
                 love.graphics.draw(
@@ -45,7 +47,7 @@ function map.draw()
     end
 end
 
-function map.move(direction, progress)
+function mapper.move(direction, progress)
     local shift_amount = progress * tile_size
 
     if direction.axis == 'x' then
@@ -59,26 +61,18 @@ function map.move(direction, progress)
     return step
 end
 
-function map.stop(direction)
+function mapper.stop(direction)
     shift[direction.axis] = 0
     camera.x = camera.x - direction.dx * tile_size
     camera.y = camera.y - direction.dy * tile_size
 end
 
-function map.get_tile_size()
+function mapper.get_tile_size()
     return tile_size
 end
 
-function map.get_camera()
+function mapper.get_camera()
     return camera
 end
 
-function map.get_height()
-    return current_map.height
-end
-
-function map.get_width()
-    return current_map.width
-end
-
-return map
+return mapper

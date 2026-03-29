@@ -6,18 +6,15 @@ local game = {}
 local states = { field = field }
 local current_state = nil
 
-game.move_speed = 0.5
-
 function game.load()
     
     graphics.load()
     
     game.switch_state('field', {map = 'overworld'})
-    
 end
 
 function game.switch_state(state, var)
-    current_state = states[state];
+    current_state = states[state]
     current_state.load(game, var)
 end
 

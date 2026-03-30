@@ -1,9 +1,10 @@
 local field = require('states.field')
+local battle = require('states.battle')
 local graphics = require('graphics')
 
 local game = {}
 
-local states = { field = field }
+local states = { field = field , battle = battle}
 local current_state = nil
 
 function game.load()

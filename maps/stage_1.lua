@@ -20,6 +20,8 @@ stage_1.tiles = {
 stage_1.events =  {
     ['6,10'] = {type = 'gate', spriteID = 1, to = 'overworld'}
 }
+stage_1.has_encounter = true
+stage_1.encounter_chance = 200
 
 
 return stage_1

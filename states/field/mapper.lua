@@ -8,7 +8,7 @@ local camera = {}
 local shift = {}
 local current_map = nil
 
-function mapper.load(_field, _current_map, _start_position)
+function mapper.load(_current_map, _start_position)
     
     current_map = _current_map
     camera.x = love.graphics.getWidth()/2 - (_start_position.x - 0.5) * tile_size

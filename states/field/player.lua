@@ -2,7 +2,6 @@ local player_sprites = require('graphics.player_sprites')
 
 local player = {}
 
-local field = nil
 local position = nil
 local current_map = nil
 local current_sprite = nil
@@ -13,9 +12,8 @@ local move_direction = nil
 local directions = nil
 
 
-function player.load(_field, _current_map, _start_position)
+function player.load(_current_map, _start_position)
     
-    field = _field
     position = _start_position
     current_map = _current_map
     current_sprite = player_sprites.get_quad('front')[1]
@@ -50,7 +48,7 @@ function player.load(_field, _current_map, _start_position)
     
 end
 
-function player.update(dt, mapper)
+function player.update(dt, field, mapper, encounter)
     if is_moving then
         move_timer = move_timer + dt
         local direction = directions[move_direction]
@@ -76,7 +74,7 @@ function player.update(dt, mapper)
             end
         else
             player.stop(direction, mapper)
-            player.execute_events(mapper)
+            player.check_area(field, encounter)
         end
     else
         player.check_hold_movement()
@@ -92,12 +90,16 @@ function player.stop(direction, mapper)
     mapper.stop(direction)
 end
 
-function player.execute_events()
+function player.check_area(field, encounter)
     local event = current_map.events[''..position.x..','..position.y..'']
+    local has_encounter = current_map.has_encounter
+    
     if event then
         if event.type == 'gate' then
             field.change_area(event.to)
         end
+    elseif has_encounter then
+        encounter.attempt(field)
     end
 end
 

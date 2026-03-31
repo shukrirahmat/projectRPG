@@ -8,11 +8,11 @@ local camera = {}
 local shift = {}
 local current_map = nil
 
-function mapper.load(_current_map, _start_position)
+function mapper.load(_current_map, start_position)
     
     current_map = _current_map
-    camera.x = love.graphics.getWidth()/2 - (_start_position.x - 0.5) * tile_size
-    camera.y = love.graphics.getHeight()/2 - (_start_position.y - 0.5) * tile_size
+    camera.x = love.graphics.getWidth()/2 - (start_position.x - 0.5) * tile_size
+    camera.y = love.graphics.getHeight()/2 - (start_position.y - 0.5) * tile_size
     shift.x = 0
     shift.y = 0
     

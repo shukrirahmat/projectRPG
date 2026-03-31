@@ -12,11 +12,11 @@ local move_direction = nil
 local directions = nil
 
 
-function player.load(_current_map, _start_position)
+function player.load(_current_map, start_position, player_facing)
     
-    position = _start_position
+    position = start_position
     current_map = _current_map
-    current_sprite = player_sprites.get_quad('front')[1]
+    current_sprite = player_sprites.get_quad(player_facing)[1]
     move_speed = 0.3
     
     directions = {

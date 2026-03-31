@@ -7,16 +7,13 @@ local field = {}
 local game = nil
 local phase = nil
 
-function field.load(_game, var)
-
-    local current_map = require('maps.'..var.map..'')
-    local start_position = var.position or current_map.start_position
+function field.load(_game)
 
     game = _game
-    player.load(current_map, start_position)
-    mapper.load(current_map, start_position)
-    encounter.load(current_map)
-    
+    player.load(game.current_map, game.player_position, game.player_facing)
+    mapper.load(game.current_map, game.player_position)
+    encounter.load(game.current_map)
+
     transitions.load('fade_in', 0.5, function() phase = 'player_control' end)
     phase = 'fade_in'
 end
@@ -44,24 +41,31 @@ end
 
 function field.keypressed(key)
     if phase == 'player_control' and not player.is_moving() then
-        player.move(key)
+        if key == 'up' or key == 'down' or key == 'right' or key == 'left' then
+            player.move(key)
+        end
     end
 end
 
 function field.change_area(next_map)
 
     local function change_area()
-        game.switch_state('field', { map = next_map })
+
+        game.current_map = require('maps.'..next_map..'')
+        game.player_position = game.current_map.start_position
+        game.player_facing = 'front'
+
+        game.switch_state('field')
     end
 
     phase = 'changing_area'
     transitions.load('fade_out', 0.5, change_area)
 end
 
-function field.enter_battle()
+function field.enter_battle(enemies)
 
     local function enter_battle()
-        game.switch_state('battle', {})
+        game.switch_state('battle', {enemies = enemies})
     end
 
     phase = 'entering_battle'

@@ -1,17 +1,40 @@
 local field = require('states.field')
 local battle = require('states.battle')
+local party_data = require('data.party_data')
+local party = require('systems.party')
+local member = require('systems.member')
 local graphics = require('graphics')
+local fonts = require('systems.fonts')
 
 local game = {}
 
 local states = { field = field , battle = battle}
 local current_state = nil
 
+game.party = nil
+game.current_map = nil
+game.player_position = nil
+game.player_facing = nil
+
 function game.load()
     
     graphics.load()
+    fonts.load()
+    party.load(
+        { 
+            member.new(party_data.test[1]),
+            member.new(party_data.test[2]),
+            member.new(party_data.test[3]),
+            member.new(party_data.test[4]),
+        }
+    )
     
-    game.switch_state('field', {map = 'overworld'})
+    game.party = party
+    game.current_map = require('maps.overworld')
+    game.player_position = game.current_map.start_position
+    game.player_facing = 'front'
+    
+    game.switch_state('field')
 end
 
 function game.switch_state(state, var)

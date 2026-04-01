@@ -3,6 +3,8 @@ local enemy_data = {}
 local sprite_dimension = 128
 
 enemy_data['goblin'] = {
+    
+    ref = 'goblin',
     lvl = 1,
     hp = 8,
     mp = 0,
@@ -15,10 +17,11 @@ enemy_data['goblin'] = {
     passive_skills = {},
     strong = {},
     immune = {},
-    sprite = 'goblin'
 }
 
 enemy_data['skeleton'] = {
+    
+    ref = 'skeleton',
     lvl = 1,
     hp = 15,
     mp = 0,
@@ -31,7 +34,6 @@ enemy_data['skeleton'] = {
     passive_skills = {},
     strong = {},
     immune = {},
-    sprite = 'skeleton'
 }
 
 return enemy_data

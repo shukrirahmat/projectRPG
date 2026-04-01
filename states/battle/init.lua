@@ -1,11 +1,16 @@
-local battler = require('systems.battler')
-local utils = require('helpers.utils')
-local transitions = require('systems.transitions')
-local enemy_data = require('data.enemy_data')
 local middle_screen = require('states.battle.middle_screen')
 local hud = require('states.battle.hud')
 local logger = require('states.battle.logger')
+local loop = require('states.battle.loop')
 local menu = require('states.battle.menu')
+local battler = require('systems.battler')
+local action = require('systems.action')
+local transitions = require('systems.transitions')
+local action_data = require('data.action_data')
+local enemy_data = require('data.enemy_data')
+local enemy_action = require('data.enemy_action')
+local fonts = require('fonts')
+local utils = require('helpers.utils')
 
 local battle = {}
 
@@ -15,9 +20,54 @@ local phase = nil
 local fade_in_done = false
 local encounter_message_done = false
 
+
+local function draw_test_details()
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.setFont(fonts.small)
+    for i, enemy in ipairs(enemy_battlers) do
+        local hp = ''..enemy.current_hp..'/'..enemy.max_hp..''
+        local stat = 'ATK: '..enemy:get_atk()..' DEF: '..enemy:get_def()..'  SPD: '..enemy:get_spd()..''
+        love.graphics.printf(
+            ''..hp..' '..stat..'',
+            love.graphics.getWidth() / 2,
+            20 + (i - 1) * 20,
+            love.graphics.getWidth() / 2 - 40,
+            'right'
+        )
+    end
+end
+
+local function get_random_target(group)
+    local available_targets = {}
+
+    for i, target in ipairs(group) do
+        if target:is_alive() then
+            table.insert(available_targets, target)
+        end
+    end
+
+    local selected = nil
+    local i = 1
+
+    while not selected do
+        if i == #available_targets then
+            selected = available_targets[i]
+        else
+            local chance = math.random(1, 10)
+            if chance < 5 then
+                i = i + 1
+            else
+                selected =  available_targets[i]
+            end
+        end
+    end
+
+    return selected
+end
+
 local function check_intro_done()
     if fade_in_done and encounter_message_done then
-        menu.load(party_battlers, enemy_battlers)
+        menu.load(battle, party_battlers, enemy_battlers)
         phase = 'menu_input'
     end
 end
@@ -69,13 +119,18 @@ function battle.update(dt)
     if phase == 'intro' then
         transitions.update(dt)
         logger.update(dt)
+    elseif phase == 'battle_running' then
+        loop.update(dt)
     end
 end
 
 function battle.draw()
     hud.draw()
     middle_screen.draw()
-    
+
+    --------------
+    draw_test_details()
+
     if menu.is_active() then
         menu.draw()
     end
@@ -93,6 +148,73 @@ function battle.keypressed(key)
     if phase == 'menu_input' then
         menu.keypressed(key)
     end
+end
+
+function battle.set_action(ref, user, targets)
+    local data = action_data[ref]
+    local new_action = action.new(ref, data, user, targets)
+    user.current_action = new_action
+end
+
+function battle.run_action()
+
+    local action_queue = {}
+
+    for i, member in ipairs(party_battlers) do
+        if not member:is_alive() then
+            goto continue
+        end
+
+        if member.current_action then
+            local to_send = member.current_action
+            member.current_action = nil
+            table.insert(action_queue, to_send)
+        else
+            local data = action_data['empty_action']
+            local empty_action = action.new('empty_action', data, member)
+            table.insert(action_queue, empty_action)
+        end
+
+        ::continue::
+    end
+
+    for i, enemy in ipairs(enemy_battlers) do
+        if not enemy:is_alive() then
+            goto continue
+        end
+        
+        if enemy:cannot_act() then
+            local data = action_data['empty_action']
+            local empty_action = action.new('empty_action', data, enemy)
+            table.insert(action_queue, empty_action)
+            goto continue
+        end
+
+        local action_ref = enemy_action.get(enemy)
+        local data = action_data[action_ref]
+
+        local group = party_battlers
+        if data.aim == 'allies' then
+            group = enemy_battlers
+        end
+
+        local to_send
+        if data.scope == 'all' then
+            to_send = action.new(action_ref, data, enemy, {unpack(group)})
+        elseif data.scope == 'self' then
+            to_send = action.new(action_ref, data, enemy, enemy)
+        elseif data.scope == 'single' then
+            local target = get_random_target(group)
+            to_send = action.new(action_ref, data, enemy, {target})
+        end
+        table.insert(action_queue, to_send)
+        
+
+        ::continue::
+    end
+    
+    loop.load(battle, action_queue)
+    phase = 'battle_running'
 end
 
 return battle

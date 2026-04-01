@@ -35,6 +35,7 @@ function battler.new_enemy(data, name)
     
     local self = battler.new(data)
 
+    self.ref = data.ref
     self.name = name
     self.current_hp = data.hp
     self.max_hp = data.hp
@@ -44,7 +45,7 @@ function battler.new_enemy(data, name)
     self.sprite_height = data.sprite_height
     self.exp_drop = data.exp_drop
     self.gold_drop = data.gold_drop
-    self.sprite = enemy_sprites.get_sprite(data.sprite)
+    self.sprite = enemy_sprites.get_sprite(data.ref)
     
     function self:draw(x, y)
         if not self:is_alive() then return end

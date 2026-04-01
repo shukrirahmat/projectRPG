@@ -19,7 +19,7 @@ function encounter.generate()
     
     local encounters = {}
     
-    local enemy_count = 1
+    local enemy_count = 0
     local more_enemies = true
     local more_chance = 100
     

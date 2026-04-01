@@ -14,6 +14,17 @@ local border_width = nil
 local lg = love.graphics
 local SPRITE_DIMENSION = 128
 
+local function get_alive_enemy(enemies)
+    local alive = {}
+    for i, enemy in ipairs(enemies) do
+        if enemy:is_alive() then
+            table.insert(alive, enemy)
+        end
+    end
+    
+    return alive
+end
+
 local function moveUp()
     if position > 1 then
         position = position - 1
@@ -26,10 +37,20 @@ local function moveDown()
     end
 end
 
-local function confirm()
+local function confirm(action)
+    if position == 1 then
+        local alive_enemy = get_alive_enemy(menu.enemies)
+        if #alive_enemy == 1 then
+            is_active = false
+            menu.choose_action('normal_attack', member, {alive_enemy[1]})
+            menu.next_party_member(member_index + 1)
+        end
+    end
 end
 
 local function back()
+    is_active = false
+    menu.previous_party_member(member_index - 1)
 end
 
 
@@ -82,10 +103,10 @@ function member_menu.draw()
         
         lg.printf(
             option,
-            option_x,
+            option_x + 25,
             option_y + renderer.center_text(option_height) + (i - 1) * option_height,
             option_width,
-            'center'
+            'left'
         )
         
         lg.setColor(1, 1, 1)

@@ -2,6 +2,7 @@ local player = require('states.field.player')
 local mapper = require('states.field.mapper')
 local encounter = require('states.field.encounter')
 local transitions = require('systems.transitions')
+local input = require('input')
 
 local field = {}
 local game = nil
@@ -41,7 +42,7 @@ end
 
 function field.keypressed(key)
     if phase == 'player_control' and not player.is_moving() then
-        if key == 'up' or key == 'down' or key == 'right' or key == 'left' then
+        if key == input.up or key == input.down or key == input.right or key == input.left then
             player.move(key)
         end
     end

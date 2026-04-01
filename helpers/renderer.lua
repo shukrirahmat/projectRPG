@@ -1,0 +1,22 @@
+local renderer = {}
+
+function renderer.center_text(line_height)   
+    local font = love.graphics.getFont()
+    local textHeight = font:getHeight()
+    return (line_height - textHeight) * 0.5    
+end
+
+function renderer.draw_option_cursor(x, y, height)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.polygon(
+        'fill',
+        x,
+        y + (height/2) - 10,
+        x,
+        y + (height/2) + 10,
+        x + 10,
+        y + (height/2)
+    )
+end
+
+return renderer

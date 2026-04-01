@@ -4,7 +4,8 @@ local party_data = require('data.party_data')
 local party = require('systems.party')
 local member = require('systems.member')
 local graphics = require('graphics')
-local fonts = require('systems.fonts')
+local fonts = require('fonts')
+local input = require('input')
 
 local game = {}
 

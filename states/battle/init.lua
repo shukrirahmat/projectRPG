@@ -1,10 +1,11 @@
 local battler = require('systems.battler')
-local utils = require('systems.utils')
+local utils = require('helpers.utils')
 local transitions = require('systems.transitions')
 local enemy_data = require('data.enemy_data')
 local middle_screen = require('states.battle.middle_screen')
 local hud = require('states.battle.hud')
 local logger = require('states.battle.logger')
+local menu = require('states.battle.menu')
 
 local battle = {}
 
@@ -16,8 +17,19 @@ local encounter_message_done = false
 
 local function check_intro_done()
     if fade_in_done and encounter_message_done then
+        menu.load(party_battlers, enemy_battlers)
         phase = 'menu_input'
     end
+end
+
+local function fade_in_callback()
+    fade_in_done = true
+    check_intro_done()
+end
+
+local function encounter_message_callback()
+    encounter_message_done = true
+    check_intro_done()
 end
 
 local function set_party_battlers(party)
@@ -48,14 +60,9 @@ function battle.load(game, var)
     middle_screen.load(enemy_battlers)
 
     phase = 'intro'
-    transitions.load('fade_in', 0.5, function() 
-            fade_in_done = true
-            check_intro_done()
-        end)
-    logger.load('Enemy encountered!', function() 
-            encounter_message_done = true
-            check_intro_done()
-        end)
+
+    transitions.load('fade_in', 0.5, fade_in_callback)
+    logger.load('Enemy encountered!', encounter_message_callback)
 end
 
 function battle.update(dt)
@@ -68,6 +75,10 @@ end
 function battle.draw()
     hud.draw()
     middle_screen.draw()
+    
+    if menu.is_active() then
+        menu.draw()
+    end
 
     if logger.is_active() then
         logger.draw()
@@ -79,6 +90,9 @@ function battle.draw()
 end
 
 function battle.keypressed(key)
+    if phase == 'menu_input' then
+        menu.keypressed(key)
+    end
 end
 
 return battle

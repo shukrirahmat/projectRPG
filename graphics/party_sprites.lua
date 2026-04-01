@@ -7,6 +7,7 @@ function party_sprites.load()
     sprites['two'] = love.graphics.newImage('assets/images/two.png')
     sprites['three'] = love.graphics.newImage('assets/images/three.png')
     sprites['four'] = love.graphics.newImage('assets/images/four.png')
+    sprites['coffin'] = love.graphics.newImage('assets/images/coffin.png')
 end
 
 function party_sprites.get_sprite(reference)

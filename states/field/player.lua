@@ -1,4 +1,5 @@
 local player_sprites = require('graphics.player_sprites')
+local input = require('input')
 
 local player = {}
 
@@ -107,13 +108,13 @@ end
 function player.check_hold_movement()
     if is_moving then return end
 
-    if love.keyboard.isDown('up') then
+    if love.keyboard.isDown(input.up) then
         player.move('up')
-    elseif love.keyboard.isDown('down') then
+    elseif love.keyboard.isDown(input.down) then
         player.move('down')
-    elseif love.keyboard.isDown('left') then
+    elseif love.keyboard.isDown(input.left) then
         player.move('left')
-    elseif love.keyboard.isDown('right') then
+    elseif love.keyboard.isDown(input.right) then
         player.move('right')
     end
 end

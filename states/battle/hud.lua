@@ -1,4 +1,4 @@
-local fonts = require('systems.fonts')
+local fonts = require('fonts')
 
 local hud = {}
 

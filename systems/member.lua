@@ -19,6 +19,7 @@ function member.new(data)
     self.total_exp = data.total_exp
     self.strong = data.strong or {}
     self.immune = data.immune or {}
+    self.sprite = data.sprite
     
     function self:is_alive()
         return self.current_hp > 0

@@ -1,8 +1,8 @@
 local action_data = {}
 
-local function normal_attack(self, user, targets, logger)
+local function normal_attack(self, user, targets, executor)
     
-    logger.load(''..user.name..' attacks!')
+    executor.log(''..user.name..' attacks!')
     
 end
 

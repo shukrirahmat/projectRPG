@@ -1,5 +1,7 @@
 local enemy_sprites = require('graphics.enemy_sprites')
 local party_sprites = require('graphics.party_sprites')
+local enemy_action = require('data.enemy_action')
+local action_data = require('data.action_data')
 
 local battler = {}
 
@@ -27,7 +29,16 @@ function battler.new_member(data)
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(sprite, x, y)
     end
-
+    
+    function self:execute_action(executor)
+        local action = self.current_action
+        self.current_action = nil
+        
+        if action then
+            action.data:execute(self, action.targets, executor)
+        end
+    end
+    
     return self
 end
 
@@ -52,6 +63,28 @@ function battler.new_enemy(data, name)
 
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(self.sprite, x, y)
+    end
+    
+    function self:execute_action(executor)
+        
+        local action_ref = enemy_action.get(self)
+        local data = action_data[action_ref]
+
+        local group = executor.get_party()
+        if data.aim == 'allies' then
+            group = executor.get_enemies()
+        end
+
+        local targets
+        if data.scope == 'all' then
+            targets = {unpack(group)}
+        elseif data.scope == 'self' then
+            targets = {self}
+        elseif data.scope == 'single' then
+            local target = executor.get_random_target(group)
+            targets = {target}
+        end
+        data:execute(self, targets, executor)
     end
 
     return self

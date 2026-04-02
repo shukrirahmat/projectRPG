@@ -17,8 +17,6 @@ local battle = {}
 local party_battlers = {}
 local enemy_battlers = {}
 local phase = nil
-local fade_in_done = false
-local encounter_message_done = false
 
 
 local function draw_test_details()
@@ -65,23 +63,6 @@ local function get_random_target(group)
     return selected
 end
 
-local function check_intro_done()
-    if fade_in_done and encounter_message_done then
-        menu.load(battle, party_battlers, enemy_battlers)
-        phase = 'menu_input'
-    end
-end
-
-local function fade_in_callback()
-    fade_in_done = true
-    check_intro_done()
-end
-
-local function encounter_message_callback()
-    encounter_message_done = true
-    check_intro_done()
-end
-
 local function set_party_battlers(party)
     for i, member in ipairs(party) do
         local new_battler = battler.new_member(member)
@@ -102,6 +83,18 @@ local function set_enemy_battlers(enemies)
     end
 end
 
+local function intro_update(dt)
+    transitions.update(dt)
+    logger.update(dt)
+    if not logger.is_active() and not transitions.is_active() then
+        battle.enter_menu()
+    end
+end
+
+
+---PUBLIC---
+
+
 function battle.load(game, var)
     set_party_battlers(game.party.get_members())
     set_enemy_battlers(var.enemies)
@@ -111,14 +104,13 @@ function battle.load(game, var)
 
     phase = 'intro'
 
-    transitions.load('fade_in', 0.5, fade_in_callback)
-    logger.load('Enemy encountered!', encounter_message_callback)
+    transitions.load('fade_in', 0.5)
+    logger.load('Enemy encountered!')
 end
 
 function battle.update(dt)
     if phase == 'intro' then
-        transitions.update(dt)
-        logger.update(dt)
+        intro_update(dt)
     elseif phase == 'battle_running' then
         loop.update(dt)
     end
@@ -148,6 +140,11 @@ function battle.keypressed(key)
     if phase == 'menu_input' then
         menu.keypressed(key)
     end
+end
+
+function battle.enter_menu()
+    menu.load(battle, party_battlers, enemy_battlers)
+    phase = 'menu_input'
 end
 
 function battle.set_action(ref, user, targets)
@@ -182,7 +179,7 @@ function battle.run_action()
         if not enemy:is_alive() then
             goto continue
         end
-        
+
         if enemy:cannot_act() then
             local data = action_data['empty_action']
             local empty_action = action.new('empty_action', data, enemy)
@@ -208,12 +205,12 @@ function battle.run_action()
             to_send = action.new(action_ref, data, enemy, {target})
         end
         table.insert(action_queue, to_send)
-        
+
 
         ::continue::
     end
-    
-    loop.load(battle, action_queue)
+
+    loop.load(battle, action_queue, logger)
     phase = 'battle_running'
 end
 

@@ -98,7 +98,7 @@ function battle.draw()
         menu.draw()
     end
 
-    if logger.is_active() then
+    if logger.is_active() or logger.is_open() then
         logger.draw()
     end
 
@@ -119,7 +119,7 @@ function battle.enter_menu()
 end
 
 function battle.run_action()
-    executor.load(battle, party_battlers, enemy_battlers, logger)
+    executor.load(battle, party_battlers, enemy_battlers, logger, middle_screen)
     phase = 'battle_running'
 end
 

@@ -26,7 +26,8 @@ action_data['normal_attack'] = {
     execute = normal_attack,
     cost = 0,
     aim = 'enemies',
-    scope = 'single'    
+    scope = 'single',
+    animation = 'attack'
 }
 
 action_data['empty_action'] = {     

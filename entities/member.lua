@@ -20,10 +20,10 @@ function member.new(data)
     self.strong = data.strong or {}
     self.immune = data.immune or {}
     self.sprite = data.sprite
-    self.is_alive = true
+    self.is_dead = false
     
     function self:is_alive()
-        return self.is_alive
+        return not self.is_dead
     end
     
     return self

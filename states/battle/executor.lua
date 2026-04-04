@@ -7,6 +7,7 @@ local battle = nil
 local party = nil
 local enemies = nil
 local logger = nil
+local middle_screen = nil
 local is_active = nil
 local START_DELAY = 0.5
 local phase = nil
@@ -50,6 +51,7 @@ end
 local function execute_next_action()
     if #active_battlers <= 0 then
         is_active = false
+        logger.close()
         battle.enter_menu()
         return
     end
@@ -85,20 +87,23 @@ local function run_start_delay(dt)
     timer = timer + dt
     if timer >= START_DELAY then
         timer = 0
+        logger.stay()
         execute_next_action()
     end
 end
 
 local function run_next_action(dt)
+    middle_screen.update(dt)
     logger.update(dt)
-    if not logger.is_active() then
+    if not logger.is_active() and not middle_screen.is_animating() then
         execute_next_effect()
     end
 end
 
 local function run_next_effect(dt)
+    middle_screen.update(dt)
     logger.update(dt)
-    if not logger.is_active() then
+    if not logger.is_active() and not middle_screen.is_animating() then
         execute_next_effect()
     end
 end
@@ -120,16 +125,16 @@ end
 ---PUBLIC---
 
 
-function executor.load(_battle, _party, _enemies, _logger)
+function executor.load(_battle, _party, _enemies, _logger, _middle_screen)
 
     battle = _battle
     party = _party
     enemies = _enemies
     logger = _logger
+    middle_screen = _middle_screen
 
 
     effect_queue = {}
-
 
     set_active_battlers(party, enemies)
 

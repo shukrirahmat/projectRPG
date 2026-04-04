@@ -14,6 +14,7 @@ local is_active = false
 local timer = 0
 local callback = nil
 local lg = love.graphics
+local is_open = false
 
 function logger.load(text, callback_function)
     texts = {text}
@@ -36,6 +37,18 @@ end
 
 function logger.is_active()
     return is_active
+end
+
+function logger.is_open()
+    return is_open
+end
+
+function logger.stay()
+    is_open = true
+end
+
+function logger.close()
+    is_open = false
 end
 
 function logger.update(dt)

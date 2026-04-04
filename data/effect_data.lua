@@ -12,8 +12,7 @@ end
 
 local function kill(self, executor, user, target, value)
     
-    target.current_hp = 0
-    target.is_dead = true
+    target:dies()
     target.status = {}
     
     executor.log_effect(''..target.name..' defeated.')

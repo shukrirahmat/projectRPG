@@ -32,7 +32,7 @@ local function drawMemberHud(member, index, x, y)
     lg.setFont(fonts.medium)
     lg.printf(member.name, x + PADDING_X, y + PADDING_Y, INNER_WIDTH, 'center')
 
-    lg.setFont(fonts.xlargeMono)
+    lg.setFont(fonts.xlarge_mono)
     local stats = {'HP' , 'MP'}
     for i, stat in ipairs(stats) do
         lg.printf(

@@ -1,9 +1,21 @@
 local action_data = {}
 
+local function calculate_attack_damage(attacker, target) 
+
+    local damage = math.floor(attacker:get_atk()/2) - math.floor(target:get_def()/3)
+    local mod = math.floor(damage * 0.2)
+    damage = damage + math.floor(math.random(-mod, mod))
+    return math.max(damage, 1)
+end
+
 local function normal_attack(self, user, targets, executor)
-    
-    executor.log(''..user.name..' attacks!')
-    
+
+    executor.log_action(''..user.name..' attacks!')
+
+    for i, target in ipairs(targets) do
+        local damage = calculate_attack_damage(user, target)
+        executor.add_effect('damage', user, target, damage)
+    end
 end
 
 local function empty_action()

@@ -22,6 +22,18 @@ function logger.load(text, callback_function)
     callback = callback_function or function() end
 end
 
+function logger.add(text, callback_function)
+    
+    if #texts > 4 then
+        table.remove(texts, 1)
+    end
+    
+    table.insert(texts, text)
+    is_active = true
+    timer = 0
+    callback = callback_function or function() end
+end
+
 function logger.is_active()
     return is_active
 end

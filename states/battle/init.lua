@@ -84,6 +84,8 @@ function battle.update(dt)
         intro_update(dt)
     elseif phase == 'battle_running' then
         executor.update(dt)
+    elseif phase == 'battle_won' then
+        logger.update(dt)
     end
 end
 
@@ -127,6 +129,11 @@ end
 function battle.run_action()
     executor.load(battle, party_battlers, enemy_battlers, logger)
     phase = 'battle_running'
+end
+
+function battle.is_won()
+    phase = 'battle_won'
+    logger.load('Enemy defeated!')
 end
 
 return battle

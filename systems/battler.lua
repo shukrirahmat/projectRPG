@@ -105,13 +105,19 @@ function battler.new(data)
     self.status = data.status or {}
     self.strong = data.strong or {}
     self.immune = data.immune or {}
+    self.is_dead = false
 
     for i, ref in pairs(data.passive_skills) do
         self.passives[ref] = true
     end
 
     function self:is_alive()
-        return self.current_hp > 0
+        return not self.is_dead
+    end
+    
+    function self:take_damage(damage)
+        print(self.current_hp)
+        self.current_hp = self.current_hp - damage
     end
 
     function self:cannot_act()

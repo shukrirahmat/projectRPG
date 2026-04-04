@@ -42,7 +42,7 @@ local function confirm(action)
         local alive_enemy = get_alive_enemy(menu.enemies)
         if #alive_enemy == 1 then
             is_active = false
-            menu.choose_action('normal_attack', member, {alive_enemy[1]})
+            menu.set_action('normal_attack', member, {alive_enemy[1]})
             menu.next_party_member(member_index + 1)
         end
     end

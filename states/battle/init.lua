@@ -3,10 +3,8 @@ local hud = require('states.battle.hud')
 local logger = require('states.battle.logger')
 local executor = require('states.battle.executor')
 local menu = require('states.battle.menu')
-local battler = require('systems.battler')
-local action = require('systems.action')
 local transitions = require('systems.transitions')
-local action_data = require('data.action_data')
+local battler = require('entities.battler')
 local enemy_data = require('data.enemy_data')
 local fonts = require('fonts')
 local utils = require('helpers.utils')
@@ -118,12 +116,6 @@ end
 function battle.enter_menu()
     menu.load(battle, party_battlers, enemy_battlers)
     phase = 'menu_input'
-end
-
-function battle.set_action(ref, user, targets)
-    local data = action_data[ref]
-    local new_action = action.new(ref, data, user, targets)
-    user.current_action = new_action
 end
 
 function battle.run_action()

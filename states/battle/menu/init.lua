@@ -1,5 +1,7 @@
 local main_menu = require('states.battle.menu.main_menu')
 local member_menu = require('states.battle.menu.member_menu')
+local action = require('entities.action')
+local action_data = require('data.action_data')
 
 local menu = {}
 
@@ -92,8 +94,10 @@ function menu.next_party_member(index)
     end
 end
 
-function menu.choose_action(ref, user, targets)
-    battle.set_action(ref, user, targets)
+function menu.set_action(ref, user, targets)
+    local data = action_data[ref]
+    local new_action = action.new(ref, data, user, targets)
+    user.current_action = new_action
 end
 
 return menu

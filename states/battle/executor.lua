@@ -1,4 +1,4 @@
-local effect = require('systems.effect')
+local effect = require('entities.effect')
 local effect_data = require('data.effect_data')
 
 local executor = {}

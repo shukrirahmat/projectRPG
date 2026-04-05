@@ -12,10 +12,6 @@ function battler.new_member(data)
     self.name = data.name
     self.is_party_member = true
     self.member_id = data.id
-    self.current_hp = data.current_hp
-    self.max_hp = data.max_hp
-    self.current_mp = data.current_mp
-    self.max_mp = data.max_mp
     self.crit_rate = 64
     self.total_exp = data.total_exp
     self.sprite = party_sprites.get_sprite(data.sprite)
@@ -62,10 +58,6 @@ function battler.new_enemy(data, name)
 
     self.ref = data.ref
     self.name = name
-    self.current_hp = data.hp
-    self.max_hp = data.hp
-    self.current_mp = data.mp
-    self.max_mp = data.mp
     self.crit_rate = 128
     self.sprite_height = data.sprite_height
     self.exp_drop = data.exp_drop
@@ -210,6 +202,10 @@ function battler.new(data)
     local self = {}
 
     self.lvl = data.lvl
+    self.current_hp = data.current_hp or data.hp
+    self.max_hp = data.max_hp or data.hp
+    self.current_mp = data.current_mp or data.mp
+    self.max_mp = data.max_mp or data.mp
     self.str = data.str
     self.vit = data.vit
     self.agi = data.agi

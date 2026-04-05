@@ -22,7 +22,7 @@ local lg = love.graphics
 local animation = false
 local is_animating = false
 
-local function draw_member_hud(member, index, x, y)
+local function draw_member_hud(member, index, x, y, animation)
     lg.setColor(0, 0, 0)
     lg.rectangle('fill', x, y, BORDER_WIDTH, BORDER_HEIGHT)
 
@@ -47,7 +47,13 @@ local function draw_member_hud(member, index, x, y)
         )
     end
 
-    local values = { member.current_hp, member.current_mp }
+    local display_hp = math.max(0, member.current_hp)
+    if animation and animation.type == 'damaged' then
+        local progress = animation.timer / animation.duration
+        display_hp = math.max(0, member.current_hp + math.floor(animation.value * (1 - progress)^2))
+    end
+
+    local values = { display_hp, member.current_mp }
     for i, value in ipairs(values) do
         if not member:is_alive() then
             lg.setColor(0.25, 0.25, 0.25)
@@ -74,6 +80,20 @@ local function draw_member_hud(member, index, x, y)
             INNER_WIDTH,
             BAR_HEIGHT
         )
+        
+        if n == 1 and animation and animation.type == 'damaged' then
+            local progress = animation.timer / animation.duration
+            local drop = math.max(0, animation.value * (1 - progress)^2)
+            local damage_bar = math.max(0, INNER_WIDTH * ((drop + member.current_hp) / member.max_hp))
+            lg.setColor(0.97, 0.28, 0.11)
+            lg.rectangle(
+                'fill',
+                x + PADDING_X,
+                y + PADDING_Y + BAR_Y,
+                damage_bar,
+                BAR_HEIGHT
+            )
+        end
 
         local bar_width
         lg.setColor(0.75, 0.75, 0.75)
@@ -101,7 +121,7 @@ local function draw_member_animation(member, index, x, y)
     if animation.type == 'damaged' then
         local progress = animation.timer / animation.duration
         local offset_y = 15 * math.sin(progress * math.pi)
-        draw_member_hud(member, index, x, offset_y + y)
+        draw_member_hud(member, index, x, offset_y + y, animation)
     end
 end
 

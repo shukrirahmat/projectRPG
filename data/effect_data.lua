@@ -22,7 +22,7 @@ end
 
 effect_data['damage'] = { 
     apply = deal_damage , 
-    party_animation = { type = 'damaged', duration = 0.6 },
+    party_animation = { type = 'damaged', duration = 0.8 },
     enemy_animation = { type = 'damaged', duration = 1 }
 }
 

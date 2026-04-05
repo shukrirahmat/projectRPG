@@ -1,13 +1,14 @@
 local effect = require('entities.effect')
 local effect_data = require('data.effect_data')
 
-local executor = {}
+local engine = {}
 
 local battle = nil
 local party = nil
 local enemies = nil
 local logger = nil
 local middle_screen = nil
+local hud = nil
 local is_active = nil
 local START_DELAY = 0.5
 local phase = nil
@@ -15,6 +16,8 @@ local timer = 0
 local active_battlers = nil
 local current_battler = nil
 local effect_queue = nil
+
+engine.BATTLE_SPEED = 1
 
 local function is_enemy_defeated()
     local alive = 0
@@ -57,7 +60,7 @@ local function execute_next_action()
     end
 
     current_battler = get_next_battler()
-    current_battler:execute_action(executor)
+    current_battler:execute_action(engine)
 
     phase = 'run_action'
 end
@@ -76,7 +79,7 @@ local function execute_next_effect()
     table.remove(effect_queue, 1)
 
     if effect.target:is_alive() then
-        effect.data:apply(executor, effect.user, effect.target, effect.value)
+        effect.target:apply_effect(effect, engine, hud)
     end
 
     phase = 'run_effects'
@@ -103,7 +106,8 @@ end
 local function run_next_effect(dt)
     middle_screen.update(dt)
     logger.update(dt)
-    if not logger.is_active() and not middle_screen.is_animating() then
+    hud.update(dt)
+    if not logger.is_active() and not middle_screen.is_animating()  and not hud.is_animating() then
         execute_next_effect()
     end
 end
@@ -125,13 +129,14 @@ end
 ---PUBLIC---
 
 
-function executor.load(_battle, _party, _enemies, _logger, _middle_screen)
+function engine.load(_battle, _party, _enemies, _logger, _middle_screen, _hud)
 
     battle = _battle
     party = _party
     enemies = _enemies
     logger = _logger
     middle_screen = _middle_screen
+    hud = _hud
 
 
     effect_queue = {}
@@ -143,7 +148,7 @@ function executor.load(_battle, _party, _enemies, _logger, _middle_screen)
     phase = 'start'
 end
 
-function executor.update(dt)
+function engine.update(dt)
     if not is_active then return end
 
     if phase == 'start' then
@@ -155,7 +160,7 @@ function executor.update(dt)
     end
 end
 
-function executor.get_random_target(group)
+function engine.get_random_target(group)
     local available_targets = {}
 
     for i, target in ipairs(group) do
@@ -183,35 +188,35 @@ function executor.get_random_target(group)
     return selected
 end
 
-function executor.get_party()
+function engine.get_party()
     return party
 end
 
-function executor.get_enemies()
+function engine.get_enemies()
     return enemies
 end
 
-function executor.log_action(text)
+function engine.log_action(text)
     return logger.load(text)
 end
 
-function executor.log_effect(text)
+function engine.log_effect(text)
     return logger.add(text)
 end
 
-function executor.add_effect(ref, user, target, value)
+function engine.add_effect(ref, user, target, value)
     local data = effect_data[ref]
     local effect = effect.new(ref, data, user, target, value)
     table.insert(effect_queue, effect)
 end
 
-function executor.kill_target(target)
+function engine.kill_target(target)
     local data = effect_data['kill']
     local effect = effect.new('kill', data, target, target)
     table.insert(effect_queue, 1, effect)
 end
 
-function executor.remove_active_battler(target)
+function engine.remove_active_battler(target)
     for i = #active_battlers, 1, -1 do
         if active_battlers[i] == target then
             table.remove(active_battlers, i)
@@ -219,4 +224,4 @@ function executor.remove_active_battler(target)
     end
 end
 
-return executor
+return engine

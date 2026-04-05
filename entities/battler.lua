@@ -31,12 +31,25 @@ function battler.new_member(data)
         love.graphics.draw(sprite, x, y)
     end
 
-    function self:execute_action(executor)
+    function self:execute_action(engine)
         local action = self.current_action
         self.current_action = nil
 
         if action then
-            action.data:execute(self, action.targets, executor)
+            action.data:execute(self, action.targets, engine)
+        end
+    end
+
+    function self:apply_effect(effect, engine, hud)
+        effect.data:apply(engine, effect.user, effect.target, effect.value)
+        if effect.data.party_animation then
+            local animation =  effect.data.party_animation
+            hud.animate(
+                animation.type, 
+                animation.duration * engine.BATTLE_SPEED, 
+                self, 
+                effect.value
+            )
         end
     end
 
@@ -80,39 +93,31 @@ function battler.new_enemy(data, name)
 
     local function draw_attack_animation(animation, x, y)
         love.graphics.setColor(1, 1, 1)
+        local enemy_movement = { 
+            {x=-5, y=0},
+            {x=-5, y=-2.5},
+            {x=-5, y=-5},
+            {x=-2.5, y=-5},
+            {x= 0, y=-5},
+            {x= 2.5, y=-5},
+            {x=5, y=-5},
+            {x=5, y=-2.5},
+            {x=5, y=0},
+            {x=5, y=2.5},
+            {x=5, y=5},
+            {x=2.5, y=5},
+            {x= 0, y=5},
+        }
+
         local progress = animation.timer / animation.duration
+        local move_index = math.floor(progress * 13)
+        local movement = enemy_movement[move_index]
 
-        local offset = 0
-        local scale = 1
-        local peak = 0.5
-
-        if progress < peak then
-            local p = progress / peak
-            offset = -10 * p
-            scale = 1 + 0.1 * p
+        if movement then
+            love.graphics.draw(self.sprite, x + movement.x, y + movement.y)
         else
-            local p = (progress - peak) / (1 - peak)
-            offset = -10 * (1 - p)
-            scale = 1 + 0.1 * (1 - p)
+            love.graphics.draw(self.sprite, x, y)
         end
-
-        local w = self.sprite:getWidth()
-        local h = self.sprite:getHeight()
-
-        local ox = w / 2
-        local oy = h / 2
-
-        local draw_x = x + ox * (1 - scale)
-        local draw_y = y + oy * (1 - scale) + offset
-
-        love.graphics.draw(
-            self.sprite,
-            draw_x,
-            draw_y,
-            0,
-            scale,
-            scale
-        )
     end
 
     local function draw_damaged_animation(animation, x, y)
@@ -147,6 +152,10 @@ function battler.new_enemy(data, name)
         end
     end
 
+    function self:animate(type, duration, value)
+        self.animation = { type = type, timer = 0, duration = duration, value = value}
+    end
+
     function self:draw_animation(animation, x, y)
         if self.animation.type == 'attack' then
             draw_attack_animation(animation, x, y)
@@ -157,14 +166,14 @@ function battler.new_enemy(data, name)
         end
     end
 
-    function self:execute_action(executor)
+    function self:execute_action(engine)
 
         local action_ref = enemy_action.get(self)
         local data = action_data[action_ref]
 
-        local group = executor.get_party()
+        local group = engine.get_party()
         if data.aim == 'allies' then
-            group = executor.get_enemies()
+            group = engine.get_enemies()
         end
 
         local targets
@@ -173,15 +182,25 @@ function battler.new_enemy(data, name)
         elseif data.scope == 'self' then
             targets = {self}
         elseif data.scope == 'single' then
-            local target = executor.get_random_target(group)
+            local target = engine.get_random_target(group)
             targets = {target}
         end
-        data:execute(self, targets, executor)
+        data:execute(self, targets, engine)
 
-        if data.animation then
-            self.animation = {type = data.animation, timer = 0, duration = 0.5}
+        if data.enemy_animation then
+            local animation = data.enemy_animation
+            self:animate(animation.type, animation.duration * engine.BATTLE_SPEED)
         end
     end
+
+    function self:apply_effect(effect, engine)
+        effect.data:apply(engine, effect.user, effect.target, effect.value)
+        if effect.data.enemy_animation then
+            local animation =  effect.data.enemy_animation
+            self:animate(animation.type, animation.duration * engine.BATTLE_SPEED, effect.value)
+        end
+    end
+
 
     return self
 end
@@ -223,13 +242,11 @@ function battler.new(data)
 
     function self:take_damage(damage)
         self.current_hp = self.current_hp - damage
-        self.animation = {type = 'damaged', timer = 0, duration = 1, value = damage}
     end
 
     function self:dies()
         self.current_hp = 0
         self.is_dead = true
-        self.animation = {type = 'death', timer = 0, duration = 0.5}
     end
 
     function self:cannot_act()

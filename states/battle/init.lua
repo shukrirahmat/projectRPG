@@ -1,7 +1,7 @@
 local middle_screen = require('states.battle.middle_screen')
 local hud = require('states.battle.hud')
 local logger = require('states.battle.logger')
-local executor = require('states.battle.executor')
+local engine = require('states.battle.engine')
 local menu = require('states.battle.menu')
 local transitions = require('systems.transitions')
 local battler = require('entities.battler')
@@ -81,7 +81,7 @@ function battle.update(dt)
     if phase == 'intro' then
         intro_update(dt)
     elseif phase == 'battle_running' then
-        executor.update(dt)
+        engine.update(dt)
     elseif phase == 'battle_won' then
         logger.update(dt)
     end
@@ -119,7 +119,7 @@ function battle.enter_menu()
 end
 
 function battle.run_action()
-    executor.load(battle, party_battlers, enemy_battlers, logger, middle_screen)
+    engine.load(battle, party_battlers, enemy_battlers, logger, middle_screen, hud)
     phase = 'battle_running'
 end
 

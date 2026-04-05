@@ -8,13 +8,13 @@ local function calculate_attack_damage(attacker, target)
     return math.max(damage, 1)
 end
 
-local function normal_attack(self, user, targets, executor)
+local function normal_attack(self, user, targets, engine)
 
-    executor.log_action(''..user.name..' attacks!')
+    engine.log_action(''..user.name..' attacks!')
 
     for i, target in ipairs(targets) do
         local damage = calculate_attack_damage(user, target)
-        executor.add_effect('damage', user, target, damage)
+        engine.add_effect('damage', user, target, damage)
     end
 end
 
@@ -27,7 +27,7 @@ action_data['normal_attack'] = {
     cost = 0,
     aim = 'enemies',
     scope = 'single',
-    animation = 'attack'
+    enemy_animation = {type = 'attack', duration = 1}
 }
 
 action_data['empty_action'] = {     

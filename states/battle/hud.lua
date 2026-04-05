@@ -16,10 +16,13 @@ local BAR_Y = 48
 local BAR_LINE_HEIGHT = STAT_LINE_HEIGHT
 local BAR_HEIGHT = 4
 
+
 local party = nil
 local lg = love.graphics
+local animation = false
+local is_animating = false
 
-local function drawMemberHud(member, index, x, y)
+local function draw_member_hud(member, index, x, y)
     lg.setColor(0, 0, 0)
     lg.rectangle('fill', x, y, BORDER_WIDTH, BORDER_HEIGHT)
 
@@ -71,7 +74,7 @@ local function drawMemberHud(member, index, x, y)
             INNER_WIDTH,
             BAR_HEIGHT
         )
-        
+
         local bar_width
         lg.setColor(0.75, 0.75, 0.75)
         if not member:is_alive() then
@@ -94,16 +97,53 @@ local function drawMemberHud(member, index, x, y)
     end
 end
 
+local function draw_member_animation(member, index, x, y)
+    if animation.type == 'damaged' then
+        local progress = animation.timer / animation.duration
+        local offset_y = 15 * math.sin(progress * math.pi)
+        draw_member_hud(member, index, x, offset_y + y)
+    end
+end
+
+
+---PUBLIC---
+
+
 function hud.load(party_battlers)
     party = party_battlers
+end
+
+function hud.update(dt)
+    if not is_animating then return end
+
+    animation.timer = animation.timer + dt
+    if animation.timer >= animation.duration then
+        animation = nil
+        is_animating = false
+    end
 end
 
 function hud.draw()
     for i, member in ipairs(party) do
         local x = MARGIN_X + (i- 1) * (BORDER_WIDTH + GAP)
         local y = MARGIN_Y
-        drawMemberHud(member, i, x, y)
+
+        if animation and member == animation.member then
+            draw_member_animation(member, i, x, y)
+        else
+            draw_member_hud(member, i, x, y)
+        end
     end
 end
+
+function hud.is_animating()
+    return is_animating
+end
+
+function hud.animate(type, duration, member, value)
+    is_animating = true
+    animation = { type = type, timer = 0, duration = duration, member = member, value = value }
+end
+
 
 return hud

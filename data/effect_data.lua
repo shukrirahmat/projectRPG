@@ -1,31 +1,34 @@
 local effect_data = {}
 
-local function deal_damage(self, executor, user, target, value)
+local function deal_damage(self, engine, user, target, value)
     
-    executor.log_effect(''..target.name..' takes '..value..' damage.')
+    engine.log_effect(''..target.name..' takes '..value..' damage.')
     target:take_damage(value)
     
     if target.current_hp <= 0 then
-        executor.kill_target(target)
+        engine.kill_target(target)
     end
 end
 
-local function kill(self, executor, user, target, value)
+local function kill(self, engine, user, target, value)
     
     target:dies()
     target.status = {}
     
-    executor.log_effect(''..target.name..' defeated.')
-    executor.remove_active_battler(target)
+    engine.log_effect(''..target.name..' defeated.')
+    engine.remove_active_battler(target)
 end
 
 
 effect_data['damage'] = { 
     apply = deal_damage , 
+    party_animation = { type = 'damaged', duration = 0.6 },
+    enemy_animation = { type = 'damaged', duration = 1 }
 }
 
 effect_data['kill'] = { 
     apply = kill,
+    enemy_animation = { type = 'death', duration = 0.5 }
 }
 
 return effect_data

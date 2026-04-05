@@ -1,5 +1,6 @@
 local main_menu = require('states.battle.menu.main_menu')
 local member_menu = require('states.battle.menu.member_menu')
+local target_menu = require('states.battle.menu.target_menu')
 local action = require('entities.action')
 local action_data = require('data.action_data')
 
@@ -22,14 +23,14 @@ menu.FULL_WIDTH = nil
 
 
 function menu.load(parent_battle, party_battlers, enemy_battlers)
-   
+
     battle = parent_battle
     menu.FULL_WIDTH = love.graphics.getWidth() - menu.MARGIN_X * 2
-    
+
     menu.party = party_battlers
     menu.enemies = enemy_battlers
     is_active = true
-    
+
     phase = 'main_menu'
     main_menu.load(menu)
 end
@@ -37,11 +38,13 @@ end
 function menu.draw()
     if main_menu.is_active() then main_menu.draw() end
     if member_menu.is_active() then member_menu.draw() end
+    if target_menu.is_active() then target_menu.draw() end
 end
 
 function menu.keypressed(key)
     if phase == 'main_menu' then main_menu.keypressed(key)
-    elseif phase == 'member_menu' then member_menu.keypressed(key) end
+    elseif phase == 'member_menu' then member_menu.keypressed(key)
+    elseif phase == 'target_menu' then target_menu.keypressed(key)end
 end
 
 function menu.is_active()
@@ -49,10 +52,10 @@ function menu.is_active()
 end
 
 function menu.previous_party_member(index)
-    
+
     local found = false
     local member_index = nil
-    
+
     for i = index, 0, -1 do
         if index <= 0 then
             break
@@ -62,7 +65,7 @@ function menu.previous_party_member(index)
             break
         end
     end
-    
+
     if found then
         phase = 'member_menu'
         member_menu.load(menu, member_index)
@@ -73,10 +76,10 @@ function menu.previous_party_member(index)
 end
 
 function menu.next_party_member(index)
-    
+
     local found = false
     local member_index = nil
-    
+
     for i = index, #menu.party do
         if menu.party[i]:is_alive() and not menu.party[i]:cannot_act() then
             member_index = i
@@ -84,7 +87,7 @@ function menu.next_party_member(index)
             break
         end
     end
-    
+
     if found then
         phase = 'member_menu'
         member_menu.load(menu, member_index)
@@ -92,6 +95,11 @@ function menu.next_party_member(index)
         is_active = false
         battle.run_action()
     end
+end
+
+function menu.select_target(targets, prev_menu)
+    phase = 'target_menu'
+    target_menu.load(menu, targets, prev_menu)
 end
 
 function menu.set_action(ref, user, targets)

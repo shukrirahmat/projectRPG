@@ -6,9 +6,9 @@ enemy_data['goblin'] = {
     
     ref = 'goblin',
     lvl = 1,
-    hp = 108,
+    hp = 10,
     mp = 0,
-    str = 32,
+    str = 12,
     vit = 1,
     agi = 8,
     sprite_height = sprite_dimension * 0.75,

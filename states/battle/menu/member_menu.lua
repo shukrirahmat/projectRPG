@@ -44,6 +44,8 @@ local function confirm(action)
             is_active = false
             menu.set_action('normal_attack', member, {alive_enemy[1]})
             menu.next_party_member(member_index + 1)
+        else
+            menu.select_target(alive_enemy, member_menu)
         end
     end
 end
@@ -134,6 +136,10 @@ end
 
 function member_menu.is_active()
     return is_active
+end
+
+function member_menu.get_width()
+    return border_width
 end
 
 return member_menu

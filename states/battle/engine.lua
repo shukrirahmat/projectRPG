@@ -1,3 +1,5 @@
+local action = require('entities.action')
+local action_data = require('data.action_data')
 local effect = require('entities.effect')
 local effect_data = require('data.effect_data')
 
@@ -16,6 +18,7 @@ local timer = 0
 local active_battlers = nil
 local current_battler = nil
 local effect_queue = nil
+local combo_queue = nil
 
 engine.BATTLE_SPEED = 1
 
@@ -65,10 +68,31 @@ local function execute_next_action()
     phase = 'run_action'
 end
 
+local function execute_next_combo()
+    local combo = combo_queue[1]
+    table.remove(combo_queue, 1)
+    
+    if not combo.user:is_alive() or combo.user:cannot_act() then
+        goto continue
+    end
+    
+    if combo.ref == 'second_attack' and not combo.targets[1]:is_alive() then
+        goto continue
+    end
+    
+    combo.user:execute_combo(combo, engine)
+
+    ::continue::
+
+    phase = 'run_combo'
+end
+
 local function execute_next_effect()
     if #effect_queue <= 0 then
         if is_enemy_defeated() then
             battle.is_won()
+        elseif #combo_queue > 0 then
+            execute_next_combo()    
         else
             execute_next_action()
         end
@@ -96,6 +120,14 @@ local function run_start_delay(dt)
 end
 
 local function run_next_action(dt)
+    middle_screen.update(dt)
+    logger.update(dt)
+    if not logger.is_active() and not middle_screen.is_animating() then
+        execute_next_effect()
+    end
+end
+
+local function run_next_combo(dt)
     middle_screen.update(dt)
     logger.update(dt)
     if not logger.is_active() and not middle_screen.is_animating() then
@@ -140,6 +172,7 @@ function engine.load(_battle, _party, _enemies, _logger, _middle_screen, _hud)
 
 
     effect_queue = {}
+    combo_queue = {}
 
     set_active_battlers(party, enemies)
 
@@ -157,6 +190,8 @@ function engine.update(dt)
         run_next_action(dt)
     elseif phase == 'run_effects' then
         run_next_effect(dt)
+    elseif phase == 'run_combo' then
+        run_next_combo(dt)
     end
 end
 
@@ -216,6 +251,12 @@ function engine.add_effect(ref, user, target, value)
     local data = effect_data[ref]
     local effect = effect.new(ref, data, user, target, value)
     table.insert(effect_queue, effect)
+end
+
+function engine.add_combo(ref, user, targets)
+    local data = action_data[ref]
+    local combo = action.new(ref, data, user, targets)
+    table.insert(combo_queue, combo)
 end
 
 function engine.kill_target(target)

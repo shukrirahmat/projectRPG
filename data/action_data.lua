@@ -16,12 +16,25 @@ local function calculate_crit_damage(attacker, target)
     return math.max(damage, 1)
 end
 
+local function proc_second_attack(user, target, engine)
+    local chance = math.floor((user:get_spd() - target:get_spd())/2)
+    local success
+    success = math.random(1, 100) <= chance
+
+    if success then
+        engine.add_combo('second_attack', user, {target})
+    end
+end
+
 local function normal_attack(self, user, targets, engine)
     
     local text = ''..user.name..' attacks!'
+    
+    if self.special == 'second_attack' then
+        text = ''..user.name..' attacks again!'
+    end
 
     for i, target in ipairs(targets) do
-
         local damage
         local crit = math.random(1, user.crit_rate) == 1
         if crit then
@@ -32,6 +45,10 @@ local function normal_attack(self, user, targets, engine)
             engine.log_action(text)
         end
         engine.add_effect('damage', user, target, damage)
+        
+        if not self.special then
+            proc_second_attack(user, target, engine)
+        end
     end
 end
 
@@ -45,6 +62,16 @@ action_data['normal_attack'] = {
     aim = 'enemies',
     scope = 'single',
     enemy_animation = {type = 'attack', duration = 1}
+}
+
+action_data['second_attack'] = {     
+    name = 'Second Attack',
+    execute = normal_attack,
+    cost = 0,
+    aim = 'enemies',
+    scope = 'single',
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'second_attack'
 }
 
 action_data['empty_action'] = {     

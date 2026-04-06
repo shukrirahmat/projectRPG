@@ -12,7 +12,7 @@ function battler.new_member(data)
     self.name = data.name
     self.is_party_member = true
     self.member_id = data.id
-    self.crit_rate = 2
+    self.crit_rate = 64
     self.total_exp = data.total_exp
     self.sprite = party_sprites.get_sprite(data.sprite)
 
@@ -35,6 +35,11 @@ function battler.new_member(data)
             action = engine.reaim_target(action)
             action.data:execute(self, action.targets, engine)
         end
+    end
+
+    function self:execute_combo(combo, engine)
+        combo = engine.reaim_target(combo)
+        combo.data:execute(self, combo.targets, engine)
     end
 
     function self:apply_effect(effect, engine, hud)
@@ -180,6 +185,16 @@ function battler.new_enemy(data, name)
         end
         data:execute(self, targets, engine)
 
+        if data.enemy_animation then
+            local animation = data.enemy_animation
+            self:animate(animation.type, animation.duration * engine.BATTLE_SPEED)
+        end
+    end
+
+    function self:execute_combo(combo, engine)
+        combo = engine.reaim_target(combo)
+        local data = combo.data
+        data:execute(self, combo.targets, engine)
         if data.enemy_animation then
             local animation = data.enemy_animation
             self:animate(animation.type, animation.duration * engine.BATTLE_SPEED)

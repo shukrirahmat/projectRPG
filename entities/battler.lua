@@ -32,6 +32,7 @@ function battler.new_member(data)
         self.current_action = nil
 
         if action then
+            action = engine.reaim_target(action)
             action.data:execute(self, action.targets, engine)
         end
     end

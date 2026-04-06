@@ -224,4 +224,20 @@ function engine.remove_active_battler(target)
     end
 end
 
+function engine.reaim_target(action)
+    if action.data.aim == 'enemies' and action.data.scope == 'single' then
+        if not action.targets[1]:is_alive() then
+            local new_target
+            if action.targets[1].is_party_member then
+                new_target = engine.get_random_target(party)
+            else
+                new_target = engine.get_random_target(enemies)
+            end
+            action.targets = {new_target}
+        end
+    end
+    
+    return action
+end
+
 return engine

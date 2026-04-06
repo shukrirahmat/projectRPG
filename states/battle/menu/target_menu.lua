@@ -7,6 +7,8 @@ local target_menu = {}
 local menu = nil
 local list = nil
 local prev_menu = nil
+local member = nil
+local member_index = nil
 local position = nil
 local is_active = nil
 local lg = love.graphics
@@ -24,15 +26,23 @@ local function moveDown()
 end
 
 local function confirm(action)
+    local target = list[position]
+    is_active = false
+    menu.set_action('normal_attack', member, {target})
+    menu.next_party_member(member_index + 1)
 end
 
 local function back()
+    is_active = false
+    menu.cancel(prev_menu)
 end
 
-function target_menu.load(parent_menu, targets, _prev_menu)
+function target_menu.load(parent_menu, targets, _prev_menu, _member, _member_index)
     menu = parent_menu
     list = targets
     prev_menu = _prev_menu
+    member = _member
+    member_index = _member_index
     
     position = 1
     is_active = true

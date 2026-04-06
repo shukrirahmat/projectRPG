@@ -21,7 +21,7 @@ local function get_alive_enemy(enemies)
             table.insert(alive, enemy)
         end
     end
-    
+
     return alive
 end
 
@@ -45,7 +45,7 @@ local function confirm(action)
             menu.set_action('normal_attack', member, {alive_enemy[1]})
             menu.next_party_member(member_index + 1)
         else
-            menu.select_target(alive_enemy, member_menu)
+            menu.open_target_menu(alive_enemy, member_menu, member, member_index)
         end
     end
 end
@@ -57,15 +57,16 @@ end
 
 
 function member_menu.load(parent_menu, index)
-    
+
     menu = parent_menu
     member_index = index
     member = parent_menu.party[member_index]
-    
+    member.current_action = nil
+
     is_active = true
     position = 1
     list = {'ATTACK', 'SKILL', 'DEFEND', 'ITEM'}
-    
+
     border_width = (menu.FULL_WIDTH - menu.GAP * 2 ) * 0.4
 end
 
@@ -82,7 +83,7 @@ function member_menu.draw()
     lg.setColor(1, 1, 1)
     lg.rectangle('line', border_x, border_y, border_width, border_height)
     lg.rectangle('line', border_x + 10, border_y + 10, section_width - 20, border_height - 20)
-    
+
     lg.setColor(1, 1, 1)
     lg.line(
         border_x + section_width, 
@@ -90,19 +91,19 @@ function member_menu.draw()
         border_x + section_width,
         border_y + border_height
     )
-    
+
     local sprite_x = border_x + (section_width - SPRITE_DIMENSION) / 2
     local sprite_y = border_y + (border_height - SPRITE_DIMENSION) / 2
     member:draw(sprite_x, sprite_y)
-    
+
     lg.setColor(1, 1, 1)
     lg.setFont(fonts.large)
     for i, option in ipairs(list) do
-        
+
         if i == 2 and member.status['SEAL'] then
             lg.setColor(0.25, 0.25, 0.25)
         end
-        
+
         lg.printf(
             option,
             option_x + 25,
@@ -110,7 +111,7 @@ function member_menu.draw()
             option_width,
             'left'
         )
-        
+
         lg.setColor(1, 1, 1)
         if position == i then
             renderer.draw_option_cursor(
@@ -123,7 +124,7 @@ function member_menu.draw()
 end
 
 function member_menu.keypressed(key)
-     if key == input.up then
+    if key == input.up then
         moveUp()
     elseif key == input.down then
         moveDown()
@@ -140,6 +141,10 @@ end
 
 function member_menu.get_width()
     return border_width
+end
+
+function member_menu.close()
+    is_active = false
 end
 
 return member_menu

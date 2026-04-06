@@ -57,7 +57,7 @@ function menu.previous_party_member(index)
     local member_index = nil
 
     for i = index, 0, -1 do
-        if index <= 0 then
+        if i <= 0 then
             break
         elseif menu.party[i]:is_alive() and not menu.party[i]:cannot_act() then
             member_index = i
@@ -65,6 +65,8 @@ function menu.previous_party_member(index)
             break
         end
     end
+    
+    member_menu.close()
 
     if found then
         phase = 'member_menu'
@@ -87,6 +89,8 @@ function menu.next_party_member(index)
             break
         end
     end
+    
+    member_menu.close()
 
     if found then
         phase = 'member_menu'
@@ -97,9 +101,15 @@ function menu.next_party_member(index)
     end
 end
 
-function menu.select_target(targets, prev_menu)
+function menu.open_target_menu(targets, prev_menu, member, member_index)
     phase = 'target_menu'
-    target_menu.load(menu, targets, prev_menu)
+    target_menu.load(menu, targets, prev_menu, member, member_index)
+end
+
+function menu.cancel(prev_menu)
+    if prev_menu == member_menu then
+        phase = 'member_menu'
+    end
 end
 
 function menu.set_action(ref, user, targets)

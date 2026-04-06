@@ -8,12 +8,29 @@ local function calculate_attack_damage(attacker, target)
     return math.max(damage, 1)
 end
 
-local function normal_attack(self, user, targets, engine)
+local function calculate_crit_damage(attacker, target)
 
-    engine.log_action(''..user.name..' attacks!')
+    local damage = math.floor(attacker:get_atk()/2 * 3) - math.floor(target:get_def()/6)
+    local mod = math.floor(damage*0.2)
+    damage = damage + math.floor(math.random(-mod, mod))
+    return math.max(damage, 1)
+end
+
+local function normal_attack(self, user, targets, engine)
+    
+    local text = ''..user.name..' attacks!'
 
     for i, target in ipairs(targets) do
-        local damage = calculate_attack_damage(user, target)
+
+        local damage
+        local crit = math.random(1, user.crit_rate) == 1
+        if crit then
+            damage = calculate_crit_damage(user, target)
+            engine.log_action(text, 'Critical hit!')
+        else
+            damage = calculate_attack_damage(user, target)
+            engine.log_action(text)
+        end
         engine.add_effect('damage', user, target, damage)
     end
 end

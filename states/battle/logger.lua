@@ -2,7 +2,7 @@ local fonts = require('fonts')
 
 local logger = {}
 
-local SPEED = 1
+local BASE_SPEED = 1
 local HEIGHT = 140
 local MARGIN_X = 20
 local MARGIN_Y = MARGIN_X
@@ -15,15 +15,17 @@ local timer = 0
 local callback = nil
 local lg = love.graphics
 local is_open = false
+local speed = 0
 
-function logger.load(text, callback_function)
+function logger.load(text, callback_function, spd_ratio)
     texts = {text}
     is_active = true
     timer = 0
     callback = callback_function or function() end
+    speed = spd_ratio and spd_ratio * BASE_SPEED or BASE_SPEED
 end
 
-function logger.add(text, callback_function)
+function logger.add(text, callback_function, spd_ratio)
     
     if #texts > 4 then
         table.remove(texts, 1)
@@ -33,6 +35,7 @@ function logger.add(text, callback_function)
     is_active = true
     timer = 0
     callback = callback_function or function() end
+    speed = spd_ratio and spd_ratio * BASE_SPEED or BASE_SPEED
 end
 
 function logger.is_active()
@@ -54,8 +57,9 @@ end
 function logger.update(dt)
     if not is_active then return end
 
-    timer = timer + dt
-    if timer >= SPEED then
+    timer = timer + dt 
+    
+    if timer >= speed then
         timer = 0
         is_active = false
         callback()

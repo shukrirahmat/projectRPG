@@ -12,7 +12,7 @@ function battler.new_member(data)
     self.name = data.name
     self.is_party_member = true
     self.member_id = data.id
-    self.crit_rate = 64
+    self.crit_rate = 2
     self.total_exp = data.total_exp
     self.sprite = party_sprites.get_sprite(data.sprite)
 

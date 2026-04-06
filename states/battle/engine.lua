@@ -196,12 +196,20 @@ function engine.get_enemies()
     return enemies
 end
 
-function engine.log_action(text)
-    return logger.load(text)
+function engine.log_action(text, delayed_text)
+    if delayed_text then
+        logger.load(text, function() logger.add(delayed_text, nil, 0.5) end)
+    else
+        logger.load(text)
+    end
 end
 
-function engine.log_effect(text)
-    return logger.add(text)
+function engine.log_effect(text, delayed_text)
+    if delayed_text then
+        logger.add(text, function() logger.add(delayed_text, nil, 0.5) end)
+    else
+        logger.add(text)
+    end
 end
 
 function engine.add_effect(ref, user, target, value)
@@ -236,7 +244,7 @@ function engine.reaim_target(action)
             action.targets = {new_target}
         end
     end
-    
+
     return action
 end
 

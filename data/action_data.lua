@@ -16,6 +16,14 @@ local function calculate_crit_damage(attacker, target)
     return math.max(damage, 1)
 end
 
+local function damage_reduction_check(user, target, damage)
+    if target.is_defending then
+        damage = math.max(math.floor(damage/2), 1)
+    end
+    
+    return damage
+end
+
 local function proc_second_attack(user, target, engine)
     local chance = math.floor((user:get_spd() - target:get_spd())/2)
     local success
@@ -35,6 +43,8 @@ local function normal_attack(self, user, targets, engine)
     end
 
     for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+        
         local damage
         local crit = math.random(1, user.crit_rate) == 1
         if crit then
@@ -44,15 +54,29 @@ local function normal_attack(self, user, targets, engine)
             damage = calculate_attack_damage(user, target)
             engine.log_action(text)
         end
+        
+        damage = damage_reduction_check(user, target, damage)
         engine.add_effect('damage', user, target, damage)
         
         if not self.special then
             proc_second_attack(user, target, engine)
         end
+        
+        ::continue::
     end
 end
 
-local function empty_action()
+local function defend(self, user, targets, engine)
+    
+    engine.log_action(''..user.name..' is defending!')
+    
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+        
+        engine.add_effect('defend', user, target)
+        
+        ::continue::
+    end
 end
 
 action_data['normal_attack'] = {     
@@ -74,12 +98,13 @@ action_data['second_attack'] = {
     special = 'second_attack'
 }
 
-action_data['empty_action'] = {     
-    name = 'Empty Action',
-    execute = empty_action, 
+action_data['defend'] = {     
+    name = 'Defend',
+    execute = defend,
     cost = 0,
     aim = 'allies',
-    scope = 'self'    
+    scope = 'self',
+    priority = 2
 }
 
 return action_data

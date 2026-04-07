@@ -36,15 +36,26 @@ end
 local function get_next_battler()
 
     local index
+    local highest_priority = 0
     local highest_speed = -1
 
     for i, battler in ipairs(active_battlers) do
-        local base_speed = battler:get_spd()
-        local mod = math.floor(base_speed * 0.5)
-        local speed = base_speed + (math.random(-mod, mod))
-        if speed > highest_speed then
-            highest_speed = speed
-            index = i
+        if battler.current_action then
+            local data = battler.current_action.data
+            if data.priority and data.priority > highest_priority then
+                highest_priority = data.priority
+                index = i
+            end
+        end
+
+        if highest_priority == 0 then
+            local base_speed = battler:get_spd()
+            local mod = math.floor(base_speed * 0.5)
+            local speed = base_speed + (math.random(-mod, mod))
+            if speed > highest_speed then
+                highest_speed = speed
+                index = i
+            end
         end
     end
 
@@ -53,12 +64,29 @@ local function get_next_battler()
     return battler
 end
 
+local function clear_temporary_status(battler)
+    if battler.is_defending then
+        battler.is_defending = nil
+    end
+end
+
+local function finish_round()
+
+    for i, group in ipairs({party, enemies}) do
+        for j, battler in ipairs(group) do
+            clear_temporary_status(battler)
+        end
+    end
+
+    is_active = false
+    logger.close()
+    battle.enter_menu()    
+end
+
 
 local function execute_next_action()
     if #active_battlers <= 0 then
-        is_active = false
-        logger.close()
-        battle.enter_menu()
+        finish_round()
         return
     end
 
@@ -71,15 +99,15 @@ end
 local function execute_next_combo()
     local combo = combo_queue[1]
     table.remove(combo_queue, 1)
-    
+
     if not combo.user:is_alive() or combo.user:cannot_act() then
         goto continue
     end
-    
+
     if combo.ref == 'second_attack' and not combo.targets[1]:is_alive() then
         goto continue
     end
-    
+
     combo.user:execute_combo(combo, engine)
 
     ::continue::
@@ -221,14 +249,6 @@ function engine.get_random_target(group)
     end
 
     return selected
-end
-
-function engine.get_party()
-    return party
-end
-
-function engine.get_enemies()
-    return enemies
 end
 
 function engine.log_action(text, delayed_text)

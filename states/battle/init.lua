@@ -5,7 +5,10 @@ local engine = require('states.battle.engine')
 local menu = require('states.battle.menu')
 local transitions = require('systems.transitions')
 local battler = require('entities.battler')
+local action = require('entities.action')
+local action_data = require('data.action_data')
 local enemy_data = require('data.enemy_data')
+local enemy_action = require('data.enemy_action')
 local fonts = require('fonts')
 local utils = require('helpers.utils')
 
@@ -49,6 +52,37 @@ local function set_enemy_battlers(enemies)
             local new_battler = battler.new_enemy(enemy_data[k], name)
             table.insert(enemy_battlers, new_battler)
         end
+    end
+end
+
+local function set_enemy_action()
+    for i, enemy in ipairs(enemy_battlers) do
+        if not enemy:is_alive() or enemy:cannot_act() then
+            goto continue
+        end
+        
+        local action_ref = enemy_action.get(enemy)
+        local data = action_data[action_ref]
+
+        local group = party_battlers
+        if data.aim == 'allies' then
+            group = enemy_battlers
+        end
+
+        local targets
+        if data.scope == 'all' then
+            targets = {unpack(group)}
+        elseif data.scope == 'self' then
+            targets = {enemy}
+        elseif data.scope == 'single' then
+            local target = engine.get_random_target(group)
+            targets = {target}
+        end
+        
+        local new_action = action.new(action_ref, data, enemy, targets)
+        enemy.current_action = new_action
+        
+        ::continue::
     end
 end
 
@@ -119,6 +153,7 @@ function battle.enter_menu()
 end
 
 function battle.run_action()
+    set_enemy_action()
     engine.load(battle, party_battlers, enemy_battlers, logger, middle_screen, hud)
     phase = 'battle_running'
 end

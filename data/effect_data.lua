@@ -17,6 +17,11 @@ local function kill(self, engine, user, target, value)
     
     engine.log_effect(''..target.name..' defeated.')
     engine.remove_active_battler(target)
+    engine.clear_temporary_status(target)
+end
+
+local function defend(self, engine, user, target)
+    target.is_defending = true
 end
 
 
@@ -29,6 +34,10 @@ effect_data['damage'] = {
 effect_data['kill'] = { 
     apply = kill,
     enemy_animation = { type = 'death', duration = 0.5 }
+}
+
+effect_data['defend'] = { 
+    apply = defend, 
 }
 
 return effect_data

@@ -1,7 +1,5 @@
 local enemy_sprites = require('graphics.enemy_sprites')
 local party_sprites = require('graphics.party_sprites')
-local enemy_action = require('data.enemy_action')
-local action_data = require('data.action_data')
 local fonts = require('fonts')
 
 local battler = {}
@@ -165,29 +163,18 @@ function battler.new_enemy(data, name)
     end
 
     function self:execute_action(engine)
+        local action = self.current_action
+        self.current_action = nil
 
-        local action_ref = enemy_action.get(self)
-        local data = action_data[action_ref]
+        if action then
+            action = engine.reaim_target(action)
+            data = action.data
+            data:execute(self, action.targets, engine)
 
-        local group = engine.get_party()
-        if data.aim == 'allies' then
-            group = engine.get_enemies()
-        end
-
-        local targets
-        if data.scope == 'all' then
-            targets = {unpack(group)}
-        elseif data.scope == 'self' then
-            targets = {self}
-        elseif data.scope == 'single' then
-            local target = engine.get_random_target(group)
-            targets = {target}
-        end
-        data:execute(self, targets, engine)
-
-        if data.enemy_animation then
-            local animation = data.enemy_animation
-            self:animate(animation.type, animation.duration * engine.BATTLE_SPEED)
+            if data.enemy_animation then
+                local animation = data.enemy_animation
+                self:animate(animation.type, animation.duration * engine.BATTLE_SPEED)
+            end
         end
     end
 

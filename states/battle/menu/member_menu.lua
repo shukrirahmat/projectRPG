@@ -47,6 +47,8 @@ local function confirm(action)
         else
             menu.open_target_menu(alive_enemy, member_menu, member, member_index)
         end
+    elseif position == 2 then
+        menu.open_skill_menu(member_menu, member, member_index)
     elseif position == 3 then
         is_active = false
         menu.set_action('defend', member, {member})

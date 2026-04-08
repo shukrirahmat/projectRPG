@@ -13,13 +13,13 @@ local position = nil
 local is_active = nil
 local lg = love.graphics
 
-local function moveUp()
+local function move_up()
     if position > 1 then
         position = position - 1
     end
 end
 
-local function moveDown()
+local function move_down()
     if position < #list then
         position = position + 1
     end
@@ -125,9 +125,9 @@ end
 
 function target_menu.keypressed(key)
     if key == input.up then
-        moveUp()
+        move_up()
     elseif key == input.down then
-        moveDown()
+        move_down()
     elseif key == input.confirm then
         confirm()
     elseif key == input.back then

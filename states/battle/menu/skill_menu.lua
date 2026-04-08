@@ -1,6 +1,7 @@
 local action_data = require('data.action_data')
 local fonts = require('fonts')
 local renderer = require('helpers.renderer')
+local input = require('input')
 
 
 local skill_menu = {}
@@ -17,9 +18,43 @@ local is_targeting = nil
 local border_width = nil
 local lg = love.graphics
 
+local function move_up()
+    if position - 2 >= 1 then
+        position = position - 2
+    end
+end
+
+local function move_down()
+    if position + 2 <= #list then
+        position = position + 2
+    elseif position % 2 == 0 and position + 1 == #list then
+        position = position + 1
+    end
+end
+
+local function move_left()
+    if position % 2 == 0 and position - 1 >= 1 then
+        position = position - 1
+    end
+end
+
+local function move_right()
+    if position % 2 ~= 0 and position + 1 <= #list then
+        position = position + 1
+    end
+end
+
+local function confirm()
+end
+
+local function back()
+    is_active = false;
+    menu.cancel(prev_menu)
+end
+
 local function draw_description_text(skill, border_x, border_y)
     local x = border_x + border_width + menu.GAP
-    local y = border_x
+    local y = border_y
     local width = (menu.FULL_WIDTH - menu.GAP * 2) * 0.2
     lg.setColor(1, 1, 1)
     lg.rectangle(
@@ -83,10 +118,10 @@ function skill_menu.draw()
     local option_width = (border_width / 2) - menu.PADDING_X * 2
     local option_height = menu.OPTION_HEIGHT
     local cursor_space = 20
-    
+
     lg.setColor(1,1,1)
     lg.rectangle('line', border_x, border_y, border_width, border_height)
-    
+
     if #list == 0 then
         local name = member.name
         local text =''..name..' have not learned any skills.'
@@ -100,11 +135,11 @@ function skill_menu.draw()
         )
         return
     end
-    
+
     local current_page = math.ceil(position / SIZE)
     local page_start = (current_page - 1) * SIZE + 1;
-    local page_end = math.min(list, page_start + SIZE - 1)
-    
+    local page_end = math.min(#list, page_start + SIZE - 1)
+
     for i = page_start, page_end do
         lg.setFont(fonts.large)
         lg.setColor(1, 1, 1)
@@ -150,6 +185,23 @@ function skill_menu.draw()
 end
 
 function skill_menu.keypressed(key)
+    if #list > 0 then
+        if key == input.up then
+            move_up()
+        elseif key == input.down then
+            move_down()
+        elseif key == input.left then
+            move_left()
+        elseif key == input.right then
+            move_right()
+        elseif key == input.confirm then
+            confirm()
+        end
+    end
+
+    if key == input.back then
+        back()
+    end
 end
 
 function skill_menu.is_active()

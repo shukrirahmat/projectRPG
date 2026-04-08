@@ -64,17 +64,11 @@ local function get_next_battler()
     return battler
 end
 
-local function clear_temporary_status(battler)
-    if battler.is_defending then
-        battler.is_defending = nil
-    end
-end
-
 local function finish_round()
 
     for i, group in ipairs({party, enemies}) do
         for j, battler in ipairs(group) do
-            clear_temporary_status(battler)
+            engine.clear_temporary_status(battler)
         end
     end
 
@@ -307,6 +301,12 @@ function engine.reaim_target(action)
     end
 
     return action
+end
+
+function engine.clear_temporary_status(battler)
+    if battler.is_defending then
+        battler.is_defending = nil
+    end
 end
 
 return engine

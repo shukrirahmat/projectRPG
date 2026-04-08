@@ -27,7 +27,7 @@ end
 
 function logger.add(text, callback_function, spd_ratio)
     
-    if #texts > 4 then
+    if #texts >= 4 then
         table.remove(texts, 1)
     end
     

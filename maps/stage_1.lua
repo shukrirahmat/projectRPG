@@ -23,7 +23,7 @@ stage_1.events =  {
 stage_1.has_encounter = true
 stage_1.encounter_chance = 200
 stage_1.encounter_pool = {'goblin', 'goblin', 'goblin', 'skeleton'}
-stage_1.encounter_max = 3
+stage_1.encounter_max = 7
 
 
 

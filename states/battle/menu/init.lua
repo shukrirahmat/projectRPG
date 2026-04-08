@@ -104,9 +104,9 @@ function menu.next_party_member(index)
     end
 end
 
-function menu.open_target_menu(targets, prev_menu, member, member_index)
+function menu.open_target_menu(action_ref, targets, prev_menu, member, member_index)
     phase = 'target_menu'
-    target_menu.load(menu, targets, prev_menu, member, member_index)
+    target_menu.load(menu, action_ref, targets, prev_menu, member, member_index)
 end
 
 function menu.open_skill_menu(prev_menu, member, member_index)
@@ -117,6 +117,8 @@ end
 function menu.cancel(prev_menu)
     if prev_menu == member_menu then
         phase = 'member_menu'
+    elseif prev_menu == skill_menu then
+        phase = 'skill_menu'
     end
 end
 
@@ -124,6 +126,17 @@ function menu.set_action(ref, user, targets)
     local data = action_data[ref]
     local new_action = action.new(ref, data, user, targets)
     user.current_action = new_action
+end
+
+function menu.get_alive_targets(group)
+    local alive = {}
+    for i, target in ipairs(group) do
+        if target:is_alive() then
+            table.insert(alive, target)
+        end
+    end
+
+    return alive
 end
 
 return menu

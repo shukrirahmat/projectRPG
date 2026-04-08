@@ -14,17 +14,6 @@ local border_width = nil
 local lg = love.graphics
 local SPRITE_DIMENSION = 128
 
-local function get_alive_enemy(enemies)
-    local alive = {}
-    for i, enemy in ipairs(enemies) do
-        if enemy:is_alive() then
-            table.insert(alive, enemy)
-        end
-    end
-
-    return alive
-end
-
 local function move_up()
     if position > 1 then
         position = position - 1
@@ -39,13 +28,13 @@ end
 
 local function confirm(action)
     if position == 1 then
-        local alive_enemy = get_alive_enemy(menu.enemies)
+        local alive_enemy = menu.get_alive_targets(menu.enemies)
         if #alive_enemy == 1 then
             is_active = false
             menu.set_action('normal_attack', member, {alive_enemy[1]})
             menu.next_party_member(member_index + 1)
         else
-            menu.open_target_menu(alive_enemy, member_menu, member, member_index)
+            menu.open_target_menu('normal_attack', alive_enemy, member_menu, member, member_index)
         end
     elseif position == 2 then
         menu.open_skill_menu(member_menu, member, member_index)

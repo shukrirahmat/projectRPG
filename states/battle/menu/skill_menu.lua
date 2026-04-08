@@ -45,6 +45,35 @@ local function move_right()
 end
 
 local function confirm()
+    local skill_ref = list[position]
+    local skill = action_data[skill_ref]
+
+    if member.current_mp < skill.cost then
+        return
+    end
+
+    local group = menu.enemies
+    if skill.aim == 'allies' then
+        group = menu.party
+    end
+
+    if skill.scope =='single' then
+        is_targeting = true
+        local targets = menu.get_alive_targets(group)
+        menu.open_target_menu(skill_ref, targets, skill_menu, member, member_index)
+    elseif skill.scope == 'all' then
+        is_active = false
+        menu.set_action(skill_ref, member, {unpack(group)})
+        menu.next_party_member(member_index + 1)
+    elseif skill.scope =='self' then
+        is_active = false
+        menu.set_action(skill_ref, member, {member})
+        menu.next_party_member(member_index + 1)
+    elseif skill.scope =='dead' then
+        is_targeting = true
+        local targets = menu.get_dead_targets(group)
+        menu.open_target_menu(targets, skill_menu, member, member_index)
+    end
 end
 
 local function back()
@@ -92,7 +121,7 @@ function skill_menu.load(_menu, _prev_menu, _member, _member_index)
     menu = _menu
     prev_menu = _prev_menu
     member = _member
-    member_index = member_index
+    member_index = _member_index
 
     is_active = true
     position = 1

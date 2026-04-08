@@ -31,7 +31,13 @@ function battler.new_member(data)
 
         if action then
             action = engine.reaim_target(action)
-            action.data:execute(self, action.targets, engine)
+            local data = action.data
+            
+            if data.cost and self.current_mp > data.cost then
+                self.current_mp = self.current_mp - data.cost
+            end
+            
+            data:execute(self, action.targets, engine)
         end
     end
 
@@ -169,6 +175,11 @@ function battler.new_enemy(data, name)
         if action then
             action = engine.reaim_target(action)
             data = action.data
+            
+            if data.cost and self.current_mp > data.cost then
+                self.current_mp = self.current_mp - data.cost
+            end
+            
             data:execute(self, action.targets, engine)
 
             if data.enemy_animation then

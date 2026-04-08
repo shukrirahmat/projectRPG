@@ -8,6 +8,7 @@ local menu = nil
 local list = nil
 local prev_menu = nil
 local member = nil
+local action_ref = nil
 local member_index = nil
 local position = nil
 local is_active = nil
@@ -28,7 +29,8 @@ end
 local function confirm(action)
     local target = list[position]
     is_active = false
-    menu.set_action('normal_attack', member, {target})
+    prev_menu.close()
+    menu.set_action(action_ref, member, {target})
     menu.next_party_member(member_index + 1)
 end
 
@@ -37,12 +39,13 @@ local function back()
     menu.cancel(prev_menu)
 end
 
-function target_menu.load(parent_menu, targets, _prev_menu, _member, _member_index)
+function target_menu.load(parent_menu, _action_ref, targets, _prev_menu, _member, _member_index)
     menu = parent_menu
     list = targets
     prev_menu = _prev_menu
     member = _member
     member_index = _member_index
+    action_ref = _action_ref
     
     position = 1
     is_active = true

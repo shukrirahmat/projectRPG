@@ -60,7 +60,7 @@ function member_menu.load(parent_menu, index)
 
     is_active = true
     position = 1
-    list = {'ATTACK', 'SKILL', 'DEFEND', 'ITEM'}
+    list = {'Attack', 'Skill', 'Defend', 'Item'}
 
     border_width = (menu.FULL_WIDTH - menu.GAP * 2 ) * 0.4
 end

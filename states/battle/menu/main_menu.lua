@@ -33,7 +33,7 @@ end
 function main_menu.load(parent_menu)
     menu = parent_menu
     position = 1
-    list = {'FIGHT', 'FLEE'}
+    list = {'Fight', 'Flee'}
     is_active = true
     
 end

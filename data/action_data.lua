@@ -21,7 +21,7 @@ local function damage_reduction_check(skill, user, target, damage)
         damage = math.max(math.floor(damage/2), 1)
     end
     
-    if skill.type == 'magic' and target.status['BARRIER'] then
+    if skill.type == 'Magic' and target.status['BARRIER'] then
         damage = math.max(math.floor(damage/4), 1)
     end
 
@@ -148,7 +148,7 @@ action_data['defend'] = {
 
 action_data['scorch_I'] = {
     name = 'Scorch I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 2, 
     desc = 'Deals 12~18 FIRE damage to one enemy.',
     aim = 'enemies',
@@ -160,7 +160,7 @@ action_data['scorch_I'] = {
 
 action_data['scorch_II'] = {
     name = 'Scorch II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 5, 
     desc = 'Deals 36~54 FIRE damage to one enemy.',
     aim = 'enemies',
@@ -172,7 +172,7 @@ action_data['scorch_II'] = {
 
 action_data['scorch_III'] = {
     name = 'Scorch III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 8, 
     desc = 'Deals 96~144 FIRE damage to one enemy.',
     aim = 'enemies',
@@ -184,7 +184,7 @@ action_data['scorch_III'] = {
 
 action_data['incinerate'] = {
     name = 'Incinerate', 
-    type = 'magic',
+    type = 'Magic',
     cost = 11, 
     desc = 'Deals 192~288 FIRE damage to one enemy.',
     aim = 'enemies',
@@ -196,7 +196,7 @@ action_data['incinerate'] = {
 
 action_data['inferno_I'] = {
     name = 'Inferno I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 4, 
     desc = 'Deals 10~14 FIRE damage to all enemies.',
     aim = 'enemies',
@@ -208,7 +208,7 @@ action_data['inferno_I'] = {
 
 action_data['inferno_II'] = {
     name = 'Inferno II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 7, 
     desc = 'Deals 32~46 FIRE damage to all enemies.',
     aim = 'enemies',
@@ -220,7 +220,7 @@ action_data['inferno_II'] = {
 
 action_data['inferno_III'] = {
     name = 'Inferno III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 10, 
     desc = 'Deals 75~111 FIRE damage to all enemies.',
     aim = 'enemies',
@@ -232,7 +232,7 @@ action_data['inferno_III'] = {
 
 action_data['icicle_I'] = {
     name = 'Icicle I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 3, 
     desc = 'Deals 16~24 ICE damage to one enemy.',
     aim = 'enemies',
@@ -244,7 +244,7 @@ action_data['icicle_I'] = {
 
 action_data['icicle_II'] = {
     name = 'Icicle II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 6, 
     desc = 'Deals 52~78 ICE damage to one enemy.',
     aim = 'enemies',
@@ -256,7 +256,7 @@ action_data['icicle_II'] = {
 
 action_data['icicle_III'] = {
     name = 'Icicle III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 9, 
     desc = 'Deals 124~186 ICE damage to one enemy.',
     aim = 'enemies',
@@ -268,7 +268,7 @@ action_data['icicle_III'] = {
 
 action_data['blizzard_I'] = {
     name = 'Blizzard I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 3, 
     desc = 'Deals 8~10 ICE damage to all enemies.',
     aim = 'enemies',
@@ -280,7 +280,7 @@ action_data['blizzard_I'] = {
 
 action_data['blizzard_II'] = {
     name = 'Blizzard II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 6, 
     desc = 'Deals 22~32 ICE damage to all enemies.',
     aim = 'enemies',
@@ -292,7 +292,7 @@ action_data['blizzard_II'] = {
 
 action_data['blizzard_III'] = {
     name = 'Blizzard III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 9, 
     desc = 'Deals 58~86 ICE damage to all enemies.',
     aim = 'enemies',
@@ -304,7 +304,7 @@ action_data['blizzard_III'] = {
 
 action_data['permafrost'] = {
     name = 'Permafrost', 
-    type = 'magic',
+    type = 'Magic',
     cost = 12, 
     desc = 'Deals 116~172 ICE damage to all enemies.',
     aim = 'enemies',
@@ -316,7 +316,7 @@ action_data['permafrost'] = {
 
 action_data['cyclone_I'] = {
     name = 'Cyclone I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 5, 
     desc = 'Deals 15~21 WIND damage to all enemies.',
     aim = 'enemies',
@@ -328,7 +328,7 @@ action_data['cyclone_I'] = {
 
 action_data['cyclone_II'] = {
     name = 'Cyclone II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 8, 
     desc = 'Deals 44~64 WIND damage to all enemies.',
     aim = 'enemies',
@@ -340,7 +340,7 @@ action_data['cyclone_II'] = {
 
 action_data['cyclone_III'] = {
     name = 'Cyclone III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 11, 
     desc = 'Deals 94~140 WIND damage to all enemies.',
     aim = 'enemies',
@@ -352,7 +352,7 @@ action_data['cyclone_III'] = {
 
 action_data['lightning_I'] = {
     name = 'Lightning I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 5, 
     desc = 'Deals 11~25 THUNDER damage to all enemies.',
     aim = 'enemies',
@@ -365,7 +365,7 @@ action_data['lightning_I'] = {
 
 action_data['lightning_II'] = {
     name = 'Lightning II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 8, 
     desc = 'Deals 33~75 THUNDER damage to all enemies.',
     aim = 'enemies',
@@ -378,7 +378,7 @@ action_data['lightning_II'] = {
 
 action_data['lightning_III'] = {
     name = 'Lightning III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 11, 
     desc = 'Deals 71~163 THUNDER damage to all enemies.',
     aim = 'enemies',
@@ -391,7 +391,7 @@ action_data['lightning_III'] = {
 
 action_data['lumina_I'] = {
     name = 'Lumina I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 4, 
     desc = 'Deals 24~36 LIGHT damage to one enemy.',
     aim = 'enemies',
@@ -403,7 +403,7 @@ action_data['lumina_I'] = {
 
 action_data['lumina_II'] = {
     name = 'Lumina II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 7, 
     desc = 'Deals 72~108 LIGHT damage to one enemy.',
     aim = 'enemies',
@@ -415,7 +415,7 @@ action_data['lumina_II'] = {
 
 action_data['lumina_III'] = {
     name = 'Lumina III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 10, 
     desc = 'Deals 156~234 LIGHT damage to one enemy.',
     aim = 'enemies',
@@ -427,7 +427,7 @@ action_data['lumina_III'] = {
 
 action_data['umbra_I'] = {
     name = 'Umbra I', 
-    type = 'magic',
+    type = 'Magic',
     cost = 4, 
     desc = 'Deals 18~42 DARK damage to one enemy.',
     aim = 'enemies',
@@ -440,7 +440,7 @@ action_data['umbra_I'] = {
 
 action_data['umbra_II'] = {
     name = 'Umbra II', 
-    type = 'magic',
+    type = 'Magic',
     cost = 7, 
     desc = 'Deals 54~126 DARK damage to one enemy.',
     aim = 'enemies',
@@ -453,7 +453,7 @@ action_data['umbra_II'] = {
 
 action_data['umbra_III'] = {
     name = 'Umbra III', 
-    type = 'magic',
+    type = 'Magic',
     cost = 10, 
     desc = 'Deals 117~273 DARK damage to one enemy.',
     aim = 'enemies',

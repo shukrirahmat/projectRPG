@@ -100,7 +100,9 @@ local function draw_description_text(skill, border_x, border_y)
         menu.FULL_HEIGHT
     )
 
-    local header = 'MP cost: '..skill.cost..''
+    
+    local header = 'Type : '..skill.type..''
+    lg.setFont(fonts.large)
     lg.printf(
         header,
         x + menu.PADDING_X,
@@ -140,7 +142,7 @@ function skill_menu.load(_menu, _prev_menu, _member, _member_index)
         end
     end
 
-    border_width = (menu.FULL_WIDTH - menu.GAP * 2 ) * 0.4
+    border_width = (menu.FULL_WIDTH - menu.GAP * 2 ) * 0.5
 end
 
 function skill_menu.draw()
@@ -191,11 +193,22 @@ function skill_menu.draw()
         local skill_pos = math.ceil((((i - 1) % SIZE) + 1) / 2)
         local skill_y = border_y + menu.PADDING_Y + (skill_pos - 1) * option_height
 
+        lg.setFont(fonts.large)
         lg.printf(
             skill.name,
             skill_x + cursor_space,
             skill_y + renderer.center_text(option_height),
-            option_width
+            option_width,
+            'left'
+        )
+        
+        lg.setFont(fonts.large_mono)
+        lg.printf(
+            ''..skill.cost..'',
+            skill_x,
+            skill_y + renderer.center_text(option_height),
+            option_width,
+            'right'
         )
 
         lg.setColor(1, 1, 1)

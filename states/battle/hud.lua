@@ -48,10 +48,6 @@ local function draw_member_hud(member, index, x, y, animation)
     end
 
     local display_hp = math.max(0, member.current_hp)
-    if animation and animation.type == 'damaged' then
-        local progress = animation.timer / animation.duration
-        display_hp = math.max(0, member.current_hp + math.floor(animation.value * (1 - progress)^2))
-    end
 
     local values = { display_hp, member.current_mp }
     for i, value in ipairs(values) do
@@ -83,9 +79,12 @@ local function draw_member_hud(member, index, x, y, animation)
         
         if n == 1 and animation and animation.type == 'damaged' then
             local progress = animation.timer / animation.duration
-            local drop = math.max(0, animation.value * (1 - progress)^2)
-            local damage_bar = math.max(0, INNER_WIDTH * ((drop + member.current_hp) / member.max_hp))
-            lg.setColor(0.97, 0.28, 0.11)
+            local damage_bar = math.max(0, 
+                INNER_WIDTH * ((animation.value + member.current_hp) / member.max_hp)
+            )
+            local opacity = 1 - progress
+            
+            lg.setColor(0.97, 0.28, 0.11, opacity)
             lg.rectangle(
                 'fill',
                 x + PADDING_X,
@@ -93,6 +92,7 @@ local function draw_member_hud(member, index, x, y, animation)
                 damage_bar,
                 BAR_HEIGHT
             )
+            lg.setColor(1, 1, 1, 1)
         end
 
         local bar_width

@@ -62,7 +62,7 @@ function member_menu.load(parent_menu, index)
     position = 1
     list = {'Attack', 'Skill', 'Defend', 'Item'}
 
-    border_width = (menu.FULL_WIDTH - menu.GAP * 2 ) * 0.4
+    border_width = (menu.FULL_WIDTH - menu.GAP * 2 ) * 0.3
 end
 
 function member_menu.draw()

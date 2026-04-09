@@ -105,7 +105,7 @@ local function damage_magic(self, user, targets, engine)
         if resistance == 2 then 
             effect_ref = 'immune'
         elseif resistance == 1 then
-            effect_ref = 'resisted'
+            effect_ref = 'resist'
             damage = math.floor(damage/2)
         else
             effect_ref = 'damage'

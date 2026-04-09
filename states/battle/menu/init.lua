@@ -118,6 +118,7 @@ function menu.cancel(prev_menu)
     if prev_menu == member_menu then
         phase = 'member_menu'
     elseif prev_menu == skill_menu then
+        skill_menu.stop_targeting()
         phase = 'skill_menu'
     end
 end

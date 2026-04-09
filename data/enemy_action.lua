@@ -1,19 +1,21 @@
+local action_data = require('data.action_data')
+
 local enemy_action = {}
 
 local action = {}
 
-function action.goblin()
+function action.goblin(enemy)
     return 'normal_attack'
 end
 
-function action.skeleton()
+function action.skeleton(enemy)    
     return 'normal_attack'
 end
 
 
 function enemy_action.get(enemy)
     local ref = enemy.ref
-    return action[ref]()
+    return action[ref](enemy)
 end
 
 return enemy_action

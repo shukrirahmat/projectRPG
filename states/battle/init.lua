@@ -4,7 +4,8 @@ local logger = require('states.battle.logger')
 local engine = require('states.battle.engine')
 local menu = require('states.battle.menu')
 local transitions = require('systems.transitions')
-local battler = require('entities.battler')
+local member_battler = require('entities.member_battler')
+local enemy_battler = require('entities.enemy_battler')
 local action = require('entities.action')
 local action_data = require('data.action_data')
 local enemy_data = require('data.enemy_data')
@@ -23,7 +24,7 @@ local function draw_test_details()
     love.graphics.setColor(1, 1, 1)
     love.graphics.setFont(fonts.small)
     for i, enemy in ipairs(enemy_battlers) do
-        local hp = ''..enemy.current_hp..'/'..enemy.max_hp..''
+        local hp = ''..enemy.current_hp..'/'..enemy.max_hp..' '..enemy.current_mp..'/'..enemy.max_mp..''
         local stat = 'ATK: '..enemy:get_atk()..' DEF: '..enemy:get_def()..'  SPD: '..enemy:get_spd()..''
         love.graphics.printf(
             ''..hp..' '..stat..'',
@@ -37,7 +38,7 @@ end
 
 local function set_party_battlers(party)
     for i, member in ipairs(party) do
-        local new_battler = battler.new_member(member)
+        local new_battler = member_battler.new(member)
         table.insert(party_battlers, new_battler)
     end
 end
@@ -49,7 +50,7 @@ local function set_enemy_battlers(enemies)
             if v > 1 then
                 name = ''..name..' #'..i..''
             end
-            local new_battler = battler.new_enemy(enemy_data[k], name)
+            local new_battler = enemy_battler.new(enemy_data[k], name)
             table.insert(enemy_battlers, new_battler)
         end
     end

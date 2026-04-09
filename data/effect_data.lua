@@ -10,6 +10,11 @@ local function deal_damage(self, engine, user, target, value)
     end
 end
 
+local function no_effect(self, engine, user, target, value)
+    
+    engine.log_effect('It had no effect on '..target.name..'')
+end
+
 local function kill(self, engine, user, target, value)
     
     target:dies()
@@ -29,6 +34,17 @@ effect_data['damage'] = {
     apply = deal_damage , 
     party_animation = { type = 'damaged', duration = 0.8 },
     enemy_animation = { type = 'damaged', duration = 1 }
+}
+
+effect_data['resist'] = { 
+    apply = deal_damage,
+    party_animation = { type = 'damaged', duration = 0.8 },
+    enemy_animation = { type = 'resisted', duration = 1 }
+}
+
+effect_data['immune'] = { 
+    apply = no_effect,
+    enemy_animation = { type = 'immune', duration = 1 }
 }
 
 effect_data['kill'] = { 

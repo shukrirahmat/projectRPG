@@ -58,9 +58,15 @@ local function confirm()
     end
 
     if skill.scope =='single' then
-        is_targeting = true
         local targets = menu.get_alive_targets(group)
-        menu.open_target_menu(skill_ref, targets, skill_menu, member, member_index)
+        if #targets == 1 then
+            is_active = false
+            menu.set_action(skill_ref, member, {targets[1]})
+            menu.next_party_member(member_index + 1)
+        else
+            is_targeting = true
+            menu.open_target_menu(skill_ref, targets, skill_menu, member, member_index)
+        end
     elseif skill.scope == 'all' then
         is_active = false
         menu.set_action(skill_ref, member, {unpack(group)})

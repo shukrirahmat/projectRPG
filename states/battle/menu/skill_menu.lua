@@ -102,7 +102,7 @@ local function draw_description_text(skill, border_x, border_y)
 
     
     local header = 'Type : '..skill.type..''
-    lg.setFont(fonts.large)
+    lg.setFont(fonts.medium)
     lg.printf(
         header,
         x + menu.PADDING_X,
@@ -112,7 +112,7 @@ local function draw_description_text(skill, border_x, border_y)
     lg.line(
         x, y + menu.OPTION_HEIGHT + menu.PADDING_Y * 1.5, 
         x + width, y + menu.OPTION_HEIGHT + menu.PADDING_Y * 1.5)
-    lg.setFont(fonts.large)
+    lg.setFont(fonts.medium)
     lg.printf(
         skill.desc,
         x + menu.PADDING_X,
@@ -202,9 +202,12 @@ function skill_menu.draw()
             'left'
         )
         
+        local cost_text = skill.cost
+        if skill.cost <= 0 then cost_text = '-' end
+        
         lg.setFont(fonts.large_mono)
         lg.printf(
-            ''..skill.cost..'',
+            cost_text,
             skill_x,
             skill_y + renderer.center_text(option_height),
             option_width,

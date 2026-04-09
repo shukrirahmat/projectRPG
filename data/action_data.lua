@@ -20,12 +20,19 @@ local function damage_reduction_check(skill, user, target, damage)
     if target.is_defending then
         damage = math.max(math.floor(damage/2), 1)
     end
-    
+
     if skill.type == 'Magic' and target.status['BARRIER'] then
         damage = math.max(math.floor(damage/4), 1)
     end
 
     return damage
+end
+
+local function healing_reduction_check(user, target, amount)
+    if target.status['WOUND'] then
+        amount = math.floor(amount * 0.5)
+    end    
+    return amount
 end
 
 local function proc_second_attack(user, target, engine)
@@ -110,13 +117,122 @@ local function damage_magic(self, user, targets, engine)
         else
             effect_ref = 'damage'
         end
-        
+
         damage = damage_reduction_check(self, user, target, damage)
         engine.add_effect(effect_ref, user, target, damage)
 
         ::continue::
     end
 end
+
+local function use_aura(self, user, targets, engine)
+    engine.log_action(''..user.name..' used '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+
+        local base_damage = math.floor(user.str * self.aura_ratio)
+        local mod = math.floor(base_damage * 0.2)
+        local damage = base_damage + math.random(-mod, mod)
+
+        if user.is_aura_charged then
+            damage = math.floor(damage * 2.5)
+        end
+
+        local resistance = check_resistance(self.element, target)
+        local effect_ref
+
+        if resistance == 2 then 
+            effect_ref = 'immune'
+        elseif resistance == 1 then
+            effect_ref = 'resist'
+            damage = math.floor(damage/2)
+        else
+            effect_ref = 'damage'
+        end
+
+        damage = damage_reduction_check(self, user, target, damage)
+        engine.add_effect(effect_ref, user, target, damage)
+
+        ::continue::
+    end
+end
+
+local function aura_charge(self, user, targets, engine)
+    engine.log_action(""..user.name.." charged it's aura!")
+
+    local target = targets[1]
+    engine.add_effect('aura_charge', user, target)
+end
+
+local function life_drain(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+
+        local base_damage = self.base_damage
+        local mod = math.floor(base_damage * 0.2)
+        local damage = base_damage + math.random(-mod, mod)
+
+        local resistance = check_resistance(self.element, target)
+        local effect_ref
+
+        if resistance == 2 then 
+            effect_ref = 'immune'
+        elseif resistance == 1 then
+            effect_ref = 'resist'
+            damage = math.floor(damage/2)
+        else
+            effect_ref = 'damage'
+        end
+
+        damage = damage_reduction_check(self, user, target, damage)
+        engine.add_effect(effect_ref, user, target, damage)
+
+        if effect_ref ~= 'immune' then
+            local heal_amount = math.min(damage, target.current_hp)
+            heal_amount = healing_reduction_check(user, target, heal_amount)
+            engine.add_effect('recover', user, user, heal_amount)
+        end
+
+        ::continue::
+    end
+end
+
+local function mana_burn(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+
+        local base_damage = self.base_damage
+        local mod = math.floor(base_damage * 0.2)
+        local damage = base_damage + math.random(-mod, mod)
+        local resistance = check_resistance(self.element, target)
+        local effect_ref
+
+        if resistance == 2 then 
+            effect_ref = 'immune'
+        elseif resistance == 1 then
+            effect_ref = 'mp_resist'
+            damage = math.floor(damage/2)
+        else
+            effect_ref = 'mp_damage'
+        end
+
+        damage = damage_reduction_check(self, user, target, damage)
+        engine.add_effect(effect_ref, user, target, damage)
+
+        ::continue::
+    end
+end
+
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+---------------------------------------------------------------------
 
 action_data['normal_attack'] = {     
     name = 'Normal Attack',
@@ -463,5 +579,123 @@ action_data['umbra_III'] = {
     base_damage = 195,
     variance = 0.4
 }
+
+action_data['aura_I'] = {
+    name = 'Aura I', 
+    type = 'Tech',
+    cost = 0, 
+    desc = "Deals damage to all enemies using 10% of own's strength.",
+    aim = 'enemies',
+    scope = 'all',
+    execute = use_aura,
+    element = 'AURA',
+    aura_ratio = 0.1
+}
+
+action_data['aura_II'] = {
+    name = 'Aura II', 
+    type = 'Tech',
+    cost = 0, 
+    desc = "Deals damage to all enemies using 25% of own's strength.",
+    aim = 'enemies',
+    scope = 'all',
+    execute = use_aura,
+    element = 'AURA',
+    aura_ratio = 0.25
+}
+
+action_data['aura_III'] = {
+    name = 'Aura III', 
+    type = 'Tech',
+    cost = 0, 
+    desc = "Deals damage to all enemies using 50% of own's strength.",
+    aim = 'enemies',
+    scope = 'all',
+    execute = use_aura,
+    element = 'AURA',
+    aura_ratio = 0.5
+}
+
+action_data['aura_beam_I'] = {
+    name = 'Aura Beam I', 
+    type = 'Tech',
+    cost = 0, 
+    desc = "Deals damage to one enemy using 80% of own's strength.",
+    aim = 'enemies',
+    scope = 'single',
+    execute = use_aura,
+    element = 'AURA',
+    aura_ratio = 0.8
+}
+
+action_data['aura_beam_II'] = {
+    name = 'Aura Beam II', 
+    type = 'Tech',
+    cost = 0, 
+    desc = "Deals damage to one enemy using 120% of own's strength.",
+    aim = 'enemies',
+    scope = 'single',
+    execute = use_aura,
+    element = 'AURA',
+    aura_ratio = 1.2
+}
+
+action_data['aura_charge'] = {
+    name = 'Aura Charge', 
+    type = 'Tech',
+    cost = 5, 
+    desc = 'Next aura skill will deal x2.5 more damage',
+    aim = 'allies',
+    scope = 'self',
+    execute = aura_charge,
+}
+
+action_data['life_drain_I'] = {
+    name = 'Life Drain I', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Deals 28~42 damage to one enemy and recovers the same amount.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = life_drain,
+    element = 'DRAIN',
+    base_damage = 35,
+}
+
+action_data['life_drain_II'] = {
+    name = 'Life Drain II', 
+    type = 'Magic',
+    cost = 8, 
+    desc = 'Deals 80~120 damage to one enemy and recovers the same amount.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = life_drain,
+    element = 'DRAIN',
+    base_damage = 100,
+}
+
+--[[action_data['mana_burn_I'] = {
+    name = 'Mana Burn I', 
+    type = 'Magic',
+    cost = 2, 
+    desc = 'Reduce 4~6 MP from all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = mana_burn,
+    element = 'MANABURN',
+    base_damage = 5,
+}
+
+action_data['mana_burn_II'] = {
+    name = 'Mana Burn II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Reduce 12~18 MP from all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = mana_burn,
+    element = 'MANABURN',
+    base_damage = 15,
+}]]
 
 return action_data

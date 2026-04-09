@@ -29,6 +29,19 @@ local function defend(self, engine, user, target)
     target.is_defending = true
 end
 
+local function aura_charge(self, engine, user, target)
+    target.is_aura_charged = { countdown = 2 }
+end
+
+local function recover(self, engine, user, target, value)
+    local amount = math.min(target.max_hp - target.current_hp, value)
+    target.current_hp = math.min(target.max_hp, target.current_hp + amount)
+    engine.log_effect(''..target.name..' recovers '..amount..' HP.');
+end
+
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
 
 effect_data['damage'] = { 
     apply = deal_damage , 
@@ -54,6 +67,14 @@ effect_data['kill'] = {
 
 effect_data['defend'] = { 
     apply = defend, 
+}
+
+effect_data['aura_charge'] = { 
+    apply = aura_charge, 
+}
+
+effect_data['recover'] = { 
+    apply = recover, 
 }
 
 return effect_data

@@ -1,8 +1,11 @@
+local ui = require('graphics.ui')
+
 local middle_screen = {}
 
 local enemies = nil
 local SPRITE_DIMENSION = 128
 local SPRITE_GAP = 10
+local STATUS_ICON_SIZE = 16
 local lg = love.graphics
 local is_animating = false
 
@@ -25,6 +28,26 @@ function middle_screen.update(dt)
     end
 end
 
+local function draw_enemy_status(enemy, x, y)
+    local i = 1
+    local shift = 0
+    for k, v in pairs(enemy.status) do
+        if i > 8 then
+            i = 1;
+            shift = STATUS_ICON_SIZE;
+        end
+        local xpos = x + (i - 1) * STATUS_ICON_SIZE
+        local ypos = y + SPRITE_DIMENSION + shift
+        lg.draw(
+            ui.get_sprite('status_icons'),
+            ui.get_sprite(k),
+            xpos,
+            ypos
+        )
+        i = i + 1;
+    end
+end
+
 function middle_screen.draw()
     
     for i, enemy in ipairs(enemies) do
@@ -33,6 +56,7 @@ function middle_screen.draw()
         local x = x_start - x_reposition
         local y = lg.getHeight()/2 - SPRITE_DIMENSION/1.5
         enemy:draw(x, y)
+        draw_enemy_status(enemy, x, y)
     end
 end
 

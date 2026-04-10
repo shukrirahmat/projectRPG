@@ -1,4 +1,5 @@
 local fonts = require('fonts')
+local ui = require('graphics.ui')
 
 local hud = {}
 
@@ -15,6 +16,7 @@ local STAT_LINE_HEIGHT = 28
 local BAR_Y = 48
 local BAR_LINE_HEIGHT = STAT_LINE_HEIGHT
 local BAR_HEIGHT = 4
+local STATUS_ICON_SIZE = 16
 
 
 local party = nil
@@ -114,6 +116,25 @@ local function draw_member_hud(member, index, x, y, animation)
             bar_width,
             BAR_HEIGHT
         )
+        
+        lg.setColor(1, 1, 1)
+        local j = 1
+        local status_y = 0
+        for k, v in pairs(member.status) do
+            if j > 8 then
+                j = 1;
+                status_y = STATUS_ICON_SIZE;
+            end
+            local xpos = x + (j - 1) * STATUS_ICON_SIZE
+            local ypos = y + BORDER_HEIGHT + status_y
+            lg.draw(
+                ui.get_sprite('status_icons'),
+                ui.get_sprite(k),
+                xpos,
+                ypos
+            )
+            j = j + 1;
+        end
     end
 end
 

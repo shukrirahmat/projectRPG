@@ -56,6 +56,24 @@ local function missed(self, engine, user, target)
     engine.log_effect('But it missed '..target.name..'!');
 end
 
+local function add_status(self, engine, user, target, status)
+    if status == 'BLIND' then
+        if target.status['BLIND'] then
+            engine.log_effect( ""..target.name.." is already blinded.")
+        else
+            engine.log_effect("Sand got into "..target.name.."'s eyes!")
+        end
+    elseif status == 'SEAL' then
+        if target.status['SEAL'] then
+            engine.log_effect(""..target.name.." is already sealed.");
+        else
+            engine.log_effect(""..target.name.."'s abilities are sealed!");
+        end
+    end
+    
+    target.status[status] = true;
+end
+
 ----------------------------------------------------------
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -118,6 +136,10 @@ effect_data['missed'] = {
 effect_data['missed_resist'] = { 
     apply = missed, 
     enemy_animation = { type = 'missed_resist', duration = 1 }
+}
+
+effect_data['add_status'] = { 
+    apply = add_status,
 }
 
 return effect_data

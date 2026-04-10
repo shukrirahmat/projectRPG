@@ -37,12 +37,14 @@ function member_battler.new(data)
         local targets = action.targets
         local var = {}
 
-        if data.cost and self.current_mp >= data.cost then
-            self.current_mp = self.current_mp - data.cost
-        elseif (data.cost and self.current_mp < data.cost) or self.status['SEAL'] then
-            var = { to_use = data }
-            data = action_data['skill_cancelled']
-            targets = {self}
+        if data.type == 'Magic' or data.type == 'Tech' then
+            if self.status['SEAL'] or (data.cost and self.current_mp < data.cost) then
+                var = { to_use = data }
+                data = action_data['skill_cancelled']
+                targets = {self}
+            else
+                self.current_mp = self.current_mp - data.cost
+            end
         end
 
         data:execute(self, targets, engine, var)

@@ -16,8 +16,8 @@ end
 
 function action.dragon(enemy) 
     
-    if enemy.current_mp >= action_data['inferno_I'].cost then
-        return 'lightning_I'
+    if enemy.current_mp >= action_data['sandstorm_I'].cost then
+        return 'sandstorm_I'
     end
     
     return 'normal_attack'

@@ -320,6 +320,38 @@ local function death(self, user, targets, engine)
     end
 end
 
+local function status_effect(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+        
+        local resistance = check_resistance(self.element, target)
+        local accuracy = self.accuracy
+        local resist = false
+
+        if resistance == 2 then 
+            engine.add_effect('immune', user, target)
+            goto continue
+        elseif resistance == 1 then
+            accuracy = math.floor(accuracy / 2)
+            resist = true
+        end
+        
+        local roll = math.random(1, 100)
+        if roll <= accuracy then
+            engine.add_effect('add_status', user, target, self.element)
+        elseif resist then
+            engine.add_effect('missed_resist', user, target)
+        else
+            engine.add_effect('missed', user, target)
+        end
+        
+        ::continue::
+    end
+end
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -874,6 +906,54 @@ action_data['death_III'] = {
     execute = death,
     element = 'DEATH',
     accuracy = 50
+}
+
+action_data['sandstorm_I'] = {
+    name = 'Sandstorm I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '50% chance to apply BLIND to all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'BLIND',
+    accuracy = 50
+}
+
+action_data['sandstorm_II'] = {
+    name = 'Sandstorm II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '80% chance to apply BLIND to all enemies',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'BLIND',
+    accuracy = 80
+}
+
+action_data['spellseal_I'] = {
+    name = 'Spellseal I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '50% chance to apply SEAL to all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'SEAL',
+    accuracy = 50
+}
+
+action_data['spellseal_II'] = {
+    name = 'Spellseal II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '80% chance to apply SEAL to all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'SEAL',
+    accuracy = 80
 }
 
 return action_data

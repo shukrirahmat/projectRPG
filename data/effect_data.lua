@@ -52,6 +52,10 @@ local function recover(self, engine, user, target, value)
     engine.log_effect(''..target.name..' recovers '..value..' HP.');
 end
 
+local function missed(self, engine, user, target)
+    engine.log_effect('But it missed '..target.name..'!');
+end
+
 ----------------------------------------------------------
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -104,6 +108,16 @@ effect_data['aura_charge'] = {
 
 effect_data['recover'] = { 
     apply = recover, 
+}
+
+effect_data['missed'] = { 
+    apply = missed, 
+    enemy_animation = { type = 'missed', duration = 1 }
+}
+
+effect_data['missed_resist'] = { 
+    apply = missed, 
+    enemy_animation = { type = 'missed_resist', duration = 1 }
 }
 
 return effect_data

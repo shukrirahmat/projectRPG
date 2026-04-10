@@ -16,6 +16,7 @@ function enemy_battler.new(data, name)
     self.exp_drop = data.exp_drop
     self.gold_drop = data.gold_drop
     self.sprite = enemy_sprites.get_sprite(data.ref)
+    self.species = data.species or nil
 
     local function draw_text(animation, x, y, text, font, color)
         if color and color == 'grey' then
@@ -83,6 +84,22 @@ function enemy_battler.new(data, name)
         end
     end
 
+    local function draw_missed_animation(animation, x, y, color)
+        local progress = animation.timer / animation.duration
+        local tick = math.floor(progress * 10)
+        if tick == 1 or tick == 3 then
+            love.graphics.draw(self.sprite, x + 3, y)
+        elseif tick == 2 then
+            love.graphics.draw(self.sprite, x + 5, y)
+        else
+            love.graphics.draw(self.sprite, x, y)
+        end
+
+        if tick >= 1 then
+            draw_text(animation, x, y, 'MISS', fonts.medium_mono, color)
+        end
+    end
+
     local function draw_immune_animation(animation, x, y)
         local progress = animation.timer / animation.duration
         local tick = math.floor(progress * 10)
@@ -126,6 +143,10 @@ function enemy_battler.new(data, name)
             draw_damaged_animation(animation, x, y, 'blue')
         elseif self.animation.type == 'mp_resisted' then
             draw_damaged_animation(animation, x, y, 'dark_blue')
+        elseif self.animation.type == 'missed' then
+            draw_missed_animation(animation, x, y)
+        elseif self.animation.type == 'missed_resist' then
+            draw_missed_animation(animation, x, y, 'grey')
         elseif self.animation.type == 'immune' then
             draw_immune_animation(animation, x, y)
         elseif self.animation.type == 'death' then

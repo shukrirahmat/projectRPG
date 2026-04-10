@@ -32,7 +32,7 @@ local function healing_reduction_check(user, target, amount)
     if target.status['WOUND'] then
         amount = math.floor(amount * 0.5)
     end
-    
+
     return math.min(amount, target.max_hp - target.current_hp)
 end
 
@@ -98,13 +98,13 @@ local function defend(self, user, targets, engine)
 end
 
 local function skill_cancelled(self, user, targets, engine, var)
-    
+
     if var.to_use.type == 'Magic' then
         engine.log_action(''..user.name..' tried to cast '..var.to_use.name..'.')
     elseif var.to_use.type == 'Tech' then
         engine.log_action(''..user.name..' tried to use '..var.to_use.name..'.')
     end
-    
+
     local target = targets[1]
     engine.add_effect('skill_cancelled', user, target)
 end
@@ -242,6 +242,84 @@ local function mana_burn(self, user, targets, engine)
         ::continue::
     end
 end
+
+local function dragonsbane(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+
+        local damage;
+        if target.species and target.species == 'DRAGON' then
+            local mod = math.floor(self.base_damage * 0.2)
+            damage = self.base_damage + math.random(-mod, mod)
+        else
+            engine.add_effect('immune', user, target, damage)
+            goto continue
+        end
+
+        damage = damage_reduction_check(self, user, target, damage)
+        engine.add_effect('damage', user, target, damage)
+
+        ::continue::
+    end
+end
+
+local function exorcise(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+
+        if target.species and target.species == 'UNDEAD' then
+            local roll = math.random(1, 100)
+            if roll <= self.accuracy then
+                engine.add_effect('kill', user, target)
+            else
+                engine.add_effect('missed', user, target)
+            end
+        else
+            engine.add_effect('immune', user, target)
+        end
+        
+        ::continue::
+    end
+end
+
+local function death(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+        
+        local resistance = check_resistance(self.element, target)
+        local accuracy = self.accuracy
+        local resist = false
+
+        if resistance == 2 then 
+            engine.add_effect('immune', user, target)
+            goto continue
+        elseif resistance == 1 then
+            accuracy = math.floor(accuracy / 2)
+            resist = true
+        end
+        
+        local roll = math.random(1, 100)
+        if roll <= accuracy then
+            engine.add_effect('kill', user, target)
+        elseif resist then
+            engine.add_effect('missed_resist', user, target)
+        else
+            engine.add_effect('missed', user, target)
+        end
+        
+        ::continue::
+    end
+end
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -698,7 +776,7 @@ action_data['mana_burn_I'] = {
     name = 'Mana Burn I', 
     type = 'Magic',
     cost = 2, 
-    desc = 'Reduce 4~6 MP from all enemies',
+    desc = 'Reduce 4~6 MP from all enemies.',
     aim = 'enemies',
     scope = 'all',
     execute = mana_burn,
@@ -710,12 +788,92 @@ action_data['mana_burn_II'] = {
     name = 'Mana Burn II', 
     type = 'Magic',
     cost = 5, 
-    desc = 'Reduce 12~18 MP from all enemies',
+    desc = 'Reduce 12~18 MP from all enemies.',
     aim = 'enemies',
     scope = 'all',
     execute = mana_burn,
     element = 'MANABURN',
     base_damage = 15,
+}
+
+action_data['dragonsbane_I'] = {
+    name = "Dragonsbane I", 
+    type = 'Magic',
+    cost = 4, 
+    desc = 'Deals 80~120 damage. Only works on dragons.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = dragonsbane,
+    base_damage = 100
+}
+
+action_data['dragonsbane_II'] = {
+    name = "Dragonsbane II", 
+    type = 'Magic',
+    cost = 8, 
+    desc = 'Deals 180~270 damage. Only works on dragons.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = dragonsbane,
+    base_damage = 225
+}
+
+action_data['exorcise_I'] = {
+    name = 'Exorcise I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '80% chance to instantly kill one undead enemy.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = exorcise,
+    accuracy = 80
+}
+
+action_data['exorcise_II'] = {
+    name = 'Exorcise II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '80% chance to instantly kill all undead enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = exorcise,
+    accuracy = 80
+}
+
+action_data['death_I'] = {
+    name = 'Death I', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '25% chance to instantly kill one enemy.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = death,
+    element = 'DEATH',
+    accuracy = 25
+}
+
+action_data['death_II'] = {
+    name = 'Death II', 
+    type = 'Magic',
+    cost = 10, 
+    desc = '25% chance to instantly kill all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = death,
+    element = 'DEATH',
+    accuracy = 25
+}
+
+action_data['death_III'] = {
+    name = 'Death III', 
+    type = 'Magic',
+    cost = 15, 
+    desc = '50% chance to instantly kill all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = death,
+    element = 'DEATH',
+    accuracy = 50
 }
 
 return action_data

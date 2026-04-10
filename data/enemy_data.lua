@@ -34,6 +34,25 @@ enemy_data['skeleton'] = {
     passive_skills = {},
     strong = {},
     immune = {},
+    species = 'UNDEAD'
+}
+
+enemy_data['dragon'] = {
+    
+    ref = 'dragon',
+    lvl = 5,
+    hp = 50,
+    mp = 10,
+    str = 35,
+    vit = 12,
+    agi = 10,
+    sprite_height = sprite_dimension * 1,
+    gold_drop = 25,
+    exp_drop = 50,
+    passive_skills = {},
+    strong = {},
+    immune = {},
+    species = 'DRAGON'
 }
 
 return enemy_data

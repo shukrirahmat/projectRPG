@@ -6,16 +6,17 @@ local action = {}
 
 function action.goblin(enemy)
     
-    if enemy.current_mp >= action_data['scorch_I'].cost then
-        return 'scorch_I'
-    end
-    
     return 'normal_attack'
 end
 
 function action.skeleton(enemy) 
     
-    if enemy.current_mp >= action_data['lightning_I'].cost then
+    return 'normal_attack'
+end
+
+function action.dragon(enemy) 
+    
+    if enemy.current_mp >= action_data['inferno_I'].cost then
         return 'lightning_I'
     end
     

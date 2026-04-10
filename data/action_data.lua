@@ -31,8 +31,9 @@ end
 local function healing_reduction_check(user, target, amount)
     if target.status['WOUND'] then
         amount = math.floor(amount * 0.5)
-    end    
-    return amount
+    end
+    
+    return math.min(amount, target.max_hp - target.current_hp)
 end
 
 local function proc_second_attack(user, target, engine)
@@ -94,6 +95,18 @@ local function defend(self, user, targets, engine)
 
         ::continue::
     end
+end
+
+local function skill_cancelled(self, user, targets, engine, var)
+    
+    if var.to_use.type == 'Magic' then
+        engine.log_action(''..user.name..' tried to cast '..var.to_use.name..'.')
+    elseif var.to_use.type == 'Tech' then
+        engine.log_action(''..user.name..' tried to use '..var.to_use.name..'.')
+    end
+    
+    local target = targets[1]
+    engine.add_effect('skill_cancelled', user, target)
 end
 
 local function damage_magic(self, user, targets, engine)
@@ -229,7 +242,6 @@ local function mana_burn(self, user, targets, engine)
         ::continue::
     end
 end
-
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -260,6 +272,14 @@ action_data['defend'] = {
     aim = 'allies',
     scope = 'self',
     priority = 2
+}
+
+action_data['skill_cancelled'] = {     
+    name = 'Skill Cancelled',
+    execute = skill_cancelled,
+    cost = 0,
+    aim = 'allies',
+    scope = 'self',
 }
 
 action_data['scorch_I'] = {
@@ -674,7 +694,7 @@ action_data['life_drain_II'] = {
     base_damage = 100,
 }
 
---[[action_data['mana_burn_I'] = {
+action_data['mana_burn_I'] = {
     name = 'Mana Burn I', 
     type = 'Magic',
     cost = 2, 
@@ -696,6 +716,6 @@ action_data['mana_burn_II'] = {
     execute = mana_burn,
     element = 'MANABURN',
     base_damage = 15,
-}]]
+}
 
 return action_data

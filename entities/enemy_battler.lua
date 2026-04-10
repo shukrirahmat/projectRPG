@@ -1,4 +1,5 @@
 local battler = require('entities.battler')
+local action_data = require('data.action_data')
 local enemy_sprites = require('graphics.enemy_sprites')
 local fonts = require('fonts')
 
@@ -20,7 +21,9 @@ function enemy_battler.new(data, name)
         if color and color == 'grey' then
             love.graphics.setColor(0.6,0.6,0.6)
         elseif color and color == 'blue' then
-            love.graphics.setColor(0.4,0.2,0.6)
+            love.graphics.setColor(0.5,0.3,0.7)
+        elseif color and color == 'dark_blue' then
+            love.graphics.setColor(0.3, 0.2 ,0.4)
         else
             love.graphics.setColor(1,1,1)
         end
@@ -119,6 +122,10 @@ function enemy_battler.new(data, name)
             draw_damaged_animation(animation, x, y)
         elseif self.animation.type == 'resisted' then
             draw_damaged_animation(animation, x, y, 'grey')
+        elseif self.animation.type == 'mp_damaged' then
+            draw_damaged_animation(animation, x, y, 'blue')
+        elseif self.animation.type == 'mp_resisted' then
+            draw_damaged_animation(animation, x, y, 'dark_blue')
         elseif self.animation.type == 'immune' then
             draw_immune_animation(animation, x, y)
         elseif self.animation.type == 'death' then
@@ -130,20 +137,27 @@ function enemy_battler.new(data, name)
         local action = self.current_action
         self.current_action = nil
 
-        if action then
-            action = engine.reaim_target(action)
-            data = action.data
+        if not action then return end
 
-            if data.cost and self.current_mp > data.cost then
-                self.current_mp = self.current_mp - data.cost
-            end
+        action = engine.reaim_target(action)
 
-            data:execute(self, action.targets, engine)
+        local data = action.data
+        local targets = action.targets
+        local var = {}
 
-            if data.enemy_animation then
-                local animation = data.enemy_animation
-                self:animate(animation.type, animation.duration * engine.BATTLE_SPEED)
-            end
+        if data.cost and self.current_mp >= data.cost then
+            self.current_mp = self.current_mp - data.cost
+        elseif (data.cost and self.current_mp < data.cost) or self.status['SEAL'] then
+            var = { to_use = data }
+            data = action_data['skill_cancelled']
+            targets = {self}
+        end
+
+        data:execute(self, targets, engine, var)
+
+        if data.enemy_animation then
+            local animation = data.enemy_animation
+            self:animate(animation.type, animation.duration * engine.BATTLE_SPEED)
         end
     end
 

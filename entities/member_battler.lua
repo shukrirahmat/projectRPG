@@ -1,5 +1,6 @@
 local party_sprites = require('graphics.party_sprites')
 local battler = require('entities.battler')
+local action_data = require('data.action_data')
 
 local member_battler = {}
 
@@ -28,16 +29,23 @@ function member_battler.new(data)
         local action = self.current_action
         self.current_action = nil
 
-        if action then
-            action = engine.reaim_target(action)
-            local data = action.data
-            
-            if data.cost and self.current_mp > data.cost then
-                self.current_mp = self.current_mp - data.cost
-            end
-            
-            data:execute(self, action.targets, engine)
+        if not action then return end
+
+        action = engine.reaim_target(action)
+
+        local data = action.data
+        local targets = action.targets
+        local var = {}
+
+        if data.cost and self.current_mp >= data.cost then
+            self.current_mp = self.current_mp - data.cost
+        elseif (data.cost and self.current_mp < data.cost) or self.status['SEAL'] then
+            var = { to_use = data }
+            data = action_data['skill_cancelled']
+            targets = {self}
         end
+
+        data:execute(self, targets, engine, var)
     end
 
     function self:execute_combo(combo, engine)

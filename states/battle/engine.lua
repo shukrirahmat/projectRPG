@@ -109,13 +109,30 @@ local function execute_next_combo()
     phase = 'run_combo'
 end
 
+local function clear_status_effects()
+    local status = {'BLIND', 'SEAL', 'STUN'}
+    local rate = {4, 3, 2}
+
+    for i, status in ipairs(status) do
+        if current_battler.status[status] then
+            local roll = math.random(1, rate[i])
+            if roll == 1 then
+                engine.add_effect('clear_status', current_battler, current_battler, status)
+            end
+        end
+    end
+end
+
 local function execute_next_effect()
     if #effect_queue <= 0 then
         if is_enemy_defeated() then
             battle.is_won()
         elseif #combo_queue > 0 then
             execute_next_combo()    
+        elseif not current_battler.status_effect_updated then
+            phase = 'update_status_effects'
         else
+            current_battler.status_effect_updated = nil
             execute_next_action()
         end
         return
@@ -166,6 +183,12 @@ local function run_next_effect(dt)
     end
 end
 
+local function update_status_effects()
+    clear_status_effects()
+    current_battler.status_effect_updated = true
+    execute_next_effect()
+end
+
 
 local function set_active_battlers(party, enemies)
 
@@ -214,6 +237,8 @@ function engine.update(dt)
         run_next_effect(dt)
     elseif phase == 'run_combo' then
         run_next_combo(dt)
+    elseif phase == 'update_status_effects' then
+        update_status_effects()
     end
 end
 
@@ -304,6 +329,7 @@ function engine.reaim_target(action)
 end
 
 function engine.clear_temporary_status(battler)
+    
     if battler.is_defending then
         battler.is_defending = nil
     end

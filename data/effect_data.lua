@@ -53,7 +53,7 @@ local function recover(self, engine, user, target, value)
 end
 
 local function missed(self, engine, user, target)
-    engine.log_effect('But it missed '..target.name..'!');
+    engine.log_effect('It missed '..target.name..'!');
 end
 
 local function add_status(self, engine, user, target, status)
@@ -72,6 +72,17 @@ local function add_status(self, engine, user, target, status)
     end
     
     target.status[status] = true;
+end
+
+local function clear_status(self, engine, user, target, status)
+    
+    target.status[status] = nil
+    
+    if status == 'BLIND' then
+        engine.log_effect("Sand has been cleared in "..target.name.."'s eyes.");
+    elseif status == 'SEAL' then
+        engine.log_effect(""..target.name.." abilites is no longer sealed.");
+    end
 end
 
 ----------------------------------------------------------
@@ -140,6 +151,10 @@ effect_data['missed_resist'] = {
 
 effect_data['add_status'] = { 
     apply = add_status,
+}
+
+effect_data['clear_status'] = { 
+    apply = clear_status,
 }
 
 return effect_data

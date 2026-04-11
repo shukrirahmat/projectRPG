@@ -37,6 +37,8 @@ local function confirm(action)
             menu.open_target_menu('normal_attack', alive_enemy, member_menu, member, member_index)
         end
     elseif position == 2 then
+        if member.status['SEAL'] then return end
+        
         menu.open_skill_menu(member_menu, member, member_index)
     elseif position == 3 then
         is_active = false

@@ -15,7 +15,7 @@ enemy_data['goblin'] = {
     gold_drop = 5,
     exp_drop = 12,
     passive_skills = {},
-    strong = {['BLIND'] = true},
+    strong = {},
     immune = {},
 }
 
@@ -32,8 +32,8 @@ enemy_data['skeleton'] = {
     gold_drop = 10,
     exp_drop = 16,
     passive_skills = {},
-    strong = {['BLIND'] = true},
-    immune = {['SILENCE'] = true},
+    strong = {},
+    immune = {},
     species = 'UNDEAD'
 }
 
@@ -51,7 +51,7 @@ enemy_data['dragon'] = {
     exp_drop = 50,
     passive_skills = {},
     strong = {},
-    immune = {['BLIND'] = true},
+    immune = {},
     species = 'DRAGON'
 }
 

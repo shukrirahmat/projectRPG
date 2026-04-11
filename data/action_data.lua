@@ -1,5 +1,7 @@
 local action_data = {}
 
+----HELPERS---
+
 local function calculate_attack_damage(attacker, target) 
 
     local damage = math.floor(attacker:get_atk()/2) - math.floor(target:get_def()/3)
@@ -52,6 +54,26 @@ local function check_resistance(element, target)
     return 0
 end
 
+local function attack_miss(user, target)
+    if user.status['BLIND'] then
+        local roll = math.random(1, 100)
+        if roll <= 70 then
+            return true
+        end
+    end
+
+    if target.dodge_rate ~= 0 then
+        local roll = math.random(1, target.dodge_rate)
+        if roll == 1 then
+            return true
+        end
+    end
+
+    return false
+end
+
+----EXECUTION----
+
 local function normal_attack(self, user, targets, engine)
 
     local text = ''..user.name..' attacks!'
@@ -62,6 +84,16 @@ local function normal_attack(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
+
+        if attack_miss(user, target) then
+            engine.log_action(text)
+            engine.add_effect('missed', user, target)
+            if not self.special then
+                proc_second_attack(user, target, engine)
+            end
+            goto continue
+        end
+
 
         local damage
         local crit = math.random(1, user.crit_rate) == 1
@@ -283,7 +315,7 @@ local function exorcise(self, user, targets, engine)
         else
             engine.add_effect('immune', user, target)
         end
-        
+
         ::continue::
     end
 end
@@ -294,7 +326,7 @@ local function death(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-        
+
         local resistance = check_resistance(self.element, target)
         local accuracy = self.accuracy
         local resist = false
@@ -306,7 +338,7 @@ local function death(self, user, targets, engine)
             accuracy = math.floor(accuracy / 2)
             resist = true
         end
-        
+
         local roll = math.random(1, 100)
         if roll <= accuracy then
             engine.add_effect('kill', user, target)
@@ -315,7 +347,7 @@ local function death(self, user, targets, engine)
         else
             engine.add_effect('missed', user, target)
         end
-        
+
         ::continue::
     end
 end
@@ -326,7 +358,7 @@ local function status_effect(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-        
+
         local resistance = check_resistance(self.element, target)
         local accuracy = self.accuracy
         local resist = false
@@ -338,7 +370,7 @@ local function status_effect(self, user, targets, engine)
             accuracy = math.floor(accuracy / 2)
             resist = true
         end
-        
+
         local roll = math.random(1, 100)
         if roll <= accuracy then
             engine.add_effect('add_status', user, target, self.element)
@@ -347,7 +379,7 @@ local function status_effect(self, user, targets, engine)
         else
             engine.add_effect('missed', user, target)
         end
-        
+
         ::continue::
     end
 end
@@ -954,6 +986,174 @@ action_data['spellseal_II'] = {
     execute = status_effect,
     element = 'SEAL',
     accuracy = 80
+}
+
+action_data['tremor_I'] = {
+    name = 'Tremor I', 
+    type = 'Magic',
+    cost = 4, 
+    desc = '30% chance to STUN all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'STUN',
+    accuracy = 30
+}
+
+action_data['tremor_II'] = {
+    name = 'Tremor II', 
+    type = 'Magic',
+    cost = 6, 
+    desc = '60% chance to STUN all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'STUN',
+    accuracy = 60
+}
+
+action_data['rupture_I'] = {
+    name = 'Rupture I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '50% chance to WOUND all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'WOUND',
+    accuracy = 50
+}
+
+action_data['rupture_II'] = {
+    name = 'Rupture II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '80% chance to WOUND all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'WOUND',
+    accuracy = 80
+}
+
+action_data['toxin_I'] = {
+    name = 'Toxin I', 
+    type = 'Magic',
+    cost = 2, 
+    desc = '80% chance to POISON one enemy.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = status_effect,
+    element = 'POISON',
+    accuracy = 80
+}
+
+action_data['toxin_II'] = {
+    name = 'Toxin II', 
+    type = 'Magic',
+    cost = 4, 
+    desc = '80% chance to POISON all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'POISON',
+    accuracy = 80
+}
+
+action_data['hex_I'] = {
+    name = 'Hex I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '60% chance to put a CURSE on one enemy.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = status_effect,
+    element = 'CURSE',
+    accuracy = 60
+}
+
+action_data['hex_II'] = {
+    name = 'Hex II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '60% chance to put a CURSE on all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'CURSE',
+    accuracy = 60
+}
+
+action_data['paralyze_I'] = {
+    name = 'Paralyze I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '80% chance to cause PARALYSIS to one enemy.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = status_effect,
+    element = 'PARALYSIS',
+    accuracy = 80
+}
+
+action_data['paralyze_II'] = {
+    name = 'Paralyze II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '80% chance to cause PARALYSIS to all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'PARALYSIS',
+    accuracy = 80
+}
+
+action_data['slumber_I'] = {
+    name = 'Slumber I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '60% chance to put one enemy to SLEEP.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = status_effect,
+    element = 'SLEEP',
+    accuracy = 60
+}
+
+action_data['slumber_II'] = {
+    name = 'Slumber II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '60% chance to put all enemies to SLEEP.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'SLEEP',
+    accuracy = 60
+}
+
+action_data['mindblast_I'] = {
+    name = 'Mindblast I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = '60% chance to CONFUSE one enemy.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = status_effect,
+    element = 'CONFUSE',
+    accuracy = 60
+}
+
+action_data['mindblast_II'] = {
+    name = 'Mindblast II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = '60% chance to CONFUSE all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'CONFUSE',
+    accuracy = 60
 }
 
 return action_data

@@ -6,6 +6,10 @@ local action = {}
 
 function action.goblin(enemy)
     
+    if enemy.current_mp >= action_data['blizzard_I'].cost then
+        return 'blizzard_I'
+    end
+    
     return 'normal_attack'
 end
 
@@ -16,8 +20,8 @@ end
 
 function action.dragon(enemy) 
     
-    if enemy.current_mp >= action_data['sandstorm_I'].cost then
-        return 'sandstorm_I'
+    if enemy.current_mp >= action_data['spellseal_I'].cost then
+        return 'spellseal_I'
     end
     
     return 'normal_attack'
@@ -25,6 +29,8 @@ end
 
 
 function enemy_action.get(enemy)
+    if enemy.status['SEAL'] then return 'normal_attack' end
+    
     local ref = enemy.ref
     return action[ref](enemy)
 end

@@ -238,7 +238,7 @@ local function life_drain(self, user, targets, engine)
 
         if effect_ref ~= 'immune' then
             local heal_amount = math.min(damage, target.current_hp)
-            heal_amount = healing_reduction_check(user, target, heal_amount)
+            heal_amount = healing_reduction_check(user, user, heal_amount)
             engine.add_effect('recover', user, user, heal_amount)
         end
 
@@ -992,7 +992,7 @@ action_data['tremor_I'] = {
     name = 'Tremor I', 
     type = 'Magic',
     cost = 4, 
-    desc = '30% chance to STUN all enemies.',
+    desc = '40% chance to STUN all enemies.',
     aim = 'enemies',
     scope = 'all',
     execute = status_effect,
@@ -1004,7 +1004,7 @@ action_data['tremor_II'] = {
     name = 'Tremor II', 
     type = 'Magic',
     cost = 6, 
-    desc = '60% chance to STUN all enemies.',
+    desc = '70% chance to STUN all enemies.',
     aim = 'enemies',
     scope = 'all',
     execute = status_effect,

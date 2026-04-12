@@ -38,6 +38,10 @@ function logger.add(text, callback_function, spd_ratio)
     speed = spd_ratio and spd_ratio * BASE_SPEED or BASE_SPEED
 end
 
+function logger.clear()
+    texts = {}
+end
+
 function logger.is_active()
     return is_active
 end

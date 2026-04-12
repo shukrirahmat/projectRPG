@@ -158,6 +158,7 @@ function enemy_battler.new(data, name)
         local action = self.current_action
         self.current_action = nil
 
+        if self.status['STUN'] then return end
         if not action then return end
 
         action = engine.reaim_target(action)

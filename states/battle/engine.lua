@@ -84,6 +84,7 @@ local function execute_next_action()
         return
     end
 
+    logger.clear()
     current_battler = get_next_battler()
     current_battler:execute_action(engine)
 

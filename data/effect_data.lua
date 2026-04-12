@@ -69,6 +69,18 @@ local function add_status(self, engine, user, target, status)
         else
             engine.log_effect(""..target.name.."'s abilities are sealed!");
         end
+    elseif status == 'STUN' then
+        if target.status['SEAL'] then
+            engine.log_effect(""..target.name.." is already stunned.");
+        else
+            engine.log_effect(""..target.name.." is stunned!");
+        end
+    elseif status == 'WOUND' then
+        if target.status['WOUND'] then
+            engine.log_effect(""..target.name.." is already wounded");
+        else
+            engine.log_effect(""..target.name.." is wounded. Healing is reduced!");
+        end
     end
     
     target.status[status] = true;
@@ -81,7 +93,9 @@ local function clear_status(self, engine, user, target, status)
     if status == 'BLIND' then
         engine.log_effect("Sand has been cleared in "..target.name.."'s eyes.");
     elseif status == 'SEAL' then
-        engine.log_effect(""..target.name.." abilites is no longer sealed.");
+        engine.log_effect(""..target.name.."'s abilites is no longer sealed.");
+    elseif status == 'STUN' then
+        engine.log_effect(""..target.name.." is no longer stunned.");
     end
 end
 

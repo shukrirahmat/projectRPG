@@ -20,8 +20,8 @@ end
 
 function action.dragon(enemy) 
     
-    if enemy.current_mp >= action_data['spellseal_I'].cost then
-        return 'spellseal_I'
+    if enemy.current_mp >= action_data['rupture_II'].cost then
+        return 'rupture_II'
     end
     
     return 'normal_attack'

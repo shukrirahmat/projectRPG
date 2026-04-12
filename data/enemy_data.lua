@@ -41,7 +41,7 @@ enemy_data['dragon'] = {
     
     ref = 'dragon',
     lvl = 5,
-    hp = 50,
+    hp = 200,
     mp = 10,
     str = 35,
     vit = 12,

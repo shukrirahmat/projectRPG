@@ -78,8 +78,8 @@ local function normal_attack(self, user, targets, engine)
 
     local text = ''..user.name..' attacks!'
 
-    if self.special == 'second_attack' then
-        text = ''..user.name..' attacks again!'
+    if self.special then
+        text = ''..user.name..' '..self.special_text..''
     end
 
     for i, target in ipairs(targets) do
@@ -139,6 +139,46 @@ local function skill_cancelled(self, user, targets, engine, var)
 
     local target = targets[1]
     engine.add_effect('skill_cancelled', user, target)
+end
+
+local function stunned(self, user, targets, engine)
+    engine.log_action(''..user.name..' is stunned and could not move!')
+    engine.add_effect('empty', user, user)
+end
+
+local function paralyzed(self, user, targets, engine)
+    engine.log_action(""..user.name.."'s action disrupted by paralysis!")
+    engine.add_effect('empty', user, user)
+end
+
+local function sleeping(self, user, targets, engine)
+    engine.log_action(''..user.name..' is sleeping soundly!')
+    engine.add_effect('empty', user, user)
+end
+
+local function confused(self, user, targets, engine)
+
+    local textList = {
+        'is rolling on the ground laughing.',
+        'is dancing happily.',
+        'is crying for no apparent reason.',
+        'pretends to be dead.',
+        "picks at it's nose.",
+    }
+
+    local target
+    local roll = math.random(1,5)
+    if roll == 1 then
+        local textRoll = math.random(1, #textList)
+        engine.log_action(''..user.name..' '..textList[textRoll]..'')
+        engine.add_effect('empty', user, user)
+    elseif roll == 2 then
+        target = engine.get_random_target(engine.get_opposite_group(user))
+        action_data['confused_attack']:execute(user, {target}, engine)
+    elseif roll >= 3 then
+        target = engine.get_random_target(engine.get_own_group(user))
+        action_data['confused_attack']:execute(user, {target}, engine)
+    end
 end
 
 local function damage_magic(self, user, targets, engine)
@@ -404,7 +444,19 @@ action_data['second_attack'] = {
     aim = 'enemies',
     scope = 'single',
     enemy_animation = {type = 'attack', duration = 1},
-    special = 'second_attack'
+    special = 'second_attack',
+    special_text = 'attacks again!'
+}
+
+action_data['confused_attack'] = {     
+    name = 'Confused Attack',
+    execute = normal_attack,
+    cost = 0,
+    aim = 'enemies',
+    scope = 'single',
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'confused_attack',
+    special_text = 'attacks while being confused!'
 }
 
 action_data['defend'] = {     
@@ -422,6 +474,22 @@ action_data['skill_cancelled'] = {
     cost = 0,
     aim = 'allies',
     scope = 'self',
+}
+
+action_data['stunned'] = {
+    execute = stunned
+}
+
+action_data['paralyzed'] = {
+    execute = paralyzed
+}
+
+action_data['confused'] = {
+    execute = confused
+}
+
+action_data['sleeping'] = {
+    execute = sleeping
 }
 
 action_data['scorch_I'] = {

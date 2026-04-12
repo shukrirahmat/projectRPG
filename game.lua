@@ -2,7 +2,7 @@ local field = require('states.field')
 local battle = require('states.battle')
 local party_data = require('data.party_data')
 local party = require('systems.party')
-local member = require('entities.member')
+local Member = require('entities.member')
 local graphics = require('graphics')
 local fonts = require('fonts')
 local input = require('input')
@@ -23,10 +23,10 @@ function game.load()
     fonts.load()
     party.load(
         { 
-            member.new(party_data.test[1]),
-            member.new(party_data.test[2]),
-            member.new(party_data.test[3]),
-            member.new(party_data.test[4]),
+            Member.new(party_data.test[1]),
+            Member.new(party_data.test[2]),
+            Member.new(party_data.test[3]),
+            Member.new(party_data.test[4]),
         }
     )
     

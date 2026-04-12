@@ -2,7 +2,7 @@ local main_menu = require('states.battle.menu.main_menu')
 local member_menu = require('states.battle.menu.member_menu')
 local target_menu = require('states.battle.menu.target_menu')
 local skill_menu = require('states.battle.menu.skill_menu')
-local action = require('entities.action')
+local Action = require('entities.action')
 local action_data = require('data.action_data')
 
 local menu = {}
@@ -125,7 +125,7 @@ end
 
 function menu.set_action(ref, user, targets)
     local data = action_data[ref]
-    local new_action = action.new(ref, data, user, targets)
+    local new_action = Action.new(ref, data, user, targets)
     user.current_action = new_action
 end
 

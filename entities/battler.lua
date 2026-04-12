@@ -25,20 +25,6 @@ function battler.new(data)
         self.passives[ref] = true
     end
 
-    function self:is_alive()
-        return not self.is_dead
-    end
-
-    function self:update(dt)
-        if not self.animation then return end
-
-        self.animation.timer = self.animation.timer + dt
-        if self.animation.timer >= self.animation.duration then
-            self.animation.timer = 0
-            self.animation = nil
-        end
-    end
-
     function self:take_damage(damage)
         self.current_hp = self.current_hp - damage
     end
@@ -46,6 +32,10 @@ function battler.new(data)
     function self:dies()
         self.current_hp = 0
         self.is_dead = true
+    end
+    
+    function self:is_alive()
+        return not self.is_dead
     end
 
     function self:cannot_act()

@@ -1,6 +1,5 @@
 local party_sprites = require('graphics.party_sprites')
 local battler = require('entities.battler')
-local action_data = require('data.action_data')
 
 local member_battler = {}
 
@@ -23,50 +22,6 @@ function member_battler.new(data)
 
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(sprite, x, y)
-    end
-
-    function self:execute_action(engine)
-        local action = self.current_action
-        self.current_action = nil
-
-        if self.status['STUN'] then return end
-        if not action then return end
-
-        action = engine.reaim_target(action)
-
-        local data = action.data
-        local targets = action.targets
-        local var = {}
-
-        if data.type == 'Magic' or data.type == 'Tech' then
-            if self.status['SEAL'] or (data.cost and self.current_mp < data.cost) then
-                var = { to_use = data }
-                data = action_data['skill_cancelled']
-                targets = {self}
-            else
-                self.current_mp = self.current_mp - data.cost
-            end
-        end
-
-        data:execute(self, targets, engine, var)
-    end
-
-    function self:execute_combo(combo, engine)
-        combo = engine.reaim_target(combo)
-        combo.data:execute(self, combo.targets, engine)
-    end
-
-    function self:apply_effect(effect, engine, hud)
-        effect.data:apply(engine, effect.user, effect.target, effect.value)
-        if effect.data.party_animation then
-            local animation =  effect.data.party_animation
-            hud.animate(
-                animation.type, 
-                animation.duration * engine.BATTLE_SPEED, 
-                self, 
-                effect.value
-            )
-        end
     end
 
     return self

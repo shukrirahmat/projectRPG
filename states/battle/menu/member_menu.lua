@@ -92,6 +92,7 @@ function member_menu.draw()
     local sprite_x = border_x + (section_width - SPRITE_DIMENSION) / 2
     local sprite_y = border_y + (border_height - SPRITE_DIMENSION) / 2
     member:draw(sprite_x, sprite_y)
+    
 
     lg.setColor(1, 1, 1)
     lg.setFont(fonts.large)

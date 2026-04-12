@@ -1,6 +1,6 @@
-local action = require('entities.action')
+local Action = require('entities.action')
+local Effect = require('entities.effect')
 local action_data = require('data.action_data')
-local effect = require('entities.effect')
 local effect_data = require('data.effect_data')
 
 local engine = {}
@@ -20,7 +20,7 @@ local current_battler = nil
 local effect_queue = nil
 local combo_queue = nil
 
-engine.BATTLE_SPEED = 1
+local BATTLE_SPEED = 1
 
 local function is_enemy_defeated()
     local alive = 0
@@ -64,6 +64,22 @@ local function get_next_battler()
     return battler
 end
 
+local function reaim_target(action)
+    if action.data.aim == 'enemies' and action.data.scope == 'single' then
+        if action.targets[1].is_dead then
+            local new_target
+            if action.targets[1].is_party_member then
+                new_target = engine.get_random_target(party)
+            else
+                new_target = engine.get_random_target(enemies)
+            end
+            action.targets = {new_target}
+        end
+    end
+
+    return action
+end
+
 local function finish_round()
 
     for i, group in ipairs({party, enemies}) do
@@ -77,6 +93,26 @@ local function finish_round()
     battle.enter_menu()    
 end
 
+local function status_effect_pass(action, battler)
+    if battler.status['SLEEP'] then
+        action = Action.new('sleeping', action_data['sleeping'], battler, {battler})
+    elseif battler.status['STUN'] then
+        action = Action.new('stunned', action_data['stunned'], battler, {battler})
+    elseif battler.status['PARALYSIS'] then
+        local roll = math.random(1, 4)
+        if roll == 1 then 
+            action = Action.new('paralyzed', action_data['paralyzed'], battler, {battler})
+        else
+            if battler.status['CONFUSE'] then
+                action = Action.new('confused', action_data['confused'], battler, {battler})
+            end
+        end
+    elseif battler.status['CONFUSE'] then
+        action = Action.new('confused', action_data['confused'], battler, {battler})
+    end
+    return action
+end
+
 
 local function execute_next_action()
     if #active_battlers <= 0 then
@@ -84,9 +120,36 @@ local function execute_next_action()
         return
     end
 
-    logger.clear()
     current_battler = get_next_battler()
-    current_battler:execute_action(engine)
+    current_battler.status_effect_updated = nil    
+    local action = current_battler.current_action
+    current_battler.current_action = nil
+
+    action = status_effect_pass(action, current_battler)
+
+    if not action then return end
+
+    action = reaim_target(action)
+    local data = action.data
+    local targets = action.targets
+    local var = {}
+
+    if data.type == 'Magic' or data.type == 'Tech' then
+        if current_battler.status['SEAL'] or (data.cost and current_battler.current_mp < data.cost) then
+            var = { to_use = data }
+            data = action_data['skill_cancelled']
+            targets = {current_battler}
+        else
+            current_battler.current_mp = current_battler.current_mp - data.cost
+        end
+    end
+
+    data:execute(current_battler, targets, engine, var)
+
+    if not current_battler.is_party_member and data.enemy_animation then
+        local animation = data.enemy_animation
+        middle_screen.animate(current_battler, animation.type, animation.duration * BATTLE_SPEED)
+    end
 
     phase = 'run_action'
 end
@@ -95,19 +158,55 @@ local function execute_next_combo()
     local combo = combo_queue[1]
     table.remove(combo_queue, 1)
 
-    if not combo.user:is_alive() or combo.user:cannot_act() then
+    if combo.user.is_dead or combo.user:cannot_act() then
         goto continue
     end
 
-    if combo.ref == 'second_attack' and not combo.targets[1]:is_alive() then
+    if combo.ref == 'second_attack' and combo.targets[1].is_dead then
         goto continue
     end
 
-    combo.user:execute_combo(combo, engine)
+    combo = reaim_target(combo)
+    combo.data:execute(combo.user, combo.targets, engine)
+
+    if not combo.user.is_party_member and combo.data.enemy_animation then
+        local animation = combo.data.enemy_animation
+        middle_screen.animate(combo.user, animation.type, animation.duration * BATTLE_SPEED)
+    end
 
     ::continue::
 
     phase = 'run_combo'
+end
+
+local function apply_status_effects()
+
+    if current_battler.status['POISON'] then
+        local base_amount = math.floor(current_battler.max_hp * 0.1)
+        local mod = math.floor(base_amount * 0.2)
+        local amount = math.max(1, base_amount + math.random(-mod, mod))
+        engine.add_effect('poison_damage', current_battler, current_battler, amount)
+    end
+
+    if current_battler.status['CURSE'] then
+        local max
+        if current_battler.is_party_member then
+            max = 20
+        else
+            max = 4
+        end
+        local roll = math.random(1, max)
+        if roll == 1 then
+            engine.add_effect('curse_effect', current_battler, current_battler)
+        end
+    end
+
+    if current_battler.passives['regenerate'] then
+        local base_amount = math.floor(current_battler.max_hp * 0.1)
+        local mod = math.floor(base_amount * 0.2)
+        local amount = math.max(1, base_amount + math.random(-mod, mod))
+        engine.add_effect('recover', current_battler, current_battler, amount)
+    end
 end
 
 local function clear_status_effects()
@@ -133,7 +232,6 @@ local function execute_next_effect()
         elseif not current_battler.status_effect_updated then
             phase = 'update_status_effects'
         else
-            current_battler.status_effect_updated = nil
             execute_next_action()
         end
         return
@@ -142,8 +240,25 @@ local function execute_next_effect()
     local effect = effect_queue[1]
     table.remove(effect_queue, 1)
 
-    if effect.target:is_alive() then
-        effect.target:apply_effect(effect, engine, hud)
+    if effect.target:is_alive() then        
+        effect.data:apply(engine, effect.user, effect.target, effect.value)
+
+        if not effect.target.is_party_member and effect.data.enemy_animation then
+            local animation =  effect.data.enemy_animation
+            middle_screen.animate(
+                effect.target, 
+                animation.type, 
+                animation.duration * BATTLE_SPEED, 
+                effect.value)
+        elseif effect.target.is_party_member and effect.data.party_animation then
+            local animation =  effect.data.party_animation
+            hud.animate(
+                animation.type, 
+                animation.duration * BATTLE_SPEED, 
+                effect.target, 
+                effect.value
+            )
+        end
     end
 
     phase = 'run_effects'
@@ -185,6 +300,8 @@ local function run_next_effect(dt)
 end
 
 local function update_status_effects()
+    logger.clear()
+    apply_status_effects()
     clear_status_effects()
     current_battler.status_effect_updated = true
     execute_next_effect()
@@ -243,6 +360,18 @@ function engine.update(dt)
     end
 end
 
+function engine.get_own_group(battler)
+    if battler.is_party_member then return party
+    elseif not battler.is_party_member then return enemies
+    end
+end
+
+function engine.get_opposite_group(battler)
+    if battler.is_party_member then return enemies
+    elseif not battler.is_party_member then return party
+    end
+end
+
 function engine.get_random_target(group)
     local available_targets = {}
 
@@ -289,19 +418,19 @@ end
 
 function engine.add_effect(ref, user, target, value)
     local data = effect_data[ref]
-    local effect = effect.new(ref, data, user, target, value)
+    local effect = Effect.new(ref, data, user, target, value)
     table.insert(effect_queue, effect)
 end
 
 function engine.add_combo(ref, user, targets)
     local data = action_data[ref]
-    local combo = action.new(ref, data, user, targets)
+    local combo = Action.new(ref, data, user, targets)
     table.insert(combo_queue, combo)
 end
 
 function engine.kill_target(target)
     local data = effect_data['kill']
-    local effect = effect.new('kill', data, target, target)
+    local effect = Effect.new('kill', data, target, target)
     table.insert(effect_queue, 1, effect)
 end
 
@@ -313,27 +442,10 @@ function engine.remove_active_battler(target)
     end
 end
 
-function engine.reaim_target(action)
-    if action.data.aim == 'enemies' and action.data.scope == 'single' then
-        if not action.targets[1]:is_alive() then
-            local new_target
-            if action.targets[1].is_party_member then
-                new_target = engine.get_random_target(party)
-            else
-                new_target = engine.get_random_target(enemies)
-            end
-            action.targets = {new_target}
-        end
-    end
-
-    return action
-end
-
 function engine.clear_temporary_status(battler)
-    
-    if battler.is_defending then
-        battler.is_defending = nil
-    end
+
+    battler.current_action = nil
+    battler.is_defending = nil
 
     if battler.is_aura_charged then
         battler.is_aura_charged.countdown = battler.is_aura_charged.countdown - 1

@@ -4,9 +4,9 @@ local logger = require('states.battle.logger')
 local engine = require('states.battle.engine')
 local menu = require('states.battle.menu')
 local transitions = require('systems.transitions')
-local member_battler = require('entities.member_battler')
-local enemy_battler = require('entities.enemy_battler')
-local action = require('entities.action')
+local Member_battler = require('entities.member_battler')
+local Enemy_battler = require('entities.enemy_battler')
+local Action = require('entities.action')
 local action_data = require('data.action_data')
 local enemy_data = require('data.enemy_data')
 local enemy_action = require('data.enemy_action')
@@ -38,7 +38,7 @@ end
 
 local function set_party_battlers(party)
     for i, member in ipairs(party) do
-        local new_battler = member_battler.new(member)
+        local new_battler = Member_battler.new(member)
         table.insert(party_battlers, new_battler)
     end
 end
@@ -50,7 +50,7 @@ local function set_enemy_battlers(enemies)
             if v > 1 then
                 name = ''..name..' #'..i..''
             end
-            local new_battler = enemy_battler.new(enemy_data[k], name)
+            local new_battler = Enemy_battler.new(enemy_data[k], name)
             table.insert(enemy_battlers, new_battler)
         end
     end
@@ -80,7 +80,7 @@ local function set_enemy_action()
             targets = {target}
         end
         
-        local new_action = action.new(action_ref, data, enemy, targets)
+        local new_action = Action.new(action_ref, data, enemy, targets)
         enemy.current_action = new_action
         
         ::continue::

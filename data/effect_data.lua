@@ -1,5 +1,9 @@
 local effect_data = {}
 
+local function empty(self, engine, user, target, value)
+    --nothing happens
+end
+
 local function deal_damage(self, engine, user, target, value)
     
     engine.log_effect(''..target.name..' takes '..value..' damage.')
@@ -7,6 +11,15 @@ local function deal_damage(self, engine, user, target, value)
     
     if target.current_hp <= 0 then
         engine.kill_target(target)
+    end
+    
+    for i, status in ipairs({'SLEEP', 'CONFUSE'}) do
+        if target.status[status] then
+            local roll = math.random(1,2)
+            if roll == 1 then
+                engine.add_effect('clear_status', user, target, status)
+            end
+        end
     end
 end
 
@@ -70,7 +83,7 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect(""..target.name.."'s abilities are sealed!");
         end
     elseif status == 'STUN' then
-        if target.status['SEAL'] then
+        if target.status['STUN'] then
             engine.log_effect(""..target.name.." is already stunned.");
         else
             engine.log_effect(""..target.name.." is stunned!");
@@ -80,6 +93,36 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect(""..target.name.." is already wounded");
         else
             engine.log_effect(""..target.name.." is wounded. Healing is reduced!");
+        end
+    elseif status == 'POISON' then
+        if target.status['POISON'] then
+            engine.log_effect(""..target.name.." is already poisoned.");
+        else
+            engine.log_effect(""..target.name.." is poisoned!");
+        end
+    elseif status == 'CURSE' then
+        if target.status['CURSE'] then
+            engine.log_effect(""..target.name.." is already cursed");
+        else
+            engine.log_effect(""..target.name.." is cursed!");
+        end
+    elseif status == 'PARALYSIS' then
+        if target.status['PARALYSIS'] then
+            engine.log_effect(""..target.name.." is already paralyzed");
+        else
+            engine.log_effect(""..target.name.." is paralyzed!");
+        end
+    elseif status == 'SLEEP' then
+        if target.status['SLEEP'] then
+            engine.log_effect(""..target.name.." is already sleeping");
+        else
+            engine.log_effect(""..target.name.." is put to sleep!");
+        end
+    elseif status == 'CONFUSE' then
+        if target.status['PARALYSIS'] then
+            engine.log_effect(""..target.name.." is already confused");
+        else
+            engine.log_effect(""..target.name.." is confused!");
         end
     end
     
@@ -95,13 +138,44 @@ local function clear_status(self, engine, user, target, status)
     elseif status == 'SEAL' then
         engine.log_effect(""..target.name.."'s abilites is no longer sealed.");
     elseif status == 'STUN' then
-        engine.log_effect(""..target.name.." is no longer stunned.");
+        engine.log_effect(""..target.name.." recovered from stun.");
+    elseif status == 'WOUND' then
+        engine.log_effect(""..target.name.."'s wound has been mended.");
+    elseif status == 'POISON' then
+        engine.log_effect(""..target.name.." recovered from poison.");
+    elseif status == 'CURSE' then
+        engine.log_effect("The curse have been lifted from "..target.name..".");
+    elseif status == 'PARALYSIS' then
+        engine.log_effect(""..target.name.." recovered from paralysis.");
+    elseif status == 'SLEEP' then
+        engine.log_effect(""..target.name.." has awoken from sleep.");
+    elseif status == 'CONFUSE' then
+        engine.log_effect(""..target.name.." is no longer confused.");
     end
+end
+
+local function poison_damage(self, engine, user, target, value)
+    
+    engine.log_effect(''..target.name..' loses '..value..' HP to poison.');
+    target:take_damage(value)
+    
+    if target.current_hp <= 0 then
+        engine.kill_target(target)
+    end
+end
+
+local function curse_effect(self, engine, user, target)
+    engine.log_effect(''..target.name..' succumbed to the curse.');
+    engine.kill_target(target)
 end
 
 ----------------------------------------------------------
 ----------------------------------------------------------
 ----------------------------------------------------------
+
+effect_data['empty'] = { 
+    apply = empty
+}
 
 effect_data['damage'] = { 
     apply = deal_damage , 
@@ -169,6 +243,16 @@ effect_data['add_status'] = {
 
 effect_data['clear_status'] = { 
     apply = clear_status,
+}
+
+effect_data['poison_damage'] = { 
+    apply = poison_damage,
+    party_animation = { type = 'damaged', duration = 0.8 },
+    enemy_animation = { type = 'damaged', duration = 1 }
+}
+
+effect_data['curse_effect'] = { 
+    apply = curse_effect
 }
 
 return effect_data

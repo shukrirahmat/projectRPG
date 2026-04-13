@@ -96,19 +96,31 @@ end
 local function status_effect_pass(action, battler)
     if battler.status['SLEEP'] then
         action = Action.new('sleeping', action_data['sleeping'], battler, {battler})
+        return action
     elseif battler.status['STUN'] then
         action = Action.new('stunned', action_data['stunned'], battler, {battler})
+        return action
     elseif battler.status['PARALYSIS'] then
         local roll = math.random(1, 4)
         if roll == 1 then 
             action = Action.new('paralyzed', action_data['paralyzed'], battler, {battler})
-        else
-            if battler.status['CONFUSE'] then
-                action = Action.new('confused', action_data['confused'], battler, {battler})
-            end
+            return action
         end
-    elseif battler.status['CONFUSE'] then
-        action = Action.new('confused', action_data['confused'], battler, {battler})
+    end
+
+    if battler.status['CONFUSE'] then
+        local target
+        local roll = math.random(1,5)
+        if roll == 1 then
+            action = Action.new('confused_idle', action_data['confused_idle'], battler, {battler})
+        elseif roll == 2 then
+            target = engine.get_random_target(engine.get_opposite_group(battler))
+            action = Action.new('confused_attack', action_data['confused_attack'], battler, {target})
+        elseif roll >= 3 then
+            target = engine.get_random_target(engine.get_own_group(battler))
+            action = Action.new('confused_attack', action_data['confused_attack'], battler, {target})
+        end
+        return action
     end
     return action
 end
@@ -420,6 +432,12 @@ function engine.add_effect(ref, user, target, value)
     local data = effect_data[ref]
     local effect = Effect.new(ref, data, user, target, value)
     table.insert(effect_queue, effect)
+end
+
+function engine.add_instant_effect(ref, user, target, value)
+    local data = effect_data[ref]
+    local effect = Effect.new(ref, data, user, target, value)
+    table.insert(effect_queue, 1 , effect)
 end
 
 function engine.add_combo(ref, user, targets)

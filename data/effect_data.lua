@@ -5,40 +5,40 @@ local function empty(self, engine, user, target, value)
 end
 
 local function deal_damage(self, engine, user, target, value)
-    
+
     engine.log_effect(''..target.name..' takes '..value..' damage.')
     target:take_damage(value)
-    
+
     if target.current_hp <= 0 then
         engine.kill_target(target)
-    end
-    
-    for i, status in ipairs({'SLEEP', 'CONFUSE'}) do
-        if target.status[status] then
-            local roll = math.random(1,2)
-            if roll == 1 then
-                engine.add_effect('clear_status', user, target, status)
+    else
+        for i, status in ipairs({'SLEEP', 'CONFUSE'}) do
+            if target.status[status] then
+                local roll = math.random(1,3)
+                if roll == 1 then
+                    engine.add_instant_effect('clear_status', user, target, status)
+                end
             end
         end
     end
 end
 
 local function mp_damage(self, engine, user, target, value)
-    
+
     engine.log_effect(''..target.name..' loses '..value..' MP.')
     target.current_mp = math.max(0, target.current_mp - value)
 end
 
 local function no_effect(self, engine, user, target, value)
-    
+
     engine.log_effect('It had no effect on '..target.name..'')
 end
 
 local function kill(self, engine, user, target, value)
-    
+
     target:dies()
     target.status = {}
-    
+
     engine.log_effect(''..target.name..' defeated.')
     engine.remove_active_battler(target)
     engine.clear_temporary_status(target)
@@ -87,6 +87,7 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect(""..target.name.." is already stunned.");
         else
             engine.log_effect(""..target.name.." is stunned!");
+            target.current_action = nil
         end
     elseif status == 'WOUND' then
         if target.status['WOUND'] then
@@ -117,22 +118,24 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect(""..target.name.." is already sleeping");
         else
             engine.log_effect(""..target.name.." is put to sleep!");
+            target.current_action = nil
         end
     elseif status == 'CONFUSE' then
         if target.status['PARALYSIS'] then
             engine.log_effect(""..target.name.." is already confused");
         else
             engine.log_effect(""..target.name.." is confused!");
+            target.current_action = nil
         end
     end
-    
+
     target.status[status] = true;
 end
 
 local function clear_status(self, engine, user, target, status)
-    
+
     target.status[status] = nil
-    
+
     if status == 'BLIND' then
         engine.log_effect("Sand has been cleared in "..target.name.."'s eyes.");
     elseif status == 'SEAL' then
@@ -155,10 +158,10 @@ local function clear_status(self, engine, user, target, status)
 end
 
 local function poison_damage(self, engine, user, target, value)
-    
+
     engine.log_effect(''..target.name..' loses '..value..' HP to poison.');
     target:take_damage(value)
-    
+
     if target.current_hp <= 0 then
         engine.kill_target(target)
     end
@@ -167,6 +170,10 @@ end
 local function curse_effect(self, engine, user, target)
     engine.log_effect(''..target.name..' succumbed to the curse.');
     engine.kill_target(target)
+end
+
+local function nothing_happened(self, engine, user, target)
+    engine.log_effect('But nothing happened!');
 end
 
 ----------------------------------------------------------
@@ -253,6 +260,10 @@ effect_data['poison_damage'] = {
 
 effect_data['curse_effect'] = { 
     apply = curse_effect
+}
+
+effect_data['nothing_happened'] = { 
+    apply = nothing_happened
 }
 
 return effect_data

@@ -6,8 +6,8 @@ local action = {}
 
 function action.goblin(enemy)
     
-    if enemy.current_mp >= action_data['blizzard_I'].cost then
-        return 'blizzard_I'
+    if enemy.current_mp >= action_data['blizzard_II'].cost then
+        return 'blizzard_II'
     end
     
     return 'normal_attack'
@@ -20,8 +20,8 @@ end
 
 function action.dragon(enemy) 
     
-    if enemy.current_mp >= action_data['slumber_II'].cost then
-        return 'slumber_II'
+    if enemy.current_mp >= action_data['rupture_II'].cost then
+        return 'rupture_II'
     end
     
     return 'normal_attack'

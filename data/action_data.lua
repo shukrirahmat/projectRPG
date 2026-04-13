@@ -19,7 +19,7 @@ local function calculate_crit_damage(attacker, target)
 end
 
 local function damage_reduction_check(skill, user, target, damage)
-    if target.is_defending then
+    if target.is_defending and not target:cannot_act() then
         damage = math.max(math.floor(damage/2), 1)
     end
 
@@ -156,9 +156,9 @@ local function sleeping(self, user, targets, engine)
     engine.add_effect('empty', user, user)
 end
 
-local function confused(self, user, targets, engine)
+local function confused_idle(self, user, targets, engine)
 
-    local textList = {
+    local text_list = {
         'is rolling on the ground laughing.',
         'is dancing happily.',
         'is crying for no apparent reason.',
@@ -166,19 +166,9 @@ local function confused(self, user, targets, engine)
         "picks at it's nose.",
     }
 
-    local target
-    local roll = math.random(1,5)
-    if roll == 1 then
-        local textRoll = math.random(1, #textList)
-        engine.log_action(''..user.name..' '..textList[textRoll]..'')
-        engine.add_effect('empty', user, user)
-    elseif roll == 2 then
-        target = engine.get_random_target(engine.get_opposite_group(user))
-        action_data['confused_attack']:execute(user, {target}, engine)
-    elseif roll >= 3 then
-        target = engine.get_random_target(engine.get_own_group(user))
-        action_data['confused_attack']:execute(user, {target}, engine)
-    end
+    local text_roll = math.random(1, #text_list)
+    engine.log_action(''..user.name..' '..text_list[text_roll]..'')
+    engine.add_effect('empty', user, user)
 end
 
 local function damage_magic(self, user, targets, engine)
@@ -424,6 +414,29 @@ local function status_effect(self, user, targets, engine)
     end
 end
 
+local function heal(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    if self.scope == 'single' and targets[1].is_dead then
+        engine.add_effect('nothing_happened', user, targets[1])
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+
+        local base_amount = self.heal_amount
+        local mod = math.floor(base_amount * 0.2)
+        local heal_amount = base_amount + math.random(-mod, mod)
+
+        heal_amount = healing_reduction_check(user, target, heal_amount)
+        engine.add_effect('recover', user, target, heal_amount)
+
+        ::continue::
+    end
+end
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -446,17 +459,6 @@ action_data['second_attack'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'second_attack',
     special_text = 'attacks again!'
-}
-
-action_data['confused_attack'] = {     
-    name = 'Confused Attack',
-    execute = normal_attack,
-    cost = 0,
-    aim = 'enemies',
-    scope = 'single',
-    enemy_animation = {type = 'attack', duration = 1},
-    special = 'confused_attack',
-    special_text = 'attacks while being confused!'
 }
 
 action_data['defend'] = {     
@@ -484,8 +486,19 @@ action_data['paralyzed'] = {
     execute = paralyzed
 }
 
-action_data['confused'] = {
-    execute = confused
+action_data['confused_idle'] = {
+    execute = confused_idle
+}
+
+action_data['confused_attack'] = {     
+    name = 'Confused Attack',
+    execute = normal_attack,
+    cost = 0,
+    aim = 'enemies',
+    scope = 'single',
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'confused_attack',
+    special_text = 'attacks while being confused!'
 }
 
 action_data['sleeping'] = {
@@ -1137,7 +1150,7 @@ action_data['hex_I'] = {
     scope = 'single',
     execute = status_effect,
     element = 'CURSE',
-    accuracy = 60
+    accuracy = 80
 }
 
 action_data['hex_II'] = {
@@ -1149,7 +1162,7 @@ action_data['hex_II'] = {
     scope = 'all',
     execute = status_effect,
     element = 'CURSE',
-    accuracy = 60
+    accuracy = 80
 }
 
 action_data['paralyze_I'] = {
@@ -1222,6 +1235,72 @@ action_data['mindblast_II'] = {
     execute = status_effect,
     element = 'CONFUSE',
     accuracy = 60
+}
+
+action_data['heal_I'] = {
+    name = 'Heal I', 
+    type = 'Magic',
+    cost = 2, 
+    desc = 'Recover 32~48 HP to one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = heal,
+    heal_amount = 40
+}
+
+action_data['heal_II'] = {
+    name = 'Heal II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Recover 80~120 HP to one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = heal,
+    heal_amount = 100
+}
+
+action_data['heal_III'] = {
+    name = 'Heal III', 
+    type = 'Magic',
+    cost = 8, 
+    desc = 'Recover 200~300 HP to one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = heal,
+    heal_amount = 250
+}
+
+action_data['final_heal'] = {
+    name = 'Final Heal', 
+    type = 'Magic',
+    cost = 12, 
+    desc = 'Recover 640~960 HP to one ally',
+    aim = 'allies',
+    scope = 'single',
+    execute = heal,
+    heal_amount = 800
+}
+
+action_data['all_heal_I'] = {
+    name = 'All Heal I', 
+    type = 'Magic',
+    cost = 15, 
+    desc = 'Recover 64~96 HP to all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = heal,
+    heal_amount = 80
+}
+
+action_data['all_heal_II'] = {
+    name = 'All Heal II', 
+    type = 'Magic',
+    cost = 25, 
+    desc = 'Recover 160~240 HP to all allies',
+    aim = 'allies',
+    scope = 'all',
+    execute = heal,
+    heal_amount = 200
 }
 
 return action_data

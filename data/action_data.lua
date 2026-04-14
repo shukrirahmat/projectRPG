@@ -1531,4 +1531,52 @@ action_data['might'] = {
     element = 'MIGHT',
 }
 
+action_data['frail_I'] = {
+    name = 'Frail I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = 'Reduce defense of one enemy by 40%. Stacks twice.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = status_effect,
+    element = 'FRAIL',
+    accuracy = 100
+}
+
+action_data['frail_II'] = {
+    name = 'Frail II', 
+    type = 'Magic',
+    cost = 6, 
+    desc = 'Reduce defense of all enemies by 40%. Stacks twice.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'FRAIL',
+    accuracy = 100
+}
+
+action_data['slow_I'] = {
+    name = 'Slow I', 
+    type = 'Magic',
+    cost = 3, 
+    desc = 'Reduce speed of one enemy by 40%. Stacks twice.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = status_effect,
+    element = 'SLOW',
+    accuracy = 100
+}
+
+action_data['slow_II'] = {
+    name = 'Slow II', 
+    type = 'Magic',
+    cost = 6, 
+    desc = 'Reduce speed of all enemies by 40%. Stacks twice.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = status_effect,
+    element = 'SLOW',
+    accuracy = 100
+}
+
 return action_data

@@ -44,32 +44,43 @@ function battler.new(data)
 
     function self:get_atk()
         local base = self.str
-        local buff = 1
+        local buff = 0
         if self.status['MIGHT'] then
-            buff = 1.8
+            buff = math.floor(0.8 * base)
         end
         
-        return math.floor(base * buff)
+        return base + buff
     end
 
     function self:get_def()
         local base = self.vit
-        local buff = 1
+        
+        local buff = 0
         if self.status['STEEL'] then
-            buff = 1.4 * self.status['STEEL'].stack
+            buff = math.floor((0.4 * self.status['STEEL'].stack) * base)
         end
         
-        return math.floor(base * buff)
+        local debuff = 0
+        if self.status['FRAIL'] then
+            debuff = math.floor((0.4 * self.status['FRAIL'].stack) * base)
+        end
+        
+        return math.max(1, base + buff - debuff)
     end
 
     function self:get_spd()
         local base = self.agi
-        local buff = 1
+        local buff = 0
         if self.status['HASTE'] then
-            buff = 1.4 * self.status['HASTE'].stack
+            buff = math.floor((0.4 * self.status['HASTE'].stack) * base)
         end
         
-        return math.floor(base * buff)
+        local debuff = 0
+        if self.status['SLOW'] then
+            debuff = math.floor((0.4 * self.status['SLOW'].stack) * base)
+        end
+        
+        return math.max(1, base + buff - debuff)
     end
 
     return self

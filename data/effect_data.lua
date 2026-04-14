@@ -130,12 +130,38 @@ local function add_status(self, engine, user, target, status)
             target.status[status] = true;
         end
     elseif status == 'CONFUSE' then
-        if target.status['PARALYSIS'] then
+        if target.status['CONFUSE'] then
             engine.log_effect(""..target.name.." is already confused");
         else
             engine.log_effect(""..target.name.." is confused!");
             target.current_action = nil
             target.status[status] = true;
+        end
+    elseif status == 'FRAIL' then
+        if target.status['FRAIL'] then
+            if target.status['FRAIL'].stack < 2 then
+                target.status['FRAIL'].stack = target.status['FRAIL'].stack + 1
+                target.status['FRAIL'].countdown = 5
+                engine.log_effect(""..target.name.."'s defense is reduced!");
+            else
+                engine.log_effect(""..target.name.."'s defense cannot be reduced further.");
+            end
+        else
+            target.status['FRAIL'] = { stack = 1, countdown = 5 }
+            engine.log_effect(""..target.name.."'s defense is reduced!");
+        end
+    elseif status == 'SLOW' then
+        if target.status['SLOW'] then
+            if target.status['SLOW'].stack < 2 then
+                target.status['SLOW'].stack = target.status['SLOW'].stack + 1
+                target.status['SLOW'].countdown = 5
+                engine.log_effect(""..target.name.."'s speed is reduced!");
+            else
+                engine.log_effect(""..target.name.."'s speed cannot be reduced further.");
+            end
+        else
+            target.status['SLOW'] = { stack = 1, countdown = 5 }
+            engine.log_effect(""..target.name.."'s speed is reduced!");
         end
     end
 end
@@ -170,6 +196,10 @@ local function clear_status(self, engine, user, target, status)
         engine.log_effect(""..target.name.."'s attack increase has expired.");
     elseif status == 'BARRIER' then
         engine.log_effect(""..target.name.."'s barrier has disappeared.");
+    elseif status == 'FRAIL' then
+        engine.log_effect(""..target.name.."'s defense reduction has expired.");
+    elseif status == 'SLOW' then
+        engine.log_effect(""..target.name.."'s speed reduction has expired.");
     end
 end
 

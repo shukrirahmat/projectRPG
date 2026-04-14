@@ -154,9 +154,15 @@ local function draw_enemy_status(enemy, x, y)
         end
         local xpos = x + (i - 1) * STATUS_ICON_SIZE
         local ypos = y + SPRITE_DIMENSION + shift
+
+        local ref = k
+        if v.stack and v.stack == 2 then
+            ref = ''..ref..'2'
+        end
+
         lg.draw(
             ui.get_sprite('status_icons'),
-            ui.get_sprite(k),
+            ui.get_sprite(ref),
             xpos,
             ypos
         )

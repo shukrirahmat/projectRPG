@@ -127,9 +127,15 @@ local function draw_member_hud(member, index, x, y, animation)
             end
             local xpos = x + (j - 1) * STATUS_ICON_SIZE
             local ypos = y + BORDER_HEIGHT + status_y
+            
+            local ref = k
+            if v.stack and v.stack == 2 then
+                ref = ''..ref..'2'
+            end
+            
             lg.draw(
                 ui.get_sprite('status_icons'),
-                ui.get_sprite(k),
+                ui.get_sprite(ref),
                 xpos,
                 ypos
             )

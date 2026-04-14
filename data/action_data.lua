@@ -437,6 +437,27 @@ local function heal(self, user, targets, engine)
     end
 end
 
+local function revive(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    if self.scope == 'single' and targets[1]:is_alive() then
+        engine.add_effect('immune', user, targets[1])
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if target:is_alive() then goto continue end
+
+        local ratio = self.revive_ratio
+        local hp_amount = math.floor(target.max_hp * ratio)
+
+        engine.add_effect('revive', user, target, hp_amount)
+
+        ::continue::
+    end
+end
+
 local function cure_status(self, user, targets, engine)
 
     engine.log_action(''..user.name..' casts '..self.name..'!')
@@ -1365,6 +1386,28 @@ action_data['all_heal_II'] = {
     scope = 'all',
     execute = heal,
     heal_amount = 200
+}
+
+action_data['revive_I'] = {
+    name = 'Revive I', 
+    type = 'Magic',
+    cost = 25, 
+    desc = 'Revive one dead ally at 25% HP',
+    aim = 'allies',
+    scope = 'dead',
+    execute = revive,
+    revive_ratio = 0.25
+}
+
+action_data['revive_II'] = {
+    name = 'Revive II', 
+    type = 'Magic',
+    cost = 50, 
+    desc = 'Revive one dead ally to full HP',
+    aim = 'allies',
+    scope = 'dead',
+    execute = revive,
+    revive_ratio = 1
 }
 
 action_data['neutralize_I'] = {

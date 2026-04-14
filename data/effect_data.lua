@@ -65,6 +65,14 @@ local function recover(self, engine, user, target, value)
     engine.log_effect(''..target.name..' recovers '..value..' HP.');
 end
 
+local function revive(self, engine, user, target, value)
+    
+    target.is_dead = false
+    target.current_hp = value
+
+    engine.log_effect(''..target.name..' has been revived.');
+end
+
 local function missed(self, engine, user, target)
     engine.log_effect('It missed '..target.name..'!');
 end
@@ -332,6 +340,10 @@ effect_data['aura_charge'] = {
 
 effect_data['recover'] = { 
     apply = recover, 
+}
+
+effect_data['revive'] = {
+    apply = revive
 }
 
 effect_data['missed'] = { 

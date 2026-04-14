@@ -78,7 +78,7 @@ local function confirm()
     elseif skill.scope =='dead' then
         is_targeting = true
         local targets = menu.get_dead_targets(group)
-        menu.open_target_menu(targets, skill_menu, member, member_index)
+        menu.open_target_menu(skill_ref, targets, skill_menu, member, member_index)
     end
 end
 

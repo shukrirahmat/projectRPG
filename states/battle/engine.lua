@@ -251,7 +251,7 @@ local function execute_next_effect()
     local effect = effect_queue[1]
     table.remove(effect_queue, 1)
 
-    if effect.target:is_alive() then        
+    if effect.target:is_alive() or effect.ref == 'revive' then        
         effect.data:apply(engine, effect.user, effect.target, effect.value)
 
         if not effect.target.is_party_member and effect.data.enemy_animation then

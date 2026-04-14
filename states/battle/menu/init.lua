@@ -140,4 +140,15 @@ function menu.get_alive_targets(group)
     return alive
 end
 
+function menu.get_dead_targets(group)
+    local dead = {}
+    for i, target in ipairs(group) do
+        if target.is_dead then
+            table.insert(dead, target)
+        end
+    end
+
+    return dead
+end
+
 return menu

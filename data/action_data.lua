@@ -437,6 +437,52 @@ local function heal(self, user, targets, engine)
     end
 end
 
+local function cure_status(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    if self.scope == 'single' and targets[1].is_dead then
+        engine.add_effect('nothing_happened', user, targets[1])
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+        
+        local curing;
+        for i, status in ipairs(self.statuses) do
+            if target.status[status] then
+                engine.add_effect('clear_status', user, target, status)
+                curing = true
+            end
+        end
+
+        if not curing and self.scope == 'single' then
+            engine.add_effect('immune', user, target)
+        end
+
+        ::continue::
+    end
+end
+
+local function cleanse(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    if self.scope == 'single' and targets[1].is_dead then
+        engine.add_effect('nothing_happened', user, targets[1])
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+
+        engine.add_effect('cleanse', user, target)
+
+        ::continue::
+    end
+end
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -1301,6 +1347,104 @@ action_data['all_heal_II'] = {
     scope = 'all',
     execute = heal,
     heal_amount = 200
+}
+
+action_data['neutralize_I'] = {
+    name = 'Neutralize I', 
+    type = 'Magic',
+    cost = 1, 
+    desc = 'Cures one ally from poison',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'POISON'}
+}
+
+action_data['neutralize_II'] = {
+    name = 'Neutralize II', 
+    type = 'Magic',
+    cost = 3, 
+    desc = 'Cures all allies from poison',
+    aim = 'allies',
+    scope = 'all',
+    execute = cure_status,
+    statuses = {'POISON'}
+}
+
+action_data['purify_I'] = {
+    name = 'Purify I', 
+    type = 'Magic',
+    cost = 1, 
+    desc = 'Cures one ally from curse',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'CURSE'}
+}
+
+action_data['purify_II'] = {
+    name = 'Purify II', 
+    type = 'Magic',
+    cost = 3, 
+    desc = 'Cures all allies from curse',
+    aim = 'allies',
+    scope = 'all',
+    execute = cure_status,
+    statuses = {'CURSE'}
+}
+
+action_data['limber_I'] = {
+    name = 'Limber I', 
+    type = 'Magic',
+    cost = 2, 
+    desc = 'Cures one ally from paralysis',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'PARALYSIS'}
+}
+
+action_data['limber_II'] = {
+    name = 'Limber II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Cures all allies from paralysis',
+    aim = 'allies',
+    scope = 'all',
+    execute = cure_status,
+    statuses = {'PARALYSIS'}
+}
+
+action_data['mend'] = {
+    name = 'Mend', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Cures all allies from wound',
+    aim = 'allies',
+    scope = 'all',
+    execute = cure_status,
+    statuses = {'WOUND'}
+}
+
+action_data['refresh'] = {
+    name = 'Refresh', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Cures all allies from sleep and confuse',
+    aim = 'allies',
+    scope = 'all',
+    execute = cure_status,
+    statuses = {'SLEEP', 'CONFUSE'}
+}
+
+action_data['cleanse'] = {
+    name = 'Cleanse', 
+    type = 'Magic',
+    cost = 10, 
+    desc = 'Cures one ally from all status effects',
+    aim = 'allies',
+    scope = 'single',
+    execute = cleanse,
 }
 
 return action_data

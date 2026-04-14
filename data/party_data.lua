@@ -79,7 +79,7 @@ party_data.test[1] = {
     str = 8,
     vit = 7,
     agi = 7,
-    skills = {'scorch_I', 'scorch_II', 'scorch_III', 'incinerate', 'inferno_I', 'inferno_II', 'inferno_III', 'slumber_I', 'slumber_II', 'mindblast_I', 'mindblast_II'},
+    skills = {'scorch_I', 'scorch_II', 'scorch_III', 'incinerate', 'inferno_I', 'inferno_II', 'inferno_III', 'neutralize_I', 'neutralize_II', 'purify_I', 'purify_II', 'limber_I',  'limber_II'},
     passive_skills = {},
     status = {},
     total_exp = 0,
@@ -95,9 +95,10 @@ party_data.test[2] = {
     str = 6,
     vit = 6,
     agi = 8,
-    skills = {'mana_burn_I', 'mana_burn_II', 'heal_I', 'heal_II', 'heal_III', 'final_heal', 'all_heal_I', 'all_heal_II' },
+    skills = {'mana_burn_I', 'mana_burn_II', 'heal_I', 'heal_II', 'heal_III', 'final_heal', 'all_heal_I', 'all_heal_II', 'mend', 'refresh', 'cleanse'},
     passive_skills = {},
     status = {},
+    immune = {['SEAL'] = true, ['STUN'] = true,},
     total_exp = 0,
     sprite = 'two'
 }

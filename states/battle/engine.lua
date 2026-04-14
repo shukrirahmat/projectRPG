@@ -97,10 +97,10 @@ local function status_effect_pass(action, battler)
     if battler.status['SLEEP'] then
         action = Action.new('sleeping', action_data['sleeping'], battler, {battler})
         return action
-    elseif battler.status['STUN'] then
+    elseif battler.status['STUN'] and action then
         action = Action.new('stunned', action_data['stunned'], battler, {battler})
         return action
-    elseif battler.status['PARALYSIS'] then
+    elseif battler.status['PARALYSIS'] and action then
         local roll = math.random(1, 4)
         if roll == 1 then 
             action = Action.new('paralyzed', action_data['paralyzed'], battler, {battler})
@@ -223,12 +223,11 @@ end
 
 local function clear_status_effects()
     local status = {'BLIND', 'SEAL', 'STUN'}
-    local rate = {4, 3, 2}
 
     for i, status in ipairs(status) do
         if current_battler.status[status] then
-            local roll = math.random(1, rate[i])
-            if roll == 1 then
+            current_battler.status[status].countdown = current_battler.status[status].countdown - 1
+            if current_battler.status[status].countdown <= 0 then
                 engine.add_effect('clear_status', current_battler, current_battler, status)
             end
         end

@@ -31,7 +31,7 @@ end
 
 local function no_effect(self, engine, user, target, value)
 
-    engine.log_effect('It had no effect on '..target.name..'')
+    engine.log_effect('It had no effect on '..target.name..'.')
 end
 
 local function kill(self, engine, user, target, value)
@@ -75,12 +75,15 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect( ""..target.name.." is already blinded.")
         else
             engine.log_effect("Sand got into "..target.name.."'s eyes!")
+            target.status[status] = {countdown = math.random(3, 5)}
         end
     elseif status == 'SEAL' then
         if target.status['SEAL'] then
             engine.log_effect(""..target.name.." is already sealed.");
         else
             engine.log_effect(""..target.name.."'s abilities are sealed!");
+            target.status[status] = {countdown = math.random(2, 4)}
+            
         end
     elseif status == 'STUN' then
         if target.status['STUN'] then
@@ -88,30 +91,35 @@ local function add_status(self, engine, user, target, status)
         else
             engine.log_effect(""..target.name.." is stunned!");
             target.current_action = nil
+            target.status[status] = {countdown = math.random(1, 3)}
         end
     elseif status == 'WOUND' then
         if target.status['WOUND'] then
             engine.log_effect(""..target.name.." is already wounded");
         else
             engine.log_effect(""..target.name.." is wounded. Healing is reduced!");
+            target.status[status] = true;
         end
     elseif status == 'POISON' then
         if target.status['POISON'] then
             engine.log_effect(""..target.name.." is already poisoned.");
         else
             engine.log_effect(""..target.name.." is poisoned!");
+            target.status[status] = true;
         end
     elseif status == 'CURSE' then
         if target.status['CURSE'] then
             engine.log_effect(""..target.name.." is already cursed");
         else
             engine.log_effect(""..target.name.." is cursed!");
+            target.status[status] = true;
         end
     elseif status == 'PARALYSIS' then
         if target.status['PARALYSIS'] then
             engine.log_effect(""..target.name.." is already paralyzed");
         else
             engine.log_effect(""..target.name.." is paralyzed!");
+            target.status[status] = true;
         end
     elseif status == 'SLEEP' then
         if target.status['SLEEP'] then
@@ -119,6 +127,7 @@ local function add_status(self, engine, user, target, status)
         else
             engine.log_effect(""..target.name.." is put to sleep!");
             target.current_action = nil
+            target.status[status] = true;
         end
     elseif status == 'CONFUSE' then
         if target.status['PARALYSIS'] then
@@ -126,10 +135,9 @@ local function add_status(self, engine, user, target, status)
         else
             engine.log_effect(""..target.name.." is confused!");
             target.current_action = nil
+            target.status[status] = true;
         end
     end
-
-    target.status[status] = true;
 end
 
 local function clear_status(self, engine, user, target, status)
@@ -155,6 +163,17 @@ local function clear_status(self, engine, user, target, status)
     elseif status == 'CONFUSE' then
         engine.log_effect(""..target.name.." is no longer confused.");
     end
+end
+
+local function cleanse(self, engine, user, target)
+    
+    local statuses = {'BLIND', 'SEAL', 'STUN', 'WOUND', 'POISON', 'CURSE', 'PARALYSIS', 'SLEEP', 'CONFUSE'}
+    
+    for i, status in ipairs(statuses) do
+        target.status[status] = nil
+    end
+    
+    engine.log_effect(""..target.name.." has been cure from all status effects")
 end
 
 local function poison_damage(self, engine, user, target, value)
@@ -250,6 +269,10 @@ effect_data['add_status'] = {
 
 effect_data['clear_status'] = { 
     apply = clear_status,
+}
+
+effect_data['cleanse'] = { 
+    apply = cleanse,
 }
 
 effect_data['poison_damage'] = { 

@@ -79,7 +79,7 @@ local function add_status(self, engine, user, target, status)
         end
     elseif status == 'SEAL' then
         if target.status['SEAL'] then
-            engine.log_effect(""..target.name.." is already sealed.");
+            engine.log_effect(""..target.name.." abilities are already sealed.");
         else
             engine.log_effect(""..target.name.."'s abilities are sealed!");
             target.status[status] = {countdown = math.random(2, 4)}
@@ -162,6 +162,14 @@ local function clear_status(self, engine, user, target, status)
         engine.log_effect(""..target.name.." has awoken from sleep.");
     elseif status == 'CONFUSE' then
         engine.log_effect(""..target.name.." is no longer confused.");
+    elseif status == 'STEEL' then
+        engine.log_effect(""..target.name.."'s defense increase has expired.");
+    elseif status == 'HASTE' then
+        engine.log_effect(""..target.name.."'s speed increase has expired.");
+    elseif status == 'MIGHT' then
+        engine.log_effect(""..target.name.."'s attack increase has expired.");
+    elseif status == 'BARRIER' then
+        engine.log_effect(""..target.name.."'s barrier has disappeared.");
     end
 end
 
@@ -193,6 +201,49 @@ end
 
 local function nothing_happened(self, engine, user, target)
     engine.log_effect('But nothing happened!');
+end
+
+local function add_buff(self, engine, user, target, buff)
+    
+    if target.status[buff] then
+        if buff == 'STEEL' then
+            if target.status[buff].stack < 2 then
+                target.status[buff].stack = target.status[buff].stack + 1
+                target.status[buff].countdown = 5
+                engine.log_effect(""..target.name.."'s defense is increased!");
+            else
+                engine.log_effect(""..target.name.."'s defense cannot be increased further.");
+            end
+        elseif buff == 'HASTE' then
+            if target.status[buff].stack < 2 then
+                target.status[buff].stack = target.status[buff].stack + 1
+                target.status[buff].countdown = 5
+                engine.log_effect(""..target.name.."'s speed is increased!");
+            else
+                engine.log_effect(""..target.name.."'s speed cannot be increased further.");
+            end
+        elseif buff == 'MIGHT' then
+            target.status[buff].countdown = 5
+                engine.log_effect(""..target.name.."'s attack increase duration is reinforced!");
+        elseif buff == 'BARRIER' then
+            target.status[buff].countdown = 3
+            engine.log_effect(""..target.name.."'s barrier duration is reinforced!");
+        end
+    else
+        if buff == 'STEEL' then
+            target.status[buff] = { stack = 1, countdown = 5 }
+            engine.log_effect(""..target.name.."'s defense is increased!");
+        elseif buff == 'HASTE' then
+            target.status[buff] = { stack = 1, countdown = 5 }
+            engine.log_effect(""..target.name.."'s speed is increased!");
+        elseif buff == 'MIGHT' then
+            target.status[buff] = { countdown = 5 }
+            engine.log_effect(""..target.name.."'s attack is increased!");
+        elseif buff == 'BARRIER' then
+            target.status[buff] = { countdown = 3 }
+             engine.log_effect(""..target.name.."'s gained protection from magic!");
+        end
+    end
 end
 
 ----------------------------------------------------------
@@ -287,6 +338,10 @@ effect_data['curse_effect'] = {
 
 effect_data['nothing_happened'] = { 
     apply = nothing_happened
+}
+
+effect_data['add_buff'] = { 
+    apply = add_buff
 }
 
 return effect_data

@@ -6,26 +6,26 @@ local action = {}
 
 function action.goblin(enemy)
     
-    if enemy.current_mp >= action_data['sandstorm_II'].cost then
+    --[[if enemy.current_mp >= action_data['sandstorm_II'].cost then
         return 'sandstorm_II'
-    end
+    end]]
     
     return 'normal_attack'
 end
 
 function action.skeleton(enemy) 
     
-    if enemy.current_mp >= action_data['tremor_II'].cost then
+    --[[if enemy.current_mp >= action_data['tremor_II'].cost then
         return 'tremor_II'
-    end
+    end]]
     
     return 'normal_attack'
 end
 
 function action.dragon(enemy) 
     
-    if enemy.current_mp >= action_data['spellseal_II'].cost then
-        return 'spellseal_II'
+    if enemy.current_mp >= action_data['inferno_II'].cost then
+        return 'inferno_II'
     end
     
     return 'normal_attack'

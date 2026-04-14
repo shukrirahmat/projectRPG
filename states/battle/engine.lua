@@ -222,7 +222,7 @@ local function apply_status_effects()
 end
 
 local function clear_status_effects()
-    local status = {'BLIND', 'SEAL', 'STUN'}
+    local status = {'BLIND', 'SEAL', 'STUN', 'STEEL', 'HASTE', 'MIGHT', 'BARRIER'}
 
     for i, status in ipairs(status) do
         if current_battler.status[status] then

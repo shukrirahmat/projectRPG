@@ -34,6 +34,18 @@ local function draw_test_details()
             'right'
         )
     end
+    
+    for i, member in ipairs(party_battlers) do
+        local hp = ''..member.current_hp..'/'..member.max_hp..' '..member.current_mp..'/'..member.max_mp..''
+        local stat = 'ATK: '..member:get_atk()..' DEF: '..member:get_def()..'  SPD: '..member:get_spd()..''
+        love.graphics.printf(
+            ''..hp..' '..stat..'',
+            love.graphics.getWidth() / 2,
+            150 + (i - 1) * 20,
+            love.graphics.getWidth() / 2 - 40,
+            'right'
+        )
+    end
 end
 
 local function set_party_battlers(party)

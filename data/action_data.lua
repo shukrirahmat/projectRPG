@@ -24,7 +24,7 @@ local function damage_reduction_check(skill, user, target, damage)
     end
 
     if skill.type == 'Magic' and target.status['BARRIER'] then
-        damage = math.max(math.floor(damage/4), 1)
+        damage = math.max(math.floor(damage/2), 1)
     end
 
     return damage
@@ -227,7 +227,7 @@ local function use_aura(self, user, targets, engine)
         end
 
         damage = damage_reduction_check(self, user, target, damage)
-        engine.add_effect(effect_ref, user, target, damage)
+        engine.add_effect(effect_ref, user, target, math.max(1,damage))
 
         ::continue::
     end
@@ -478,6 +478,24 @@ local function cleanse(self, user, targets, engine)
         if target.is_dead then goto continue end
 
         engine.add_effect('cleanse', user, target)
+
+        ::continue::
+    end
+end
+
+local function add_buff(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    if self.scope == 'single' and targets[1].is_dead then
+        engine.add_effect('nothing_happened', user, targets[1])
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+        
+        engine.add_effect('add_buff', user, target, self.element)
 
         ::continue::
     end
@@ -1445,6 +1463,72 @@ action_data['cleanse'] = {
     aim = 'allies',
     scope = 'single',
     execute = cleanse,
+}
+
+action_data['steel_I'] = {
+    name = 'Steel I', 
+    type = 'Magic',
+    cost = 2, 
+    desc = 'Increase defense of one ally by 40%. Stacks twice.',
+    aim = 'allies',
+    scope = 'single',
+    execute = add_buff,
+    element = 'STEEL'
+}
+
+action_data['steel_II'] = {
+    name = 'Steel II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Increase defense of all allies by 40%. Stacks twice.',
+    aim = 'allies',
+    scope = 'all',
+    execute = add_buff,
+    element = 'STEEL'
+}
+
+action_data['haste_I'] = {
+    name = 'Haste I', 
+    type = 'Magic',
+    cost = 2, 
+    desc = 'Increase speed of one ally by 40%. Stacks twice.',
+    aim = 'allies',
+    scope = 'single',
+    execute = add_buff,
+    element = 'HASTE'
+}
+
+action_data['haste_II'] = {
+    name = 'Haste II', 
+    type = 'Magic',
+    cost = 5, 
+    desc = 'Increase speed of all allies by 40%. Stacks twice.',
+    aim = 'allies',
+    scope = 'all',
+    execute = add_buff,
+    element = 'HASTE'
+}
+
+action_data['barrier'] = {
+    name = 'Barrier', 
+    type = 'Magic',
+    cost = 12, 
+    desc = 'Reduce magic damage toward allies by 50%.',
+    aim = 'allies',
+    scope = 'all',
+    execute = add_buff,
+    element = 'BARRIER',
+}
+
+action_data['might'] = {
+    name = 'Might', 
+    type = 'Magic',
+    cost = 8, 
+    desc = 'Increases the attack power of one ally by 80%.',
+    aim = 'allies',
+    scope = 'single',
+    execute = add_buff,
+    element = 'MIGHT',
 }
 
 return action_data

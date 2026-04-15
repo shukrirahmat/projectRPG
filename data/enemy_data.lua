@@ -6,7 +6,7 @@ enemy_data['goblin'] = {
     
     ref = 'goblin',
     lvl = 1,
-    hp = 10,
+    hp = 110,
     mp = 20,
     str = 12,
     vit = 1,
@@ -23,7 +23,7 @@ enemy_data['skeleton'] = {
     
     ref = 'skeleton',
     lvl = 1,
-    hp = 15,
+    hp = 115,
     mp = 10,
     str = 20,
     vit = 4,

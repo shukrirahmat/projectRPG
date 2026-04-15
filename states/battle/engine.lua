@@ -466,8 +466,15 @@ function engine.clear_temporary_status(battler)
 
     if battler.is_aura_charged then
         battler.is_aura_charged.countdown = battler.is_aura_charged.countdown - 1
-        if battler.is_aura_charged.countdown <= 0 then
+        if battler.is_aura_charged.countdown <= 0 or battler.is_dead then
             battler.is_aura_charged = nil
+        end
+    end
+    
+    if battler.is_focused then
+        battler.is_focused.countdown = battler.is_focused.countdown - 1
+        if battler.is_focused.countdown <= 0 or battler.is_dead then
+            battler.is_focused = nil
         end
     end
 end

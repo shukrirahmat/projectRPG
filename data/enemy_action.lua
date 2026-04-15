@@ -24,9 +24,9 @@ end
 
 function action.dragon(enemy) 
     
-    if enemy.current_mp >= action_data['inferno_II'].cost then
+    --[[if enemy.current_mp >= action_data['inferno_II'].cost then
         return 'inferno_II'
-    end
+    end]]
     
     return 'normal_attack'
 end

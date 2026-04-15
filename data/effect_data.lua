@@ -60,6 +60,10 @@ local function aura_charge(self, engine, user, target)
     target.is_aura_charged = { countdown = 2 }
 end
 
+local function focus(self, engine, user, target)
+    target.is_focused = { countdown = 2 }
+end
+
 local function recover(self, engine, user, target, value)
     target.current_hp = math.min(target.max_hp, target.current_hp + value)
     engine.log_effect(''..target.name..' recovers '..value..' HP.');
@@ -336,6 +340,10 @@ effect_data['skill_cancelled'] = {
 
 effect_data['aura_charge'] = { 
     apply = aura_charge, 
+}
+
+effect_data['focus'] = { 
+    apply = focus, 
 }
 
 effect_data['recover'] = { 

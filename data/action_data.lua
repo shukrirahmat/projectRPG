@@ -54,6 +54,29 @@ local function check_resistance(element, target)
     return 0
 end
 
+local function normal_attack_modifier(skill, user, target, damage)
+
+    local resist = nil
+
+    if skill.special == 'quick_strike' then
+        damage = math.max(1, math.floor(damage * 0.5))
+    end
+    
+    if skill.special == 'elemental_attack' then
+        local resistance = check_resistance(skill.element, target)
+        if resistance == 2 then 
+            resist = 'immune'
+        elseif resistance == 1 then
+            damage = math.max(1, math.floor(damage * 0.5))
+            resist = 'resist'
+        else
+            damage = math.floor(damage * skill.damage_ratio)
+        end        
+    end
+
+    return { damage = damage, resist = resist }
+end
+
 local function attack_miss(user, target)
     if user.status['BLIND'] then
         local roll = math.random(1, 100)
@@ -79,13 +102,17 @@ local function normal_attack(self, user, targets, engine)
     local text = ''..user.name..' attacks!'
 
     if self.special then
-        text = ''..user.name..' '..self.special_text..''
+        if self.special == 'elemental_attack' then
+            text = ''..user.name..' used '..self.name..'!'
+        else
+            text = ''..user.name..' '..self.special_text..''
+        end
     end
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
 
-        if attack_miss(user, target) then
+        if not user.is_focused and attack_miss(user, target) then
             engine.log_action(text)
             engine.add_effect('missed', user, target)
             if not self.special then
@@ -105,8 +132,17 @@ local function normal_attack(self, user, targets, engine)
             engine.log_action(text)
         end
 
-        damage = damage_reduction_check(self, user, target, damage)
-        engine.add_effect('damage', user, target, damage)
+        local modifier = normal_attack_modifier(self, user, target, damage)
+        
+        if not modifier.resist then
+            local damage = damage_reduction_check(self, user, target, modifier.damage)
+            engine.add_effect('damage', user, target, damage)
+        elseif modifier.resist == 'resist' then
+            local damage = damage_reduction_check(self, user, target, modifier.damage)
+            engine.add_effect('resist', user, target, damage)
+        elseif modifier.resist == 'immune' then
+            engine.add_effect('immune', user, target)
+        end
 
         if not self.special then
             proc_second_attack(user, target, engine)
@@ -469,7 +505,7 @@ local function cure_status(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if target.is_dead then goto continue end
-        
+
         local curing;
         for i, status in ipairs(self.statuses) do
             if target.status[status] then
@@ -515,8 +551,21 @@ local function add_buff(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if target.is_dead then goto continue end
-        
+
         engine.add_effect('add_buff', user, target, self.element)
+
+        ::continue::
+    end
+end
+
+local function focus(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' increases focus!')
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+
+        engine.add_effect('focus', user, target)
 
         ::continue::
     end
@@ -1620,6 +1669,115 @@ action_data['slow_II'] = {
     execute = status_effect,
     element = 'SLOW',
     accuracy = 100
+}
+
+action_data['quick_strike'] = {
+    name = 'Quick Strike', 
+    type = 'Tech',
+    cost = 0, 
+    desc = 'A fast normal attack but deals half the damage.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    priority = 1,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'quick_strike',
+    special_text = 'attacks swiftly!'
+}
+
+action_data['flame_edge'] = {
+    name = 'Flame Edge', 
+    type = 'Tech',
+    cost = 2, 
+    desc = 'A normal attack that deals more damage to targets susceptible to FIRE',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'elemental_attack',
+    element = 'FIRE',
+    damage_ratio = 1.3
+}
+
+action_data['frost_edge'] = {
+    name = 'Frost Edge', 
+    type = 'Tech',
+    cost = 2, 
+    desc = 'A normal attack that deals more damage to targets susceptible to ICE',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'elemental_attack',
+    element = 'ICE',
+    damage_ratio = 1.3
+}
+
+action_data['bolt_edge'] = {
+    name = 'Bolt Edge', 
+    type = 'Tech',
+    cost = 3, 
+    desc = 'A normal attack that deals more damage to targets susceptible to THUNDER',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'elemental_attack',
+    element = 'THUNDER',
+    damage_ratio = 1.4
+    
+}
+
+action_data['gust_edge'] = {
+    name = 'Gust Edge', 
+    type = 'Tech',
+    cost = 3, 
+    desc = 'A normal attack that deals more damage to targets susceptible to WIND',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'elemental_attack',
+    element = 'WIND',
+    damage_ratio = 1.4
+}
+
+action_data['radiant_edge'] = {
+    name = 'Radiant Edge', 
+    type = 'Tech',
+    cost = 4, 
+    desc = 'A normal attack that deals more damage to targets susceptible to LIGHT',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'elemental_attack',
+    element = 'LIGHT',
+    damage_ratio = 1.5
+}
+
+action_data['shadow_edge'] = {
+    name = 'Shadow Edge', 
+    type = 'Tech',
+    cost = 4, 
+    desc = 'A normal attack that deals more damage to targets susceptible to DARK',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'elemental_attack',
+    element = 'DARK',
+    damage_ratio = 1.5
+}
+
+action_data['focus'] = {
+    name = 'Focus', 
+    type = 'Tech',
+    cost = 0, 
+    desc = 'Ensure next normal attack to not miss',
+    aim = 'allies',
+    scope = 'self',
+    execute = focus,
 }
 
 return action_data

@@ -6,27 +6,27 @@ local action = {}
 
 function action.goblin(enemy)
     
-    --[[if enemy.current_mp >= action_data['sandstorm_II'].cost then
-        return 'sandstorm_II'
-    end]]
+    if enemy.current_mp >= action_data['haste_II'].cost and not enemy.status['HASTE'] then
+        return 'haste_II'
+    end
     
     return 'normal_attack'
 end
 
 function action.skeleton(enemy) 
     
-    --[[if enemy.current_mp >= action_data['tremor_II'].cost then
-        return 'tremor_II'
-    end]]
+    if enemy.current_mp >= action_data['slow_II'].cost then
+        return 'slow_II'
+    end
     
     return 'normal_attack'
 end
 
 function action.dragon(enemy) 
     
-    --[[if enemy.current_mp >= action_data['inferno_II'].cost then
-        return 'inferno_II'
-    end]]
+    if enemy.current_mp >= action_data['frail_II'].cost then
+        return 'frail_II'
+    end
     
     return 'normal_attack'
 end

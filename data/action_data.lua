@@ -571,6 +571,32 @@ local function focus(self, user, targets, engine)
     end
 end
 
+local function purge(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' used '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+
+        engine.add_effect('purge', user, target)
+
+        ::continue::
+    end
+end
+
+local function undo(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+
+        engine.add_effect('undo', user, target)
+
+        ::continue::
+    end
+end
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -1774,10 +1800,119 @@ action_data['focus'] = {
     name = 'Focus', 
     type = 'Tech',
     cost = 0, 
-    desc = 'Ensure next normal attack to not miss',
+    desc = 'Ensure next normal attack to 100% hit',
     aim = 'allies',
     scope = 'self',
     execute = focus,
+}
+
+action_data['purge'] = {
+    name = 'Purge', 
+    type = 'Tech',
+    cost = 2, 
+    desc = 'Remove defense and speed reduction from self.',
+    aim = 'allies',
+    scope = 'self',
+    execute = purge,
+}
+
+action_data['undo'] = {
+    name = 'Undo', 
+    type = 'Magic',
+    cost = 15, 
+    desc = 'Remove attack, defense and speed increases from all enemies.',
+    aim = 'enemies',
+    scope = 'all',
+    execute = undo,
+}
+
+---NOT DONE--
+
+action_data['mana_share'] = {
+    name = 'Mana Share', 
+    type = 'Tech',
+    cost = 20, 
+    desc = 'Recover 15 MP to one ally.',
+    aim = 'allies',
+    scope = 'single',
+    exclude_self = true,
+    execute = mana_share
+}
+
+action_data['mana_share_all'] = {
+    name = 'Mana Share All', 
+    type = 'Tech',
+    cost = 50, 
+    desc = 'Recover 10 MP to all allies.',
+    aim = 'allies',
+    scope = 'all',
+    execute = mana_share
+}
+
+action_data['valiant_breath'] = {
+    name = 'Valiant Breath', 
+    type = 'Tech',
+    cost = 8, 
+    desc = 'Become immune to all negative status effects for several turns.',
+    aim = 'allies',
+    scope = 'self',
+    execute = add_buff,
+    element = 'VALIANT'
+}
+
+action_data['vampiric_I'] = {
+    name = 'Vampiric I', 
+    type = 'Magic',
+    cost = 4, 
+    desc = "One ally's normal attack will drain HP from enemies.",
+    aim = 'allies',
+    scope = 'single',
+    execute = add_buff,
+    element = 'VAMPIRIC'
+}
+
+action_data['vampiric_II'] = {
+    name = 'Vampiric II', 
+    type = 'Magic',
+    cost = 7, 
+    desc = "All ally's normal attack will drain HP from enemies.",
+    aim = 'allies',
+    scope = 'all',
+    execute = add_buff,
+    element = 'VAMPIRIC'
+}
+
+action_data['guardian_angel'] = {
+    name = 'Guardian Angel', 
+    type = 'Magic',
+    cost = 20, 
+    desc = 'Protects all allies from any effect but they cannot act for the turn',
+    aim = 'allies',
+    scope = 'all',
+    execute = guardian,
+    priority = 3
+}
+
+action_data['cover'] = {
+    name = 'Cover', 
+    type = 'Tech',
+    cost = 0, 
+    desc = 'Cover an ally from any attack',
+    aim = 'allies',
+    scope = 'single',
+    execute = cover,
+    exclude_self = true,
+    priority = 2
+}
+
+action_data['ram'] = {
+    name = 'Ram', 
+    type = 'Tech',
+    cost = 0, 
+    desc = 'Lose 20% of own HP and deals 2x the amount to one enemy',
+    aim = 'enemies',
+    scope = 'single',
+    execute = ram,
 }
 
 return action_data

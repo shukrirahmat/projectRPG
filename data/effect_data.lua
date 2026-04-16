@@ -251,7 +251,7 @@ local function add_buff(self, engine, user, target, buff)
         if buff == 'STEEL' then
             if target.status[buff].stack < 2 then
                 target.status[buff].stack = target.status[buff].stack + 1
-                target.status[buff].countdown = 5
+                target.status[buff].countdown = 6
                 engine.log_effect(""..target.name.."'s defense is increased!");
             else
                 engine.log_effect(""..target.name.."'s defense cannot be increased further.");
@@ -259,33 +259,46 @@ local function add_buff(self, engine, user, target, buff)
         elseif buff == 'HASTE' then
             if target.status[buff].stack < 2 then
                 target.status[buff].stack = target.status[buff].stack + 1
-                target.status[buff].countdown = 5
+                target.status[buff].countdown = 6
                 engine.log_effect(""..target.name.."'s speed is increased!");
             else
                 engine.log_effect(""..target.name.."'s speed cannot be increased further.");
             end
         elseif buff == 'MIGHT' then
-            target.status[buff].countdown = 5
+            target.status[buff].countdown = 6
                 engine.log_effect(""..target.name.."'s attack increase duration is reinforced!");
         elseif buff == 'BARRIER' then
-            target.status[buff].countdown = 3
+            target.status[buff].countdown = 4
             engine.log_effect(""..target.name.."'s barrier duration is reinforced!");
         end
     else
         if buff == 'STEEL' then
-            target.status[buff] = { stack = 1, countdown = 5 }
+            target.status[buff] = { stack = 1, countdown = 6 }
             engine.log_effect(""..target.name.."'s defense is increased!");
         elseif buff == 'HASTE' then
-            target.status[buff] = { stack = 1, countdown = 5 }
+            target.status[buff] = { stack = 1, countdown = 6 }
             engine.log_effect(""..target.name.."'s speed is increased!");
         elseif buff == 'MIGHT' then
-            target.status[buff] = { countdown = 5 }
+            target.status[buff] = { countdown = 6 }
             engine.log_effect(""..target.name.."'s attack is increased!");
         elseif buff == 'BARRIER' then
-            target.status[buff] = { countdown = 3 }
+            target.status[buff] = { countdown = 4 }
              engine.log_effect(""..target.name.."'s gained protection from magic!");
         end
     end
+end
+
+local function purge(self, engine, user, target)
+    target.status['FRAIL'] = nil
+    target.status['SLOW'] = nil
+    engine.log_effect(""..target.name.." has been purged from status reduction!");
+end
+
+local function undo(self, engine, user, target)
+    target.status['STEEL'] = nil
+    target.status['HASTE'] = nil
+    target.status['MIGHT'] = nil
+    engine.log_effect(""..target.name.." status increases has been removed!");
 end
 
 ----------------------------------------------------------
@@ -392,6 +405,14 @@ effect_data['nothing_happened'] = {
 
 effect_data['add_buff'] = { 
     apply = add_buff
+}
+
+effect_data['purge'] = { 
+    apply = purge
+}
+
+effect_data['undo'] = { 
+    apply = undo
 }
 
 return effect_data

@@ -140,6 +140,17 @@ function menu.get_alive_targets(group)
     return alive
 end
 
+function menu.get_alive_targets_exclusive(user, group)
+    local alive = {}
+    for i, target in ipairs(group) do
+        if target:is_alive() and target ~= user then
+            table.insert(alive, target)
+        end
+    end
+
+    return alive
+end
+
 function menu.get_dead_targets(group)
     local dead = {}
     for i, target in ipairs(group) do

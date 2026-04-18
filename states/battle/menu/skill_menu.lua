@@ -64,6 +64,9 @@ local function confirm()
             menu.set_action(skill_ref, member, {targets[1]})
             menu.next_party_member(member_index + 1)
         else
+            if skill.aim == 'allies' and skill.exclude_self then
+                targets = menu.get_alive_targets_exclusive(member, group)
+            end
             is_targeting = true
             menu.open_target_menu(skill_ref, targets, skill_menu, member, member_index)
         end
@@ -100,7 +103,7 @@ local function draw_description_text(skill, border_x, border_y)
         menu.FULL_HEIGHT
     )
 
-    
+
     local header = 'Type : '..skill.type..''
     lg.setFont(fonts.medium)
     lg.printf(
@@ -201,10 +204,10 @@ function skill_menu.draw()
             option_width,
             'left'
         )
-        
+
         local cost_text = skill.cost
         if skill.cost <= 0 then cost_text = '-' end
-        
+
         lg.setFont(fonts.large_mono)
         lg.printf(
             cost_text,

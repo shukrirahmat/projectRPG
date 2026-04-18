@@ -23,6 +23,8 @@ function ui.load()
     sprites['FRAIL2'] = love.graphics.newQuad(0, 32, 16, 16, 128, 48)
     sprites['HASTE2'] = love.graphics.newQuad(16, 32, 16, 16, 128, 48)
     sprites['SLOW2'] = love.graphics.newQuad(32, 32, 16, 16, 128, 48)
+    sprites['RESILIENT'] = love.graphics.newQuad(48, 32, 16, 16, 128, 48)
+    sprites['VAMPIRISM'] = love.graphics.newQuad(64, 32, 16, 16, 128, 48)
 end
 
 function ui.get_sprite(id)

@@ -129,7 +129,7 @@ local function draw_member_hud(member, index, x, y, animation)
             local ypos = y + BORDER_HEIGHT + status_y
             
             local ref = k
-            if v.stack and v.stack == 2 then
+            if type(v) == 'table' and v.stack and v.stack == 2 then
                 ref = ''..ref..'2'
             end
             

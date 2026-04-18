@@ -156,7 +156,7 @@ local function draw_enemy_status(enemy, x, y)
         local ypos = y + SPRITE_DIMENSION + shift
 
         local ref = k
-        if v.stack and v.stack == 2 then
+        if type(v) == 'table' and v.stack and v.stack == 2 then
             ref = ''..ref..'2'
         end
 

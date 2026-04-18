@@ -69,6 +69,11 @@ local function recover(self, engine, user, target, value)
     engine.log_effect(''..target.name..' recovers '..value..' HP.');
 end
 
+local function recover_mp(self, engine, user, target, value)
+    target.current_mp = math.min(target.max_mp, target.current_mp + value)
+    engine.log_effect(''..target.name..' recovers '..value..' MP.');
+end
+
 local function revive(self, engine, user, target, value)
     
     target.is_dead = false
@@ -107,7 +112,7 @@ local function add_status(self, engine, user, target, status)
         end
     elseif status == 'WOUND' then
         if target.status['WOUND'] then
-            engine.log_effect(""..target.name.." is already wounded");
+            engine.log_effect(""..target.name.." is already wounded.");
         else
             engine.log_effect(""..target.name.." is wounded. Healing is reduced!");
             target.status[status] = true;
@@ -121,21 +126,21 @@ local function add_status(self, engine, user, target, status)
         end
     elseif status == 'CURSE' then
         if target.status['CURSE'] then
-            engine.log_effect(""..target.name.." is already cursed");
+            engine.log_effect(""..target.name.." is already cursed.");
         else
             engine.log_effect(""..target.name.." is cursed!");
             target.status[status] = true;
         end
     elseif status == 'PARALYSIS' then
         if target.status['PARALYSIS'] then
-            engine.log_effect(""..target.name.." is already paralyzed");
+            engine.log_effect(""..target.name.." is already paralyzed.");
         else
             engine.log_effect(""..target.name.." is paralyzed!");
             target.status[status] = true;
         end
     elseif status == 'SLEEP' then
         if target.status['SLEEP'] then
-            engine.log_effect(""..target.name.." is already sleeping");
+            engine.log_effect(""..target.name.." is already sleeping.");
         else
             engine.log_effect(""..target.name.." is put to sleep!");
             target.current_action = nil
@@ -143,7 +148,7 @@ local function add_status(self, engine, user, target, status)
         end
     elseif status == 'CONFUSE' then
         if target.status['CONFUSE'] then
-            engine.log_effect(""..target.name.." is already confused");
+            engine.log_effect(""..target.name.." is already confused.");
         else
             engine.log_effect(""..target.name.." is confused!");
             target.current_action = nil
@@ -212,6 +217,10 @@ local function clear_status(self, engine, user, target, status)
         engine.log_effect(""..target.name.."'s defense reduction has expired.");
     elseif status == 'SLOW' then
         engine.log_effect(""..target.name.."'s speed reduction has expired.");
+    elseif status == 'RESILIENT' then
+        engine.log_effect(""..target.name.."'s resilience has expired.");
+    elseif status == 'VAMPIRISM' then
+        engine.log_effect(""..target.name.."'s drain effect has expired.");
     end
 end
 
@@ -223,7 +232,7 @@ local function cleanse(self, engine, user, target)
         target.status[status] = nil
     end
     
-    engine.log_effect(""..target.name.." has been cure from all status effects")
+    engine.log_effect(""..target.name.." has been cured from all status effects")
 end
 
 local function poison_damage(self, engine, user, target, value)
@@ -270,6 +279,12 @@ local function add_buff(self, engine, user, target, buff)
         elseif buff == 'BARRIER' then
             target.status[buff].countdown = 4
             engine.log_effect(""..target.name.."'s barrier duration is reinforced!");
+        elseif buff == 'RESILIENT' then
+            target.status[buff].countdown = 4
+            engine.log_effect(""..target.name.."'s resilient duration is reinforced!");
+        elseif buff == 'RESILIENT' then
+            target.status[buff].countdown = 6
+            engine.log_effect(""..target.name.."'s drain effect duration is reinforced!");
         end
     else
         if buff == 'STEEL' then
@@ -284,6 +299,12 @@ local function add_buff(self, engine, user, target, buff)
         elseif buff == 'BARRIER' then
             target.status[buff] = { countdown = 4 }
              engine.log_effect(""..target.name.."'s gained protection from magic!");
+        elseif buff == 'RESILIENT' then
+            target.status[buff] = { countdown = 4 }
+             engine.log_effect(""..target.name.." becomes resilient!");
+        elseif buff == 'VAMPIRISM' then
+            target.status[buff] = { countdown = 6 }
+             engine.log_effect(""..target.name.." attacks will drain HP!");
         end
     end
 end
@@ -361,6 +382,10 @@ effect_data['focus'] = {
 
 effect_data['recover'] = { 
     apply = recover, 
+}
+
+effect_data['recover_mp'] = { 
+    apply = recover_mp, 
 }
 
 effect_data['revive'] = {

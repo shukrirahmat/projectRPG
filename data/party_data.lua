@@ -95,10 +95,10 @@ party_data.test[2] = {
     str = 6,
     vit = 6,
     agi = 8,
-    skills = {'haste_I', 'haste_II', 'might', 'heal_I', 'heal_II', 'heal_III', 'final_heal', 'all_heal_I', 'all_heal_II', 'mend', 'refresh', 'cleanse'},
+    skills = {'haste_I', 'haste_II', 'might', 'heal_I', 'heal_II', 'heal_III', 'final_heal', 'all_heal_I', 'all_heal_II', 'vampirism_I', 'vampirism_II', 'cleanse'},
     passive_skills = {},
     status = {},
-    immune = {['SEAL'] = true, ['STUN'] = true,},
+    immune = {},
     total_exp = 0,
     sprite = 'two'
 }
@@ -111,8 +111,8 @@ party_data.test[3] = {
     mp = 113,
     str = 7,
     vit = 8,
-    agi = 7,
-    skills = {'dragonsbane_I', 'dragonsbane_II', 'steel_I', 'steel_II', 'barrier', 'revive_I', 'revive_II'},
+    agi = 107,
+    skills = {'dragonsbane_I', 'dragonsbane_II', 'steel_I', 'steel_II', 'barrier', 'revive_I', 'revive_II', 'mana_share', 'mana_share_all', 'valiant_breath'},
     passive_skills = {},
     status = {},
     total_exp = 0,

@@ -61,7 +61,7 @@ local function normal_attack_modifier(skill, user, target, damage)
     if skill.special == 'quick_strike' then
         damage = math.max(1, math.floor(damage * 0.5))
     end
-    
+
     if skill.special == 'elemental_attack' then
         local resistance = check_resistance(skill.element, target)
         if resistance == 2 then 
@@ -133,7 +133,7 @@ local function normal_attack(self, user, targets, engine)
         end
 
         local modifier = normal_attack_modifier(self, user, target, damage)
-        
+
         if not modifier.resist then
             local damage = damage_reduction_check(self, user, target, modifier.damage)
             engine.add_effect('damage', user, target, damage)
@@ -424,6 +424,13 @@ local function status_effect(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
+        
+        if self.element == 'STUN' or self.element == 'SLEEP' or self.element == 'CONFUSE' then
+            if target.status['RESILIENT'] then
+                engine.add_effect('immune', user, target)
+                goto continue
+            end
+        end
 
         local resistance = check_resistance(self.element, target)
         local accuracy = self.accuracy
@@ -542,7 +549,11 @@ end
 
 local function add_buff(self, user, targets, engine)
 
-    engine.log_action(''..user.name..' casts '..self.name..'!')
+    if self.type == 'Tech' then
+        engine.log_action(''..user.name..' used '..self.name..'!')
+    elseif self.type == 'Magic' then
+        engine.log_action(''..user.name..' casts '..self.name..'!')
+    end
 
     if self.scope == 'single' and targets[1].is_dead then
         engine.add_effect('nothing_happened', user, targets[1])
@@ -592,6 +603,26 @@ local function undo(self, user, targets, engine)
         if target.is_dead then goto continue end
 
         engine.add_effect('undo', user, target)
+
+        ::continue::
+    end
+end
+
+local function mana_share(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' used '..self.name..'!')
+
+    if self.scope == 'single' and targets[1].is_dead then
+        engine.add_effect('nothing_happened', user, targets[1])
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+        if target == user then goto continue end
+
+        local recover_amount = math.min(target.max_mp - target.current_mp, self.amount)
+        engine.add_effect('recover_mp', user, target, recover_amount)
 
         ::continue::
     end
@@ -1751,7 +1782,7 @@ action_data['bolt_edge'] = {
     special = 'elemental_attack',
     element = 'THUNDER',
     damage_ratio = 1.4
-    
+
 }
 
 action_data['gust_edge'] = {
@@ -1826,60 +1857,62 @@ action_data['undo'] = {
     execute = undo,
 }
 
----NOT DONE--
-
 action_data['mana_share'] = {
     name = 'Mana Share', 
     type = 'Tech',
-    cost = 20, 
-    desc = 'Recover 15 MP to one ally.',
+    cost = 25, 
+    desc = 'Recover 20 MP to one ally.',
     aim = 'allies',
     scope = 'single',
     exclude_self = true,
-    execute = mana_share
+    execute = mana_share,
+    amount = 20
 }
 
 action_data['mana_share_all'] = {
     name = 'Mana Share All', 
     type = 'Tech',
     cost = 50, 
-    desc = 'Recover 10 MP to all allies.',
+    desc = 'Recover 20 MP to all allies.',
     aim = 'allies',
     scope = 'all',
-    execute = mana_share
+    execute = mana_share,
+    amount = 20
 }
 
 action_data['valiant_breath'] = {
     name = 'Valiant Breath', 
     type = 'Tech',
     cost = 8, 
-    desc = 'Become immune to all negative status effects for several turns.',
+    desc = 'Become immune to STUN, SLEEP and CONFUSE for several turns.',
     aim = 'allies',
     scope = 'self',
     execute = add_buff,
-    element = 'VALIANT'
+    element = 'RESILIENT'
 }
 
-action_data['vampiric_I'] = {
-    name = 'Vampiric I', 
+--NOT DONE--
+
+action_data['vampirism_I'] = {
+    name = 'Vampirism I', 
     type = 'Magic',
     cost = 4, 
     desc = "One ally's normal attack will drain HP from enemies.",
     aim = 'allies',
     scope = 'single',
     execute = add_buff,
-    element = 'VAMPIRIC'
+    element = 'VAMPIRISM'
 }
 
-action_data['vampiric_II'] = {
-    name = 'Vampiric II', 
+action_data['vampirism_II'] = {
+    name = 'Vampirism II', 
     type = 'Magic',
     cost = 7, 
     desc = "All ally's normal attack will drain HP from enemies.",
     aim = 'allies',
     scope = 'all',
     execute = add_buff,
-    element = 'VAMPIRIC'
+    element = 'VAMPIRISM'
 }
 
 action_data['guardian_angel'] = {

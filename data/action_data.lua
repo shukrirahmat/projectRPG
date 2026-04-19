@@ -653,6 +653,30 @@ local function cover(self, user, targets, engine)
     end
 end
 
+local function ram(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' used '..self.name..'!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+        
+        local base_damage = math.max(1, math.floor(user.current_hp * 0.2))
+        local mod = math.floor(base_damage * 0.2) 
+        local damage = base_damage + math.random(-mod, mod)
+        
+        local enemy_damage = damage * 2
+        local recoil = damage
+
+        enemy_damage = damage_reduction_check(self, user, target, enemy_damage)
+        engine.add_effect('damage', user, target, enemy_damage)
+        
+        recoil = damage_reduction_check(self, user, user, recoil)
+        engine.add_effect('damage', user, user, recoil)
+
+        ::continue::
+    end
+end
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------

@@ -76,6 +76,14 @@ local function reaim_target(action)
             action.targets = {new_target}
         end
     end
+    
+    for i, target in ipairs(action.targets) do
+        if target:is_alive() and target.is_covered and action.data.aim ~= 'allies' then
+            if target.is_covered.covered_by:is_alive() then
+                action.targets[i] = target.is_covered.covered_by
+            end
+        end
+    end
 
     return action
 end
@@ -489,6 +497,7 @@ function engine.clear_temporary_status(battler)
     battler.current_action = nil
     battler.is_defending = nil
     battler.is_invincible = nil
+    battler.is_covered = nil
 
     if battler.is_aura_charged then
         battler.is_aura_charged.countdown = battler.is_aura_charged.countdown - 1

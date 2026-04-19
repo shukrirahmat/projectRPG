@@ -318,6 +318,10 @@ local function guardian(self, engine, user, target)
     target.is_invincible = true
 end
 
+local function cover(self, engine, user, target)
+    target.is_covered = {covered_by = user}
+end
+
 ----------------------------------------------------------
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -438,6 +442,10 @@ effect_data['undo'] = {
 
 effect_data['guardian'] = { 
     apply = guardian
+}
+
+effect_data['cover'] = { 
+    apply = cover
 }
 
 return effect_data

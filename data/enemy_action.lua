@@ -15,9 +15,9 @@ end
 
 function action.skeleton(enemy) 
     
-    if enemy.current_mp >= action_data['toxin_II'].cost then
+    --[[if enemy.current_mp >= action_data['toxin_II'].cost then
         return 'toxin_II'
-    end
+    end]]
     
     return 'normal_attack'
 end

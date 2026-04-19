@@ -641,6 +641,18 @@ local function guardian_angel(self, user, targets, engine)
     end
 end
 
+local function cover(self, user, targets, engine)
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+        
+        engine.log_action(''..user.name..' covers '..target.name..'!')
+        engine.add_effect('cover', user, target)
+
+        ::continue::
+    end
+end
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------

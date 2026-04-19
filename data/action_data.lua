@@ -85,8 +85,8 @@ local function attack_miss(user, target)
         end
     end
 
-    if target.dodge_rate ~= 0 then
-        local roll = math.random(1, target.dodge_rate)
+    if target:get_dodge_rate() ~= 0 then
+        local roll = math.random(1, target:get_dodge_rate())
         if roll == 1 then
             return true
         end

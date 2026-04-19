@@ -12,7 +12,6 @@ function battler.new(data)
     self.str = data.str
     self.vit = data.vit
     self.agi = data.agi
-    self.dodge_rate = data.dodge_rate or 0
     self.skills = data.skills or {}
     self.passive_skills = data.passive_skills or {}
     self.passives = {}
@@ -81,6 +80,12 @@ function battler.new(data)
         end
         
         return math.max(1, base + buff - debuff)
+    end
+    
+    function self:get_dodge_rate()
+        if self:cannot_act() then return 0 end        
+        if self.passives['artful_dodger'] then return 1 end        
+        return 0
     end
 
     return self

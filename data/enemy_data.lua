@@ -14,7 +14,7 @@ enemy_data['goblin'] = {
     sprite_height = sprite_dimension * 0.75,
     gold_drop = 5,
     exp_drop = 12,
-    passive_skills = {},
+    passive_skills = {'artful_dodger'},
     strong = {},
     immune = {},
 }

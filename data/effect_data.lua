@@ -219,8 +219,6 @@ local function clear_status(self, engine, user, target, status)
         engine.log_effect(""..target.name.."'s speed reduction has expired.");
     elseif status == 'RESILIENT' then
         engine.log_effect(""..target.name.."'s resilience has expired.");
-    elseif status == 'VAMPIRISM' then
-        engine.log_effect(""..target.name.."'s drain effect has expired.");
     end
 end
 
@@ -282,9 +280,6 @@ local function add_buff(self, engine, user, target, buff)
         elseif buff == 'RESILIENT' then
             target.status[buff].countdown = 4
             engine.log_effect(""..target.name.."'s resilient duration is reinforced!");
-        elseif buff == 'RESILIENT' then
-            target.status[buff].countdown = 6
-            engine.log_effect(""..target.name.."'s drain effect duration is reinforced!");
         end
     else
         if buff == 'STEEL' then
@@ -302,9 +297,6 @@ local function add_buff(self, engine, user, target, buff)
         elseif buff == 'RESILIENT' then
             target.status[buff] = { countdown = 4 }
              engine.log_effect(""..target.name.." becomes resilient!");
-        elseif buff == 'VAMPIRISM' then
-            target.status[buff] = { countdown = 6 }
-             engine.log_effect(""..target.name.." attacks will drain HP!");
         end
     end
 end
@@ -320,6 +312,10 @@ local function undo(self, engine, user, target)
     target.status['HASTE'] = nil
     target.status['MIGHT'] = nil
     engine.log_effect(""..target.name.." status increases has been removed!");
+end
+
+local function guardian(self, engine, user, target)
+    target.is_invincible = true
 end
 
 ----------------------------------------------------------
@@ -438,6 +434,10 @@ effect_data['purge'] = {
 
 effect_data['undo'] = { 
     apply = undo
+}
+
+effect_data['guardian'] = { 
+    apply = guardian
 }
 
 return effect_data

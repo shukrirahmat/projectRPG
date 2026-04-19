@@ -139,7 +139,10 @@ local function execute_next_action()
 
     action = status_effect_pass(action, current_battler)
 
-    if not action then return end
+    if not action or current_battler.is_invincible then
+        phase = 'run_action'
+        return
+    end
 
     action = reaim_target(action)
     local data = action.data
@@ -233,7 +236,6 @@ local function clear_status_effects()
         'FRAIL', 
         'SLOW', 
         'RESILIENT',
-        'VAMPIRISM',
     }
 
     for i, status in ipairs(status) do
@@ -263,7 +265,12 @@ local function execute_next_effect()
     local effect = effect_queue[1]
     table.remove(effect_queue, 1)
 
-    if effect.target:is_alive() or effect.ref == 'revive' then        
+    if effect.target:is_alive() or effect.ref == 'revive' then
+
+        if effect.target.is_invincible then
+            effect = Effect.new('immune', effect_data['immune'], effect.user, effect.target)
+        end
+
         effect.data:apply(engine, effect.user, effect.target, effect.value)
 
         if not effect.target.is_party_member and effect.data.enemy_animation then
@@ -324,8 +331,12 @@ end
 
 local function update_status_effects()
     logger.clear()
-    apply_status_effects()
-    clear_status_effects()
+
+    if not current_battler.is_invincible then
+        apply_status_effects()
+        clear_status_effects()
+    end
+    
     current_battler.status_effect_updated = true
     execute_next_effect()
 end
@@ -423,17 +434,19 @@ function engine.get_random_target(group)
     return selected
 end
 
-function engine.log_action(text, delayed_text)
+function engine.log_action(text, delayed_text, delay_time)
+    local delay = delay_time or 1
     if delayed_text then
-        logger.load(text, function() logger.add(delayed_text, nil, 0.5) end)
+        logger.load(text, function() logger.add(delayed_text, nil, delay) end)
     else
         logger.load(text)
     end
 end
 
-function engine.log_effect(text, delayed_text)
+function engine.log_effect(text, delayed_text, delay_time)
+    local delay = delay_time or 1
     if delayed_text then
-        logger.add(text, function() logger.add(delayed_text, nil, 0.5) end)
+        logger.add(text, function() logger.add(delayed_text, nil, delay) end)
     else
         logger.add(text)
     end
@@ -475,6 +488,7 @@ function engine.clear_temporary_status(battler)
 
     battler.current_action = nil
     battler.is_defending = nil
+    battler.is_invincible = nil
 
     if battler.is_aura_charged then
         battler.is_aura_charged.countdown = battler.is_aura_charged.countdown - 1
@@ -482,7 +496,7 @@ function engine.clear_temporary_status(battler)
             battler.is_aura_charged = nil
         end
     end
-    
+
     if battler.is_focused then
         battler.is_focused.countdown = battler.is_focused.countdown - 1
         if battler.is_focused.countdown <= 0 or battler.is_dead then

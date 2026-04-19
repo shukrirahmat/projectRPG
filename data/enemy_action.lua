@@ -15,18 +15,18 @@ end
 
 function action.skeleton(enemy) 
     
-    --[[if enemy.current_mp >= action_data['slumber_II'].cost then
-        return 'slumber_II'
-    end]]
+    if enemy.current_mp >= action_data['toxin_II'].cost then
+        return 'toxin_II'
+    end
     
     return 'normal_attack'
 end
 
 function action.dragon(enemy) 
     
-    --[[if enemy.current_mp >= action_data['mindblast_II'].cost then
-        return 'mindblast_II'
-    end]]
+    if enemy.current_mp >= action_data['inferno_II'].cost then
+        return 'inferno_II'
+    end
     
     return 'normal_attack'
 end

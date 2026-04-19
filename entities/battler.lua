@@ -84,7 +84,7 @@ function battler.new(data)
     
     function self:get_dodge_rate()
         if self:cannot_act() then return 0 end        
-        if self.passives['artful_dodger'] then return 1 end        
+        if self.passives['artful_dodger'] then return 4 end        
         return 0
     end
 

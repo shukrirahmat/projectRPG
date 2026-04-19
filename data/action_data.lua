@@ -126,7 +126,7 @@ local function normal_attack(self, user, targets, engine)
         local crit = math.random(1, user.crit_rate) == 1
         if crit then
             damage = calculate_crit_damage(user, target)
-            engine.log_action(text, 'Critical hit!')
+            engine.log_action(text, 'Critical hit!', 0.5)
         else
             damage = calculate_attack_damage(user, target)
             engine.log_action(text)
@@ -623,6 +623,19 @@ local function mana_share(self, user, targets, engine)
 
         local recover_amount = math.min(target.max_mp - target.current_mp, self.amount)
         engine.add_effect('recover_mp', user, target, recover_amount)
+
+        ::continue::
+    end
+end
+
+local function guardian_angel(self, user, targets, engine)
+
+    engine.log_action(''..user.name..' casts '..self.name..'!', 'The party become invincible!')
+
+    for i, target in ipairs(targets) do
+        if not target:is_alive() then goto continue end
+
+        engine.add_effect('guardian', user, target)
 
         ::continue::
     end
@@ -1893,36 +1906,14 @@ action_data['valiant_breath'] = {
 
 --NOT DONE--
 
-action_data['vampirism_I'] = {
-    name = 'Vampirism I', 
-    type = 'Magic',
-    cost = 4, 
-    desc = "One ally's normal attack will drain HP from enemies.",
-    aim = 'allies',
-    scope = 'single',
-    execute = add_buff,
-    element = 'VAMPIRISM'
-}
-
-action_data['vampirism_II'] = {
-    name = 'Vampirism II', 
-    type = 'Magic',
-    cost = 7, 
-    desc = "All ally's normal attack will drain HP from enemies.",
-    aim = 'allies',
-    scope = 'all',
-    execute = add_buff,
-    element = 'VAMPIRISM'
-}
-
 action_data['guardian_angel'] = {
     name = 'Guardian Angel', 
     type = 'Magic',
     cost = 20, 
-    desc = 'Protects all allies from any effect but they cannot act for the turn',
+    desc = 'Protects all allies from any effect but they cannot act for the turn.',
     aim = 'allies',
     scope = 'all',
-    execute = guardian,
+    execute = guardian_angel,
     priority = 3
 }
 
@@ -1930,7 +1921,7 @@ action_data['cover'] = {
     name = 'Cover', 
     type = 'Tech',
     cost = 0, 
-    desc = 'Cover an ally from any attack',
+    desc = 'Cover an ally from any attack.',
     aim = 'allies',
     scope = 'single',
     execute = cover,
@@ -1942,7 +1933,7 @@ action_data['ram'] = {
     name = 'Ram', 
     type = 'Tech',
     cost = 0, 
-    desc = 'Lose 20% of own HP and deals 2x the amount to one enemy',
+    desc = 'Lose 20% of own HP and deals 2x the amount to one enemy.',
     aim = 'enemies',
     scope = 'single',
     execute = ram,

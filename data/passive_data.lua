@@ -72,4 +72,24 @@ passive_data['last_stand'] = {
     name = 'Last Stand', desc = 'Might stay alive with 1 HP when dealt a killing blow'
 }
 
+passive_data['basher'] = {
+    name = 'Basher', desc = 'May apply STUN to the enemy with normal attack'
+}
+
+passive_data['mage_slayer'] = {
+    name = 'Mage Slayer', desc = 'May apply SEAL to the enemy with normal attack'
+}
+
+passive_data['sand_master'] = {
+    name = 'Sand Master', desc = 'May apply BLIND to the enemy with normal attack'
+}
+
+passive_data['armor_breaker'] = {
+    name = 'armor_breaker', desc = 'May apply FRAIL to the enemy with normal attack'
+}
+
+passive_data['crippler'] = {
+    name = 'crippler', desc = 'May apply SLOW to the enemy with normal attack'
+}
+
 return passive_data

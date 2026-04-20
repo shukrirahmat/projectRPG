@@ -70,6 +70,48 @@ local function check_resistance(element, target)
     return 0
 end
 
+local function proc_on_hit_effect(user, target, engine)
+    local list = {'basher', 'mage_slayer', 'sand_master', 'armor_breaker', 'crippler'}
+    local status = {'STUN', 'SEAL', 'BLIND', 'FRAIL', 'SLOW'}
+    local base_acc = {100, 100, 100, 100, 100}
+    local resist_acc = {10, 10, 10, 40, 40}
+    
+    for i = 1, #list do
+        if user.passives[list[i]] then
+            local ref = check_resistance(status[i], target)
+            local accuracy
+            if ref == 0 then 
+                accuracy = base_acc[i]
+            elseif ref == 1 then
+                accuracy = resist_acc[i]
+            elseif ref == 2 then
+                accuracy = 0
+            end
+            
+            if status[i] == 'STUN' and target.status['RESILIENT'] then
+                accuracy = 0
+            end
+            
+            if status[i] ~= 'FRAIL' and status[i] ~= 'SLOW' then
+                if target.status[status[i]] then
+                    accuracy = 0
+                end
+            end
+            
+            if status[i] == 'FRAIL' or status[i] == 'SLOW' then
+                if target.status[status[i]] and target.status[status[i]].stack == 2 then
+                    accuracy = 0
+                end
+            end
+            
+            local roll = math.random(1, 100)
+            if roll <= accuracy then
+                engine.add_effect('add_status', user, target, status[i])
+            end
+        end
+    end
+end
+
 local function normal_attack_modifier(skill, user, target, damage)
 
     local resist = nil
@@ -93,22 +135,22 @@ local function normal_attack_modifier(skill, user, target, damage)
     return { damage = damage, resist = resist }
 end
 
-local function attack_miss(user, target)
+local function attack_connects(user, target)
     if user.status['BLIND'] then
         local roll = math.random(1, 100)
         if roll <= 70 then
-            return true
+            return false
         end
     end
 
     if target:get_dodge_rate() ~= 0 then
         local roll = math.random(1, target:get_dodge_rate())
         if roll == 1 then
-            return true
+            return false
         end
     end
 
-    return false
+    return true
 end
 
 local function element_boost(user, element, damage)
@@ -151,7 +193,7 @@ local function normal_attack(self, user, targets, engine)
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
 
-        if not user.is_focused and attack_miss(user, target) then
+        if not user.is_focused and not attack_connects(user, target) then
             engine.log_action(text)
             engine.add_effect('missed', user, target)
             if not self.special then
@@ -181,7 +223,10 @@ local function normal_attack(self, user, targets, engine)
             engine.add_effect('resist', user, target, damage)
         elseif modifier.resist == 'immune' then
             engine.add_effect('immune', user, target)
+            goto continue
         end
+        
+        proc_on_hit_effect(user, target, engine)
 
         if not self.special then
             proc_second_attack(user, target, engine)

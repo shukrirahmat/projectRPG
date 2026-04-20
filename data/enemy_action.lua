@@ -24,8 +24,8 @@ end
 
 function action.dragon(enemy) 
     
-    if enemy.current_mp >= action_data['cyclone_II'].cost then
-        return 'cyclone_II'
+    if enemy.current_mp >= action_data['cyclone_I'].cost then
+        return 'cyclone_I'
     end
     
     return 'normal_attack'

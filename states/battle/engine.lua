@@ -143,6 +143,7 @@ local function execute_next_action()
     current_battler = get_next_battler()
     current_battler.status_effect_updated = nil    
     local action = current_battler.current_action
+    
     current_battler.current_action = nil
 
     action = status_effect_pass(action, current_battler)

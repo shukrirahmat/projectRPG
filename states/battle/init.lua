@@ -70,7 +70,7 @@ end
 
 local function set_enemy_action()
     for i, enemy in ipairs(enemy_battlers) do
-        if not enemy:is_alive() or enemy:cannot_act() then
+        if not enemy:is_alive() then
             goto continue
         end
         

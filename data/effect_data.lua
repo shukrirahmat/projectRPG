@@ -107,7 +107,6 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect(""..target.name.." is already stunned.");
         else
             engine.log_effect(""..target.name.." is stunned!");
-            target.current_action = nil
             target.status[status] = {countdown = math.random(1, 3)}
         end
     elseif status == 'WOUND' then
@@ -143,7 +142,6 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect(""..target.name.." is already sleeping.");
         else
             engine.log_effect(""..target.name.." is put to sleep!");
-            target.current_action = nil
             target.status[status] = true;
         end
     elseif status == 'CONFUSE' then
@@ -151,7 +149,6 @@ local function add_status(self, engine, user, target, status)
             engine.log_effect(""..target.name.." is already confused.");
         else
             engine.log_effect(""..target.name.." is confused!");
-            target.current_action = nil
             target.status[status] = true;
         end
     elseif status == 'FRAIL' then

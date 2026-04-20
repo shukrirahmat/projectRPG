@@ -23,11 +23,15 @@ local function damage_reduction_check(skill, user, target, damage, engine)
         damage = math.max(math.floor(damage/2), 1)
     end
 
-    if skill.type == 'Magic' and target.status['BARRIER'] then
+    if skill.damage_type == 'magic' and target.status['BARRIER'] then
         damage = math.max(math.floor(damage/2), 1)
     end
+    
+    if skill.damage_type == 'attack' and target.species == 'SHELLED' and not user.passives['piercing'] then
+        damage = 1
+    end
 
-    if skill.element ~= 'MANABURN' and target.passives['last_stand'] then
+    if skill.damage_type ~= 'mp' and target.passives['last_stand'] then
         if damage >= target.current_hp and target.current_hp > 1 then
             local roll = math.random(1, 100)
             if roll <= target.last_stand_chance then
@@ -219,6 +223,8 @@ local function normal_attack(self, user, targets, engine)
             elseif self.special and self.special ~= 'counter_attack' then
                 proc_counter_attack(user, target, engine)
             end
+            
+            goto continue
         end
 
         local damage
@@ -796,7 +802,8 @@ action_data['normal_attack'] = {
     cost = 0,
     aim = 'enemies',
     scope = 'single',
-    enemy_animation = {type = 'attack', duration = 1}
+    enemy_animation = {type = 'attack', duration = 1},
+    damage_type = 'attack'
 }
 
 action_data['second_attack'] = {     
@@ -807,7 +814,8 @@ action_data['second_attack'] = {
     scope = 'single',
     enemy_animation = {type = 'attack', duration = 1},
     special = 'second_attack',
-    special_text = 'attacks again!'
+    special_text = 'attacks again!',
+    damage_type = 'attack'
 }
 
 action_data['counter_attack'] = {     
@@ -818,7 +826,8 @@ action_data['counter_attack'] = {
     scope = 'single',
     enemy_animation = {type = 'attack', duration = 1},
     special = 'counter_attack',
-    special_text = 'counters!'
+    special_text = 'counters!',
+    damage_type = 'attack'
 }
 
 action_data['defend'] = {     
@@ -858,7 +867,8 @@ action_data['confused_attack'] = {
     scope = 'single',
     enemy_animation = {type = 'attack', duration = 1},
     special = 'confused_attack',
-    special_text = 'attacks while being confused!'
+    special_text = 'attacks while being confused!',
+    damage_type = 'attack'
 }
 
 action_data['sleeping'] = {
@@ -874,7 +884,8 @@ action_data['scorch_I'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'FIRE',
-    base_damage = 15
+    base_damage = 15,
+    damage_type = 'magic'
 }
 
 action_data['scorch_II'] = {
@@ -886,7 +897,8 @@ action_data['scorch_II'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'FIRE',
-    base_damage = 45
+    base_damage = 45,
+    damage_type = 'magic'
 }
 
 action_data['scorch_III'] = {
@@ -898,7 +910,8 @@ action_data['scorch_III'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'FIRE',
-    base_damage = 120
+    base_damage = 120,
+    damage_type = 'magic'
 }
 
 action_data['incinerate'] = {
@@ -910,7 +923,8 @@ action_data['incinerate'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'FIRE',
-    base_damage = 240
+    base_damage = 240,
+    damage_type = 'magic'
 }
 
 action_data['inferno_I'] = {
@@ -922,7 +936,8 @@ action_data['inferno_I'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'FIRE',
-    base_damage = 12
+    base_damage = 12,
+    damage_type = 'magic'
 }
 
 action_data['inferno_II'] = {
@@ -934,7 +949,8 @@ action_data['inferno_II'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'FIRE',
-    base_damage = 39
+    base_damage = 39,
+    damage_type = 'magic'
 }
 
 action_data['inferno_III'] = {
@@ -946,7 +962,8 @@ action_data['inferno_III'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'FIRE',
-    base_damage = 93
+    base_damage = 93,
+    damage_type = 'magic'
 }
 
 action_data['icicle_I'] = {
@@ -958,7 +975,8 @@ action_data['icicle_I'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'ICE',
-    base_damage = 20
+    base_damage = 20,
+    damage_type = 'magic'
 }
 
 action_data['icicle_II'] = {
@@ -970,7 +988,8 @@ action_data['icicle_II'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'ICE',
-    base_damage = 65
+    base_damage = 65,
+    damage_type = 'magic'
 }
 
 action_data['icicle_III'] = {
@@ -982,7 +1001,8 @@ action_data['icicle_III'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'ICE',
-    base_damage = 155
+    base_damage = 155,
+    damage_type = 'magic'
 }
 
 action_data['blizzard_I'] = {
@@ -994,7 +1014,8 @@ action_data['blizzard_I'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'ICE',
-    base_damage = 9
+    base_damage = 9,
+    damage_type = 'magic'
 }
 
 action_data['blizzard_II'] = {
@@ -1006,7 +1027,8 @@ action_data['blizzard_II'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'ICE',
-    base_damage = 27
+    base_damage = 27,
+    damage_type = 'magic'
 }
 
 action_data['blizzard_III'] = {
@@ -1018,7 +1040,8 @@ action_data['blizzard_III'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'ICE',
-    base_damage = 72
+    base_damage = 72,
+    damage_type = 'magic'
 }
 
 action_data['permafrost'] = {
@@ -1030,7 +1053,8 @@ action_data['permafrost'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'ICE',
-    base_damage = 144
+    base_damage = 144,
+    damage_type = 'magic'
 }
 
 action_data['cyclone_I'] = {
@@ -1042,7 +1066,8 @@ action_data['cyclone_I'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'WIND',
-    base_damage = 18
+    base_damage = 18,
+    damage_type = 'magic'
 }
 
 action_data['cyclone_II'] = {
@@ -1054,7 +1079,8 @@ action_data['cyclone_II'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'WIND',
-    base_damage = 54
+    base_damage = 54,
+    damage_type = 'magic'
 }
 
 action_data['cyclone_III'] = {
@@ -1066,7 +1092,8 @@ action_data['cyclone_III'] = {
     scope = 'all',
     execute = damage_magic,
     element = 'WIND',
-    base_damage = 117
+    base_damage = 117,
+    damage_type = 'magic'
 }
 
 action_data['lightning_I'] = {
@@ -1079,7 +1106,8 @@ action_data['lightning_I'] = {
     execute = damage_magic,
     element = 'THUNDER',
     base_damage = 18,
-    variance = 0.4
+    variance = 0.4,
+    damage_type = 'magic'
 }
 
 action_data['lightning_II'] = {
@@ -1092,7 +1120,8 @@ action_data['lightning_II'] = {
     execute = damage_magic,
     element = 'THUNDER',
     base_damage = 54,
-    variance = 0.4
+    variance = 0.4,
+    damage_type = 'magic'
 }
 
 action_data['lightning_III'] = {
@@ -1105,7 +1134,8 @@ action_data['lightning_III'] = {
     execute = damage_magic,
     element = 'THUNDER',
     base_damage = 117,
-    variance = 0.4
+    variance = 0.4,
+    damage_type = 'magic'
 }
 
 action_data['lumina_I'] = {
@@ -1117,7 +1147,8 @@ action_data['lumina_I'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'LIGHT',
-    base_damage = 30
+    base_damage = 30,
+    damage_type = 'magic'
 }
 
 action_data['lumina_II'] = {
@@ -1129,7 +1160,8 @@ action_data['lumina_II'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'LIGHT',
-    base_damage = 90
+    base_damage = 90,
+    damage_type = 'magic'
 }
 
 action_data['lumina_III'] = {
@@ -1141,7 +1173,8 @@ action_data['lumina_III'] = {
     scope = 'single',
     execute = damage_magic,
     element = 'LIGHT',
-    base_damage = 195
+    base_damage = 195,
+    damage_type = 'magic'
 }
 
 action_data['umbra_I'] = {
@@ -1154,7 +1187,8 @@ action_data['umbra_I'] = {
     execute = damage_magic,
     element = 'DARK',
     base_damage = 30,
-    variance = 0.3
+    variance = 0.3,
+    damage_type = 'magic'
 }
 
 action_data['umbra_II'] = {
@@ -1167,7 +1201,8 @@ action_data['umbra_II'] = {
     execute = damage_magic,
     element = 'DARK',
     base_damage = 90,
-    variance = 0.3
+    variance = 0.3,
+    damage_type = 'magic'
 }
 
 action_data['umbra_III'] = {
@@ -1180,7 +1215,8 @@ action_data['umbra_III'] = {
     execute = damage_magic,
     element = 'DARK',
     base_damage = 195,
-    variance = 0.4
+    variance = 0.4,
+    damage_type = 'magic'
 }
 
 action_data['aura_I'] = {
@@ -1192,7 +1228,8 @@ action_data['aura_I'] = {
     scope = 'all',
     execute = use_aura,
     element = 'AURA',
-    aura_ratio = 0.1
+    aura_ratio = 0.1,
+    damage_type = 'aura'
 }
 
 action_data['aura_II'] = {
@@ -1204,7 +1241,8 @@ action_data['aura_II'] = {
     scope = 'all',
     execute = use_aura,
     element = 'AURA',
-    aura_ratio = 0.25
+    aura_ratio = 0.25,
+    damage_type = 'aura'
 }
 
 action_data['aura_III'] = {
@@ -1216,7 +1254,8 @@ action_data['aura_III'] = {
     scope = 'all',
     execute = use_aura,
     element = 'AURA',
-    aura_ratio = 0.5
+    aura_ratio = 0.5,
+    damage_type = 'aura'
 }
 
 action_data['aura_beam_I'] = {
@@ -1228,7 +1267,8 @@ action_data['aura_beam_I'] = {
     scope = 'single',
     execute = use_aura,
     element = 'AURA',
-    aura_ratio = 0.8
+    aura_ratio = 0.8,
+    damage_type = 'aura'
 }
 
 action_data['aura_beam_II'] = {
@@ -1240,7 +1280,8 @@ action_data['aura_beam_II'] = {
     scope = 'single',
     execute = use_aura,
     element = 'AURA',
-    aura_ratio = 1.2
+    aura_ratio = 1.2,
+    damage_type = 'aura'
 }
 
 action_data['aura_charge'] = {
@@ -1263,6 +1304,7 @@ action_data['life_drain_I'] = {
     execute = life_drain,
     element = 'DRAIN',
     base_damage = 35,
+    damage_type = 'magic'
 }
 
 action_data['life_drain_II'] = {
@@ -1275,6 +1317,7 @@ action_data['life_drain_II'] = {
     execute = life_drain,
     element = 'DRAIN',
     base_damage = 100,
+    damage_type = 'magic'
 }
 
 action_data['mana_burn_I'] = {
@@ -1287,6 +1330,7 @@ action_data['mana_burn_I'] = {
     execute = mana_burn,
     element = 'MANABURN',
     base_damage = 5,
+    damage_type = 'mp'
 }
 
 action_data['mana_burn_II'] = {
@@ -1299,6 +1343,7 @@ action_data['mana_burn_II'] = {
     execute = mana_burn,
     element = 'MANABURN',
     base_damage = 15,
+    damage_type = 'mp'
 }
 
 action_data['dragonsbane_I'] = {
@@ -1309,7 +1354,8 @@ action_data['dragonsbane_I'] = {
     aim = 'enemies',
     scope = 'single',
     execute = dragonsbane,
-    base_damage = 100
+    base_damage = 100,
+    damage_type = 'magic'
 }
 
 action_data['dragonsbane_II'] = {
@@ -1320,7 +1366,8 @@ action_data['dragonsbane_II'] = {
     aim = 'enemies',
     scope = 'single',
     execute = dragonsbane,
-    base_damage = 225
+    base_damage = 225,
+    damage_type = 'magic'
 }
 
 action_data['exorcise_I'] = {
@@ -1908,7 +1955,8 @@ action_data['quick_strike'] = {
     priority = 1,
     enemy_animation = {type = 'attack', duration = 1},
     special = 'quick_strike',
-    special_text = 'attacks swiftly!'
+    special_text = 'attacks swiftly!',
+    damage_type = 'attack'
 }
 
 action_data['flame_edge'] = {
@@ -1922,7 +1970,8 @@ action_data['flame_edge'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'elemental_attack',
     element = 'FIRE',
-    damage_ratio = 1.3
+    damage_ratio = 1.3,
+    damage_type = 'attack'
 }
 
 action_data['frost_edge'] = {
@@ -1936,7 +1985,8 @@ action_data['frost_edge'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'elemental_attack',
     element = 'ICE',
-    damage_ratio = 1.3
+    damage_ratio = 1.3,
+    damage_type = 'attack'
 }
 
 action_data['bolt_edge'] = {
@@ -1950,8 +2000,8 @@ action_data['bolt_edge'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'elemental_attack',
     element = 'THUNDER',
-    damage_ratio = 1.4
-
+    damage_ratio = 1.4,
+    damage_type = 'attack'
 }
 
 action_data['gust_edge'] = {
@@ -1965,7 +2015,8 @@ action_data['gust_edge'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'elemental_attack',
     element = 'WIND',
-    damage_ratio = 1.4
+    damage_ratio = 1.4,
+    damage_type = 'attack'
 }
 
 action_data['radiant_edge'] = {
@@ -1979,7 +2030,8 @@ action_data['radiant_edge'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'elemental_attack',
     element = 'LIGHT',
-    damage_ratio = 1.5
+    damage_ratio = 1.5,
+    damage_type = 'attack'
 }
 
 action_data['shadow_edge'] = {
@@ -1993,7 +2045,8 @@ action_data['shadow_edge'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'elemental_attack',
     element = 'DARK',
-    damage_ratio = 1.5
+    damage_ratio = 1.5,
+    damage_type = 'attack'
 }
 
 action_data['focus'] = {
@@ -2093,6 +2146,7 @@ action_data['ram'] = {
     aim = 'enemies',
     scope = 'single',
     execute = ram,
+    damage_type = 'attack'
 }
 
 return action_data

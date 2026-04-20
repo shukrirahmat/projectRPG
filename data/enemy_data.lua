@@ -52,7 +52,7 @@ enemy_data['dragon'] = {
     passive_skills = {'counter_II'},
     strong = {},
     immune = {},
-    species = 'DRAGON'
+    species = 'SHELLED'
 }
 
 return enemy_data

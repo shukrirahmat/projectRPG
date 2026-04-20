@@ -104,4 +104,8 @@ passive_data['ranged'] = {
     name = 'Ranged', desc = 'Normal attack cannot be countered'
 }
 
+passive_data['piercing'] = {
+    name = 'Piercing', desc = 'Attacks pierced through shelled enemies'
+}
+
 return passive_data

@@ -92,4 +92,16 @@ passive_data['crippler'] = {
     name = 'crippler', desc = 'May apply SLOW to the enemy with normal attack'
 }
 
+passive_data['counter_I'] = {
+    name = 'Counter', desc = '50% chance to counters when being attacked'
+}
+
+passive_data['counter_II'] = {
+    name = 'Counter', desc = 'Always counters when being attacked'
+}
+
+passive_data['ranged'] = {
+    name = 'Ranged', desc = 'Normal attack cannot be countered'
+}
+
 return passive_data

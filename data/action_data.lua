@@ -26,7 +26,7 @@ local function damage_reduction_check(skill, user, target, damage, engine)
     if skill.type == 'Magic' and target.status['BARRIER'] then
         damage = math.max(math.floor(damage/2), 1)
     end
-    
+
     if skill.element ~= 'MANABURN' and target.passives['last_stand'] then
         if damage >= target.current_hp and target.current_hp > 1 then
             local roll = math.random(1, 100)
@@ -64,6 +64,22 @@ local function proc_second_attack(user, target, engine)
     end
 end
 
+local function proc_counter_attack(user, target, engine)
+    if user.passives['ranged'] then return end
+
+    local countering = false
+    if target.passives['counter_II'] then
+        countering = true
+    elseif target.passives['counter_I'] then
+        countering = math.random(1, 2) == 1
+    end
+
+    if not countering then return end
+    if target:cannot_act() then return end
+
+    engine.add_combo('counter_attack', target, {user})
+end
+
 local function check_resistance(element, target)
     if target.immune[element] then return 2 end
     if target.strong[element] then return 1 end
@@ -73,9 +89,9 @@ end
 local function proc_on_hit_effect(user, target, engine)
     local list = {'basher', 'mage_slayer', 'sand_master', 'armor_breaker', 'crippler'}
     local status = {'STUN', 'SEAL', 'BLIND', 'FRAIL', 'SLOW'}
-    local base_acc = {100, 100, 100, 100, 100}
+    local base_acc = {25, 25, 25, 100, 100}
     local resist_acc = {10, 10, 10, 40, 40}
-    
+
     for i = 1, #list do
         if user.passives[list[i]] then
             local ref = check_resistance(status[i], target)
@@ -87,23 +103,23 @@ local function proc_on_hit_effect(user, target, engine)
             elseif ref == 2 then
                 accuracy = 0
             end
-            
+
             if status[i] == 'STUN' and target.status['RESILIENT'] then
                 accuracy = 0
             end
-            
+
             if status[i] ~= 'FRAIL' and status[i] ~= 'SLOW' then
                 if target.status[status[i]] then
                     accuracy = 0
                 end
             end
-            
+
             if status[i] == 'FRAIL' or status[i] == 'SLOW' then
                 if target.status[status[i]] and target.status[status[i]].stack == 2 then
                     accuracy = 0
                 end
             end
-            
+
             local roll = math.random(1, 100)
             if roll <= accuracy then
                 engine.add_effect('add_status', user, target, status[i])
@@ -196,12 +212,14 @@ local function normal_attack(self, user, targets, engine)
         if not user.is_focused and not attack_connects(user, target) then
             engine.log_action(text)
             engine.add_effect('missed', user, target)
+            
             if not self.special then
+                proc_counter_attack(user, target, engine)
                 proc_second_attack(user, target, engine)
+            elseif self.special and self.special ~= 'counter_attack' then
+                proc_counter_attack(user, target, engine)
             end
-            goto continue
         end
-
 
         local damage
         local crit = math.random(1, user:get_crit_rate()) == 1
@@ -223,13 +241,18 @@ local function normal_attack(self, user, targets, engine)
             engine.add_effect('resist', user, target, damage)
         elseif modifier.resist == 'immune' then
             engine.add_effect('immune', user, target)
-            goto continue
+            goto post_attack
         end
-        
+
         proc_on_hit_effect(user, target, engine)
 
+        ::post_attack::
+
         if not self.special then
+            proc_counter_attack(user, target, engine)
             proc_second_attack(user, target, engine)
+        elseif self.special and self.special ~= 'counter_attack' then
+            proc_counter_attack(user, target, engine)
         end
 
         ::continue::
@@ -297,7 +320,7 @@ local function damage_magic(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-        
+
         local base_damage = element_boost(user, self.element, self.base_damage)
 
         local var = self.variance or 0.2
@@ -314,7 +337,7 @@ local function damage_magic(self, user, targets, engine)
         else
             effect_ref = 'damage'
         end
-        
+
         damage = damage_reduction_check(self, user, target, damage, engine)
         engine.add_effect(effect_ref, user, target, damage)
 
@@ -368,7 +391,7 @@ local function life_drain(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-        
+
         local base_damage = element_boost(user, self.element, self.base_damage)
         local mod = math.floor(base_damage * 0.2)
         local damage = base_damage + math.random(-mod, mod)
@@ -785,6 +808,17 @@ action_data['second_attack'] = {
     enemy_animation = {type = 'attack', duration = 1},
     special = 'second_attack',
     special_text = 'attacks again!'
+}
+
+action_data['counter_attack'] = {     
+    name = 'Counter Attack',
+    execute = normal_attack,
+    cost = 0,
+    aim = 'enemies',
+    scope = 'single',
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'counter_attack',
+    special_text = 'counters!'
 }
 
 action_data['defend'] = {     

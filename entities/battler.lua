@@ -23,6 +23,23 @@ function battler.new(data)
     for i, ref in pairs(data.passive_skills) do
         self.passives[ref] = true
     end
+    
+    
+    if self.passives['arcane_protection'] then
+        self.strong['FIRE'] = true
+        self.strong['ICE'] = true
+        self.strong['BOLT'] = true
+        self.strong['WIND'] = true
+    end
+
+    if self.passives['celestial_protection'] then
+        self.strong['LIGHT'] = true
+        self.strong['VOID'] = true
+    end
+    
+    if self.passives['last_stand'] then
+        self.last_stand_chance = 100
+    end
 
     function self:take_damage(damage)
         self.current_hp = self.current_hp - damage
@@ -84,8 +101,22 @@ function battler.new(data)
     
     function self:get_dodge_rate()
         if self:cannot_act() then return 0 end        
-        if self.passives['artful_dodger'] then return 4 end        
+        if self.passives['evasion_II'] then 
+            return 4
+        elseif self.passives['evasion_I'] then 
+            return 8
+        end        
         return 0
+    end
+    
+    function self:get_crit_rate()       
+        if self.passives['precision_II'] then 
+            return 8
+        elseif self.passives['precision_I'] then 
+            return 16
+        end    
+        
+        return self.crit_rate
     end
 
     return self

@@ -18,7 +18,7 @@ local function calculate_crit_damage(attacker, target)
     return math.max(damage, 1)
 end
 
-local function damage_reduction_check(skill, user, target, damage)
+local function damage_reduction_check(skill, user, target, damage, engine)
     if target.is_defending and not target:cannot_act() then
         damage = math.max(math.floor(damage/2), 1)
     end
@@ -26,8 +26,19 @@ local function damage_reduction_check(skill, user, target, damage)
     if skill.type == 'Magic' and target.status['BARRIER'] then
         damage = math.max(math.floor(damage/2), 1)
     end
+    
+    if skill.element ~= 'MANABURN' and target.passives['last_stand'] then
+        if damage >= target.current_hp and target.current_hp > 1 then
+            local roll = math.random(1, 100)
+            if roll <= target.last_stand_chance then
+                damage = target.current_hp - 1
+                target.last_stand_chance = math.ceil(target.last_stand_chance * 0.75)
+                engine.add_effect('last_stand', user, target)
+            end
+        end
+    end
 
-    return damage
+    return math.max(1, damage)
 end
 
 local function healing_reduction_check(user, target, amount)
@@ -41,7 +52,12 @@ end
 local function proc_second_attack(user, target, engine)
     local chance = math.floor((user:get_spd() - target:get_spd())/2)
     local success
-    success = math.random(1, 100) <= chance
+
+    if user.passives['dual_wield'] then
+        success = true
+    else
+        success = math.random(1, 100) <= chance
+    end
 
     if success then
         engine.add_combo('second_attack', user, {target})
@@ -95,6 +111,29 @@ local function attack_miss(user, target)
     return false
 end
 
+local function element_boost(user, element, damage)
+    local passives = {
+        'fire_boost', 
+        'ice_boost', 
+        'wind_boost', 
+        'thunder_boost', 
+        'light_boost', 
+        'dark_boost', 
+        'drain_boost'
+    }
+    local elements = {'FIRE', 'ICE', 'WIND', 'THUNDER', 'LIGHT', 'DARK', 'DRAIN'}
+
+    for i = 1, #elements do
+        if element == elements[i] and user.passives[passives[i]] == true then
+            local multiplier = 1.5
+            if elements[i] == 'DRAIN' then multiplier = 2 end
+            return math.floor(damage * multiplier)
+        end
+    end
+
+    return damage
+end
+
 ----EXECUTION----
 
 local function normal_attack(self, user, targets, engine)
@@ -123,7 +162,7 @@ local function normal_attack(self, user, targets, engine)
 
 
         local damage
-        local crit = math.random(1, user.crit_rate) == 1
+        local crit = math.random(1, user:get_crit_rate()) == 1
         if crit then
             damage = calculate_crit_damage(user, target)
             engine.log_action(text, 'Critical hit!', 0.5)
@@ -135,10 +174,10 @@ local function normal_attack(self, user, targets, engine)
         local modifier = normal_attack_modifier(self, user, target, damage)
 
         if not modifier.resist then
-            local damage = damage_reduction_check(self, user, target, modifier.damage)
+            local damage = damage_reduction_check(self, user, target, modifier.damage, engine)
             engine.add_effect('damage', user, target, damage)
         elseif modifier.resist == 'resist' then
-            local damage = damage_reduction_check(self, user, target, modifier.damage)
+            local damage = damage_reduction_check(self, user, target, modifier.damage, engine)
             engine.add_effect('resist', user, target, damage)
         elseif modifier.resist == 'immune' then
             engine.add_effect('immune', user, target)
@@ -213,10 +252,12 @@ local function damage_magic(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
+        
+        local base_damage = element_boost(user, self.element, self.base_damage)
 
         local var = self.variance or 0.2
-        local mod = math.floor(self.base_damage * var)
-        local damage = self.base_damage + math.random(-mod, mod)
+        local mod = math.floor(base_damage * var)
+        local damage = base_damage + math.random(-mod, mod)
         local resistance = check_resistance(self.element, target)
         local effect_ref
 
@@ -228,8 +269,8 @@ local function damage_magic(self, user, targets, engine)
         else
             effect_ref = 'damage'
         end
-
-        damage = damage_reduction_check(self, user, target, damage)
+        
+        damage = damage_reduction_check(self, user, target, damage, engine)
         engine.add_effect(effect_ref, user, target, damage)
 
         ::continue::
@@ -262,8 +303,8 @@ local function use_aura(self, user, targets, engine)
             effect_ref = 'damage'
         end
 
-        damage = damage_reduction_check(self, user, target, damage)
-        engine.add_effect(effect_ref, user, target, math.max(1,damage))
+        damage = damage_reduction_check(self, user, target, damage, engine)
+        engine.add_effect(effect_ref, user, target, damage)
 
         ::continue::
     end
@@ -282,8 +323,8 @@ local function life_drain(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-
-        local base_damage = self.base_damage
+        
+        local base_damage = element_boost(user, self.element, self.base_damage)
         local mod = math.floor(base_damage * 0.2)
         local damage = base_damage + math.random(-mod, mod)
 
@@ -299,7 +340,7 @@ local function life_drain(self, user, targets, engine)
             effect_ref = 'damage'
         end
 
-        damage = damage_reduction_check(self, user, target, damage)
+        damage = damage_reduction_check(self, user, target, damage, engine)
         engine.add_effect(effect_ref, user, target, damage)
 
         if effect_ref ~= 'immune' then
@@ -334,7 +375,7 @@ local function mana_burn(self, user, targets, engine)
             effect_ref = 'mp_damage'
         end
 
-        damage = damage_reduction_check(self, user, target, damage)
+        damage = damage_reduction_check(self, user, target, damage, engine)
         engine.add_effect(effect_ref, user, target, damage)
 
         ::continue::
@@ -357,7 +398,7 @@ local function dragonsbane(self, user, targets, engine)
             goto continue
         end
 
-        damage = damage_reduction_check(self, user, target, damage)
+        damage = damage_reduction_check(self, user, target, damage, engine)
         engine.add_effect('damage', user, target, damage)
 
         ::continue::
@@ -424,7 +465,7 @@ local function status_effect(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-        
+
         if self.element == 'STUN' or self.element == 'SLEEP' or self.element == 'CONFUSE' then
             if target.status['RESILIENT'] then
                 engine.add_effect('immune', user, target)
@@ -645,7 +686,7 @@ local function cover(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-        
+
         engine.log_action(''..user.name..' covers '..target.name..'!')
         engine.add_effect('cover', user, target)
 
@@ -659,18 +700,18 @@ local function ram(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
-        
+
         local base_damage = math.max(1, math.floor(user.current_hp * 0.2))
         local mod = math.floor(base_damage * 0.2) 
         local damage = base_damage + math.random(-mod, mod)
-        
+
         local enemy_damage = damage * 2
         local recoil = damage
 
-        enemy_damage = damage_reduction_check(self, user, target, enemy_damage)
+        enemy_damage = damage_reduction_check(self, user, target, enemy_damage, engine)
         engine.add_effect('damage', user, target, enemy_damage)
-        
-        recoil = damage_reduction_check(self, user, user, recoil)
+
+        recoil = damage_reduction_check(self, user, user, recoil, engine)
         engine.add_effect('damage', user, user, recoil)
 
         ::continue::

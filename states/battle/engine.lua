@@ -76,7 +76,7 @@ local function reaim_target(action)
             action.targets = {new_target}
         end
     end
-    
+
     for i, target in ipairs(action.targets) do
         if target:is_alive() and target.is_covered and action.data.aim ~= 'allies' then
             if target.is_covered.covered_by:is_alive() then
@@ -153,6 +153,8 @@ local function execute_next_action()
     end
 
     action = reaim_target(action)
+
+    local ref = action.ref
     local data = action.data
     local targets = action.targets
     local var = {}
@@ -160,7 +162,8 @@ local function execute_next_action()
     if data.type == 'Magic' or data.type == 'Tech' then
         if current_battler.status['SEAL'] or (data.cost and current_battler.current_mp < data.cost) then
             var = { to_use = data }
-            data = action_data['skill_cancelled']
+            ref = 'skill_cancelled'
+            data = action_data[ref]
             targets = {current_battler}
         else
             current_battler.current_mp = current_battler.current_mp - data.cost
@@ -172,6 +175,15 @@ local function execute_next_action()
     if not current_battler.is_party_member and data.enemy_animation then
         local animation = data.enemy_animation
         middle_screen.animate(current_battler, animation.type, animation.duration * BATTLE_SPEED)
+    end
+
+    if data.type == 'Magic' then
+        if current_battler.passives['dual_cast'] then
+            local roll = math.random(1, 4)
+            if roll == 1 then
+                engine.add_combo(ref, current_battler, targets)
+            end
+        end
     end
 
     phase = 'run_action'
@@ -205,7 +217,7 @@ end
 local function apply_status_effects()
 
     if current_battler.status['POISON'] then
-        local base_amount = math.floor(current_battler.max_hp * 0.1)
+        local base_amount = math.floor(current_battler.max_hp * 0.15)
         local mod = math.floor(base_amount * 0.2)
         local amount = math.max(1, base_amount + math.random(-mod, mod))
         engine.add_effect('poison_damage', current_battler, current_battler, amount)
@@ -224,10 +236,13 @@ local function apply_status_effects()
         end
     end
 
-    if current_battler.passives['regenerate'] then
-        local base_amount = math.floor(current_battler.max_hp * 0.1)
+    if current_battler.passives['regenerate'] and current_battler.current_hp < current_battler.max_hp then
+        local base_amount = math.floor(current_battler.max_hp * 0.15)
         local mod = math.floor(base_amount * 0.2)
-        local amount = math.max(1, base_amount + math.random(-mod, mod))
+        local amount = math.min(
+            current_battler.max_hp - current_battler.current_hp, 
+            base_amount + math.random(-mod, mod)
+        )
         engine.add_effect('recover', current_battler, current_battler, amount)
     end
 end
@@ -344,7 +359,7 @@ local function update_status_effects()
         apply_status_effects()
         clear_status_effects()
     end
-    
+
     current_battler.status_effect_updated = true
     execute_next_effect()
 end

@@ -205,10 +205,9 @@ function skill_menu.draw()
             'left'
         )
 
-        local cost_text = skill.cost
-        if skill.cost <= 0 then cost_text = '-' end
+        local cost_text = ''..skill.cost..'MP'
 
-        lg.setFont(fonts.large_mono)
+        lg.setFont(fonts.medium_mono)
         lg.printf(
             cost_text,
             skill_x,

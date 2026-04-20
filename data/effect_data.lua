@@ -322,6 +322,10 @@ local function cover(self, engine, user, target)
     target.is_covered = {covered_by = user}
 end
 
+local function last_stand(self, engine, user, target)
+    engine.log_effect(""..target.name.." withstood the attack!")
+end
+
 ----------------------------------------------------------
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -446,6 +450,10 @@ effect_data['guardian'] = {
 
 effect_data['cover'] = { 
     apply = cover
+}
+
+effect_data['last_stand'] = { 
+    apply = last_stand
 }
 
 return effect_data

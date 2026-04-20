@@ -27,7 +27,8 @@ local function damage_reduction_check(skill, user, target, damage, engine)
         damage = math.max(math.floor(damage/2), 1)
     end
     
-    if skill.damage_type == 'attack' and target.species == 'SHELLED' and not user.passives['piercing'] then
+    if skill.damage_type == 'attack' and target.passives['intangible'] 
+    and not user.passives['ethereal'] then
         damage = 1
     end
 

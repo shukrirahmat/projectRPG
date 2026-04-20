@@ -49,10 +49,10 @@ enemy_data['dragon'] = {
     sprite_height = sprite_dimension * 1,
     gold_drop = 25,
     exp_drop = 50,
-    passive_skills = {'counter_II'},
+    passive_skills = {'counter_II', 'intangible'},
     strong = {},
     immune = {},
-    species = 'SHELLED'
+    species = 'DRAGON'
 }
 
 return enemy_data

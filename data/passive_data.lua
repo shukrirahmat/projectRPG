@@ -104,8 +104,12 @@ passive_data['ranged'] = {
     name = 'Ranged', desc = 'Normal attack cannot be countered'
 }
 
-passive_data['piercing'] = {
-    name = 'Piercing', desc = 'Attacks pierced through shelled enemies'
+passive_data['intangible'] = {
+    name = 'Intangible', desc = 'Enemy exclusives, normal attacks only deals 1 damage'
+}
+
+passive_data['ethereal'] = {
+    name = 'Ethereal', desc = 'Normal attack can damage intangible enemies'
 }
 
 return passive_data

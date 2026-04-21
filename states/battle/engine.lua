@@ -143,7 +143,7 @@ local function execute_next_action()
     current_battler = get_next_battler()
     current_battler.status_effect_updated = nil    
     local action = current_battler.current_action
-    
+
     current_battler.current_action = nil
 
     action = status_effect_pass(action, current_battler)
@@ -183,6 +183,12 @@ local function execute_next_action()
             local roll = math.random(1, 4)
             if roll == 1 then
                 engine.add_combo(ref, current_battler, targets)
+            end
+        end
+        if current_battler.passives['mana_saver'] then
+            local roll = math.random(1, 4)
+            if roll == 1 then
+                engine.add_effect('recover_mp', current_battler, current_battler, data.cost)
             end
         end
     end

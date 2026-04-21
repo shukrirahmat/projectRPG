@@ -1,3 +1,5 @@
+local equipment_data = require('data.equipment_data')
+
 local party_data = {}
 
 party_data.initial = {}
@@ -79,11 +81,12 @@ party_data.test[1] = {
     str = 58,
     vit = 7,
     agi = 7,
-    skills = {},
-    passive_skills = {'ranged', 'piercing', 'armor_breaker', 'dual_wield', 'regenerate', 'last_stand', 'counter_II'},
+    skills = {'inferno_II'},
+    passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'one'
+    sprite = 'one',
+    armor = equipment_data['reflektor']
 }
 
 party_data.test[2] = {
@@ -95,12 +98,13 @@ party_data.test[2] = {
     str = 56,
     vit = 6,
     agi = 8,
-    skills = {'sandstorm_II'},
-    passive_skills = {'mage_slayer', 'crippler', 'dual_wield', 'dual_cast', 'arcane_protection', 'counter_II'},
+    skills = {'blizzard_II', 'all_heal_I'},
+    passive_skills = {},
     status = {},
     immune = {},
     total_exp = 0,
-    sprite = 'two'
+    sprite = 'two',
+    weapon = equipment_data['poisoned_dagger']
 }
 
 party_data.test[3] = {
@@ -113,10 +117,11 @@ party_data.test[3] = {
     vit = 8,
     agi = 7,
     skills = {},
-    passive_skills = {'arcane_protection', 'sand_master', 'dual_wield', 'counter_I'},
+    passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'three'
+    sprite = 'three',
+    weapon = equipment_data['iron_hammer']
 }
 
 party_data.test[4] = {
@@ -129,7 +134,7 @@ party_data.test[4] = {
     vit = 8,
     agi = 6,
     skills = {},
-    passive_skills = {'arcane_protection'},
+    passive_skills = {},
     status = {},
     total_exp = 0,
     sprite = 'four'

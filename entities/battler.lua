@@ -19,12 +19,32 @@ function battler.new(data)
     self.strong = data.strong or {}
     self.immune = data.immune or {}
     self.is_dead = false
+    self.weapon = data.weapon or nil
+    self.armor = data.armor or nil
+    self.shield = data.shield or nil
 
     for i, ref in pairs(data.passive_skills) do
         self.passives[ref] = true
     end
-    
-    
+
+    if self.weapon and self.weapon.passives then
+        for i, ref in ipairs(self.weapon.passives) do
+            self.passives[ref] = true
+        end
+    end
+
+    if self.armor and self.armor.passives then
+        for i, ref in ipairs(self.armor.passives) do
+            self.passives[ref] = true
+        end
+    end
+
+    if self.shield and self.shield.passives then
+        for i, ref in ipairs(self.shield.passives) do
+            self.passives[ref] = true
+        end
+    end
+
     if self.passives['arcane_protection'] then
         self.strong['FIRE'] = true
         self.strong['ICE'] = true
@@ -36,7 +56,7 @@ function battler.new(data)
         self.strong['LIGHT'] = true
         self.strong['VOID'] = true
     end
-    
+
     if self.passives['last_stand'] then
         self.last_stand_chance = 100
     end
@@ -49,7 +69,7 @@ function battler.new(data)
         self.current_hp = 0
         self.is_dead = true
     end
-    
+
     function self:is_alive()
         return not self.is_dead
     end
@@ -59,28 +79,36 @@ function battler.new(data)
     end
 
     function self:get_atk()
-        local base = self.str
+        local weapon_atk = 0
+        if self.weapon then weapon_atk = self.weapon.atk_power end
+        
+        local base = self.str + weapon_atk
         local buff = 0
         if self.status['MIGHT'] then
             buff = math.floor(0.8 * base)
         end
-        
+
         return base + buff
     end
 
     function self:get_def()
-        local base = self.vit
+        local armor_def = 0
+        if self.armor then armor_def = self.armor.def_power end
+        local shield_def = 0
+        if self.shield then shield_def = self.shield.def_power end
         
+        local base = self.vit + armor_def + shield_def
+
         local buff = 0
         if self.status['STEEL'] then
             buff = math.floor((0.4 * self.status['STEEL'].stack) * base)
         end
-        
+
         local debuff = 0
         if self.status['FRAIL'] then
             debuff = math.floor((0.4 * self.status['FRAIL'].stack) * base)
         end
-        
+
         return math.max(1, base + buff - debuff)
     end
 
@@ -90,15 +118,15 @@ function battler.new(data)
         if self.status['HASTE'] then
             buff = math.floor((0.4 * self.status['HASTE'].stack) * base)
         end
-        
+
         local debuff = 0
         if self.status['SLOW'] then
             debuff = math.floor((0.4 * self.status['SLOW'].stack) * base)
         end
-        
+
         return math.max(1, base + buff - debuff)
     end
-    
+
     function self:get_dodge_rate()
         if self:cannot_act() then return 0 end        
         if self.passives['evasion_II'] then 
@@ -108,14 +136,14 @@ function battler.new(data)
         end        
         return 0
     end
-    
+
     function self:get_crit_rate()       
         if self.passives['precision_II'] then 
             return 8
         elseif self.passives['precision_I'] then 
             return 16
         end    
-        
+
         return self.crit_rate
     end
 

@@ -84,6 +84,10 @@ passive_data['sand_master'] = {
     name = 'Sand Master', desc = 'May apply BLIND to the enemy with normal attack'
 }
 
+passive_data['toxicity'] = {
+    name = 'Toxicity', desc = 'May apply POISON to the enemy with normal attack'
+}
+
 passive_data['armor_breaker'] = {
     name = 'armor_breaker', desc = 'May apply FRAIL to the enemy with normal attack'
 }
@@ -105,11 +109,28 @@ passive_data['ranged'] = {
 }
 
 passive_data['intangible'] = {
-    name = 'Intangible', desc = 'Enemy exclusives, normal attacks only deals 1 damage'
+    name = 'Intangible', desc = '(Enemy exclusive) Normal attacks only deals 1 damage'
 }
 
 passive_data['ethereal'] = {
     name = 'Ethereal', desc = 'Normal attack can damage intangible enemies'
+}
+
+passive_data['fire_combo'] = {
+    name = 'Fire Combo', desc = 'Normal attack will unleash Scorch I'
+}
+passive_data['ice_combo'] = {
+    name = 'Ice Combo', desc = 'Normal attack will unleash Icicle I'
+}
+passive_data['wind_combo'] = {
+    name = 'Wind Combo', desc = 'Normal attack have 50% chance to unleash Cyclone I'
+}
+passive_data['thunder_combo'] = {
+    name = 'Thunder Combo', desc = 'Normal attack have 50% chance to unleash Lightning I'
+}
+
+passive_data['mana_saver'] = {
+    name = 'Mana Saver', desc = '25% chance to regain back the MP cost after casting magic'
 }
 
 return passive_data

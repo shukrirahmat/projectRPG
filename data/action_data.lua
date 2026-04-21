@@ -26,7 +26,7 @@ local function damage_reduction_check(skill, user, target, damage, engine)
     if skill.damage_type == 'magic' and target.status['BARRIER'] then
         damage = math.max(math.floor(damage/2), 1)
     end
-    
+
     if skill.damage_type == 'attack' and target.passives['intangible'] 
     and not user.passives['ethereal'] then
         damage = 1
@@ -92,10 +92,10 @@ local function check_resistance(element, target)
 end
 
 local function proc_on_hit_effect(user, target, engine)
-    local list = {'basher', 'mage_slayer', 'sand_master', 'armor_breaker', 'crippler'}
-    local status = {'STUN', 'SEAL', 'BLIND', 'FRAIL', 'SLOW'}
-    local base_acc = {25, 25, 25, 100, 100}
-    local resist_acc = {10, 10, 10, 40, 40}
+    local list = {'basher', 'mage_slayer', 'sand_master', 'toxicity', 'armor_breaker', 'crippler'}
+    local status = {'STUN', 'SEAL', 'BLIND', 'POISON', 'FRAIL', 'SLOW'}
+    local base_acc = {25, 25, 25, 50, 100, 100}
+    local resist_acc = {10, 10, 10, 20, 40, 40}
 
     for i = 1, #list do
         if user.passives[list[i]] then
@@ -129,6 +129,32 @@ local function proc_on_hit_effect(user, target, engine)
             if roll <= accuracy then
                 engine.add_effect('add_status', user, target, status[i])
             end
+        end
+    end
+end
+
+local function proc_elemental_combo(user, target, engine)
+    if user.passives['fire_combo'] then
+        engine.add_combo('scorch_combo', user, {target})
+    end
+
+    if user.passives['ice_combo'] then
+        engine.add_combo('icicle_combo', user, {target})
+    end
+
+    if user.passives['wind_combo'] then
+        local roll = math.random(1,2)
+        if roll == 1 then
+            local targets = {unpack(engine.get_own_group(target))}
+            engine.add_combo('cyclone_combo', user, targets)
+        end
+    end
+
+    if user.passives['thunder_combo'] then
+        local roll = math.random(1,2)
+        if roll == 1 then
+            local targets = {unpack(engine.get_own_group(target))}
+            engine.add_combo('lightning_combo', user, targets)
         end
     end
 end
@@ -217,14 +243,14 @@ local function normal_attack(self, user, targets, engine)
         if not user.is_focused and not attack_connects(user, target) then
             engine.log_action(text)
             engine.add_effect('missed', user, target)
-            
+
             if not self.special then
                 proc_counter_attack(user, target, engine)
                 proc_second_attack(user, target, engine)
             elseif self.special and self.special ~= 'counter_attack' then
                 proc_counter_attack(user, target, engine)
             end
-            
+
             goto continue
         end
 
@@ -252,6 +278,7 @@ local function normal_attack(self, user, targets, engine)
         end
 
         proc_on_hit_effect(user, target, engine)
+        proc_elemental_combo(user, target, engine)
 
         ::post_attack::
 
@@ -323,7 +350,11 @@ end
 
 local function damage_magic(self, user, targets, engine)
 
-    engine.log_action(''..user.name..' casts '..self.name..'!')
+    if self.combo then
+        engine.log_action('Unleashed '..self.name..'!')
+    else
+        engine.log_action(''..user.name..' casts '..self.name..'!')
+    end
 
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
@@ -2114,8 +2145,6 @@ action_data['valiant_breath'] = {
     element = 'RESILIENT'
 }
 
---NOT DONE--
-
 action_data['guardian_angel'] = {
     name = 'Guardian Angel', 
     type = 'Magic',
@@ -2148,6 +2177,55 @@ action_data['ram'] = {
     scope = 'single',
     execute = ram,
     damage_type = 'attack'
+}
+
+action_data['scorch_combo'] = {
+    name = 'Scorch I', 
+    type = 'Magic',
+    aim = 'enemies',
+    scope = 'single',
+    execute = damage_magic,
+    element = 'FIRE',
+    base_damage = 15,
+    damage_type = 'magic',
+    combo = true
+}
+
+action_data['icicle_combo'] = {
+    name = 'Icicle I', 
+    type = 'Magic',
+    aim = 'enemies',
+    scope = 'single',
+    execute = damage_magic,
+    element = 'ICE',
+    base_damage = 20,
+    damage_type = 'magic',
+    combo = true
+}
+
+action_data['cyclone_combo'] = {
+    name = 'Cyclone I', 
+    type = 'Magic',
+    aim = 'enemies',
+    scope = 'all',
+    execute = damage_magic,
+    element = 'WIND',
+    base_damage = 18,
+    damage_type = 'magic',
+    combo = true
+}
+
+action_data['lightning_combo'] = {
+    name = 'Lightning I', 
+    type = 'Magic',
+    aim = 'enemies',
+    scope = 'all',
+    execute = damage_magic,
+    element = 'THUNDER',
+    base_damage = 18,
+    variance = 0.4,
+    damage_type = 'magic',
+    combo = true
 }
 
 return action_data

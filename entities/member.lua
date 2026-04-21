@@ -21,6 +21,9 @@ function member.new(data)
     self.immune = data.immune or {}
     self.sprite = data.sprite
     self.is_dead = false
+    self.weapon = data.weapon or nil
+    self.armor = data.armor or nil
+    self.shield = data.shield or nil
     
     function self:is_alive()
         return not self.is_dead

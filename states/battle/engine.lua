@@ -224,7 +224,7 @@ end
 local function apply_status_effects()
 
     if current_battler.status['POISON'] then
-        local base_amount = math.floor(current_battler.max_hp * 0.15)
+        local base_amount = math.floor(current_battler.max_hp * 0.1)
         local mod = math.floor(base_amount * 0.2)
         local amount = math.max(1, base_amount + math.random(-mod, mod))
         engine.add_effect('poison_damage', current_battler, current_battler, amount)
@@ -244,7 +244,7 @@ local function apply_status_effects()
     end
 
     if current_battler.passives['regenerate'] and current_battler.current_hp < current_battler.max_hp then
-        local base_amount = math.floor(current_battler.max_hp * 0.15)
+        local base_amount = math.floor(current_battler.max_hp * 0.1)
         local mod = math.floor(base_amount * 0.2)
         local amount = math.min(
             current_battler.max_hp - current_battler.current_hp, 

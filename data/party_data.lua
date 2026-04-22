@@ -82,10 +82,11 @@ party_data.test[1] = {
     vit = 7,
     agi = 7,
     skills = {'inferno_II'},
-    passive_skills = {},
+    passive_skills = {'mastery:SWORD', 'strong:FIRE'},
     status = {},
     total_exp = 0,
     sprite = 'one',
+    weapon = equipment_data['bronze_sword'],
     armor = equipment_data['reflektor']
 }
 

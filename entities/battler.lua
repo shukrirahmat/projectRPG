@@ -60,6 +60,22 @@ function battler.new(data)
     if self.passives['last_stand'] then
         self.last_stand_chance = 100
     end
+    
+    for k, v in pairs(self.passives) do
+        if k:sub(1, 8) == 'mastery:' then
+            if k and self.weapon.class == k:sub(9) then
+                self.weapon_mastery = true
+            end
+        end
+        
+        if k:sub(1, 7) == 'strong:' then
+            if k then self.strong[k:sub(8)] = true end
+        end
+
+        if k:sub(1, 7) == 'immune:' then
+            if k then self.immune[k:sub(8)] = true end
+        end
+    end
 
     function self:take_damage(damage)
         self.current_hp = self.current_hp - damage
@@ -81,8 +97,10 @@ function battler.new(data)
     function self:get_atk()
         local weapon_atk = 0
         if self.weapon then weapon_atk = self.weapon.atk_power end
+        local mastery_buff = 1
+        if self.weapon_mastery then mastery_buff = 1.5 end
         
-        local base = self.str + weapon_atk
+        local base = (self.str + weapon_atk) * mastery_buff
         local buff = 0
         if self.status['MIGHT'] then
             buff = math.floor(0.8 * base)

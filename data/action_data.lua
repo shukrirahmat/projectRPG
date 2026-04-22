@@ -615,6 +615,12 @@ local function heal(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if target.is_dead then goto continue end
+        
+        if self.heal_amount == 'full' then
+            local heal_amount = target.max_hp - target.current_hp
+            engine.add_effect('recover', user, target, heal_amount)
+            goto continue
+        end
 
         local base_amount = self.heal_amount
         local mod = math.floor(base_amount * 0.2)
@@ -1713,11 +1719,11 @@ action_data['final_heal'] = {
     name = 'Final Heal', 
     type = 'Magic',
     cost = 12, 
-    desc = 'Recover 640~960 HP to one ally',
+    desc = 'Recover full HP to one ally. Unaffected by WOUND status',
     aim = 'allies',
     scope = 'single',
     execute = heal,
-    heal_amount = 800
+    heal_amount = 'full'
 }
 
 action_data['all_heal_I'] = {

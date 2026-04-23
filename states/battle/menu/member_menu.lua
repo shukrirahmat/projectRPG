@@ -44,6 +44,8 @@ local function confirm(action)
         is_active = false
         menu.set_action('defend', member, {member})
         menu.next_party_member(member_index + 1)
+    elseif position == 4 then
+        menu.open_item_menu(member_menu, member, member_index)
     end
 end
 
@@ -58,7 +60,13 @@ function member_menu.load(parent_menu, index)
     menu = parent_menu
     member_index = index
     member = parent_menu.party[member_index]
+    
     member.current_action = nil
+    
+    if member.using_item then
+        menu.add_item(member.using_item)
+        member.using_item = nil
+    end
 
     is_active = true
     position = 1

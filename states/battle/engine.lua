@@ -192,6 +192,10 @@ local function execute_next_action()
             end
         end
     end
+    
+    if data.type == 'Item' then
+        current_battler.using_item = nil
+    end
 
     phase = 'run_action'
 end
@@ -533,6 +537,11 @@ function engine.clear_temporary_status(battler)
         if battler.is_focused.countdown <= 0 or battler.is_dead then
             battler.is_focused = nil
         end
+    end
+    
+    if battler.using_item then
+        battle.add_item(battler.using_item)
+        battler.using_item = nil
     end
 end
 

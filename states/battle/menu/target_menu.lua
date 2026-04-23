@@ -1,3 +1,4 @@
+local action_data = require('data.action_data')
 local fonts = require('fonts')
 local input = require('input')
 local renderer = require('helpers.renderer')
@@ -26,11 +27,18 @@ local function move_down()
     end
 end
 
-local function confirm(action)
+local function confirm()
     local target = list[position]
     is_active = false
     prev_menu.close()
     menu.set_action(action_ref, member, {target})
+    
+    if action_data[action_ref].type == 'Item' then
+        local item = action_ref
+        member.using_item = item
+        menu.remove_item(item)
+    end
+    
     menu.next_party_member(member_index + 1)
 end
 

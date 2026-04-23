@@ -2,6 +2,7 @@ local main_menu = require('states.battle.menu.main_menu')
 local member_menu = require('states.battle.menu.member_menu')
 local target_menu = require('states.battle.menu.target_menu')
 local skill_menu = require('states.battle.menu.skill_menu')
+local item_menu = require('states.battle.menu.item_menu')
 local Action = require('entities.action')
 local action_data = require('data.action_data')
 
@@ -10,6 +11,7 @@ local menu = {}
 local battle = nil
 local is_active = false
 local phase = nil
+local party_manager = nil
 
 menu.party = nil
 menu.enemies = nil
@@ -21,9 +23,10 @@ menu.GAP = 10
 menu.FULL_HEIGHT = 180
 menu.OPTION_HEIGHT = (menu.FULL_HEIGHT - menu.PADDING_Y * 2) / 4
 menu.FULL_WIDTH = nil
+menu.party_manager = nil
 
 
-function menu.load(parent_battle, party_battlers, enemy_battlers)
+function menu.load(parent_battle, _party_manager, party_battlers, enemy_battlers)
 
     battle = parent_battle
     menu.FULL_WIDTH = love.graphics.getWidth() - menu.MARGIN_X * 2
@@ -32,6 +35,7 @@ function menu.load(parent_battle, party_battlers, enemy_battlers)
     menu.enemies = enemy_battlers
     is_active = true
 
+    party_manager = _party_manager
     phase = 'main_menu'
     main_menu.load(menu)
 end
@@ -41,13 +45,15 @@ function menu.draw()
     if member_menu.is_active() then member_menu.draw() end
     if target_menu.is_active() then target_menu.draw() end
     if skill_menu.is_active() then skill_menu.draw() end
+    if item_menu.is_active() then item_menu.draw() end
 end
 
 function menu.keypressed(key)
     if phase == 'main_menu' then main_menu.keypressed(key)
     elseif phase == 'member_menu' then member_menu.keypressed(key)
     elseif phase == 'target_menu' then target_menu.keypressed(key)
-    elseif phase == 'skill_menu' then skill_menu.keypressed(key) end
+    elseif phase == 'skill_menu' then skill_menu.keypressed(key)
+    elseif phase == 'item_menu' then item_menu.keypressed(key) end
 end
 
 function menu.is_active()
@@ -114,12 +120,20 @@ function menu.open_skill_menu(prev_menu, member, member_index)
     skill_menu.load(menu, prev_menu, member, member_index)
 end
 
+function menu.open_item_menu(prev_menu, member, member_index)
+    phase = 'item_menu'
+    item_menu.load(menu, prev_menu, member, member_index)
+end
+
 function menu.cancel(prev_menu)
     if prev_menu == member_menu then
         phase = 'member_menu'
     elseif prev_menu == skill_menu then
         skill_menu.stop_targeting()
         phase = 'skill_menu'
+    elseif prev_menu == item_menu then
+        item_menu.stop_targeting()
+        phase = 'item_menu'
     end
 end
 
@@ -160,6 +174,18 @@ function menu.get_dead_targets(group)
     end
 
     return dead
+end
+
+function menu.get_party_items()
+    return party_manager.get_items()
+end
+
+function menu.add_item(item)
+    party_manager.manage_item(item, 1)
+end
+
+function menu.remove_item(item)
+    party_manager.manage_item(item, -1)
 end
 
 return menu

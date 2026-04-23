@@ -606,7 +606,11 @@ end
 
 local function heal(self, user, targets, engine)
 
-    engine.log_action(''..user.name..' casts '..self.name..'!')
+    if self.type == 'Magic' then
+        engine.log_action(''..user.name..' casts '..self.name..'!')
+    elseif self.type == 'Item' then
+        engine.log_action(''..user.name..' used '..self.name..'!')
+    end
 
     if self.scope == 'single' and targets[1].is_dead then
         engine.add_effect('nothing_happened', user, targets[1])
@@ -615,7 +619,7 @@ local function heal(self, user, targets, engine)
 
     for i, target in ipairs(targets) do
         if target.is_dead then goto continue end
-        
+
         if self.heal_amount == 'full' then
             local heal_amount = target.max_hp - target.current_hp
             engine.add_effect('recover', user, target, heal_amount)
@@ -625,6 +629,10 @@ local function heal(self, user, targets, engine)
         local base_amount = self.heal_amount
         local mod = math.floor(base_amount * 0.2)
         local heal_amount = base_amount + math.random(-mod, mod)
+        
+        if self.type == 'Item' then
+            heal_amount = base_amount
+        end
 
         heal_amount = healing_reduction_check(user, target, heal_amount)
         engine.add_effect('recover', user, target, heal_amount)
@@ -633,9 +641,41 @@ local function heal(self, user, targets, engine)
     end
 end
 
+local function heal_mp(self, user, targets, engine)
+
+    if self.type == 'Magic' then
+        engine.log_action(''..user.name..' casts '..self.name..'!')
+    elseif self.type == 'Item' then
+        engine.log_action(''..user.name..' used '..self.name..'!')
+    end
+
+    if self.scope == 'single' and targets[1].is_dead then
+        engine.add_effect('nothing_happened', user, targets[1])
+        return
+    end
+
+    for i, target in ipairs(targets) do
+        if target.is_dead then goto continue end
+
+        if self.heal_amount == 'full' then
+            local heal_amount = target.max_mp - target.current_mp
+            engine.add_effect('recover_mp', user, target, heal_amount)
+            goto continue
+        end
+
+        engine.add_effect('recover_mp', user, target, self.heal_amount)
+
+        ::continue::
+    end
+end
+
 local function revive(self, user, targets, engine)
 
-    engine.log_action(''..user.name..' casts '..self.name..'!')
+    if self.type == 'Magic' then
+        engine.log_action(''..user.name..' casts '..self.name..'!')
+    elseif self.type == 'Item' then
+        engine.log_action(''..user.name..' used '..self.name..'!')
+    end
 
     if self.scope == 'single' and targets[1]:is_alive() then
         engine.add_effect('immune', user, targets[1])
@@ -656,7 +696,11 @@ end
 
 local function cure_status(self, user, targets, engine)
 
-    engine.log_action(''..user.name..' casts '..self.name..'!')
+    if self.type == 'Magic' then
+        engine.log_action(''..user.name..' casts '..self.name..'!')
+    elseif self.type == 'Item' then
+        engine.log_action(''..user.name..' used '..self.name..'!')
+    end
 
     if self.scope == 'single' and targets[1].is_dead then
         engine.add_effect('nothing_happened', user, targets[1])
@@ -2233,5 +2277,98 @@ action_data['lightning_combo'] = {
     damage_type = 'magic',
     combo = true
 }
+
+--ITEM ACTIONS--
+
+action_data['potion'] = {
+    name = 'Potion', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = heal,
+    heal_amount = 40
+}
+
+action_data['master_potion'] = {
+    name = 'Master Potion', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = heal,
+    heal_amount = 'full'
+}
+
+action_data['mana_potion'] = {
+    name = 'mana_potion', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = heal_mp,
+    heal_amount = 50
+}
+
+action_data['antidote'] = {
+    name = 'Antidote', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'POISON'}
+}
+
+action_data['holy_water'] = {
+    name = 'Holy Water', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'CURSE'}
+}
+
+action_data['bandage'] = {
+    name = 'Bandage', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'WOUND'}
+}
+
+action_data['excite_herb'] = {
+    name = 'Excite Herb', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'PARALYSIS'}
+}
+
+action_data['smelly_herb'] = {
+    name = 'Smelly Herb', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'SLEEP'}
+}
+
+action_data['clarity_brew'] = {
+    name = 'Clarity Brew', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'single',
+    execute = cure_status,
+    statuses = {'CONFUSE'}
+}
+
+action_data['elixir_of_life'] = {
+    name = 'Elixir of Life', 
+    type = 'Item',
+    aim = 'allies',
+    scope = 'dead',
+    execute = revive,
+    revive_ratio = 1
+}
+
 
 return action_data

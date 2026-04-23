@@ -4,6 +4,7 @@ local logger = require('states.battle.logger')
 local engine = require('states.battle.engine')
 local menu = require('states.battle.menu')
 local transitions = require('systems.transitions')
+local party_manager = require('systems.party_manager')
 local Member_battler = require('entities.member_battler')
 local Enemy_battler = require('entities.enemy_battler')
 local Action = require('entities.action')
@@ -112,7 +113,7 @@ end
 
 
 function battle.load(game, var)
-    set_party_battlers(game.party.get_members())
+    set_party_battlers(party_manager.get_members())
     set_enemy_battlers(var.enemies)
 
     hud.load(party_battlers)
@@ -161,7 +162,7 @@ function battle.keypressed(key)
 end
 
 function battle.enter_menu()
-    menu.load(battle, party_battlers, enemy_battlers)
+    menu.load(battle, party_manager, party_battlers, enemy_battlers)
     phase = 'menu_input'
 end
 
@@ -174,6 +175,10 @@ end
 function battle.is_won()
     phase = 'battle_won'
     logger.load('Enemy defeated!')
+end
+
+function battle.add_item(item)
+    party_manager.manage_item(item, 1)
 end
 
 return battle

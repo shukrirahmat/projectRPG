@@ -1,18 +1,22 @@
-local party = {}
+local party_manager = {}
 
 local members = nil
 local items = nil
 
-function party.load(_members)
+function party_manager.load(_members)
     members = _members
     items = {}
 end
 
-function party.get_members()
+function party_manager.get_members()
     return members
 end
 
-function party.manage_item(ref, quantity)
+function party_manager.get_items()
+    return items
+end
+
+function party_manager.manage_item(ref, quantity)
     if items[ref] then
         items[ref] = items[ref] + quantity
     elseif not items[ref] and quantity > 0 then
@@ -24,4 +28,4 @@ function party.manage_item(ref, quantity)
     end
 end
 
-return party 
+return party_manager 

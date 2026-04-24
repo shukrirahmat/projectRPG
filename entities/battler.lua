@@ -61,6 +61,10 @@ function battler.new(data)
         self.last_stand_chance = 100
     end
     
+    if self.passives['head_start'] then
+        self.status['HASTE'] = { stack = 2, countdown = 6 }
+    end
+    
     for k, v in pairs(self.passives) do
         if k:sub(1, 8) == 'mastery:' then
             if k and self.weapon.class == k:sub(9) then

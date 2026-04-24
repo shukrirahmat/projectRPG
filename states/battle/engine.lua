@@ -256,7 +256,7 @@ local function apply_status_effects()
             current_battler.max_hp - current_battler.current_hp, 
             base_amount + math.random(-mod, mod)
         )
-        engine.add_effect('recover', current_battler, current_battler, amount)
+        engine.add_effect('regen', current_battler, current_battler, amount)
     end
 end
 
@@ -505,6 +505,12 @@ function engine.add_combo(ref, user, targets)
     local data = action_data[ref]
     local combo = Action.new(ref, data, user, targets)
     table.insert(combo_queue, combo)
+end
+
+function engine.add_instant_combo(ref, user, targets)
+    local data = action_data[ref]
+    local combo = Action.new(ref, data, user, targets)
+    table.insert(combo_queue, 1, combo)
 end
 
 function engine.kill_target(target)

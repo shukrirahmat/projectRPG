@@ -149,6 +149,18 @@ passive_data['mana_saver'] = {
     name = 'Mana Saver', desc = '25% chance to regain back the MP cost after casting magic'
 }
 
+passive_data['head_start'] = {
+    name = 'Head Start', desc = 'Start battle with maximum stacks of HASTE'
+}
+
+passive_data['vampirism_I'] = {
+    name = 'Vampirism I', desc = 'Normal attack restore 10% of the damage to HP'
+}
+
+passive_data['vampirism_II'] = {
+    name = 'Vampirism II', desc = 'Normal attack restore 25% of the damage to HP'
+}
+
 local weapon_mastery = {'SWORD', 'AXE', 'HAMMER', 'FIST', 'SPEAR', 'DAGGER', 'BOW'}
 
 for i, weapon in ipairs(weapon_mastery) do

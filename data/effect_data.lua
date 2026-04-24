@@ -68,7 +68,12 @@ end
 
 local function recover(self, engine, user, target, value)
     target.current_hp = math.min(target.max_hp, target.current_hp + value)
-    engine.log_effect(''..target.name..' recovers '..value..' HP.');
+    
+    if self.regen then
+        engine.log_effect(''..target.name..' regenerated '..value..' HP.');
+    else
+        engine.log_effect(''..target.name..' recovers '..value..' HP.');
+    end
 end
 
 local function recover_mp(self, engine, user, target, value)
@@ -406,6 +411,11 @@ effect_data['focus'] = {
 
 effect_data['recover'] = { 
     apply = recover, 
+}
+
+effect_data['regen'] = { 
+    apply = recover, 
+    regen = true
 }
 
 effect_data['recover_mp'] = { 

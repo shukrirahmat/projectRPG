@@ -137,18 +137,18 @@ end
 
 local function proc_elemental_combo(user, target, engine)
     if user.passives['fire_combo'] then
-        engine.add_combo('scorch_combo', user, {target})
+        engine.add_instant_combo('scorch_combo', user, {target})
     end
 
     if user.passives['ice_combo'] then
-        engine.add_combo('icicle_combo', user, {target})
+        engine.add_instant_combo('icicle_combo', user, {target})
     end
 
     if user.passives['wind_combo'] then
         local roll = math.random(1,2)
         if roll == 1 then
             local targets = {unpack(engine.get_own_group(target))}
-            engine.add_combo('cyclone_combo', user, targets)
+            engine.add_instant_combo('cyclone_combo', user, targets)
         end
     end
 
@@ -156,7 +156,7 @@ local function proc_elemental_combo(user, target, engine)
         local roll = math.random(1,2)
         if roll == 1 then
             local targets = {unpack(engine.get_own_group(target))}
-            engine.add_combo('lightning_combo', user, targets)
+            engine.add_instant_combo('lightning_combo', user, targets)
         end
     end
 end
@@ -182,6 +182,20 @@ local function normal_attack_modifier(skill, user, target, damage)
     end
 
     return { damage = damage, resist = resist }
+end
+
+local function apply_lifesteal(user, target, damage, engine)
+    if not user.passives['vampirism_I'] and not user.passives['vampirism_II'] then return end
+
+    local heal_amount
+    if user.passives['vampirism_II'] then
+        heal_amount = math.floor(0.25 * damage)
+    elseif user.passives['vampirism_I'] then
+        heal_amount = math.floor(0.1 * damage)
+    end
+
+    heal_amount = healing_reduction_check(user, user, heal_amount)
+    engine.add_effect('recover', user, user, heal_amount)
 end
 
 local function attack_connects(user, target)
@@ -295,7 +309,7 @@ local function normal_attack(self, user, targets, engine)
     local text = ''..user.name..' attacks!'
 
     if self.special then
-        if self.special == 'elemental_attack' then
+        if not self.special_text then
             text = ''..user.name..' used '..self.name..'!'
         else
             text = ''..user.name..' '..self.special_text..''
@@ -327,27 +341,42 @@ local function normal_attack(self, user, targets, engine)
             goto continue
         end
 
-        local damage
+        local base_damage
         local crit = math.random(1, user:get_crit_rate()) == 1
+        local wake_target
+
+        if self.special == 'sleep_crit' and target.status['SLEEP'] then
+            crit = true
+            wake_target = true
+        end
+
         if crit then
-            damage = calculate_crit_damage(user, target)
+            base_damage = calculate_crit_damage(user, target)
             engine.log_action(text, 'Critical hit!', 0.5)
         else
-            damage = calculate_attack_damage(user, target)
+            base_damage = calculate_attack_damage(user, target)
             engine.log_action(text)
         end
 
-        local modifier = normal_attack_modifier(self, user, target, damage)
+        local modifier = normal_attack_modifier(self, user, target, base_damage)
+        local damage = modifier.damage
+        local resist_type = modifier.resist
 
-        if not modifier.resist then
-            local damage = damage_reduction_check(self, user, target, modifier.damage, engine)
-            engine.add_effect('damage', user, target, damage)
-        elseif modifier.resist == 'resist' then
-            local damage = damage_reduction_check(self, user, target, modifier.damage, engine)
-            engine.add_effect('resist', user, target, damage)
-        elseif modifier.resist == 'immune' then
+        if resist_type == 'immune' then
             engine.add_effect('immune', user, target)
             goto post_attack
+        end
+
+        damage = damage_reduction_check(self, user, target, modifier.damage, engine)        
+        if resist_type == 'resist' then
+            engine.add_effect('resist', user, target, damage)
+        else
+            engine.add_effect('damage', user, target, damage)
+        end
+        apply_lifesteal(user, target, damage, engine)
+
+        if wake_target then
+            engine.add_effect('clear_status', user, target, 'SLEEP')
         end
 
         proc_on_hit_effect(user, target, engine)
@@ -425,7 +454,7 @@ end
 local function damage_magic(self, user, targets, engine)
 
     if self.combo then
-        engine.log_action('Unleashed '..self.name..'!')
+        engine.log_action(''..user.name..' unleashed '..self.name..'!')
     else
         engine.log_action(''..user.name..' casts '..self.name..'!')
     end
@@ -2205,6 +2234,19 @@ action_data['shadow_edge'] = {
     damage_type = 'attack'
 }
 
+action_data['nightmare_edge'] = {
+    name = 'Nightmare Edge', 
+    type = 'Tech',
+    cost = 6, 
+    desc = 'A normal attack that deals critical hit to sleeping enemy and woke them.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = normal_attack,
+    enemy_animation = {type = 'attack', duration = 1},
+    special = 'sleep_crit',
+    damage_type = 'attack'
+}
+
 action_data['focus'] = {
     name = 'Focus', 
     type = 'Tech',
@@ -2225,11 +2267,21 @@ action_data['purge'] = {
     execute = purge,
 }
 
-action_data['undo'] = {
-    name = 'Undo', 
+action_data['undo_I'] = {
+    name = 'Undo I', 
+    type = 'Magic',
+    cost = 8, 
+    desc = 'Remove attack, defense and speed increases to one enemy.',
+    aim = 'enemies',
+    scope = 'single',
+    execute = undo,
+}
+
+action_data['undo_II'] = {
+    name = 'Undo II', 
     type = 'Magic',
     cost = 15, 
-    desc = 'Remove attack, defense and speed increases from all enemies.',
+    desc = 'Remove attack, defense and speed increases to all enemies.',
     aim = 'enemies',
     scope = 'all',
     execute = undo,

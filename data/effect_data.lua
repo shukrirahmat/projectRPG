@@ -1,3 +1,5 @@
+local item_data = require('data.item_data')
+
 local effect_data = {}
 
 local function empty(self, engine, user, target, value)
@@ -336,6 +338,14 @@ local function steal_gold(self, engine, user, target, amount)
     end
 end
 
+local function steal_item(self, engine, user, target)
+    local item_name = item_data[target.stealable_item].name
+    engine.log_effect(""..user.name.." stole "..item_name.." from "..target.name.."!")
+    
+    engine.party_gain_item(target.stealable_item)
+    target.stealable_item = nil
+end
+
 ----------------------------------------------------------
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -469,6 +479,11 @@ effect_data['last_stand'] = {
 
 effect_data['steal_gold'] = { 
     apply = steal_gold,
+    dead_target = true
+}
+
+effect_data['steal_item'] = { 
+    apply = steal_item,
     dead_target = true
 }
 

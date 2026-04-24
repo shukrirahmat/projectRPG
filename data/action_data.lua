@@ -235,15 +235,14 @@ local function proc_steal(user, target, engine)
         end
     end
 
-    --[[if user.passives['snatcher'] then
-        if target.stealableItem then
-            local roll = math.random(1, target.stealableItem.rate)
+    if user.passives['snatcher'] then
+        if target.stealable_item then
+            local roll = math.random(1, target.snatch_rate)
             if roll == 1 then
-                local stealEffect = effectCreator.new('stealItem', user, target, target.stealableItem.item)
-                table.insert(effects, stealEffect)
+                engine.add_effect('steal_item', user, target)
             end
         end
-    end]]
+    end
 end
 
 local function instakill_triggered(user, target)
@@ -251,7 +250,7 @@ local function instakill_triggered(user, target)
         local ref = check_resistance('DEATH', target)
         local accuracy
         if ref == 0 then 
-            accuracy = 20
+            accuracy = 15
         elseif ref == 1 then
             accuracy = 5
         elseif ref == 2 then
@@ -2374,7 +2373,7 @@ action_data['master_potion'] = {
 }
 
 action_data['mana_potion'] = {
-    name = 'mana_potion', 
+    name = 'Mana Potion', 
     type = 'Item',
     aim = 'allies',
     scope = 'single',

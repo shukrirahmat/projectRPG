@@ -17,6 +17,8 @@ function enemy_battler.new(data, name)
     self.sprite = enemy_sprites.get_sprite(data.ref)
     self.species = data.species or nil
     self.stealable_gold = data.stealable_gold
+    self.stealable_item = data.stealable_item
+    self.snatch_rate = data.snatch_rate
 
     return self
 end

@@ -533,6 +533,10 @@ function engine.party_gain_gold(amount)
     party_manager.manage_gold(amount)
 end
 
+function engine.party_gain_item(item)
+    party_manager.manage_item(item, 1)
+end
+
 function engine.clear_temporary_status(battler)
 
     battler.current_action = nil

@@ -323,6 +323,19 @@ local function last_stand(self, engine, user, target)
     engine.log_effect(""..target.name.." withstood the attack!")
 end
 
+local function steal_gold(self, engine, user, target, amount)
+    
+    if target.is_party_member then
+        engine.party_lose_gold(amount)
+        user.stealable_gold = user.stealable_gold + amount
+        engine.log_effect(""..user.name.." stole "..amount.." gold from the party!")
+    else
+        target.stealable_gold = target.stealable_gold - amount
+        engine.party_gain_gold(amount)
+        engine.log_effect(""..user.name.." stole "..amount.." gold from "..target.name.."!")
+    end
+end
+
 ----------------------------------------------------------
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -390,7 +403,8 @@ effect_data['recover_mp'] = {
 }
 
 effect_data['revive'] = {
-    apply = revive
+    apply = revive,
+    dead_target = true
 }
 
 effect_data['missed'] = { 
@@ -451,6 +465,11 @@ effect_data['cover'] = {
 
 effect_data['last_stand'] = { 
     apply = last_stand
+}
+
+effect_data['steal_gold'] = { 
+    apply = steal_gold,
+    dead_target = true
 }
 
 return effect_data

@@ -16,6 +16,7 @@ function enemy_battler.new(data, name)
     self.gold_drop = data.gold_drop
     self.sprite = enemy_sprites.get_sprite(data.ref)
     self.species = data.species or nil
+    self.stealable_gold = data.stealable_gold
 
     return self
 end

@@ -6,6 +6,7 @@ local effect_data = require('data.effect_data')
 local engine = {}
 
 local battle = nil
+local party_manager = nil
 local party = nil
 local enemies = nil
 local logger = nil
@@ -137,6 +138,7 @@ end
 local function execute_next_action()
     if #active_battlers <= 0 then
         finish_round()
+        print(engine.get_party_gold())
         return
     end
 
@@ -299,7 +301,7 @@ local function execute_next_effect()
     local effect = effect_queue[1]
     table.remove(effect_queue, 1)
 
-    if effect.target:is_alive() or effect.ref == 'revive' then
+    if effect.target:is_alive() or effect.data.dead_target then
 
         if effect.target.is_invincible then
             effect = Effect.new('immune', effect_data['immune'], effect.user, effect.target)
@@ -392,9 +394,10 @@ end
 ---PUBLIC---
 
 
-function engine.load(_battle, _party, _enemies, _logger, _middle_screen, _hud)
+function engine.load(_battle, _party_manager, _party, _enemies, _logger, _middle_screen, _hud)
 
     battle = _battle
+    party_manager = _party_manager
     party = _party
     enemies = _enemies
     logger = _logger
@@ -516,6 +519,18 @@ function engine.remove_active_battler(target)
             table.remove(active_battlers, i)
         end
     end
+end
+
+function engine.get_party_gold()
+    return party_manager.get_gold()
+end
+
+function engine.party_lose_gold(amount)
+    party_manager.manage_gold(-amount)
+end
+
+function engine.party_gain_gold(amount)
+    party_manager.manage_gold(amount)
 end
 
 function engine.clear_temporary_status(battler)

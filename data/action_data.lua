@@ -73,10 +73,12 @@ local function proc_counter_attack(user, target, engine)
     if user.passives['ranged'] then return end
 
     local countering = false
-    if target.passives['counter_II'] then
+    if target.passives['counter_III'] then
         countering = true
-    elseif target.passives['counter_I'] then
+    elseif target.passives['counter_II'] then
         countering = math.random(1, 2) == 1
+    elseif target.passives['counter_I'] then
+        countering = math.random(1, 4) == 1
     end
 
     if not countering then return end
@@ -200,6 +202,70 @@ local function attack_connects(user, target)
     return true
 end
 
+local function proc_steal(user, target, engine)
+    if user.is_party_member and target.is_party_member then
+        return
+    end
+
+    if not user.is_party_member and not target.is_party_member then
+        return
+    end
+
+    if user.passives['pincher'] then
+        local success = false
+        local roll = math.random(1, 8)
+        if roll == 1 or target:cannot_act() then
+            success = true
+        end
+
+        if success then
+            local base_amount = user.lvl * 5
+            local mod = math.floor(base_amount * 0.5)
+            local amount = base_amount + math.random(-mod, mod)
+            local min;
+
+            if target.is_party_member then
+                min = engine.get_party_gold()
+            else
+                min = target.stealable_gold
+            end
+
+            local steal_amount = math.min(min, amount)
+            engine.add_effect('steal_gold', user, target, steal_amount)
+        end
+    end
+
+    --[[if user.passives['snatcher'] then
+        if target.stealableItem then
+            local roll = math.random(1, target.stealableItem.rate)
+            if roll == 1 then
+                local stealEffect = effectCreator.new('stealItem', user, target, target.stealableItem.item)
+                table.insert(effects, stealEffect)
+            end
+        end
+    end]]
+end
+
+local function instakill_triggered(user, target)
+    if user.passives['executioner'] then
+        local ref = check_resistance('DEATH', target)
+        local accuracy
+        if ref == 0 then 
+            accuracy = 20
+        elseif ref == 1 then
+            accuracy = 5
+        elseif ref == 2 then
+            accuracy = 0
+        end
+        local roll = math.random(1, 100)
+        if roll <= accuracy then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function element_boost(user, element, damage)
     local passives = {
         'fire_boost', 
@@ -254,6 +320,14 @@ local function normal_attack(self, user, targets, engine)
             goto continue
         end
 
+        if instakill_triggered(user, target) then
+            engine.log_action(text)
+            engine.add_effect('kill', user, target)
+            proc_elemental_combo(user, target, engine)
+            proc_steal(user, target, engine)
+            goto continue
+        end
+
         local damage
         local crit = math.random(1, user:get_crit_rate()) == 1
         if crit then
@@ -279,6 +353,7 @@ local function normal_attack(self, user, targets, engine)
 
         proc_on_hit_effect(user, target, engine)
         proc_elemental_combo(user, target, engine)
+        proc_steal(user, target, engine)
 
         ::post_attack::
 
@@ -629,7 +704,7 @@ local function heal(self, user, targets, engine)
         local base_amount = self.heal_amount
         local mod = math.floor(base_amount * 0.2)
         local heal_amount = base_amount + math.random(-mod, mod)
-        
+
         if self.type == 'Item' then
             heal_amount = base_amount
         end

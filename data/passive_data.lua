@@ -89,18 +89,34 @@ passive_data['toxicity'] = {
 }
 
 passive_data['armor_breaker'] = {
-    name = 'armor_breaker', desc = 'May apply FRAIL to the enemy with normal attack'
+    name = 'Armor Breaker', desc = 'May apply FRAIL to the enemy with normal attack'
 }
 
 passive_data['crippler'] = {
-    name = 'crippler', desc = 'May apply SLOW to the enemy with normal attack'
+    name = 'Crippler', desc = 'May apply SLOW to the enemy with normal attack'
+}
+
+passive_data['executioner'] = {
+    name = 'Executioner', desc = 'Might instantly kill enemy with normal attack'
+}
+
+passive_data['pincher'] = {
+    name = 'Pincher', desc = 'Might steal gold from enemy  with normal attack'
+}
+
+passive_data['snatcher'] = {
+    name = 'Snatcher', desc = 'Might steal item from enemy with normal attack'
 }
 
 passive_data['counter_I'] = {
-    name = 'Counter', desc = '50% chance to counters when being attacked'
+    name = 'Counter', desc = '25% chance to counter when being attacked'
 }
 
 passive_data['counter_II'] = {
+    name = 'Counter', desc = '50% chance to counter when being attacked'
+}
+
+passive_data['counter_III'] = {
     name = 'Counter', desc = 'Always counters when being attacked'
 }
 

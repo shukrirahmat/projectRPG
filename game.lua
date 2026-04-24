@@ -33,6 +33,7 @@ function game.load()
     party_manager.manage_item('potion', 10)
     party_manager.manage_item('antidote', 5)
     party_manager.manage_item('bandage', 3)
+    party_manager.manage_gold(200)
 
     game.current_map = require('maps.overworld')
     game.player_position = game.current_map.start_position

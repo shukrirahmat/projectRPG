@@ -14,9 +14,10 @@ enemy_data['goblin'] = {
     sprite_height = sprite_dimension * 0.75,
     gold_drop = 5,
     exp_drop = 12,
-    passive_skills = {},
+    passive_skills = {'pincher'},
     strong = {},
     immune = {},
+    stealable_gold = 15
 }
 
 enemy_data['skeleton'] = {
@@ -34,7 +35,8 @@ enemy_data['skeleton'] = {
     passive_skills = {},
     strong = {},
     immune = {},
-    species = 'UNDEAD'
+    species = 'UNDEAD',
+    stealable_gold = 20
 }
 
 enemy_data['dragon'] = {
@@ -52,7 +54,8 @@ enemy_data['dragon'] = {
     passive_skills = {},
     strong = {},
     immune = {},
-    species = 'DRAGON'
+    species = 'DRAGON',
+    stealable_gold = 25
 }
 
 return enemy_data

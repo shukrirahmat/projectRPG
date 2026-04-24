@@ -168,7 +168,7 @@ end
 
 function battle.run_action()
     set_enemy_action()
-    engine.load(battle, party_battlers, enemy_battlers, logger, middle_screen, hud)
+    engine.load(battle, party_manager, party_battlers, enemy_battlers, logger, middle_screen, hud)
     phase = 'battle_running'
 end
 

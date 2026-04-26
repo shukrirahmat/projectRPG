@@ -13,10 +13,9 @@ local move_direction = nil
 local directions = nil
 
 
-function player.load(_current_map, start_position, player_facing)
+function player.load(start_position, player_facing)
     
     position = start_position
-    current_map = _current_map
     current_sprite = player_sprites.get_quad(player_facing)[1]
     move_speed = 0.3
     
@@ -25,25 +24,25 @@ function player.load(_current_map, start_position, player_facing)
         dx = 0, dy = -1,
         axis = "y",
         sprite = player_sprites.get_quad('back'),
-        can_move = function() return position.y > 1 end
+        can_move = function(mapper) return position.y > 1 end
     },
     down = {
         dx = 0, dy = 1,
         axis = "y",
         sprite = player_sprites.get_quad('front'),
-        can_move = function() return position.y < current_map.height end
+        can_move = function(mapper) return position.y < mapper.get_current_map().height end
     },
     left = {
         dx = -1, dy = 0,
         axis = "x",
         sprite = player_sprites.get_quad('left'),
-        can_move = function() return position.x > 1 end
+        can_move = function(mapper) return position.x > 1 end
     },
     right = {
         dx = 1, dy = 0,
         axis = "x",
         sprite = player_sprites.get_quad('right'),
-        can_move = function() return position.x < current_map.width end
+        can_move = function(mapper) return position.x < mapper.get_current_map().width end
     }
 }
     
@@ -55,7 +54,7 @@ function player.update(dt, field, mapper, encounter)
         local direction = directions[move_direction]
         current_sprite = direction.sprite[1]
 
-        if not direction.can_move() then
+        if not direction.can_move(mapper) then
             is_moving = false
             move_timer = 0
             return
@@ -75,7 +74,7 @@ function player.update(dt, field, mapper, encounter)
             end
         else
             player.stop(direction, mapper)
-            player.check_area(field, encounter)
+            player.check_area(field, mapper, encounter)
         end
     else
         player.check_hold_movement()
@@ -91,7 +90,8 @@ function player.stop(direction, mapper)
     mapper.stop(direction)
 end
 
-function player.check_area(field, encounter)
+function player.check_area(field, mapper, encounter)
+    local current_map = mapper.get_current_map()
     local event = current_map.events[''..position.x..','..position.y..'']
     local has_encounter = current_map.has_encounter
     

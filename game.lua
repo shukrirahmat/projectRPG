@@ -2,6 +2,8 @@ local field = require('states.field')
 local battle = require('states.battle')
 local party_data = require('data.party_data')
 local party_manager = require('systems.party_manager')
+local player = require('systems.player')
+local mapper = require('systems.mapper')
 local Member = require('entities.member')
 local graphics = require('graphics')
 local fonts = require('fonts')
@@ -11,10 +13,6 @@ local game = {}
 
 local states = { field = field , battle = battle}
 local current_state = nil
-
-game.current_map = nil
-game.player_position = nil
-game.player_facing = nil
 
 function game.load()
     
@@ -35,9 +33,11 @@ function game.load()
     party_manager.manage_item('bandage', 3)
     party_manager.manage_gold(200)
 
-    game.current_map = require('maps.overworld')
-    game.player_position = game.current_map.start_position
-    game.player_facing = 'front'
+    local current_map = require('maps.overworld')
+    local start_position = current_map.start_position
+    
+    mapper.load(current_map, start_position)
+    player.load(start_position, 'front')
     
     game.switch_state('field')
 end

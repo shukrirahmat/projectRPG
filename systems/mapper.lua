@@ -75,4 +75,8 @@ function mapper.get_camera()
     return camera
 end
 
+function mapper.get_current_map()
+    return current_map
+end
+
 return mapper

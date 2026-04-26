@@ -1,5 +1,5 @@
-local player = require('states.field.player')
-local mapper = require('states.field.mapper')
+local player = require('systems.player')
+local mapper = require('systems.mapper')
 local encounter = require('states.field.encounter')
 local transitions = require('systems.transitions')
 local input = require('input')
@@ -11,9 +11,7 @@ local phase = nil
 function field.load(_game)
 
     game = _game
-    player.load(game.current_map, game.player_position, game.player_facing)
-    mapper.load(game.current_map, game.player_position)
-    encounter.load(game.current_map)
+    encounter.load(mapper.get_current_map())
 
     transitions.load('fade_in', 0.5, function() phase = 'player_control' end)
     phase = 'fade_in'
@@ -51,11 +49,11 @@ end
 function field.change_area(next_map)
 
     local function change_area()
-
-        game.current_map = require('maps.'..next_map..'')
-        game.player_position = game.current_map.start_position
-        game.player_facing = 'front'
-
+        local current_map = require('maps.'..next_map..'')
+        local start_position = current_map.start_position
+    
+        mapper.load(current_map, start_position)
+        player.load(start_position, 'front')
         game.switch_state('field')
     end
 

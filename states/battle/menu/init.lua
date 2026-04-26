@@ -188,4 +188,8 @@ function menu.remove_item(item)
     party_manager.manage_item(item, -1)
 end
 
+function menu.flee_battle()
+    battle.flee()
+end
+
 return menu

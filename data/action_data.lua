@@ -1372,7 +1372,7 @@ action_data['umbra_I'] = {
     execute = damage_magic,
     element = 'DARK',
     base_damage = 30,
-    variance = 0.3,
+    variance = 0.4,
     damage_type = 'magic'
 }
 
@@ -1386,7 +1386,7 @@ action_data['umbra_II'] = {
     execute = damage_magic,
     element = 'DARK',
     base_damage = 90,
-    variance = 0.3,
+    variance = 0.4,
     damage_type = 'magic'
 }
 

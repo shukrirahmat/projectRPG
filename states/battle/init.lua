@@ -16,8 +16,9 @@ local utils = require('helpers.utils')
 
 local battle = {}
 
-local party_battlers = {}
-local enemy_battlers = {}
+local game = nil
+local party_battlers = nil
+local enemy_battlers = nil
 local phase = nil
 
 
@@ -35,7 +36,7 @@ local function draw_test_details()
             'right'
         )
     end
-    
+
     --[[for i, member in ipairs(party_battlers) do
         local hp = ''..member.current_hp..'/'..member.max_hp..' '..member.current_mp..'/'..member.max_mp..''
         local stat = 'ATK: '..member:get_atk()..' DEF: '..member:get_def()..'  SPD: '..member:get_spd()..''
@@ -50,6 +51,8 @@ local function draw_test_details()
 end
 
 local function set_party_battlers(party)
+    party_battlers = {}
+    
     for i, member in ipairs(party) do
         local new_battler = Member_battler.new(member)
         table.insert(party_battlers, new_battler)
@@ -57,6 +60,8 @@ local function set_party_battlers(party)
 end
 
 local function set_enemy_battlers(enemies)
+    enemy_battlers = {}
+    
     for k, v in pairs(enemies) do
         for i = 1, v do
             local name = utils.capitalize(k)
@@ -74,7 +79,7 @@ local function set_enemy_action()
         if not enemy:is_alive() then
             goto continue
         end
-        
+
         local action_ref = enemy_action.get(enemy)
         local data = action_data[action_ref]
 
@@ -92,10 +97,10 @@ local function set_enemy_action()
             local target = engine.get_random_target(group)
             targets = {target}
         end
-        
+
         local new_action = Action.new(action_ref, data, enemy, targets)
         enemy.current_action = new_action
-        
+
         ::continue::
     end
 end
@@ -108,11 +113,54 @@ local function intro_update(dt)
     end
 end
 
+local function flee_success()
+    local enemy_total_level = 0
+    local party_total_level = 0
+
+    for i, enemy in ipairs(enemy_battlers) do
+        if enemy:is_alive() then
+            enemy_total_level = enemy_total_level + enemy.lvl
+        end
+    end
+    
+    for i, member in ipairs(party_battlers) do
+        if member:is_alive() then
+            party_total_level = party_total_level + member.lvl
+        end
+    end
+    
+    local difference = party_total_level - enemy_total_level
+    local roll = math.random(1, 100)
+    if roll <= ( 50 + difference * 2 ) then
+        return true
+    end
+    
+    return false
+end    
+
+local function handle_flee()
+    local success = flee_success()
+    
+    local function escape()
+        logger.close()
+        game.switch_state('field')
+    end
+    
+    logger.stay()
+    if success then
+        logger.add('The party successfully escaped!', 
+            function() transitions.load('fade_out', 0.5, escape) end
+        )
+    else
+        logger.add('But the enemies blocked the exit!', battle.run_action)
+    end
+end
 
 ---PUBLIC---
 
 
-function battle.load(game, var)
+function battle.load(_game, var)
+    game = _game
     set_party_battlers(party_manager.get_members())
     set_enemy_battlers(var.enemies)
 
@@ -132,6 +180,9 @@ function battle.update(dt)
         engine.update(dt)
     elseif phase == 'battle_won' then
         logger.update(dt)
+    elseif phase == 'fleeing' then
+        logger.update(dt)
+        transitions.update(dt)
     end
 end
 
@@ -180,5 +231,11 @@ end
 function battle.add_item(item)
     party_manager.manage_item(item, 1)
 end
+
+function battle.flee()
+    phase = 'fleeing'
+    logger.load('The party tried to escape...', handle_flee)
+end
+
 
 return battle

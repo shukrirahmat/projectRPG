@@ -26,6 +26,9 @@ local function confirm()
     if position == 1 then
         is_active = false
         menu.next_party_member(1)
+    elseif position == 2 then
+        is_active = false
+        menu.flee_battle()
     end
 end
 

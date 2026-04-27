@@ -138,7 +138,6 @@ end
 local function execute_next_action()
     if #active_battlers <= 0 then
         finish_round()
-        print(engine.get_party_gold())
         return
     end
 
@@ -366,6 +365,7 @@ local function run_next_effect(dt)
 end
 
 local function update_status_effects()
+    
     logger.clear()
 
     if not current_battler.is_invincible then
@@ -481,6 +481,12 @@ function engine.log_action(text, delayed_text, delay_time)
 end
 
 function engine.log_effect(text, delayed_text, delay_time)
+    
+    --[[if current_battler.status_effect_updated then
+        engine.log_action(text, delayed_text, delay_time)
+        return
+    end]]
+    
     local delay = delay_time or 1
     if delayed_text then
         logger.add(text, function() logger.add(delayed_text, nil, delay) end)

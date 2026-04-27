@@ -15,7 +15,7 @@ function member.new(data)
     self.agi = data.agi
     self.skills = data.skills
     self.passive_skills = data.passive_skills
-    self.status = data.status
+    self.status = {}
     self.total_exp = data.total_exp
     self.strong = data.strong or {}
     self.immune = data.immune or {}

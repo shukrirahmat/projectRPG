@@ -19,7 +19,7 @@ enemy_data['goblin'] = {
     immune = {},
     stealable_gold = 15,
     stealable_item = 'master_potion',
-    snatch_rate = 8
+    snatch_rate = 8,
 }
 
 enemy_data['skeleton'] = {
@@ -40,7 +40,7 @@ enemy_data['skeleton'] = {
     species = 'UNDEAD',
     stealable_gold = 20,
     stealable_item = 'mana_potion',
-    snatch_rate = 4
+    snatch_rate = 4,
 }
 
 enemy_data['dragon'] = {
@@ -61,7 +61,7 @@ enemy_data['dragon'] = {
     species = 'DRAGON',
     stealable_gold = 25,
     stealable_item = 'elixir_of_life',
-    snatch_rate = 20
+    snatch_rate = 20,
 }
 
 return enemy_data

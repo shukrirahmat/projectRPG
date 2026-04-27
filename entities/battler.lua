@@ -15,9 +15,9 @@ function battler.new(data)
     self.skills = data.skills or {}
     self.passive_skills = data.passive_skills or {}
     self.passives = {}
-    self.status = data.status or {}
-    self.strong = data.strong or {}
-    self.immune = data.immune or {}
+    self.status = {}
+    self.strong = {}
+    self.immune = {}
     self.is_dead = false
     self.weapon = data.weapon or nil
     self.armor = data.armor or nil
@@ -25,6 +25,24 @@ function battler.new(data)
 
     for i, ref in pairs(data.passive_skills) do
         self.passives[ref] = true
+    end
+    
+    if data.status then
+        for k, v in pairs(data.status) do
+            self.status[k] = v
+        end
+    end
+    
+    if data.strong then
+        for k, v in pairs(data.strong) do
+            self.strong[k] = v
+        end
+    end
+    
+    if data.immune then
+        for k, v in pairs(data.immune) do
+            self.immune[k] = v
+        end
     end
 
     if self.weapon and self.weapon.passives then

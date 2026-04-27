@@ -139,7 +139,7 @@ local function flee_success()
 end    
 
 local function handle_flee()
-    local success = true
+    local success = flee_success()
     
     local function escape()
         logger.close()

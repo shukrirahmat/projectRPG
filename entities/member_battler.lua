@@ -8,7 +8,8 @@ function member_battler.new(data)
 
     self.name = data.name
     self.is_party_member = true
-    self.member_id = data.id
+    self.id = data.id
+    self.party_ref = data
     self.crit_rate = 64
     self.total_exp = data.total_exp
     self.sprite = party_sprites.get_sprite(data.sprite)

@@ -113,6 +113,19 @@ local function intro_update(dt)
     end
 end
 
+local function sync_member()
+    for i, battler in ipairs(party_battlers) do
+        local member = battler.party_ref
+        member.is_dead = battler.is_dead
+        member.current_hp = battler.current_hp
+        member.current_mp = battler.current_mp
+        member.status['POISON'] = battler.status['POISON']
+        member.status['CURSE'] = battler.status['CURSE']
+        member.status['WOUND'] = battler.status['WOUND']
+        member.status['PARALYSIS'] = battler.status['PARALYSIS']
+    end
+end
+
 local function flee_success()
     local enemy_total_level = 0
     local party_total_level = 0
@@ -143,6 +156,7 @@ local function handle_flee()
     
     local function escape()
         logger.close()
+        sync_member()
         game.switch_state('field')
     end
     

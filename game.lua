@@ -1,5 +1,6 @@
 local field = require('states.field')
 local battle = require('states.battle')
+local reward = require('states.reward')
 local party_data = require('data.party_data')
 local party_manager = require('systems.party_manager')
 local player = require('systems.player')
@@ -11,8 +12,10 @@ local input = require('input')
 
 local game = {}
 
-local states = { field = field , battle = battle}
+local states = { field = field , battle = battle, reward = reward}
 local current_state = nil
+
+game.checkpoint = nil
 
 function game.load()
     
@@ -36,9 +39,10 @@ function game.load()
     local current_map = require('maps.overworld')
     local start_position = current_map.start_position
     
+    game.checkpoint = { current_map, current_map.start_position, 'front' }
+    
     mapper.load(current_map, start_position)
     player.load(start_position, 'front')
-    
     game.switch_state('field')
 end
 

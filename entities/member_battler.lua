@@ -1,4 +1,3 @@
-local party_sprites = require('graphics.party_sprites')
 local battler = require('entities.battler')
 
 local member_battler = {}
@@ -12,7 +11,7 @@ function member_battler.new(data)
     self.party_ref = data
     self.crit_rate = 64
     self.total_exp = data.total_exp
-    self.sprite = party_sprites.get_sprite(data.sprite)
+    self.sprite = data.sprite
 
     function self:draw(x, y)
         local sprite = self.sprite

@@ -14,20 +14,10 @@ function action.goblin(enemy)
 end
 
 function action.skeleton(enemy) 
-    
-    --[[if enemy.current_mp >= action_data['lumina_I'].cost then
-        return 'lumina_I'
-    end]]
-    
     return 'normal_attack'
 end
 
-function action.dragon(enemy) 
-    
-    if enemy.current_mp >= action_data['toxin_II'].cost then
-        return 'toxin_II'
-    end
-    
+function action.dragon(enemy)     
     return 'normal_attack'
 end
 

@@ -34,6 +34,17 @@ local function is_enemy_defeated()
     return alive == 0
 end
 
+local function is_party_defeated()
+    local alive = 0
+    for i, member in ipairs(party) do
+        if member:is_alive() then
+            alive = alive + 1
+        end
+    end
+
+    return alive == 0
+end
+
 local function get_next_battler()
 
     local index
@@ -287,6 +298,8 @@ local function execute_next_effect()
     if #effect_queue <= 0 then
         if is_enemy_defeated() then
             battle.is_won()
+        elseif is_party_defeated() then
+            battle.is_lost()
         elseif #combo_queue > 0 then
             execute_next_combo()    
         elseif not current_battler.status_effect_updated then

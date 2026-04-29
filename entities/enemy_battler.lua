@@ -19,6 +19,9 @@ function enemy_battler.new(data, name)
     self.stealable_gold = data.stealable_gold
     self.stealable_item = data.stealable_item
     self.snatch_rate = data.snatch_rate
+    
+    self.item_drop = data.item_drop or nil
+    
 
     return self
 end

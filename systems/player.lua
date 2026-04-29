@@ -4,7 +4,6 @@ local input = require('input')
 local player = {}
 
 local position = nil
-local current_map = nil
 local current_sprite = nil
 local is_moving = false
 local move_timer = 0

@@ -52,7 +52,7 @@ end
 
 local function set_party_battlers(party)
     party_battlers = {}
-    
+
     for i, member in ipairs(party) do
         local new_battler = Member_battler.new(member)
         table.insert(party_battlers, new_battler)
@@ -61,7 +61,7 @@ end
 
 local function set_enemy_battlers(enemies)
     enemy_battlers = {}
-    
+
     for k, v in pairs(enemies) do
         for i = 1, v do
             local name = utils.capitalize(k)
@@ -135,31 +135,31 @@ local function flee_success()
             enemy_total_level = enemy_total_level + enemy.lvl
         end
     end
-    
+
     for i, member in ipairs(party_battlers) do
         if member:is_alive() then
             party_total_level = party_total_level + member.lvl
         end
     end
-    
+
     local difference = party_total_level - enemy_total_level
     local roll = math.random(1, 100)
     if roll <= ( 50 + difference * 2 ) then
         return true
     end
-    
+
     return false
 end    
 
 local function handle_flee()
     local success = flee_success()
-    
+
     local function escape()
         logger.close()
         sync_member()
         game.switch_state('field')
     end
-    
+
     logger.stay()
     if success then
         logger.add('The party successfully escaped!', 
@@ -239,7 +239,37 @@ end
 
 function battle.is_won()
     phase = 'battle_won'
-    logger.load('Enemy defeated!')
+
+    local function to_reward_screen()
+        logger.close()
+        sync_member()
+        
+        local exp_gain = 0
+        local gold_gain = 0
+        local item_drop = {}
+        for i, enemy in ipairs(enemy_battlers) do
+            exp_gain = exp_gain + enemy.exp_drop
+            gold_gain = gold_gain + enemy.gold_drop
+
+            if enemy.item_drop then
+                for k,v in pairs(enemy.item_drop) do
+                    local success = math.random(1, v) == 1
+                    if success then
+                        table.insert(item_drop, {ref = k, enemy_name = enemy.name})
+                    end
+                end
+            end
+        end
+
+        game.switch_state('reward', {exp = exp_gain, gold = gold_gain, items = item_drop})
+    end
+
+    logger.load('Enemy defeated!', to_reward_screen, 2)
+end
+
+function battle.is_lost()
+    phase = 'battle_lost'
+    logger.load('The party has fallen.')
 end
 
 function battle.add_item(item)

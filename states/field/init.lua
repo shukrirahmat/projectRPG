@@ -8,11 +8,19 @@ local field = {}
 local game = nil
 local phase = nil
 
-function field.load(_game)
+function field.load(_game, var)
 
     game = _game
-    encounter.load(mapper.get_current_map())
 
+    if var and var.checkpoint then 
+        local current_map = game.checkpoint.map
+        local start_position = game.checkpoint.position
+        local facing = game.checkpoint.facing
+        mapper.load(current_map, start_position)
+        player.load(start_position, facing)
+    end
+
+    encounter.load(mapper.get_current_map())
     transitions.load('fade_in', 0.5, function() phase = 'player_control' end)
     phase = 'fade_in'
 end
@@ -46,12 +54,11 @@ function field.keypressed(key)
     end
 end
 
-function field.change_area(next_map)
+function field.change_area(next_map, start_position)
 
     local function change_area()
         local current_map = require('maps.'..next_map..'')
-        local start_position = current_map.start_position
-    
+
         mapper.load(current_map, start_position)
         player.load(start_position, 'front')
         game.switch_state('field')

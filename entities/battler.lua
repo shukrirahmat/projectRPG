@@ -18,7 +18,7 @@ function battler.new(data)
     self.status = {}
     self.strong = {}
     self.immune = {}
-    self.is_dead = false
+    self.is_dead = data.is_dead or false
     self.weapon = data.weapon or nil
     self.armor = data.armor or nil
     self.shield = data.shield or nil

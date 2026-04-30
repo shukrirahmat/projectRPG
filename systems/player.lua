@@ -14,7 +14,7 @@ local directions = nil
 
 function player.load(start_position, player_facing)
     
-    position = start_position
+    position = {x = start_position.x, y = start_position.y}
     current_sprite = player_sprites.get_quad(player_facing)[1]
     move_speed = 0.3
     
@@ -96,7 +96,7 @@ function player.check_area(field, mapper, encounter)
     
     if event then
         if event.type == 'gate' then
-            field.change_area(event.to)
+            field.change_area(event.to, event.start)
         end
     elseif has_encounter then
         encounter.attempt(field)

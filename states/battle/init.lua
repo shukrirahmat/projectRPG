@@ -194,6 +194,9 @@ function battle.update(dt)
         engine.update(dt)
     elseif phase == 'battle_won' then
         logger.update(dt)
+    elseif phase == 'battle_lost' then
+        logger.update(dt)
+        transitions.update(dt)
     elseif phase == 'fleeing' then
         logger.update(dt)
         transitions.update(dt)
@@ -269,7 +272,13 @@ end
 
 function battle.is_lost()
     phase = 'battle_lost'
-    logger.load('The party has fallen.')
+    
+    local function to_defeat_screen()
+        logger.close()
+        transitions.load('fade_out', 0.5, function() game.switch_state('defeat') end)
+    end
+    
+    logger.load('The party has fallen.', to_defeat_screen, 2)
 end
 
 function battle.add_item(item)

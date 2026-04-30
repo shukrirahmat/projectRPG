@@ -120,7 +120,11 @@ function exp_screen.draw()
         local sprite = member.sprite
         if member.is_dead then sprite = party_sprites.get_sprite('coffin') end
         
-        lg.setColor(1, 1, 1)
+        if member.is_dead then
+            lg.setColor(0.25, 0.25, 0.25)
+        else
+            lg.setColor(1, 1, 1)
+        end
         lg.draw(sprite, sprite_x, sprite_y)
         lg.rectangle('line', sprite_x, sprite_y, monsterSpriteDimension, monsterSpriteDimension)
 

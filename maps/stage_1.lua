@@ -18,12 +18,12 @@ stage_1.tiles = {
     { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
 }
 stage_1.events =  {
-    ['6,10'] = {type = 'gate', spriteID = 1, to = 'overworld'}
+    ['6,10'] = {type = 'gate', spriteID = 1, to = 'overworld', start = { x = 2, y = 2 }}
 }
 stage_1.has_encounter = true
 stage_1.encounter_chance = 200
 stage_1.encounter_pool = {'goblin', 'goblin', 'skeleton'}
-stage_1.encounter_max = 4
+stage_1.encounter_max = 1
 
 
 

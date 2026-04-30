@@ -18,9 +18,6 @@ local function get_alive_member(party)
 end
 
 function exp_screen.load(reward, total_exp, textbox)
-    exp_screen.is_active = true
-    exp_screen.is_ready = false
-    exp_screen.is_distributing = false
     exp_screen.reward = reward 
     exp_screen.textbox = textbox
     exp_screen.alive_member = get_alive_member(reward.party)
@@ -39,21 +36,24 @@ function exp_screen.load(reward, total_exp, textbox)
             end
         end
     end
+    
+    exp_screen.is_active = true
+    exp_screen.phase = 'start'
 end
 
 function exp_screen.update(dt)
     if not exp_screen.is_active then return end
 
-    if not exp_screen.is_ready then
+    if exp_screen.phase == 'start' then
         exp_screen.timer = exp_screen.timer + dt
         if exp_screen.timer >= exp_screen.READY_TIME then
-            exp_screen.is_ready = true
+            exp_screen.phase = 'wait_for_textbox'
         end
-    elseif exp_screen.is_ready and not exp_screen.is_distributing then
+    elseif exp_screen.phase == 'wait_for_textbox' then
         if exp_screen.textbox.is_busy() then return end
-        exp_screen.is_distributing = true
-    elseif exp_screen.is_distributing then
+        exp_screen.phase = 'distributing'
         
+    elseif exp_screen.phase == 'distributing' then
         local all_done = true
         for i, member in ipairs(exp_screen.alive_member) do
             if member.display_exp < member.total_exp then

@@ -204,7 +204,7 @@ local function execute_next_action()
             end
         end
     end
-    
+
     if data.type == 'Item' then
         current_battler.using_item = nil
     end
@@ -297,8 +297,10 @@ end
 local function execute_next_effect()
     if #effect_queue <= 0 then
         if is_enemy_defeated() then
+            engine.refund_item()
             battle.is_won()
         elseif is_party_defeated() then
+            engine.refund_item()
             battle.is_lost()
         elseif #combo_queue > 0 then
             execute_next_combo()    
@@ -378,7 +380,7 @@ local function run_next_effect(dt)
 end
 
 local function update_status_effects()
-    
+
     logger.clear()
 
     if not current_battler.is_invincible then
@@ -494,12 +496,12 @@ function engine.log_action(text, delayed_text, delay_time)
 end
 
 function engine.log_effect(text, delayed_text, delay_time)
-    
+
     --[[if current_battler.status_effect_updated then
         engine.log_action(text, delayed_text, delay_time)
         return
     end]]
-    
+
     local delay = delay_time or 1
     if delayed_text then
         logger.add(text, function() logger.add(delayed_text, nil, delay) end)
@@ -582,10 +584,19 @@ function engine.clear_temporary_status(battler)
             battler.is_focused = nil
         end
     end
-    
+
     if battler.using_item then
         battle.add_item(battler.using_item)
         battler.using_item = nil
+    end
+end
+
+function engine.refund_item()
+    for i, member in ipairs(party) do
+        if member.using_item then
+            battle.add_item(member.using_item)
+            member.using_item = nil
+        end
     end
 end
 

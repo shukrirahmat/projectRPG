@@ -13,17 +13,6 @@ function member_battler.new(data)
     self.total_exp = data.total_exp
     self.sprite = data.sprite
 
-    function self:draw(x, y)
-        local sprite = self.sprite
-
-        if not self:is_alive() then
-            sprite = party_sprites.get_sprite('coffin')
-        end
-
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.draw(sprite, x, y)
-    end
-
     return self
 end
 

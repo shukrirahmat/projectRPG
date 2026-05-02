@@ -20,10 +20,12 @@ menu.MARGIN_Y = 20
 menu.PADDING_X = 20
 menu.PADDING_Y = 10
 menu.GAP = 10
-menu.FULL_HEIGHT = 180
+menu.FULL_HEIGHT = 140
 menu.OPTION_HEIGHT = (menu.FULL_HEIGHT - menu.PADDING_Y * 2) / 4
 menu.FULL_WIDTH = nil
 menu.party_manager = nil
+menu.timer = 0
+menu.timer_end = 0.2
 
 
 function menu.load(parent_battle, _party_manager, party_battlers, enemy_battlers)
@@ -38,6 +40,17 @@ function menu.load(parent_battle, _party_manager, party_battlers, enemy_battlers
     party_manager = _party_manager
     phase = 'main_menu'
     main_menu.load(menu)
+    
+    menu.previous_member = nil
+    menu.current_member = nil
+end
+
+function menu.update(dt)
+    if not is_active then return end
+    menu.timer = menu.timer + dt
+    if menu.timer >= menu.timer_end then
+        menu.timer = menu.timer_end
+    end
 end
 
 function menu.draw()
@@ -80,9 +93,17 @@ function menu.previous_party_member(index)
     if found then
         phase = 'member_menu'
         member_menu.load(menu, member_index)
+        
+        menu.timer = 0
+        menu.previous_member = menu.current_member
+        menu.current_member = menu.party[member_index]
     else
         phase = 'main_menu'
         main_menu.load(menu)
+        
+        menu.timer = 0
+        menu.previous_member = menu.current_member
+        menu.current_member = nil
     end
 end
 
@@ -104,6 +125,10 @@ function menu.next_party_member(index)
     if found then
         phase = 'member_menu'
         member_menu.load(menu, member_index)
+        
+        menu.timer = 0
+        menu.previous_member = menu.current_member
+        menu.current_member = menu.party[member_index]
     else
         is_active = false
         battle.run_action()

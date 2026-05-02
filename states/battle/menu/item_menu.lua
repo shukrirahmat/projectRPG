@@ -96,14 +96,11 @@ local function draw_description_text(item, border_x, border_y)
     local x = border_x + border_width + menu.GAP
     local y = border_y
     local width = (menu.FULL_WIDTH - menu.GAP * 2) * 0.2
+    
+    lg.setColor(0, 0, 0)
+    lg.rectangle('fill', x, y, width, menu.FULL_HEIGHT)
     lg.setColor(1, 1, 1)
-    lg.rectangle(
-        'line',
-        x,
-        y,
-        width,
-        menu.FULL_HEIGHT
-    )
+    lg.rectangle('line', x, y, width, menu.FULL_HEIGHT)
 
 
     local header = 'Type : Consumables'
@@ -159,6 +156,8 @@ function item_menu.draw()
     local option_height = menu.OPTION_HEIGHT
     local cursor_space = 20
 
+    lg.setColor(0,0,0)
+    lg.rectangle('fill', border_x, border_y, border_width, border_height)
     lg.setColor(1,1,1)
     lg.rectangle('line', border_x, border_y, border_width, border_height)
 

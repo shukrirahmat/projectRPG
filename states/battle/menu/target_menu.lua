@@ -70,6 +70,8 @@ function target_menu.draw()
     local option_width = border_width - menu.PADDING_X * 2
     local option_height = menu.OPTION_HEIGHT
     
+    lg.setColor(0,0,0)
+    lg.rectangle('fill', border_x, border_y, border_width, border_height)
     lg.setColor(1, 1, 1)
     lg.rectangle('line', border_x, border_y, border_width, border_height)
     

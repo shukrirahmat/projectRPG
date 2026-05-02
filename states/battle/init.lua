@@ -178,7 +178,7 @@ function battle.load(_game, var)
     set_party_battlers(party_manager.get_members())
     set_enemy_battlers(var.enemies)
 
-    hud.load(party_battlers)
+    hud.load(party_battlers, menu)
     middle_screen.load(enemy_battlers)
 
     phase = 'intro'
@@ -190,6 +190,8 @@ end
 function battle.update(dt)
     if phase == 'intro' then
         intro_update(dt)
+    elseif phase == 'menu_input' then
+        menu.update(dt)
     elseif phase == 'battle_running' then
         engine.update(dt)
     elseif phase == 'battle_won' then

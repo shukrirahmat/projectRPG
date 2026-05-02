@@ -84,7 +84,9 @@ function member_menu.draw()
     local option_y = border_y + menu.PADDING_Y
     local option_width = section_width - menu.PADDING_X * 2
     local option_height = menu.OPTION_HEIGHT
-
+    
+    lg.setColor(0, 0, 0)
+    lg.rectangle('fill', border_x, border_y, border_width, border_height)
     lg.setColor(1, 1, 1)
     lg.rectangle('line', border_x, border_y, border_width, border_height)
     lg.rectangle('line', border_x + 10, border_y + 10, section_width - 20, border_height - 20)
@@ -99,8 +101,11 @@ function member_menu.draw()
 
     local sprite_x = border_x + (section_width - SPRITE_DIMENSION) / 2
     local sprite_y = border_y + (border_height - SPRITE_DIMENSION) / 2
-    member:draw(sprite_x, sprite_y)
     
+    lg.setScissor(border_x + 10, border_y + 10, section_width - 20, border_height - 20)
+    lg.setColor(1, 1, 1)
+    lg.draw(member.sprite, sprite_x, sprite_y)
+    lg.setScissor()
 
     lg.setColor(1, 1, 1)
     lg.setFont(fonts.large)

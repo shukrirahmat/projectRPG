@@ -190,7 +190,7 @@ function middle_screen.draw()
         local x_start = lg.getWidth()/2 + (i - 1) * (SPRITE_DIMENSION + SPRITE_GAP)
         local x_reposition = (SPRITE_DIMENSION/2) * #enemies + (#enemies - 1) * (SPRITE_GAP/2)
         local x = x_start - x_reposition
-        local y = lg.getHeight()/2 - SPRITE_DIMENSION/1.5
+        local y = lg.getHeight() * 0.4 - SPRITE_DIMENSION/1.5
         draw_enemy(enemy, x, y)
         draw_enemy_status(enemy, x, y)
     end

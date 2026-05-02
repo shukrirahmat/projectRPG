@@ -165,8 +165,9 @@ end
 ---PUBLIC---
 
 
-function hud.load(party_battlers)
+function hud.load(party_battlers, menu)
     party = party_battlers
+    hud.menu = menu
 end
 
 function hud.update(dt)
@@ -185,6 +186,16 @@ function hud.draw()
         local x_reposition = (BORDER_WIDTH/2) * #party + (#party - 1) * (GAP/2)
         local x = x_start - x_reposition
         local y = lg.getHeight() - LOGGER_HEIGHT - MARGIN_Y - BORDER_HEIGHT + 32
+        
+        if hud.menu.is_active() and hud.menu.current_member == member then
+            local progress = (hud.menu.timer / hud.menu.timer_end)
+            y = y - math.floor(progress * 28)
+        end
+        
+        if hud.menu.is_active() and hud.menu.previous_member == member then
+            local progress = (hud.menu.timer / hud.menu.timer_end)
+            y = y - math.floor((1 - progress) * 28)
+        end
 
         if animation and member == animation.member then
             draw_member_animation(member, i, x, y)

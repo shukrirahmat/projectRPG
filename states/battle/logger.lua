@@ -81,6 +81,15 @@ function logger.draw()
     local textY = borderY + PADDING_Y
     local lineHeight = (borderHeight - PADDING_Y * 2) / 4
     local textWidth = borderWidth - PADDING_X * 2 
+    
+    lg.setColor(0, 0, 0)
+    lg.rectangle(
+        'fill',
+        borderX,
+        borderY,
+        borderWidth,
+        borderHeight
+    )
 
     lg.setColor(1, 1, 1)
     lg.rectangle(

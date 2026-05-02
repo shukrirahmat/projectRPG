@@ -37,6 +37,7 @@ function exp_screen.load(reward, total_exp, textbox)
         end
     end
     
+    exp_screen.timer = 0
     exp_screen.is_active = true
     exp_screen.phase = 'start'
 end

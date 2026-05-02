@@ -9,7 +9,7 @@ local BORDER_WIDTH = 128
 local BORDER_HEIGHT = 96
 local PADDING_X = 15
 local PADDING_Y = 5
-local GAP = 10
+local GAP = 20
 local INNER_WIDTH = BORDER_WIDTH - PADDING_X * 2
 local STAT_Y = 25
 local STAT_LINE_HEIGHT = 28
@@ -17,6 +17,8 @@ local BAR_Y = 48
 local BAR_LINE_HEIGHT = STAT_LINE_HEIGHT
 local BAR_HEIGHT = 4
 local STATUS_ICON_SIZE = 16
+
+local LOGGER_HEIGHT = 140
 
 
 local party = nil
@@ -78,14 +80,14 @@ local function draw_member_hud(member, index, x, y, animation)
             INNER_WIDTH,
             BAR_HEIGHT
         )
-        
+
         if n == 1 and animation and animation.type == 'damaged' then
             local progress = animation.timer / animation.duration
             local damage_bar = math.max(0, 
                 INNER_WIDTH * ((animation.value + member.current_hp) / member.max_hp)
             )
             local opacity = 1 - progress
-            
+
             lg.setColor(0.97, 0.28, 0.11, opacity)
             lg.rectangle(
                 'fill',
@@ -116,7 +118,7 @@ local function draw_member_hud(member, index, x, y, animation)
             bar_width,
             BAR_HEIGHT
         )
-        
+
         lg.setColor(1, 1, 1)
         local j = 1
         local status_y = 0
@@ -127,12 +129,12 @@ local function draw_member_hud(member, index, x, y, animation)
             end
             local xpos = x + (j - 1) * STATUS_ICON_SIZE
             local ypos = y + BORDER_HEIGHT + status_y
-            
+
             local ref = k
             if type(v) == 'table' and v.stack and v.stack == 2 then
                 ref = ''..ref..'2'
             end
-            
+
             lg.draw(
                 ui.get_sprite('status_icons'),
                 ui.get_sprite(ref),
@@ -147,8 +149,15 @@ end
 local function draw_member_animation(member, index, x, y)
     if animation.type == 'damaged' then
         local progress = animation.timer / animation.duration
-        local offset_y = 15 * math.sin(progress * math.pi)
-        draw_member_hud(member, index, x, offset_y + y, animation)
+        local offset_x = 0
+
+        if progress <= 0.2 then
+            local shake_frequency = 20      -- higher = faster shaking
+            local shake_amplitude = 3       -- how far it moves left/right
+            offset_x = shake_amplitude * math.sin(progress * math.pi * shake_frequency) 
+        end
+
+        draw_member_hud(member, index, x + offset_x, y, animation)
     end
 end
 
@@ -172,8 +181,10 @@ end
 
 function hud.draw()
     for i, member in ipairs(party) do
-        local x = MARGIN_X + (i- 1) * (BORDER_WIDTH + GAP)
-        local y = MARGIN_Y
+        local x_start = lg.getWidth()/2 + (i - 1) * (BORDER_WIDTH + GAP)
+        local x_reposition = (BORDER_WIDTH/2) * #party + (#party - 1) * (GAP/2)
+        local x = x_start - x_reposition
+        local y = lg.getHeight() - LOGGER_HEIGHT - MARGIN_Y - BORDER_HEIGHT + 32
 
         if animation and member == animation.member then
             draw_member_animation(member, i, x, y)

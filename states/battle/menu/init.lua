@@ -50,6 +50,10 @@ function menu.update(dt)
     menu.timer = menu.timer + dt
     if menu.timer >= menu.timer_end then
         menu.timer = menu.timer_end
+        if phase == 'to_battle' then
+            is_active = false
+            battle.run_action()
+        end
     end
 end
 
@@ -130,8 +134,10 @@ function menu.next_party_member(index)
         menu.previous_member = menu.current_member
         menu.current_member = menu.party[member_index]
     else
-        is_active = false
-        battle.run_action()
+        menu.timer = 0
+        menu.previous_member = menu.current_member
+        menu.current_member = nil
+        phase = 'to_battle'
     end
 end
 

@@ -128,7 +128,7 @@ local function draw_member_hud(member, index, x, y, animation)
                 status_y = STATUS_ICON_SIZE;
             end
             local xpos = x + (j - 1) * STATUS_ICON_SIZE
-            local ypos = y + BORDER_HEIGHT + status_y
+            local ypos = y - STATUS_ICON_SIZE - status_y - 1
 
             local ref = k
             if type(v) == 'table' and v.stack and v.stack == 2 then

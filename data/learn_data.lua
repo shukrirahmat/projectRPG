@@ -19,9 +19,9 @@ learn_data[3] = {
 }
 
 learn_data[4] = {
-    [2] = 'ram',
-    [4] = 'frail_I',
-    [6] = 'focus'
+    [2] = 'frail_I',
+    [4] = 'focus',
+    [6] = 'ram'
 }
 
 return learn_data

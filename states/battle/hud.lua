@@ -153,11 +153,11 @@ local function draw_member_animation(member, index, x, y)
 
         if progress <= 0.2 then
             local shake_frequency = 20      -- higher = faster shaking
-            local shake_amplitude = 3       -- how far it moves left/right
+            local shake_amplitude = 4       -- how far it moves left/right
             offset_x = shake_amplitude * math.sin(progress * math.pi * shake_frequency) 
         end
 
-        draw_member_hud(member, index, x + offset_x, y, animation)
+        draw_member_hud(member, index, x + offset_x, y + math.abs(offset_x), animation)
     end
 end
 

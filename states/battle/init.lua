@@ -180,6 +180,9 @@ function battle.load(_game, var)
 
     hud.load(party_battlers, menu)
     middle_screen.load(enemy_battlers)
+    
+    battle.hud = hud
+    battle.middle_screen = middle_screen
 
     phase = 'intro'
 
@@ -206,7 +209,10 @@ function battle.update(dt)
 end
 
 function battle.draw()
-    hud.draw()
+    if not hud.targeted then
+        hud.draw()
+    end
+    
     middle_screen.draw()
 
     --------------
@@ -218,6 +224,10 @@ function battle.draw()
 
     if logger.is_active() or logger.is_open() then
         logger.draw()
+    end
+    
+    if hud.targeted then
+        hud.draw()
     end
 
     if transitions.is_active() then

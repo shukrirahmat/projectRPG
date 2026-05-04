@@ -26,7 +26,7 @@ local lg = love.graphics
 local animation = false
 local is_animating = false
 
-local function draw_member_hud(member, index, x, y, animation)
+local function draw_member_hud(member, x, y, animation)
     lg.setColor(0, 0, 0)
     lg.rectangle('fill', x, y, BORDER_WIDTH, BORDER_HEIGHT)
 
@@ -146,7 +146,7 @@ local function draw_member_hud(member, index, x, y, animation)
     end
 end
 
-local function draw_member_animation(member, index, x, y)
+local function draw_member_animation(member, x, y)
     if animation.type == 'damaged' then
         local progress = animation.timer / animation.duration
         local offset_x = 0
@@ -157,7 +157,7 @@ local function draw_member_animation(member, index, x, y)
             offset_x = shake_amplitude * math.sin(progress * math.pi * shake_frequency) 
         end
 
-        draw_member_hud(member, index, x + offset_x, y + math.abs(offset_x), animation)
+        draw_member_hud(member, x + offset_x, y + math.abs(offset_x), animation)
     end
 end
 
@@ -181,26 +181,38 @@ function hud.update(dt)
 end
 
 function hud.draw()
-    for i, member in ipairs(party) do
+    for i, member in ipairs(party) do  
         local x_start = lg.getWidth()/2 + (i - 1) * (BORDER_WIDTH + GAP)
         local x_reposition = (BORDER_WIDTH/2) * #party + (#party - 1) * (GAP/2)
         local x = x_start - x_reposition
         local y = lg.getHeight() - LOGGER_HEIGHT - MARGIN_Y - BORDER_HEIGHT + 32
-        
+
         if hud.menu.is_active() and hud.menu.current_member == member then
             local progress = (hud.menu.timer / hud.menu.timer_end)
             y = y - math.floor(progress * 28)
         end
-        
+
         if hud.menu.is_active() and hud.menu.previous_member == member then
             local progress = (hud.menu.timer / hud.menu.timer_end)
             y = y - math.floor((1 - progress) * 28)
         end
 
         if animation and member == animation.member then
-            draw_member_animation(member, i, x, y)
+            draw_member_animation(member, x, y)
         else
-            draw_member_hud(member, i, x, y)
+            draw_member_hud(member, x, y)
+        end
+
+        if hud.targeted and hud.targeted == member then
+            lg.polygon(
+                'fill',
+                x + BORDER_WIDTH/2 - 15,
+                y - 20,
+                x + BORDER_WIDTH/2 + 15,
+                y - 20,
+                x + BORDER_WIDTH/2,
+                y - 10
+            )
         end
     end
 end

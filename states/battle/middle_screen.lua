@@ -193,6 +193,18 @@ function middle_screen.draw()
         local y = lg.getHeight() * 0.4 - SPRITE_DIMENSION/1.5
         draw_enemy(enemy, x, y)
         draw_enemy_status(enemy, x, y)
+
+        if middle_screen.targeted and middle_screen.targeted == enemy then
+            lg.polygon(
+                'fill',
+                x + SPRITE_DIMENSION/2 - 15,
+                y + (enemy.sprite:getHeight() - enemy.sprite_height) - 40,
+                x + SPRITE_DIMENSION/2 + 15,
+                y + (enemy.sprite:getHeight() - enemy.sprite_height) - 40,
+                x + SPRITE_DIMENSION/2,
+                y + (enemy.sprite:getHeight() - enemy.sprite_height) - 30
+            )
+        end
     end
 end
 

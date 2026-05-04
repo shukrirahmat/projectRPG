@@ -13,7 +13,6 @@ local member_index = nil
 local is_active = false
 local position = nil
 local list = nil
-local is_targeting = false
 local border_width = nil
 local SIZE = 8
 local lg = love.graphics
@@ -65,8 +64,7 @@ local function confirm()
             if skill.aim == 'allies' and skill.exclude_self then
                 targets = menu.get_alive_targets_exclusive(member, group)
             end
-            is_targeting = true
-            menu.open_target_menu(item, targets, item_menu, member, member_index)
+            menu.open_target_selection(item, targets, item_menu, member, member_index)
         end
     elseif skill.scope == 'all' then
         is_active = false
@@ -81,9 +79,8 @@ local function confirm()
         menu.remove_item(item)
         menu.next_party_member(member_index + 1)
     elseif skill.scope =='dead' then
-        is_targeting = true
         local targets = menu.get_dead_targets(group)
-        menu.open_target_menu(item, targets, item_menu, member, member_index)
+        menu.open_target_selection(item, targets, item_menu, member, member_index)
     end
 end
 
@@ -133,7 +130,6 @@ function item_menu.load(_menu, _prev_menu, _member, _member_index)
     is_active = true
     position = 1
     list = {}
-    is_targeting = false
 
     for k, v in pairs(menu.get_party_items()) do
         local id = item_data[k].id
@@ -215,9 +211,7 @@ function item_menu.draw()
         lg.setColor(1, 1, 1)
         if position == i then
             renderer.draw_option_cursor(item_x, item_y, option_height)
-            if not is_targeting then
                 draw_description_text(item, border_x, border_y)
-            end
         end
 
         if math.ceil(#list / SIZE) > 1 then
@@ -263,10 +257,6 @@ end
 
 function item_menu.close()
     is_active = false
-end
-
-function item_menu.stop_targeting()
-    is_targeting = false
 end
 
 return item_menu

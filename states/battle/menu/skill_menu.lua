@@ -14,7 +14,6 @@ local is_active = nil
 local SIZE = 8
 local position = nil
 local list = nil
-local is_targeting = nil
 local border_width = nil
 local lg = love.graphics
 
@@ -67,8 +66,7 @@ local function confirm()
             if skill.aim == 'allies' and skill.exclude_self then
                 targets = menu.get_alive_targets_exclusive(member, group)
             end
-            is_targeting = true
-            menu.open_target_menu(skill_ref, targets, skill_menu, member, member_index)
+            menu.open_target_selection(skill_ref, targets, skill_menu, member, member_index)
         end
     elseif skill.scope == 'all' then
         is_active = false
@@ -79,9 +77,8 @@ local function confirm()
         menu.set_action(skill_ref, member, {member})
         menu.next_party_member(member_index + 1)
     elseif skill.scope =='dead' then
-        is_targeting = true
         local targets = menu.get_dead_targets(group)
-        menu.open_target_menu(skill_ref, targets, skill_menu, member, member_index)
+        menu.open_target_selection(skill_ref, targets, skill_menu, member, member_index)
     end
 end
 
@@ -94,7 +91,7 @@ local function draw_description_text(skill, border_x, border_y)
     local x = border_x + border_width + menu.GAP
     local y = border_y
     local width = (menu.FULL_WIDTH - menu.GAP * 2) * 0.2
-    
+
     lg.setColor(0, 0, 0)
     lg.rectangle('fill', x, y, width, menu.FULL_HEIGHT)
     lg.setColor(1, 1, 1)
@@ -134,7 +131,6 @@ function skill_menu.load(_menu, _prev_menu, _member, _member_index)
     is_active = true
     position = 1
     list = {}
-    is_targeting = false
 
     if member.skills and #member.skills > 0 then
         for i, skill in ipairs(member.skills) do
@@ -218,9 +214,7 @@ function skill_menu.draw()
         lg.setColor(1, 1, 1)
         if position == i then
             renderer.draw_option_cursor(skill_x, skill_y, option_height)
-            if not is_targeting then
-                draw_description_text(skill, border_x, border_y)
-            end
+            draw_description_text(skill, border_x, border_y)
         end
 
         if math.ceil(#list / SIZE) > 1 then
@@ -266,10 +260,6 @@ end
 
 function skill_menu.close()
     is_active = false
-end
-
-function skill_menu.stop_targeting()
-    is_targeting = false
 end
 
 return skill_menu

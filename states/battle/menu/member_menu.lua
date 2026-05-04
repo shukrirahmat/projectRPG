@@ -34,7 +34,7 @@ local function confirm(action)
             menu.set_action('normal_attack', member, {alive_enemy[1]})
             menu.next_party_member(member_index + 1)
         else
-            menu.open_target_menu('normal_attack', alive_enemy, member_menu, member, member_index)
+            menu.open_target_selection('normal_attack', alive_enemy, member_menu, member, member_index)
         end
     elseif position == 2 then
         if member.status['SEAL'] then return end

@@ -67,7 +67,19 @@ function reward.keypressed(key)
     end
 end
 
+function reward.recover_party()
+    for i, member in ipairs(reward.party) do
+        if member:is_alive() then
+            local hp_recover = math.max(1, math.floor(member.max_hp * 0.05))
+            local mp_recover = math.max(1, math.floor(member.max_mp * 0.05))
+            member.current_hp = math.min(member.max_hp, member.current_hp + hp_recover)
+            member.current_mp = math.min(member.max_mp, member.current_mp + mp_recover)
+        end
+    end
+end
+
 function reward.exit()
+    reward.recover_party()
     reward.game.switch_state('field')
 end
 

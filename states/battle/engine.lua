@@ -83,7 +83,7 @@ local function reaim_target(action)
             if action.targets[1].is_party_member then
                 new_target = engine.get_random_target(party)
             else
-                new_target = engine.get_random_target(enemies)
+                new_target = engine.get_lowest_hp(enemies)
             end
             action.targets = {new_target}
         end
@@ -456,6 +456,23 @@ function engine.get_opposite_group(battler)
     if battler.is_party_member then return enemies
     elseif not battler.is_party_member then return party
     end
+end
+
+function engine.get_lowest_hp(group)
+    
+    local lowest_hp = nil
+    local chosen_target = nil
+
+    for i, target in ipairs(group) do
+        if target:is_alive() then
+            if not lowest_hp or target.current_hp < lowest_hp then
+                lowest_hp = target.current_hp
+                chosen_target = target
+            end
+        end
+    end
+    
+    return chosen_target
 end
 
 function engine.get_random_target(group)

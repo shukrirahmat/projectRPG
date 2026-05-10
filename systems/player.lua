@@ -130,6 +130,8 @@ function player.draw(camera, tile_size)
 end
 
 function player.move(key)
+    if is_moving then return end
+    
     is_moving = true
     move_timer = 0
     move_direction = key

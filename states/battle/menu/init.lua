@@ -28,7 +28,7 @@ menu.timer = 0
 menu.timer_end = 0.2
 
 
-function menu.load(parent_battle, _party_manager, party_battlers, enemy_battlers)
+function menu.load(parent_battle, _party_manager, party_battlers, enemy_battlers, hud, middle_screen)
 
     battle = parent_battle
     menu.FULL_WIDTH = love.graphics.getWidth() - menu.MARGIN_X * 2
@@ -43,8 +43,8 @@ function menu.load(parent_battle, _party_manager, party_battlers, enemy_battlers
     
     menu.previous_member = nil
     menu.current_member = nil
-    menu.hud = battle.hud
-    menu.middle_screen = battle.middle_screen
+    menu.hud = hud
+    menu.middle_screen = middle_screen
 end
 
 function menu.update(dt)

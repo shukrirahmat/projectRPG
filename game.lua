@@ -2,6 +2,7 @@ local field = require('states.field')
 local battle = require('states.battle')
 local reward = require('states.reward')
 local defeat = require('states.defeat')
+local menu = require('states.menu')
 
 local party_data = require('data.party_data')
 local party_manager = require('systems.party_manager')
@@ -18,7 +19,8 @@ local states = {
     field = field , 
     battle = battle, 
     reward = reward,
-    defeat = defeat
+    defeat = defeat,
+    menu = menu
 }
 
 local current_state = nil
@@ -51,7 +53,7 @@ function game.load()
     
     mapper.load(current_map, start_position)
     player.load(start_position, 'front')
-    game.switch_state('field')
+    game.switch_state('field', {reset_encounter = true})
 end
 
 function game.switch_state(state, var)

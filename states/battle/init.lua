@@ -157,7 +157,7 @@ local function handle_flee()
     local function escape()
         logger.close()
         sync_member()
-        game.switch_state('field')
+        game.switch_state('field', {reset_encounter = true})
     end
 
     logger.stay()
@@ -180,9 +180,6 @@ function battle.load(_game, var)
 
     hud.load(party_battlers, menu)
     middle_screen.load(enemy_battlers)
-    
-    battle.hud = hud
-    battle.middle_screen = middle_screen
 
     phase = 'intro'
 
@@ -242,7 +239,7 @@ function battle.keypressed(key)
 end
 
 function battle.enter_menu()
-    menu.load(battle, party_manager, party_battlers, enemy_battlers)
+    menu.load(battle, party_manager, party_battlers, enemy_battlers, hud, middle_screen)
     phase = 'menu_input'
 end
 

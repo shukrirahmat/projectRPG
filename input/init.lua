@@ -5,6 +5,7 @@ local input = {
     right = 'right',
     confirm = 'z',
     back = 'x',
+    menu = 'c',
 }
 
 

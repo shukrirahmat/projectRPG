@@ -19,10 +19,15 @@ function field.load(_game, var)
         mapper.load(current_map, start_position)
         player.load(start_position, facing)
     end
-
-    encounter.load(mapper.get_current_map())
+    
+    if var and var.reset_encounter then
+        encounter.load(mapper.get_current_map())
+    end
+    
     transitions.load('fade_in', 0.5, function() phase = 'player_control' end)
     phase = 'fade_in'
+    
+    field.menu_openable = true
 end
 
 function field.update(dt)
@@ -33,6 +38,14 @@ function field.update(dt)
     elseif phase == 'changing_area' then
         transitions.update(dt)
     elseif phase == 'entering_battle' then
+        transitions.update(dt)
+    elseif phase == 'opening_menu' then
+        player.update(dt, field, mapper, encounter)
+        if not player.is_moving() and field.menu_openable then
+            transitions.load('fade_out', 0.2, field.open_menu)
+            phase = 'menu_transition'
+        end
+    elseif phase == 'menu_transition' then
         transitions.update(dt)
     end
 end
@@ -47,8 +60,10 @@ function field.draw()
 end
 
 function field.keypressed(key)
-    if phase == 'player_control' and not player.is_moving() then
-        if key == input.up or key == input.down or key == input.right or key == input.left then
+    if phase == 'player_control' then
+        if key == input.menu then
+            phase = 'opening_menu'
+        elseif key == input.up or key == input.down or key == input.right or key == input.left then
             player.move(key)
         end
     end
@@ -61,11 +76,12 @@ function field.change_area(next_map, start_position)
 
         mapper.load(current_map, start_position)
         player.load(start_position, 'front')
-        game.switch_state('field')
+        game.switch_state('field', {reset_encounter = true})
     end
 
     phase = 'changing_area'
     transitions.load('fade_out', 0.5, change_area)
+    field.menu_openable = false
 end
 
 function field.enter_battle(enemies)
@@ -76,6 +92,11 @@ function field.enter_battle(enemies)
 
     phase = 'entering_battle'
     transitions.load('battle', 1, enter_battle)
+    field.menu_openable = false
+end
+
+function field.open_menu()
+    game.switch_state('menu')
 end
 
 return field

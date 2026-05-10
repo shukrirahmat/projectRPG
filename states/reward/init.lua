@@ -80,7 +80,7 @@ end
 
 function reward.exit()
     reward.recover_party()
-    reward.game.switch_state('field')
+    reward.game.switch_state('field', {reset_encounter = true})
 end
 
 return reward

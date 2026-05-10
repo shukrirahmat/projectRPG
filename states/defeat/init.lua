@@ -71,7 +71,7 @@ function defeat.exit()
     end
     party_manager.manage_gold(-1 * defeat.gold_lost)
     
-    defeat.game.switch_state('field', {checkpoint = true})
+    defeat.game.switch_state('field', {checkpoint = true, reset_encounter = true})
 end
 
 return defeat

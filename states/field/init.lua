@@ -26,8 +26,6 @@ function field.load(_game, var)
     
     transitions.load('fade_in', 0.5, function() phase = 'player_control' end)
     phase = 'fade_in'
-    
-    field.menu_openable = true
 end
 
 function field.update(dt)
@@ -39,12 +37,6 @@ function field.update(dt)
         transitions.update(dt)
     elseif phase == 'entering_battle' then
         transitions.update(dt)
-    elseif phase == 'opening_menu' then
-        player.update(dt, field, mapper, encounter)
-        if not player.is_moving() and field.menu_openable then
-            transitions.load('fade_out', 0.2, field.open_menu)
-            phase = 'menu_transition'
-        end
     elseif phase == 'menu_transition' then
         transitions.update(dt)
     end
@@ -62,7 +54,7 @@ end
 function field.keypressed(key)
     if phase == 'player_control' then
         if key == input.menu then
-            phase = 'opening_menu'
+            field.opening_menu = true
         elseif key == input.up or key == input.down or key == input.right or key == input.left then
             player.move(key)
         end
@@ -81,7 +73,8 @@ function field.change_area(next_map, start_position)
 
     phase = 'changing_area'
     transitions.load('fade_out', 0.5, change_area)
-    field.menu_openable = false
+    
+    field.opening_menu = false
 end
 
 function field.enter_battle(enemies)
@@ -92,11 +85,19 @@ function field.enter_battle(enemies)
 
     phase = 'entering_battle'
     transitions.load('battle', 1, enter_battle)
-    field.menu_openable = false
+    
+    field.opening_menu = false
 end
 
 function field.open_menu()
-    game.switch_state('menu')
+    local function open_menu()
+        game.switch_state('menu')
+    end
+
+    phase = 'menu_transition'
+    transitions.load('fade_out', 0.2, open_menu)
+    
+    field.opening_menu = false
 end
 
 return field

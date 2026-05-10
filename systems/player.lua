@@ -74,6 +74,7 @@ function player.update(dt, field, mapper, encounter)
         else
             player.stop(direction, mapper)
             player.check_area(field, mapper, encounter)
+            player.queued_action(field)
         end
     else
         player.check_hold_movement()
@@ -103,6 +104,9 @@ function player.check_area(field, mapper, encounter)
     end
 end
 
+function player.queued_action(field)
+    if field.opening_menu then field.open_menu() end
+end
 
 function player.check_hold_movement()
     if is_moving then return end

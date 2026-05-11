@@ -1,6 +1,7 @@
 local transitions = require('systems.transitions')
 local input = require('input')
 local fonts = require('fonts')
+local party_manager = require('systems.party_manager')
 
 local menu = {}
 
@@ -18,8 +19,6 @@ function menu.load(game)
     menu.BOTTOM_Y = menu.LIST_HEIGHT + menu.MARGIN_Y
     menu.BOTTOM_PADDING_X = 20
     menu.BOTTOM_PADDING_Y = 20
-    
-    menu.party = game.party
 end
 
 function menu.update(dt)
@@ -34,7 +33,7 @@ function menu.draw()
     
     lg.setFont(fonts.large)
     lg.printf(
-        'Gold : '..menu.party.gold..'',
+        'Gold : '..party_manager.get_gold()..'',
         menu.LEFT_X + menu.BOTTOM_PADDING_X,
         menu.BOTTOM_Y + menu.BOTTOM_PADDING_Y,
         menu.LEFT_WIDTH,

@@ -78,6 +78,7 @@ function player.update(dt, field, mapper, encounter)
         end
     else
         player.check_hold_movement()
+        player.queued_action(field)
     end
 end
 

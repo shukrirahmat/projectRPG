@@ -47,9 +47,9 @@ local function confirm()
     local item = list[position].item
     local skill = action_data[item]
 
-    local group = menu.enemies
+    local group = menu.enemy_battlers
     if skill.aim == 'allies' then
-        group = menu.party
+        group = menu.party_battlers
     end
 
     if skill.scope =='single' then

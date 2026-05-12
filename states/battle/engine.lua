@@ -6,9 +6,9 @@ local effect_data = require('data.effect_data')
 local engine = {}
 
 local battle = nil
-local party_manager = nil
 local party = nil
-local enemies = nil
+local party_battlers = nil
+local enemy_battlers = nil
 local logger = nil
 local middle_screen = nil
 local hud = nil
@@ -25,7 +25,7 @@ local BATTLE_SPEED = 1
 
 local function is_enemy_defeated()
     local alive = 0
-    for i, enemy in ipairs(enemies) do
+    for i, enemy in ipairs(enemy_battlers) do
         if enemy:is_alive() then
             alive = alive + 1
         end
@@ -36,7 +36,7 @@ end
 
 local function is_party_defeated()
     local alive = 0
-    for i, member in ipairs(party) do
+    for i, member in ipairs(party_battlers) do
         if member:is_alive() then
             alive = alive + 1
         end
@@ -81,9 +81,9 @@ local function reaim_target(action)
         if action.targets[1].is_dead then
             local new_target
             if action.targets[1].is_party_member then
-                new_target = engine.get_random_target(party)
+                new_target = engine.get_random_target(party_battlers)
             else
-                new_target = engine.get_lowest_hp(enemies)
+                new_target = engine.get_lowest_hp(enemy_battlers)
             end
             action.targets = {new_target}
         end
@@ -102,7 +102,7 @@ end
 
 local function finish_round()
 
-    for i, group in ipairs({party, enemies}) do
+    for i, group in ipairs({party_battlers, enemy_battlers}) do
         for j, battler in ipairs(group) do
             engine.clear_temporary_status(battler)
         end
@@ -393,11 +393,11 @@ local function update_status_effects()
 end
 
 
-local function set_active_battlers(party, enemies)
+local function set_active_battlers(party_battlers, enemy_battlers)
 
     active_battlers = {}
 
-    for i, group in ipairs({party, enemies}) do
+    for i, group in ipairs({party_battlers, enemy_battlers}) do
         for i, member in ipairs(group) do
             if member:is_alive() then
                 table.insert(active_battlers, member)
@@ -409,12 +409,12 @@ end
 ---PUBLIC---
 
 
-function engine.load(_battle, _party_manager, _party, _enemies, _logger, _middle_screen, _hud)
+function engine.load(_battle, _party, _party_battlers, _enemy_battlers, _logger, _middle_screen, _hud)
 
     battle = _battle
-    party_manager = _party_manager
     party = _party
-    enemies = _enemies
+    party_battlers = _party_battlers
+    enemy_battlers = _enemy_battlers
     logger = _logger
     middle_screen = _middle_screen
     hud = _hud
@@ -423,7 +423,7 @@ function engine.load(_battle, _party_manager, _party, _enemies, _logger, _middle
     effect_queue = {}
     combo_queue = {}
 
-    set_active_battlers(party, enemies)
+    set_active_battlers(party_battlers, enemy_battlers)
 
     timer = 0
     is_active = true
@@ -447,14 +447,14 @@ function engine.update(dt)
 end
 
 function engine.get_own_group(battler)
-    if battler.is_party_member then return party
-    elseif not battler.is_party_member then return enemies
+    if battler.is_party_member then return party_battlers
+    elseif not battler.is_party_member then return enemy_battlers
     end
 end
 
 function engine.get_opposite_group(battler)
-    if battler.is_party_member then return enemies
-    elseif not battler.is_party_member then return party
+    if battler.is_party_member then return enemy_battlers
+    elseif not battler.is_party_member then return party_battlers
     end
 end
 
@@ -566,19 +566,19 @@ function engine.remove_active_battler(target)
 end
 
 function engine.get_party_gold()
-    return party_manager.get_gold()
+    return party.gold
 end
 
 function engine.party_lose_gold(amount)
-    party_manager.manage_gold(-amount)
+    party.manage_gold(-amount)
 end
 
 function engine.party_gain_gold(amount)
-    party_manager.manage_gold(amount)
+    party.manage_gold(amount)
 end
 
 function engine.party_gain_item(item)
-    party_manager.manage_item(item, 1)
+    party.manage_item(item, 1)
 end
 
 function engine.clear_temporary_status(battler)
@@ -609,7 +609,7 @@ function engine.clear_temporary_status(battler)
 end
 
 function engine.refund_item()
-    for i, member in ipairs(party) do
+    for i, member in ipairs(party_battlers) do
         if member.using_item then
             battle.add_item(member.using_item)
             member.using_item = nil

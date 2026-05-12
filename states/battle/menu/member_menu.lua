@@ -28,7 +28,7 @@ end
 
 local function confirm(action)
     if position == 1 then
-        local alive_enemy = menu.get_alive_targets(menu.enemies)
+        local alive_enemy = menu.get_alive_targets(menu.enemy_battlers)
         if #alive_enemy == 1 then
             is_active = false
             menu.set_action('normal_attack', member, {alive_enemy[1]})
@@ -59,7 +59,7 @@ function member_menu.load(parent_menu, index)
 
     menu = parent_menu
     member_index = index
-    member = parent_menu.party[member_index]
+    member = menu.party_battlers[member_index]
     
     member.current_action = nil
     

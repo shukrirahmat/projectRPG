@@ -2,7 +2,6 @@ local textbox = require('systems.textbox')
 local transitions = require('systems.transitions')
 local player = require('systems.player')
 local mapper = require('systems.mapper')
-local party_manager = require('systems.party_manager')
 local input = require('input')
 
 local defeat = {
@@ -12,14 +11,14 @@ local defeat = {
 
 function defeat.load(game)
     defeat.game = game
+    defeat.party = game.party
     defeat.phase = 'start'
     
-    local party = party_manager.get_members()
     local total_level = 0
-    for i, member in ipairs(party) do
+    for i, member in ipairs(defeat.party.members) do
         total_level = total_level + member.lvl
     end
-    defeat.gold_lost = math.min(total_level * 50, party_manager.get_gold())
+    defeat.gold_lost = math.min(total_level * 50, defeat.party.gold)
 end
 
 function defeat.update(dt)
@@ -62,14 +61,13 @@ function defeat.keypressed(key)
 end
 
 function defeat.exit()
-    local party = party_manager.get_members()
-    for i, member in ipairs(party) do
+    for i, member in ipairs(defeat.party.members) do
         member.is_dead = false
         member.current_hp = member.max_hp
         member.current_mp = member.max_mp
         member.status = {}
     end
-    party_manager.manage_gold(-1 * defeat.gold_lost)
+    defeat.party.manage_gold(-1 * defeat.gold_lost)
     
     defeat.game.switch_state('field', {checkpoint = true, reset_encounter = true})
 end

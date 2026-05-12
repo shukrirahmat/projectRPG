@@ -11,10 +11,7 @@ local menu = {}
 local battle = nil
 local is_active = false
 local phase = nil
-local party_manager = nil
 
-menu.party = nil
-menu.enemies = nil
 menu.MARGIN_X = 20
 menu.MARGIN_Y = 20
 menu.PADDING_X = 20
@@ -23,21 +20,21 @@ menu.GAP = 10
 menu.FULL_HEIGHT = 140
 menu.OPTION_HEIGHT = (menu.FULL_HEIGHT - menu.PADDING_Y * 2) / 4
 menu.FULL_WIDTH = nil
-menu.party_manager = nil
 menu.timer = 0
 menu.timer_end = 0.2
 
 
-function menu.load(parent_battle, _party_manager, party_battlers, enemy_battlers, hud, middle_screen)
+function menu.load(parent_battle, party, party_battlers, enemy_battlers, hud, middle_screen)
 
     battle = parent_battle
     menu.FULL_WIDTH = love.graphics.getWidth() - menu.MARGIN_X * 2
 
-    menu.party = party_battlers
-    menu.enemies = enemy_battlers
+    menu.party = party
+    menu.party_battlers = party_battlers
+    menu.enemy_battlers = enemy_battlers    
+    
     is_active = true
-
-    party_manager = _party_manager
+    
     phase = 'main_menu'
     main_menu.load(menu)
     
@@ -87,7 +84,7 @@ function menu.previous_party_member(index)
     for i = index, 0, -1 do
         if i <= 0 then
             break
-        elseif menu.party[i]:is_alive() and not menu.party[i]:cannot_act() then
+        elseif menu.party_battlers[i]:is_alive() and not menu.party_battlers[i]:cannot_act() then
             member_index = i
             found = true
             break
@@ -102,7 +99,7 @@ function menu.previous_party_member(index)
         
         menu.timer = 0
         menu.previous_member = menu.current_member
-        menu.current_member = menu.party[member_index]
+        menu.current_member = menu.party_battlers[member_index]
     else
         phase = 'main_menu'
         main_menu.load(menu)
@@ -118,8 +115,8 @@ function menu.next_party_member(index)
     local found = false
     local member_index = nil
 
-    for i = index, #menu.party do
-        if menu.party[i]:is_alive() and not menu.party[i]:cannot_act() then
+    for i = index, #menu.party_battlers do
+        if menu.party_battlers[i]:is_alive() and not menu.party_battlers[i]:cannot_act() then
             member_index = i
             found = true
             break
@@ -134,7 +131,7 @@ function menu.next_party_member(index)
         
         menu.timer = 0
         menu.previous_member = menu.current_member
-        menu.current_member = menu.party[member_index]
+        menu.current_member = menu.party_battlers[member_index]
     else
         menu.timer = 0
         menu.previous_member = menu.current_member
@@ -208,15 +205,15 @@ function menu.get_dead_targets(group)
 end
 
 function menu.get_party_items()
-    return party_manager.get_items()
+    return menu.party.items
 end
 
 function menu.add_item(item)
-    party_manager.manage_item(item, 1)
+    menu.party.manage_item(item, 1)
 end
 
 function menu.remove_item(item)
-    party_manager.manage_item(item, -1)
+    menu.party.manage_item(item, -1)
 end
 
 function menu.flee_battle()

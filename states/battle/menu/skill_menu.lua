@@ -51,9 +51,9 @@ local function confirm()
         return
     end
 
-    local group = menu.enemies
+    local group = menu.enemy_battlers
     if skill.aim == 'allies' then
-        group = menu.party
+        group = menu.party_battlers
     end
 
     if skill.scope =='single' then

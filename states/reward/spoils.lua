@@ -3,10 +3,10 @@ local item_data = require('data.item_data')
 local spoils = {
 }
 
-function spoils.load(gold, items, party_manager, textbox)
+function spoils.load(gold, items, party, textbox)
     spoils.gold = gold
     spoils.items = items
-    spoils.party_manager = party_manager
+    spoils.party = party
     spoils.textbox = textbox
     spoils.is_active = true
 end
@@ -14,12 +14,12 @@ end
 function spoils.update(dt)
     if not spoils.is_active then return end
     
-    spoils.party_manager.manage_gold(spoils.gold)
+    spoils.party.manage_gold(spoils.gold)
     spoils.textbox.queue({'The party obtained '..spoils.gold..' gold.'})
     
     local item_lines = {}
     for i, item in ipairs(spoils.items) do
-        spoils.party_manager.manage_item(item.ref, 1)
+        spoils.party.manage_item(item.ref, 1)
         local item_name = item_data[item.ref].name
         table.insert(item_lines, ''..item.enemy_name..' dropped '..item_name..'.')
     end

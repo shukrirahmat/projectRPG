@@ -1,23 +1,18 @@
 local textbox = require('systems.textbox')
 local transitions = require('systems.transitions')
-local party_manager = require('systems.party_manager')
 local exp_screen = require('states.reward.exp_screen')
 local spoils = require('states.reward.spoils')
 local input = require('input')
 
-local reward = {
-    game = nil,
-    phase = nil,
-    party = nil,
-}
+local reward = {}
 
 function reward.load(game, var)
     reward.game = game
-    reward.party = party_manager.get_members()
+    reward.party = game.party
 
     textbox.load({'Gained '..var.exp..' EXP.'})
-    exp_screen.load(reward, var.exp, textbox)
-    spoils.load(var.gold, var.items, party_manager, textbox)
+    exp_screen.load(game.party, var.exp, textbox)
+    spoils.load(var.gold, var.items, game.party, textbox)
     
     reward.phase = 'exp'
 end
@@ -68,7 +63,7 @@ function reward.keypressed(key)
 end
 
 function reward.recover_party()
-    for i, member in ipairs(reward.party) do
+    for i, member in ipairs(reward.party.members) do
         if member:is_alive() then
             local hp_recover = math.max(1, math.floor(member.max_hp * 0.05))
             local mp_recover = math.max(1, math.floor(member.max_mp * 0.05))

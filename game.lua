@@ -5,7 +5,7 @@ local defeat = require('states.defeat')
 local menu = require('states.menu')
 
 local party_data = require('data.party_data')
-local party_manager = require('systems.party_manager')
+local party = require('systems.party')
 local player = require('systems.player')
 local mapper = require('systems.mapper')
 local Member = require('entities.member')
@@ -25,14 +25,12 @@ local states = {
 
 local current_state = nil
 
-game.checkpoint = nil
-
 function game.load()
     
     graphics.load()
     fonts.load()
     
-    party_manager.load(
+    party.load(
         { 
             Member.new(party_data.test[1]),
             Member.new(party_data.test[2]),
@@ -41,13 +39,15 @@ function game.load()
         }
     )
     
-    party_manager.manage_item('potion', 10)
-    party_manager.manage_item('antidote', 5)
-    party_manager.manage_item('bandage', 3)
-    party_manager.manage_gold(200)
+    party.manage_item('potion', 10)
+    party.manage_item('antidote', 5)
+    party.manage_item('bandage', 3)
+    party.manage_gold(200)
+    
+    game.party = party
 
     local current_map = require('maps.overworld')
-    local start_position = current_map.start_position
+    local start_position = current_map.start_position 
     
     game.checkpoint = { map = current_map, position = start_position, facing = 'front' }
     

@@ -7,9 +7,9 @@ local exp_screen = {
     READY_TIME = 0.5
 }
 
-local function get_alive_member(party)
+local function get_alive_member(party_members)
     local alive = {}
-    for i, member in ipairs(party) do
+    for i, member in ipairs(party_members) do
         if member:is_alive() then
             table.insert(alive, member)
         end
@@ -17,15 +17,15 @@ local function get_alive_member(party)
     return alive
 end
 
-function exp_screen.load(reward, total_exp, textbox)
-    exp_screen.reward = reward 
+function exp_screen.load(party, total_exp, textbox)
+    exp_screen.party = party
     exp_screen.textbox = textbox
-    exp_screen.alive_member = get_alive_member(reward.party)
+    exp_screen.alive_member = get_alive_member(exp_screen.party.members)
     exp_screen.exp_per_member = math.floor(total_exp / #exp_screen.alive_member)
     exp_screen.level_up_queue = {}
     exp_screen.distribute_speed = math.max(1, math.floor(exp_screen.exp_per_member * 0.75))
     
-    for i, member in ipairs(reward.party) do
+    for i, member in ipairs(exp_screen.party.members) do
         member.display_exp = member.total_exp
         member.display_lvl = member.lvl
         if member:is_alive() then
@@ -106,7 +106,7 @@ function exp_screen.draw()
     local box_width = ((lg.getWidth() - start_x * 2) / 4) - 10
     local box_height = lg.getHeight() - 20 - text_height - 20 - start_y
 
-    for i, member in ipairs(exp_screen.reward.party) do
+    for i, member in ipairs(exp_screen.party.members) do
 
         local box_x = start_x + 5 + (i - 1) * (box_width + 10)
         local box_y = start_y

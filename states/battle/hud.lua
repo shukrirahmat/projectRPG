@@ -75,7 +75,7 @@ local function draw_member_hud(member, x, y, animation)
     end
     
     --[[if targeted then
-        lg.setFont(fonts.xlarge_mono)
+        lg.setFont(fonts.large_mono)
         lg.setColor(0, 0, 0)
         lg.rectangle('fill', x + PADDING_X, y + PADDING_Y + 25, INNER_WIDTH, 50)
         
@@ -89,13 +89,11 @@ local function draw_member_hud(member, x, y, animation)
             hp_color, 
             ''..member.current_hp..'',
             { 1, 1, 1},
-            '/'..member.max_hp..''
+            ' / '..member.max_hp..''
         }
-        lg.printf('H', x + PADDING_X, y + PADDING_Y + STAT_Y, INNER_WIDTH, 'left')
-        lg.printf(hp_text, x + PADDING_X, y + PADDING_Y + STAT_Y, INNER_WIDTH, 'right')
-        local mp_text = ''..member.current_mp..'/'..member.max_mp..''
-        lg.printf('M', x + PADDING_X, y + PADDING_Y + STAT_Y + STAT_LINE_HEIGHT, INNER_WIDTH, 'left')
-        lg.printf(mp_text, x + PADDING_X, y + PADDING_Y + STAT_Y + STAT_LINE_HEIGHT, INNER_WIDTH, 'right')
+        lg.printf(hp_text, x + PADDING_X - 5, y + PADDING_Y + STAT_Y, INNER_WIDTH + 10, 'center')
+        local mp_text = ''..member.current_mp..' / '..member.max_mp..''
+        lg.printf(mp_text, x + PADDING_X - 5, y + PADDING_Y + STAT_Y + STAT_LINE_HEIGHT, INNER_WIDTH + 10, 'center')
         
     end]]
 
@@ -250,7 +248,7 @@ function hud.draw()
             y = y - math.floor((1 - progress) * 28)
         end
         
-        if targeted and hud.menu.current_member ~= member then y = y - 28 end
+        --if targeted and hud.menu.current_member ~= member then y = y - 28 end
 
         if animation and member == animation.member then
             draw_member_animation(member, x, y)

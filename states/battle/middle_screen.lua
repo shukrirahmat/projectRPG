@@ -11,6 +11,35 @@ local lg = love.graphics
 local animation = nil
 local is_animating = false
 
+local function draw_enemy_targetting(enemy, x, y)
+    if middle_screen.targeted and middle_screen.targeted == enemy then
+        lg.polygon(
+            'fill',
+            x + SPRITE_DIMENSION/2 - 15,
+            y + (enemy.sprite:getHeight() - enemy.sprite_height) - 40,
+            x + SPRITE_DIMENSION/2 + 15,
+            y + (enemy.sprite:getHeight() - enemy.sprite_height) - 40,
+            x + SPRITE_DIMENSION/2,
+            y + (enemy.sprite:getHeight() - enemy.sprite_height) - 30
+        )
+
+        lg.setFont(fonts.large)
+        local name = enemy.name
+        local font = lg.getFont()
+        local padding_x = 10
+        local padding_y = 5
+        local name_width = font:getWidth(name) + padding_x * 2
+        local name_height = font:getHeight() + padding_y * 2
+        local name_x = x + SPRITE_DIMENSION/2 - name_width/2
+        local name_y = y + (enemy.sprite:getHeight() - enemy.sprite_height) - 40 - name_height
+        lg.setColor(0,0,0)
+        lg.rectangle('fill', name_x, name_y, name_width, name_height)
+        lg.setColor(1,1,1)
+        lg.rectangle('line', name_x, name_y, name_width, name_height)
+        lg.printf(name, name_x, name_y + padding_y, name_width, 'center')
+    end
+end
+
 local function draw_text(enemy, x, y, text, font, color)
     if color and color == 'grey' then
         lg.setColor(0.6,0.6,0.6)
@@ -193,18 +222,7 @@ function middle_screen.draw()
         local y = lg.getHeight() * 0.4 - SPRITE_DIMENSION/1.5
         draw_enemy(enemy, x, y)
         draw_enemy_status(enemy, x, y)
-
-        if middle_screen.targeted and middle_screen.targeted == enemy then
-            lg.polygon(
-                'fill',
-                x + SPRITE_DIMENSION/2 - 15,
-                y + (enemy.sprite:getHeight() - enemy.sprite_height) - 40,
-                x + SPRITE_DIMENSION/2 + 15,
-                y + (enemy.sprite:getHeight() - enemy.sprite_height) - 40,
-                x + SPRITE_DIMENSION/2,
-                y + (enemy.sprite:getHeight() - enemy.sprite_height) - 30
-            )
-        end
+        draw_enemy_targetting(enemy, x, y)
     end
 end
 

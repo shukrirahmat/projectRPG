@@ -8,17 +8,17 @@ local lg = love.graphics
 
 local function clear_target()
     target_selection.middle_screen.targeted = nil
-    target_selection.hud.targeted = nil
+    target_selection.hud.clear_target()
 end
 
 local function hover_target()
     local battler = target_selection.list[target_selection.position]
     if battler.is_party_member then
-        target_selection.hud.targeted = battler
+        target_selection.hud.target(battler)
         target_selection.middle_screen.targeted = nil
     else
         target_selection.middle_screen.targeted = battler
-        target_selection.hud.targeted = nil
+        target_selection.hud.clear_target()
     end
 end
 

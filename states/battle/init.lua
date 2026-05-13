@@ -205,7 +205,7 @@ function battle.update(dt)
 end
 
 function battle.draw()
-    if not hud.targeted then
+    if not hud.is_targeted() then
         hud.draw()
     end
     
@@ -222,7 +222,7 @@ function battle.draw()
         logger.draw()
     end
     
-    if hud.targeted then
+    if hud.is_targeted() then
         hud.draw()
     end
 

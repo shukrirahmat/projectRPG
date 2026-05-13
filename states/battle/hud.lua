@@ -13,10 +13,13 @@ local GAP = 20
 local INNER_WIDTH = BORDER_WIDTH - PADDING_X * 2
 local STAT_Y = 25
 local STAT_LINE_HEIGHT = 28
-local BAR_Y = 48
-local BAR_LINE_HEIGHT = STAT_LINE_HEIGHT
-local BAR_HEIGHT = 4
+
+--local BAR_Y = 48
+--local BAR_LINE_HEIGHT = STAT_LINE_HEIGHT
+--local BAR_HEIGHT = 4
+
 local STATUS_ICON_SIZE = 16
+local targeted = nil
 
 local LOGGER_HEIGHT = 140
 
@@ -70,8 +73,58 @@ local function draw_member_hud(member, x, y, animation)
             'right'
         )
     end
+    
+    --[[if targeted then
+        lg.setFont(fonts.xlarge_mono)
+        lg.setColor(0, 0, 0)
+        lg.rectangle('fill', x + PADDING_X, y + PADDING_Y + 25, INNER_WIDTH, 50)
+        
+        if member:is_alive() then lg.setColor(1, 1, 1) end
+        
+        local hp_color = {1, 1, 1}
+        if not member:is_alive() and member.current_hp/member.max_hp <= 0.2 then
+            hp_color = {0.97, 0.28, 0.11}
+        end
+        local hp_text = { 
+            hp_color, 
+            ''..member.current_hp..'',
+            { 1, 1, 1},
+            '/'..member.max_hp..''
+        }
+        lg.printf('H', x + PADDING_X, y + PADDING_Y + STAT_Y, INNER_WIDTH, 'left')
+        lg.printf(hp_text, x + PADDING_X, y + PADDING_Y + STAT_Y, INNER_WIDTH, 'right')
+        local mp_text = ''..member.current_mp..'/'..member.max_mp..''
+        lg.printf('M', x + PADDING_X, y + PADDING_Y + STAT_Y + STAT_LINE_HEIGHT, INNER_WIDTH, 'left')
+        lg.printf(mp_text, x + PADDING_X, y + PADDING_Y + STAT_Y + STAT_LINE_HEIGHT, INNER_WIDTH, 'right')
+        
+    end]]
 
-    for n = 1, 2 do
+    lg.setColor(1, 1, 1)
+    local j = 1
+    local status_y = 0
+    for k, v in pairs(member.status) do
+        if j > 8 then
+            j = 1;
+            status_y = STATUS_ICON_SIZE;
+        end
+        local xpos = x + (j - 1) * STATUS_ICON_SIZE
+        local ypos = y - STATUS_ICON_SIZE - status_y - 1
+
+        local ref = k
+        if type(v) == 'table' and v.stack and v.stack == 2 then
+            ref = ''..ref..'2'
+        end
+
+        lg.draw(
+            ui.get_sprite('status_icons'),
+            ui.get_sprite(ref),
+            xpos,
+            ypos
+        )
+        j = j + 1;
+    end
+
+    --[[for n = 1, 2 do
         lg.setColor(0.25, 0.25, 0.25)
         lg.rectangle(
             'line',
@@ -143,7 +196,7 @@ local function draw_member_hud(member, x, y, animation)
             )
             j = j + 1;
         end
-    end
+    end]]
 end
 
 local function draw_member_animation(member, x, y)
@@ -196,6 +249,8 @@ function hud.draw()
             local progress = (hud.menu.timer / hud.menu.timer_end)
             y = y - math.floor((1 - progress) * 28)
         end
+        
+        if targeted and hud.menu.current_member ~= member then y = y - 28 end
 
         if animation and member == animation.member then
             draw_member_animation(member, x, y)
@@ -203,7 +258,7 @@ function hud.draw()
             draw_member_hud(member, x, y)
         end
 
-        if hud.targeted and hud.targeted == member then
+        if targeted and targeted == member then
             lg.polygon(
                 'fill',
                 x + BORDER_WIDTH/2 - 15,
@@ -224,6 +279,18 @@ end
 function hud.animate(type, duration, member, value)
     is_animating = true
     animation = { type = type, timer = 0, duration = duration, member = member, value = value }
+end
+
+function hud.clear_target() 
+    targeted = nil
+end
+
+function hud.target(member) 
+    targeted = member
+end
+
+function hud.is_targeted()
+    return targeted
 end
 
 

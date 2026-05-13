@@ -17,7 +17,7 @@ function menu.load(game)
     menu.WIDTH = lg.getWidth() - menu.MARGIN_X * 2
     menu.RIGHT_X = menu.WIDTH * 0.8 + menu.MARGIN_X
     menu.RIGHT_WIDTH = menu.WIDTH * 0.2
-    menu.LIST_HEIGHT = menu.HEIGHT * 0.75
+    menu.LIST_HEIGHT = menu.HEIGHT * 0.8
     menu.BOTTOM_Y = menu.LIST_HEIGHT + menu.MARGIN_Y
     menu.BOTTOM_PADDING_X = 20
     menu.BOTTOM_PADDING_Y = 20

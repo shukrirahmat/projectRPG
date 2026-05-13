@@ -24,7 +24,7 @@ function field.load(_game, var)
         encounter.load(mapper.get_current_map())
     end
 
-    transitions.load('fade_in', 0.5, function() phase = 'player_control' end)
+    transitions.load('fade_in', 0.25, function() phase = 'player_control' end)
     phase = 'fade_in'
 end
 

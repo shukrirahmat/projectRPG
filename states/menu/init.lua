@@ -2,6 +2,8 @@ local transitions = require('systems.transitions')
 local input = require('input')
 local fonts = require('fonts')
 local party_sprites = require('graphics.party_sprites')
+local ui = require('graphics.ui')
+local exp_data = require('data.exp_data')
 
 local menu = {}
 
@@ -19,7 +21,7 @@ function menu.load(game)
     menu.BOTTOM_Y = menu.LIST_HEIGHT + menu.MARGIN_Y
     menu.BOTTOM_PADDING_X = 20
     menu.BOTTOM_PADDING_Y = 20
-    
+
     menu.party = game.party
 end
 
@@ -31,7 +33,7 @@ function menu.draw()
     lg.setColor(1, 1, 1)
     lg.rectangle('line', menu.RIGHT_X, menu.MARGIN_Y, menu.RIGHT_WIDTH, menu.HEIGHT)
     lg.line(menu.RIGHT_X, menu.BOTTOM_Y, menu.MARGIN_X + menu.WIDTH , menu.BOTTOM_Y)
-    
+
     lg.setFont(fonts.large)
     lg.printf(
         'Gold : '..menu.party.gold..'',
@@ -40,22 +42,22 @@ function menu.draw()
         menu.RIGHT_WIDTH,
         'left'
     )
-    
+
     for i, member in ipairs(menu.party.members) do
-        
+
         local gap = 10
         local left_pad = 40
         local box_width = menu.WIDTH - menu.RIGHT_WIDTH - gap - left_pad
         local box_height = (menu.HEIGHT - gap * 3) / 4
         local box_x = menu.MARGIN_X + left_pad
         local box_y = menu.MARGIN_Y + (i - 1) * (box_height + gap)
-        
+
         local sprite_x = box_x
         local sprite_y = box_y
         local sprite_width = 128
         local sprite = member.sprite
         if member.is_dead then sprite = party_sprites.get_sprite('coffin') end
-        
+
         if member.is_dead then
             lg.setColor(0.5, 0.5, 0.5)
         else
@@ -64,36 +66,89 @@ function menu.draw()
         lg.draw(sprite, sprite_x, sprite_y)
         lg.line(sprite_x + sprite_width, box_y, sprite_x + sprite_width, box_y + box_height)
         lg.rectangle('line', box_x, box_y, box_width, box_height)
-        
+
         local status_padding_x = 20
         local status_padding_y = 10
         local status_left_x = sprite_width + box_x + status_padding_x
         local status_left_y = box_y + status_padding_y
         local status_left_width = (box_width - sprite_width) * 0.4 - status_padding_x * 2
         local status_left_lh = (box_height - status_padding_y * 2) / 4
-        
+
         lg.setFont(fonts.large)
         lg.printf(member.name, status_left_x, status_left_y, status_left_width, 'left')
-        lg.printf('LVL '..member.lvl..'', status_left_x, status_left_y, status_left_width, 'right')
-        
+
         lg.setFont(fonts.large_mono)
-        
-        local hp_text = ''..member.current_hp..' / '..member.max_hp..''
+
         lg.printf('HP', status_left_x, status_left_y + status_left_lh, status_left_width, 'left')
+        
+        local hp_color = {1, 1, 1}
+        if member:is_alive() and member.current_hp/member.max_hp <= 0.2 then
+            hp_color = {0.97, 0.28, 0.11}
+        end
+        local hp_text = { 
+            hp_color, 
+            ''..member.current_hp..'',
+            { 1, 1, 1},
+            ' / '..member.max_hp..''
+        }
         lg.printf(hp_text, status_left_x, status_left_y + status_left_lh, status_left_width, 'right')
+        
         local mp_text = ''..member.current_mp..' / '..member.max_mp..''
         lg.printf('MP', status_left_x, status_left_y + status_left_lh * 2, status_left_width, 'left')
         lg.printf(mp_text, status_left_x, status_left_y + status_left_lh * 2, status_left_width, 'right')
-        
+
         lg.setFont(fonts.large_mono)
         local status_text = ''
         if member.is_dead then
             status_text = 'KO'
         elseif next(member.status) == nil then 
-            status_text = 'Normal' 
+            status_text = 'Normal'
+        else
+            local count = 1
+            local STATUS_ICON_SIZE = 16
+            for k, v in pairs(member.status) do
+                local xpos = status_left_x + status_left_width - STATUS_ICON_SIZE * count 
+                local ypos = status_left_y + status_left_lh * 3 + 5
+
+                lg.draw(
+                    ui.get_sprite('status_icons'),
+                    ui.get_sprite(k),
+                    xpos,
+                    ypos
+                )
+                count = count + 1
+            end
         end 
         lg.printf('STATUS:', status_left_x, status_left_y + status_left_lh * 3, status_left_width, 'left')
         lg.printf(status_text, status_left_x, status_left_y + status_left_lh * 3, status_left_width, 'right')
+        
+        local status_right_y = box_y + status_padding_y
+        local status_right_width = (box_width - sprite_width) * 0.6 - status_padding_x * 4
+        local status_right_x = box_x + box_width - status_right_width - status_padding_x * 2
+        local status_right_lh = (box_height - status_padding_y * 2) / 4
+        
+        local bar_width = 206
+        local bar_x = status_right_x + status_right_width - bar_width
+        
+        lg.setFont(fonts.large)
+        lg.printf('LVL '..member.lvl..'', status_right_x, status_right_y, status_right_width, 'left')
+        
+        lg.rectangle('line', bar_x, status_right_y + 4, bar_width, 15)
+        
+        local current_exp = member.total_exp - exp_data[member.lvl]
+        local diff_exp = exp_data[member.lvl + 1] - exp_data[member.lvl]
+        local filled = bar_width * (current_exp / diff_exp)
+
+        lg.rectangle('fill', bar_x, status_right_y + 4, filled, 15)
+        
+        local next_x = status_right_x
+        local next_y = status_right_y + 25
+        local next_width = status_right_width
+        local next_exp = exp_data[member.lvl + 1]
+        local remaining_exp = math.ceil(next_exp - member.total_exp)
+
+        lg.setFont(fonts.medium)
+        lg.printf('Next: '..remaining_exp..'', next_x, next_y, next_width, 'right')
     end
 
 end

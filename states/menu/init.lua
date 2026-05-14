@@ -4,10 +4,25 @@ local fonts = require('fonts')
 local party_sprites = require('graphics.party_sprites')
 local ui = require('graphics.ui')
 local exp_data = require('data.exp_data')
+local renderer = require('helpers.renderer')
 
 local menu = {}
 
 local lg = love.graphics
+local list = nil
+local position = nil
+
+local function move_up()
+    if position > 1 then
+        position = position - 1
+    end
+end
+
+local function move_down()
+    if position < #list then
+        position = position + 1
+    end
+end
 
 function menu.load(game)
     menu.game = game
@@ -18,11 +33,14 @@ function menu.load(game)
     menu.RIGHT_X = menu.WIDTH * 0.8 + menu.MARGIN_X
     menu.RIGHT_WIDTH = menu.WIDTH * 0.2
     menu.LIST_HEIGHT = menu.HEIGHT * 0.8
+    menu.LIST_LINE_HEIGHT = menu.LIST_HEIGHT * 0.1
     menu.BOTTOM_Y = menu.LIST_HEIGHT + menu.MARGIN_Y
     menu.BOTTOM_PADDING_X = 20
     menu.BOTTOM_PADDING_Y = 20
 
     menu.party = game.party
+    list = {'Skill', 'Item', 'Equip', 'Status', 'Order'}
+    position = 1
 end
 
 function menu.update(dt)
@@ -42,6 +60,8 @@ function menu.draw()
         menu.RIGHT_WIDTH,
         'left'
     )
+    
+    ----MEMBER STATS----
 
     for i, member in ipairs(menu.party.members) do
 
@@ -152,12 +172,35 @@ function menu.draw()
         lg.setFont(fonts.medium)
         lg.printf('Next: '..remaining_exp..'', next_x, next_y, next_width, 'right')
     end
-
+    
+    ----MENU OPTIONS----
+    
+    lg.setFont(fonts.xlarge)
+    for i, option in ipairs(list) do
+        local option_x = menu.RIGHT_X + 20
+        local base_y = menu.MARGIN_Y + 10
+        local option_y = base_y + (i - 1) * menu.LIST_LINE_HEIGHT + renderer.center_text(                         menu.LIST_LINE_HEIGHT)
+        local option_width = menu.RIGHT_WIDTH - 20 * 2
+        local option_height = menu.LIST_LINE_HEIGHT
+        lg.printf(option, option_x, option_y, option_width, 'center')
+        
+        if position == i then
+            renderer.draw_option_cursor(
+                option_x,
+                base_y + (i - 1) * option_height,
+                option_height
+            )
+        end
+    end
 end
 
 function menu.keypressed(key)
     if key == input.back then
         menu.close()
+    elseif key == input.up then
+        move_up()
+    elseif key == input.down then
+        move_down()
     end
 end
 

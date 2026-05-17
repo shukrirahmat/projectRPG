@@ -32,12 +32,10 @@ function menu.load(game)
     menu.MARGIN_Y = 20
     menu.HEIGHT = lg.getHeight() - menu.MARGIN_Y * 2
     menu.WIDTH = lg.getWidth() - menu.MARGIN_X * 2
-    menu.RIGHT_X = menu.WIDTH * 0.8 + menu.MARGIN_X
-    menu.RIGHT_WIDTH = menu.WIDTH * 0.2
+    menu.LEFT_WIDTH = menu.WIDTH * 0.2
     menu.LIST_HEIGHT = menu.HEIGHT * 0.8
     menu.LIST_LINE_HEIGHT = menu.LIST_HEIGHT * 0.1
     menu.BOTTOM_Y = menu.LIST_HEIGHT + menu.MARGIN_Y
-    menu.BOTTOM_PADDING_X = 20
     menu.BOTTOM_PADDING_Y = 20
 
     menu.party = game.party
@@ -52,16 +50,16 @@ end
 function menu.draw()
 
     lg.setColor(1, 1, 1)
-    lg.rectangle('line', menu.RIGHT_X, menu.MARGIN_Y, menu.RIGHT_WIDTH, menu.HEIGHT)
-    lg.line(menu.RIGHT_X, menu.BOTTOM_Y, menu.MARGIN_X + menu.WIDTH , menu.BOTTOM_Y)
+    lg.rectangle('line', menu.MARGIN_X, menu.MARGIN_Y, menu.LEFT_WIDTH, menu.HEIGHT)
+    lg.line(menu.MARGIN_X, menu.BOTTOM_Y, menu.MARGIN_X + menu.LEFT_WIDTH , menu.BOTTOM_Y)
 
     lg.setFont(fonts.large)
     lg.printf(
         'Gold : '..menu.party.gold..'',
-        menu.RIGHT_X + menu.BOTTOM_PADDING_X,
+        menu.MARGIN_X,
         menu.BOTTOM_Y + menu.BOTTOM_PADDING_Y,
-        menu.RIGHT_WIDTH,
-        'left'
+        menu.LEFT_WIDTH,
+        'center'
     )
 
     ----MEMBER STATS----
@@ -69,10 +67,10 @@ function menu.draw()
     for i, member in ipairs(menu.party.members) do
 
         local gap = 10
-        local left_pad = 40
-        local box_width = menu.WIDTH - menu.RIGHT_WIDTH - gap - left_pad
+        local left_pad = 50
+        local box_width = menu.WIDTH - menu.LEFT_WIDTH - left_pad
         local box_height = (menu.HEIGHT - gap * 3) / 4
-        local box_x = menu.MARGIN_X + left_pad
+        local box_x = menu.MARGIN_X + menu.LEFT_WIDTH + left_pad
         local box_y = menu.MARGIN_Y + (i - 1) * (box_height + gap)
         
         if phase == 'order' then
@@ -189,10 +187,10 @@ function menu.draw()
 
     lg.setFont(fonts.xlarge)
     for i, option in ipairs(list) do
-        local option_x = menu.RIGHT_X + 20
+        local option_x = menu.MARGIN_X + 20
         local base_y = menu.MARGIN_Y + 10
         local option_y = base_y + (i - 1) * menu.LIST_LINE_HEIGHT + renderer.center_text(                         menu.LIST_LINE_HEIGHT)
-        local option_width = menu.RIGHT_WIDTH - 20 * 2
+        local option_width = menu.LEFT_WIDTH - 20 * 2
         local option_height = menu.LIST_LINE_HEIGHT
         lg.printf(option, option_x, option_y, option_width, 'center')
 

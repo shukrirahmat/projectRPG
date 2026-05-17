@@ -1,3 +1,4 @@
+local order = require('states.menu.order')
 local transitions = require('systems.transitions')
 local input = require('input')
 local fonts = require('fonts')
@@ -11,6 +12,7 @@ local menu = {}
 local lg = love.graphics
 local list = nil
 local position = nil
+local phase = nil
 
 local function move_up()
     if position > 1 then
@@ -41,6 +43,7 @@ function menu.load(game)
     menu.party = game.party
     list = {'Skill', 'Item', 'Equip', 'Status', 'Order'}
     position = 1
+    phase = 'main'
 end
 
 function menu.update(dt)
@@ -60,7 +63,7 @@ function menu.draw()
         menu.RIGHT_WIDTH,
         'left'
     )
-    
+
     ----MEMBER STATS----
 
     for i, member in ipairs(menu.party.members) do
@@ -71,6 +74,14 @@ function menu.draw()
         local box_height = (menu.HEIGHT - gap * 3) / 4
         local box_x = menu.MARGIN_X + left_pad
         local box_y = menu.MARGIN_Y + (i - 1) * (box_height + gap)
+        
+        if phase == 'order' then
+            if order.has_lifted(member) then
+                box_x = box_x - 40
+            else
+                order.draw(member, box_x, box_y, box_width, box_height)
+            end
+        end
 
         local sprite_x = box_x
         local sprite_y = box_y
@@ -83,8 +94,9 @@ function menu.draw()
         else
             lg.setColor(1, 1, 1)
         end
+        
         lg.draw(sprite, sprite_x, sprite_y)
-        lg.line(sprite_x + sprite_width, box_y, sprite_x + sprite_width, box_y + box_height)
+        lg.line(sprite_x + sprite_width, box_y, sprite_x + sprite_width, box_y + box_height)        
         lg.rectangle('line', box_x, box_y, box_width, box_height)
 
         local status_padding_x = 20
@@ -131,17 +143,17 @@ function menu.draw()
         local mp_text = ''..member.current_mp..' / '..member.max_mp..''
         lg.printf('MP', status_left_x, status_left_y + status_left_lh * 2, status_left_width, 'left')
         lg.printf(mp_text, status_left_x, status_left_y + status_left_lh * 2, status_left_width, 'right')
-        
+
         lg.setColor(0.25, 0.25, 0.25)
         lg.rectangle('line', status_left_x, status_left_y + status_left_lh + 25, status_left_width, 4)
         lg.rectangle('line', status_left_x, status_left_y + status_left_lh * 2 + 25, status_left_width, 4)
-        
+
         if member.is_dead then lg.setColor(0.5, 0.5, 0.5) else lg.setColor(0.75, 0.75, 0.75) end
         local hp_bar = (math.max(0, member.current_hp) / member.max_hp) * status_left_width
         local mp_bar = member.current_mp / member.max_mp * status_left_width
         lg.rectangle('fill', status_left_x, status_left_y + status_left_lh + 25, hp_bar, 4)
         lg.rectangle('fill', status_left_x, status_left_y + status_left_lh * 2 + 25, mp_bar, 4)
-        
+
         if member.is_dead then lg.setColor(0.5, 0.5, 0.5) else lg.setColor(1, 1, 1) end
 
         local status_right_y = box_y + status_padding_y
@@ -172,9 +184,9 @@ function menu.draw()
         lg.setFont(fonts.medium)
         lg.printf('Next: '..remaining_exp..'', next_x, next_y, next_width, 'right')
     end
-    
+
     ----MENU OPTIONS----
-    
+
     lg.setFont(fonts.xlarge)
     for i, option in ipairs(list) do
         local option_x = menu.RIGHT_X + 20
@@ -183,7 +195,7 @@ function menu.draw()
         local option_width = menu.RIGHT_WIDTH - 20 * 2
         local option_height = menu.LIST_LINE_HEIGHT
         lg.printf(option, option_x, option_y, option_width, 'center')
-        
+
         if position == i then
             renderer.draw_option_cursor(
                 option_x,
@@ -195,17 +207,34 @@ function menu.draw()
 end
 
 function menu.keypressed(key)
-    if key == input.back then
-        menu.close()
-    elseif key == input.up then
-        move_up()
-    elseif key == input.down then
-        move_down()
+    if phase == 'main' then
+        if key == input.back then
+            menu.close()
+        elseif key == input.up then
+            move_up()
+        elseif key == input.down then
+            move_down()
+        elseif key == input.confirm then
+            menu.select()
+        end
+    elseif phase == 'order' then
+        order.keypressed(key)
+    end
+end
+
+function menu.select()
+    if position == 5 then
+        order.load(menu, menu.party)
+        phase = 'order'
     end
 end
 
 function menu.close()
     menu.game.switch_state('field')
+end
+
+function menu.switch_phase(new_phase)
+    phase = new_phase
 end
 
 return menu

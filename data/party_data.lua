@@ -17,7 +17,8 @@ party_data.initial[1] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'one'
+    sprite = 'one',
+    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'SHIELD' }
 }
 
 party_data.initial[2] = {
@@ -33,7 +34,8 @@ party_data.initial[2] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'two'
+    sprite = 'two',
+    can_equip = { 'DAGGER', 'STAFF', 'ROBE' }
 }
 
 party_data.initial[3] = {
@@ -49,7 +51,8 @@ party_data.initial[3] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'three'
+    sprite = 'three',
+    can_equip = { 'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE'}
 }
 
 party_data.initial[4] = {
@@ -65,7 +68,8 @@ party_data.initial[4] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'four'
+    sprite = 'four',
+    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'SHIELD'}
 }
 
 ---------------TEST----------------
@@ -85,7 +89,8 @@ party_data.test[1] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'one'
+    sprite = 'one',
+    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'SHIELD' }
 }
 
 party_data.test[2] = {
@@ -101,7 +106,9 @@ party_data.test[2] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'two'
+    sprite = 'two',
+    armor = equipment_data['fire_cape'],
+    can_equip = { 'DAGGER', 'STAFF', 'ROBE' }
 }
 
 party_data.test[3] = {
@@ -117,7 +124,8 @@ party_data.test[3] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'three'
+    sprite = 'three',
+    can_equip = {'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE'}
 }
 
 party_data.test[4] = {
@@ -133,7 +141,8 @@ party_data.test[4] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    sprite = 'four'
+    sprite = 'four',
+    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'SHIELD'}
 }
 
 return party_data

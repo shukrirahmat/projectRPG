@@ -62,7 +62,7 @@ function menu.draw()
     if phase == 'main' or phase == 'order' then
         menu.draw_main()
     elseif phase == 'stats' then
-        stats.draw()
+        stats.draw(menu.MARGIN_X, menu.MARGIN_Y, profile_width, profile_height)
     end
 end
 
@@ -245,7 +245,7 @@ end
 
 function menu.select()
     if position == 4 then
-        stats.load(menu, menu.party, profile_height)
+        stats.load(menu, menu.party)
         phase = 'stats'
     elseif position == 5 then
         order.load(menu, menu.party)

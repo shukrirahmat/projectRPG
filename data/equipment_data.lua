@@ -36,13 +36,6 @@ equipment_data['iron_knuckles'] = {
     class = 'FIST',
 }
 
-equipment_data['bronze_spear'] = {
-    name = 'Bronze Spear',
-    atk_power = 35,
-    type = 'WEAPON',
-    class = 'SPEAR'
-}
-
 equipment_data['poisoned_dagger'] = {
     name = 'Poisoned Dagger',
     atk_power = 20,
@@ -92,13 +85,15 @@ equipment_data['fire_cape'] = {
 equipment_data['buckler'] = {
     name = 'Buckler',
     def_power = 25,
-    type = 'SHIELD'
+    type = 'SHIELD',
+    class = 'SHIELD'
 }
 
 equipment_data['reflektor'] = {
     name = 'Reflektor',
     def_power = 85,
     type = 'SHIELD',
+    class = 'SHIELD',
     passives = {'counter_II'}
 }
 

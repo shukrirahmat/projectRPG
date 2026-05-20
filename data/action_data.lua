@@ -4,7 +4,7 @@ local action_data = {}
 
 local function calculate_attack_damage(attacker, target) 
 
-    local damage = math.floor(attacker:get_atk()/2) - math.floor(target:get_def()/3)
+    local damage = math.floor(attacker:get_atk()/2) - math.floor(target:get_def()/4)
     local mod = math.floor(damage * 0.2)
     damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)
@@ -12,7 +12,7 @@ end
 
 local function calculate_crit_damage(attacker, target)
 
-    local damage = math.floor(attacker:get_atk()/2 * 3) - math.floor(target:get_def()/6)
+    local damage = math.floor(attacker:get_atk()/2 * 3) - math.floor(target:get_def()/8)
     local mod = math.floor(damage*0.2)
     damage = damage + math.floor(math.random(-mod, mod))
     return math.max(damage, 1)
@@ -492,7 +492,7 @@ local function use_aura(self, user, targets, engine)
     for i, target in ipairs(targets) do
         if not target:is_alive() then goto continue end
 
-        local base_damage = math.floor(user.str * self.aura_ratio)
+        local base_damage = math.floor(user:get_str() * self.aura_ratio)
         local mod = math.floor(base_damage * 0.2)
         local damage = base_damage + math.random(-mod, mod)
 

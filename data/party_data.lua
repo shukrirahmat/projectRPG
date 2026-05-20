@@ -18,7 +18,7 @@ party_data.initial[1] = {
     status = {},
     total_exp = 0,
     sprite = 'one',
-    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'SHIELD' }
+    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
 }
 
 party_data.initial[2] = {
@@ -35,7 +35,7 @@ party_data.initial[2] = {
     status = {},
     total_exp = 0,
     sprite = 'two',
-    can_equip = { 'DAGGER', 'STAFF', 'ROBE' }
+    can_equip = { 'DAGGER', 'STAFF', 'ROBE', 'HAT', 'BOOT' }
 }
 
 party_data.initial[3] = {
@@ -52,7 +52,7 @@ party_data.initial[3] = {
     status = {},
     total_exp = 0,
     sprite = 'three',
-    can_equip = { 'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE'}
+    can_equip = { 'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE', 'HELMET', 'BOOT'}
 }
 
 party_data.initial[4] = {
@@ -69,7 +69,7 @@ party_data.initial[4] = {
     status = {},
     total_exp = 0,
     sprite = 'four',
-    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'SHIELD'}
+    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
 }
 
 ---------------TEST----------------
@@ -90,7 +90,9 @@ party_data.test[1] = {
     status = {},
     total_exp = 0,
     sprite = 'one',
-    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'SHIELD' }
+    weapon = equipment_data['poisoned_dagger'],
+    armor = equipment_data['fire_cape'],
+    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
 }
 
 party_data.test[2] = {
@@ -108,7 +110,7 @@ party_data.test[2] = {
     total_exp = 0,
     sprite = 'two',
     armor = equipment_data['fire_cape'],
-    can_equip = { 'DAGGER', 'STAFF', 'ROBE' }
+    can_equip = { 'DAGGER', 'STAFF', 'ROBE', 'HAT', 'BOOT' }
 }
 
 party_data.test[3] = {
@@ -125,7 +127,8 @@ party_data.test[3] = {
     status = {},
     total_exp = 0,
     sprite = 'three',
-    can_equip = {'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE'}
+    headgear = equipment_data['thinking_cap'],
+    can_equip = { 'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE', 'HELMET', 'BOOT'}
 }
 
 party_data.test[4] = {
@@ -142,7 +145,8 @@ party_data.test[4] = {
     status = {},
     total_exp = 0,
     sprite = 'four',
-    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'SHIELD'}
+    other_eq = equipment_data['feather_greaves'],
+    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
 }
 
 return party_data

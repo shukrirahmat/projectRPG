@@ -14,23 +14,12 @@ local lg = love.graphics
 local list = nil
 local position = nil
 local phase = nil
+local member_index = nil
 
 local profile_gap = nil
 local profile_padding = nil
 local profile_width = nil
 local profile_height = nil
-
-local function move_up()
-    if position > 1 then
-        position = position - 1
-    end
-end
-
-local function move_down()
-    if position < #list then
-        position = position + 1
-    end
-end
 
 function menu.load(game)
     menu.game = game
@@ -43,7 +32,7 @@ function menu.load(game)
     menu.LIST_LINE_HEIGHT = menu.LIST_HEIGHT * 0.1
     menu.BOTTOM_Y = menu.LIST_HEIGHT + menu.MARGIN_Y
     menu.BOTTOM_PADDING_Y = 20
-    
+
     profile_gap = 10
     profile_padding = 50
     profile_width = menu.WIDTH - menu.LEFT_WIDTH - profile_padding
@@ -230,9 +219,9 @@ function menu.keypressed(key)
         if key == input.back then
             menu.close()
         elseif key == input.up then
-            move_up()
+            menu.move_up()
         elseif key == input.down then
-            move_down()
+            menu.move_down()
         elseif key == input.confirm then
             menu.select()
         end
@@ -240,6 +229,18 @@ function menu.keypressed(key)
         order.keypressed(key)
     elseif phase == 'stats' then
         stats.keypressed(key)
+    end
+end
+
+function menu.move_up()
+    if position > 1 then
+        position = position - 1
+    end
+end
+
+function menu.move_down()
+    if position < #list then
+        position = position + 1
     end
 end
 

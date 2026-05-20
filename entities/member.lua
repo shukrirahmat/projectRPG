@@ -29,7 +29,8 @@ function member.new(data)
     self.is_dead = false
     self.weapon = data.weapon or nil
     self.armor = data.armor or nil
-    self.shield = data.shield or nil
+    self.headgear = data.headgear or nil
+    self.other_eq = data.other_eq or nil
     self.can_equip = data.can_equip or {}
 
     function self:is_alive()

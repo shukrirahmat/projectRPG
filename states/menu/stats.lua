@@ -146,7 +146,7 @@ function Stats.draw_equip_page(body)
     can_equip_text = can_equip_text:sub(1, -2)
     lg.printf(can_equip_text, body.x + body.padding_x, body.y + body.padding_y + 50, text_width * 2, 'left')
 
-    local slots = { 'WEAPON:', 'ARMOR:', 'SHIELD:' }
+    local slots = { 'WEAPON:', 'ARMOR:', 'HEAD:', 'OTHER:'}
     local eq_y = body.y + body.padding_y + 120
 
     for i, slot in ipairs(slots) do
@@ -157,8 +157,10 @@ function Stats.draw_equip_page(body)
             eq_name = member.weapon.name
         elseif slot == 'ARMOR:' and member.armor then
             eq_name = member.armor.name
-        elseif slot == 'SHIELD:' and member.shield then
-            eq_name = member.shield.name
+        elseif slot == 'HEAD:' and member.headgear then
+            eq_name = member.headgear.name
+        elseif slot == 'OTHER:' and member.other_eq then
+            eq_name = member.other_eq.name
         end
 
         lg.printf(eq_name, body.x + body.padding_x, eq_y + (i - 1)*(body.line_height + 5), text_width, 'right')
@@ -186,9 +188,9 @@ function Stats.draw_attribute_page(body)
     local stats_value = {
         member.max_hp,
         member.max_mp,
-        member.str,
-        member.vit,
-        member.agi,
+        member:get_str(),
+        member:get_vit(),
+        member:get_agi(),
         '',
         member:get_atk(),
         member:get_def(),

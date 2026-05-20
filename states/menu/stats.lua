@@ -26,19 +26,22 @@ function Stats.load(menu, party)
     end
 end
 
-function Stats.draw(margin_x, margin_y, profile_width, profile_height)
+function Stats.draw(screen, profile)
+    
+    local margin_x = screen.margin_x
+    local margin_y = screen.margin_y
 
     local body = {
         x = margin_x,
-        y = margin_y + 10 + profile_height,
+        y = margin_y + 10 + profile.height,
         width = lg.getWidth() - margin_x * 2,
-        height = lg.getHeight() - margin_y * 2 - profile_height - 10,
+        height = lg.getHeight() - margin_y * 2 - profile.height - 10,
         padding_x = 40,
         padding_y = 20,
         line_height = 28
     }
 
-    Menu.draw_profile(Party.members[member_index], margin_x, margin_y)
+    Menu.draw_profile(Party.members[member_index], margin_x, margin_y, profile)
     lg.setColor(1, 1, 1)
     lg.rectangle('line', body.x, body.y, body.width, body.height)
 
@@ -74,23 +77,23 @@ function Stats.draw(margin_x, margin_y, profile_width, profile_height)
     
     local member_text = 'Change member'
     local member_text_width = font:getWidth(member_text) + 20
-    lg.printf(member_text, margin_x + profile_width + 30, margin_y + 10, member_text_width, 'center')
+    lg.printf(member_text, margin_x + profile.width + 30, margin_y + 10, member_text_width, 'center')
     lg.polygon(
         'fill',
-        margin_x + profile_width + 20,
+        margin_x + profile.width + 20,
         margin_y,
-        margin_x + profile_width + 10,
+        margin_x + profile.width + 10,
         margin_y + 15,
-        margin_x + profile_width + 30,
+        margin_x + profile.width + 30,
         margin_y + 15
     )
     lg.polygon(
         'fill',
-        margin_x + profile_width + 20,
+        margin_x + profile.width + 20,
         margin_y + 15 * 2 + 10,
-        margin_x + profile_width + 10,
+        margin_x + profile.width + 10,
         margin_y + 15 + 10,
-        margin_x + profile_width + 30,
+        margin_x + profile.width + 30,
         margin_y + 15 + 10
     )
 

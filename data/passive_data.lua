@@ -109,15 +109,15 @@ passive_data['snatcher'] = {
 }
 
 passive_data['counter_I'] = {
-    name = 'Counter', desc = '25% chance to counter when being attacked'
+    name = 'Counter I', desc = '25% chance to counter when being attacked'
 }
 
 passive_data['counter_II'] = {
-    name = 'Counter', desc = '50% chance to counter when being attacked'
+    name = 'Counter II', desc = '50% chance to counter when being attacked'
 }
 
 passive_data['counter_III'] = {
-    name = 'Counter', desc = 'Always counters when being attacked'
+    name = 'Counter III', desc = 'Always counters when being attacked'
 }
 
 passive_data['ranged'] = {

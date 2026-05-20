@@ -89,9 +89,11 @@ party_data.test[1] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
+    weapon = equipment_data['bronze_sword'],
+    armor = equipment_data['fighter_suit'],
+    headgear = equipment_data['steel_helmet'],
+    other_eq = equipment_data['reflektor'],
     sprite = 'one',
-    weapon = equipment_data['poisoned_dagger'],
-    armor = equipment_data['fire_cape'],
     can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
 }
 
@@ -109,7 +111,6 @@ party_data.test[2] = {
     status = {},
     total_exp = 0,
     sprite = 'two',
-    armor = equipment_data['fire_cape'],
     can_equip = { 'DAGGER', 'STAFF', 'ROBE', 'HAT', 'BOOT' }
 }
 
@@ -127,7 +128,6 @@ party_data.test[3] = {
     status = {},
     total_exp = 0,
     sprite = 'three',
-    headgear = equipment_data['thinking_cap'],
     can_equip = { 'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE', 'HELMET', 'BOOT'}
 }
 
@@ -145,7 +145,7 @@ party_data.test[4] = {
     status = {},
     total_exp = 0,
     sprite = 'four',
-    other_eq = equipment_data['feather_greaves'],
+    weapon = equipment_data['iron_knuckles'],
     can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
 }
 

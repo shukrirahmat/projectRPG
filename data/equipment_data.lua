@@ -68,10 +68,11 @@ equipment_data['bronze_armor'] = {
 }
 
 equipment_data['fighter_suit'] = {
-    name = 'Bronze Armor',
+    name = 'Fighter Suit',
     stat = {def = 15},
     type = 'ARMOR',
-    class = 'LIGHT_ARMOR'
+    class = 'LIGHT_ARMOR',
+    passives = {'strong:STUN'}
 }
 
 equipment_data['fire_cape'] = {
@@ -95,15 +96,7 @@ equipment_data['steel_helmet'] = {
     stat = {def = 18},
     type = 'HEADGEAR',
     class = 'HELMET',
-    passives = {'strong:SEAL'}
-}
-
-equipment_data['fire_cape'] = {
-    name = 'Fire Cape',
-    stat = {def = 10},
-    type = 'ARMOR',
-    class = 'ROBE',
-    passives = {'strong:FIRE'}
+    passives = {'strong:THUNDER', 'strong:WIND'}
 }
 
 equipment_data['buckler'] = {

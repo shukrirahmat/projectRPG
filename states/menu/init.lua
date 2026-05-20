@@ -1,5 +1,6 @@
 local order = require('states.menu.order')
 local stats = require('states.menu.stats')
+local equip = require('states.menu.equip')
 local transitions = require('systems.transitions')
 local input = require('input')
 local fonts = require('fonts')
@@ -16,11 +17,6 @@ local position = nil
 local phase = nil
 local member_index = nil
 
-local profile_gap = nil
-local profile_padding = nil
-local profile_width = nil
-local profile_height = nil
-
 function menu.load(game)
     menu.game = game
     menu.MARGIN_X = 20
@@ -33,11 +29,6 @@ function menu.load(game)
     menu.BOTTOM_Y = menu.LIST_HEIGHT + menu.MARGIN_Y
     menu.BOTTOM_PADDING_Y = 20
 
-    profile_gap = 10
-    profile_padding = 50
-    profile_width = menu.WIDTH - menu.LEFT_WIDTH - profile_padding
-    profile_height = (menu.HEIGHT - profile_gap * 3) / 4
-
     menu.party = game.party
     list = {'Skill', 'Item', 'Equip', 'Stats', 'Order'}
     position = 1
@@ -48,14 +39,29 @@ function menu.update(dt)
 end
 
 function menu.draw()
-    if phase == 'main' or phase == 'order' then
-        menu.draw_main()
+    
+    local screen = {}
+    screen.margin_x = menu.MARGIN_X
+    screen.margin_y = menu.MARGIN_Y
+    screen.height = menu.HEIGHT
+    screen.width = menu.WIDTH
+
+    local profile = {}
+    profile.gap = 10
+    profile.margin_x = 50
+    profile.width = menu.WIDTH - menu.LEFT_WIDTH - profile.margin_x
+    profile.height = (menu.HEIGHT - profile.gap * 3) / 4
+
+    if phase == 'main' or phase == 'choose_member' or phase == 'order' then
+        menu.draw_main(profile)
     elseif phase == 'stats' then
-        stats.draw(menu.MARGIN_X, menu.MARGIN_Y, profile_width, profile_height)
+        stats.draw(screen, profile)
+    elseif phase == 'equip' then
+        equip.draw(screen)
     end
 end
 
-function menu.draw_main()
+function menu.draw_main(profile)
     lg.setColor(1, 1, 1)
     lg.rectangle('line', menu.MARGIN_X, menu.MARGIN_Y, menu.LEFT_WIDTH, menu.HEIGHT)
     lg.line(menu.MARGIN_X, menu.BOTTOM_Y, menu.MARGIN_X + menu.LEFT_WIDTH , menu.BOTTOM_Y)
@@ -72,20 +78,20 @@ function menu.draw_main()
     ----MEMBER STATS----
 
     for i, member in ipairs(menu.party.members) do
-        local box_width = profile_width
-        local box_height = profile_height
-        local box_x = menu.MARGIN_X + menu.LEFT_WIDTH + profile_padding
-        local box_y = menu.MARGIN_Y + (i - 1) * (box_height + profile_gap)
+        local x = menu.MARGIN_X + menu.LEFT_WIDTH + profile.margin_x
+        local y = menu.MARGIN_Y + (i - 1) * (profile.height + profile.gap)
+        
+        if phase == 'choose_member' and member == menu.party.members[member_index] then
+            menu.draw_cursor(member, x, y, profile)
+        end
 
         if phase == 'order' then
-            if order.has_lifted(member) then
-                box_x = box_x - 40
-            else
-                order.draw(member, box_x, box_y, box_width, box_height)
+            if order.has_moved(member) then
+                x = x - 40
             end
         end
 
-        menu.draw_profile(member, box_x, box_y, box_width, box_height)
+        menu.draw_profile(member, x, y, profile)
     end
 
     ----MENU OPTIONS----
@@ -109,9 +115,18 @@ function menu.draw_main()
     end
 end
 
-function menu.draw_profile(member, x, y)
-    local width = profile_width
-    local height = profile_height
+function menu.draw_cursor(member, x, y, profile)
+    local vertical_center = y + profile.height * 0.5
+    lg.polygon('fill', 
+        x - 35, vertical_center - 20, 
+        x - 35, vertical_center + 20, 
+        x - 15, vertical_center
+    )
+end
+
+function menu.draw_profile(member, x, y, profile)
+    local width = profile.width
+    local height = profile.height
     local sprite_x = x
     local sprite_y = y
     local sprite_width = 128
@@ -215,9 +230,9 @@ function menu.draw_profile(member, x, y)
 end
 
 function menu.keypressed(key)
-    if phase == 'main' then
+    if phase == 'main' or phase == 'choose_member' then
         if key == input.back then
-            menu.close()
+            menu.back()
         elseif key == input.up then
             menu.move_up()
         elseif key == input.down then
@@ -229,37 +244,64 @@ function menu.keypressed(key)
         order.keypressed(key)
     elseif phase == 'stats' then
         stats.keypressed(key)
+    elseif phase == 'equip' then
+        equip.keypressed(key)
     end
 end
 
 function menu.move_up()
-    if position > 1 then
+    if phase == 'main' and position > 1 then
         position = position - 1
+    elseif phase == 'choose_member' and member_index > 1 then
+        member_index = member_index - 1
     end
 end
 
 function menu.move_down()
-    if position < #list then
+    if phase == 'main' and position < #list then
         position = position + 1
+    elseif phase == 'choose_member' and member_index < #menu.party.members then
+        member_index = member_index + 1
     end
 end
 
 function menu.select()
-    if position == 4 then
-        stats.load(menu, menu.party)
-        phase = 'stats'
-    elseif position == 5 then
-        order.load(menu, menu.party)
-        phase = 'order'
+    if phase == 'main' then
+        if position == 3 then
+            member_index = 1
+            phase = 'choose_member'
+        elseif position == 4 then
+            stats.load(menu, menu.party)
+            phase = 'stats'
+        elseif position == 5 then
+            member_index = 1
+            phase = 'choose_member'
+        end
+    elseif phase == 'choose_member' then
+        if position == 3 then
+            phase = 'equip'
+            equip.load(menu, menu.party.members[member_index])
+        elseif position == 5 then
+            order.load(menu, menu.party, member_index)
+            phase = 'order'
+        end
     end
 end
 
-function menu.close()
-    menu.game.switch_state('field')
+function menu.back()
+    if phase == 'main' then
+        menu.game.switch_state('field')
+    elseif phase == 'choose_member' then
+        phase = 'main'
+    end
 end
 
 function menu.switch_phase(new_phase)
     phase = new_phase
+end
+
+function menu.set_member_index(index)
+    member_index = index
 end
 
 return menu

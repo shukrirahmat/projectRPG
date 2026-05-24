@@ -141,10 +141,13 @@ function Stats.draw_equip_page(body)
     lg.printf('Equipments', body.x + body.padding_x, body.y + body.padding_y, text_width, 'left')
 
     lg.setFont(fonts.large)
+    local classes = {'SWORD', 'AXE', 'HAMMER', 'SPEAR', 'FIST', 'DAGGER', 'BOW', 'STAFF','HEAVY_ARMOR', 'LIGHT_ARMOR', 'ROBE', 'HELMET', 'HAT', 'SHIELD', 'BOOT'}
     local can_equip_text = 'Can equip: '
-    for i, class in ipairs(member.can_equip) do
-        local text = class:gsub("_", " ")
-        can_equip_text = ''..can_equip_text..' '..utils.capitalize(text:lower())..'s,'
+    for i, class in ipairs(classes) do
+        if member.can_equip[class] then
+            local text = class:gsub("_", " ")
+            can_equip_text = ''..can_equip_text..' '..utils.capitalize(text:lower())..'s,'
+        end
     end
     can_equip_text = can_equip_text:sub(1, -2)
     lg.printf(can_equip_text, body.x + body.padding_x, body.y + body.padding_y + 50, text_width * 2, 'left')

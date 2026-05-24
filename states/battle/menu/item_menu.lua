@@ -93,7 +93,7 @@ local function draw_description_text(item, border_x, border_y)
     local x = border_x + border_width + menu.GAP
     local y = border_y
     local width = (menu.FULL_WIDTH - menu.GAP * 2) * 0.2
-    
+
     lg.setColor(0, 0, 0)
     lg.rectangle('fill', x, y, width, menu.FULL_HEIGHT)
     lg.setColor(1, 1, 1)
@@ -132,8 +132,10 @@ function item_menu.load(_menu, _prev_menu, _member, _member_index)
     list = {}
 
     for k, v in pairs(menu.get_party_items()) do
-        local id = item_data[k].id
-        table.insert(list, {item = k, amount = v, id = id})
+        if item_data[k].type == 'CONSUMABLE' then
+            local id = item_data[k].id
+            table.insert(list, {item = k, amount = v, id = id})
+        end
     end
 
     table.sort(list, function(a, b) return a.id < b.id end)
@@ -211,7 +213,7 @@ function item_menu.draw()
         lg.setColor(1, 1, 1)
         if position == i then
             renderer.draw_option_cursor(item_x, item_y, option_height)
-                draw_description_text(item, border_x, border_y)
+            draw_description_text(item, border_x, border_y)
         end
 
         if math.ceil(#list / SIZE) > 1 then

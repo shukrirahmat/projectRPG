@@ -26,10 +26,10 @@ local states = {
 local current_state = nil
 
 function game.load()
-    
+
     graphics.load()
     fonts.load()
-    
+
     party.load(
         { 
             Member.new(party_data.test[1]),
@@ -38,19 +38,27 @@ function game.load()
             Member.new(party_data.test[4]),
         }
     )
-    
+
     party.manage_item('potion', 10)
     party.manage_item('antidote', 5)
     party.manage_item('bandage', 3)
-    party.manage_gold(200)
     
+    party.manage_item('bronze_sword', 2)
+    party.manage_item('rusty_axe', 1)
+    party.manage_item('iron_hammer', 1)
+    party.manage_item('buckler', 1)
+    party.manage_item('reflektor', 1)
+    party.manage_item('fire_cape', 1)
+    
+    party.manage_gold(200)
+
     game.party = party
 
     local current_map = require('maps.overworld')
     local start_position = current_map.start_position 
-    
+
     game.checkpoint = { map = current_map, position = start_position, facing = 'front' }
-    
+
     mapper.load(current_map, start_position)
     player.load(start_position, 'front')
     game.switch_state('field', {reset_encounter = true})

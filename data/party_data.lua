@@ -1,4 +1,4 @@
-local equipment_data = require('data.equipment_data')
+local item_data = require('data.item_data')
 
 local party_data = {}
 
@@ -18,7 +18,7 @@ party_data.initial[1] = {
     status = {},
     total_exp = 0,
     sprite = 'one',
-    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
+    can_equip = { ['SWORD'] = true, ['AXE'] = true, ['LIGHT_ARMOR'] = true, ['HELMET'] = true, ['SHIELD'] = true, ['BOOT'] = true}
 }
 
 party_data.initial[2] = {
@@ -35,7 +35,7 @@ party_data.initial[2] = {
     status = {},
     total_exp = 0,
     sprite = 'two',
-    can_equip = { 'DAGGER', 'STAFF', 'ROBE', 'HAT', 'BOOT' }
+    can_equip = { ['DAGGER'] = true, ['STAFF'] = true, ['ROBE'] = true, ['HAT'] = true, ['BOOT'] = true }
 }
 
 party_data.initial[3] = {
@@ -52,7 +52,7 @@ party_data.initial[3] = {
     status = {},
     total_exp = 0,
     sprite = 'three',
-    can_equip = { 'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE', 'HELMET', 'BOOT'}
+    can_equip = { ['HAMMER'] = true, ['STAFF'] = true, ['LIGHT_ARMOR'] = true, ['ROBE'] = true, ['HELMET'] = true, ['BOOT'] = true}
 }
 
 party_data.initial[4] = {
@@ -69,7 +69,7 @@ party_data.initial[4] = {
     status = {},
     total_exp = 0,
     sprite = 'four',
-    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
+    can_equip = { ['FIST'] = true, ['SPEAR'] = true, ['LIGHT_ARMOR'] = true, ['HELMET'] = true, ['SHIELD'] = true, ['BOOT'] = true}
 }
 
 ---------------TEST----------------
@@ -89,12 +89,8 @@ party_data.test[1] = {
     passive_skills = {},
     status = {},
     total_exp = 0,
-    weapon = equipment_data['bronze_sword'],
-    armor = equipment_data['fighter_suit'],
-    headgear = equipment_data['steel_helmet'],
-    other_eq = equipment_data['reflektor'],
     sprite = 'one',
-    can_equip = { 'SWORD', 'AXE', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
+    can_equip = { ['SWORD'] = true, ['AXE'] = true, ['LIGHT_ARMOR'] = true, ['HELMET'] = true, ['SHIELD'] = true, ['BOOT'] = true}
 }
 
 party_data.test[2] = {
@@ -111,7 +107,7 @@ party_data.test[2] = {
     status = {},
     total_exp = 0,
     sprite = 'two',
-    can_equip = { 'DAGGER', 'STAFF', 'ROBE', 'HAT', 'BOOT' }
+    can_equip = { ['DAGGER'] = true, ['STAFF'] = true, ['ROBE'] = true, ['HAT'] = true, ['BOOT'] = true }
 }
 
 party_data.test[3] = {
@@ -128,7 +124,7 @@ party_data.test[3] = {
     status = {},
     total_exp = 0,
     sprite = 'three',
-    can_equip = { 'HAMMER', 'STAFF', 'LIGHT_ARMOR', 'ROBE', 'HELMET', 'BOOT'}
+    can_equip = { ['HAMMER'] = true, ['STAFF'] = true, ['LIGHT_ARMOR'] = true, ['ROBE'] = true, ['HELMET'] = true, ['BOOT'] = true}
 }
 
 party_data.test[4] = {
@@ -145,8 +141,7 @@ party_data.test[4] = {
     status = {},
     total_exp = 0,
     sprite = 'four',
-    weapon = equipment_data['iron_knuckles'],
-    can_equip = { 'FIST', 'SPEAR', 'LIGHT_ARMOR', 'HELMET', 'SHIELD', 'BOOT'}
+    can_equip = { ['FIST'] = true, ['SPEAR'] = true, ['LIGHT_ARMOR'] = true, ['HELMET'] = true, ['SHIELD'] = true, ['BOOT'] = true}
 }
 
 return party_data

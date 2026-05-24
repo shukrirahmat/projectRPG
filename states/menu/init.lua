@@ -280,7 +280,7 @@ function menu.select()
     elseif phase == 'choose_member' then
         if position == 3 then
             phase = 'equip'
-            equip.load(menu, menu.party.members[member_index])
+            equip.load(menu, menu.party, menu.party.members[member_index])
         elseif position == 5 then
             order.load(menu, menu.party, member_index)
             phase = 'order'

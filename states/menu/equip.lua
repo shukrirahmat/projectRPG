@@ -2,20 +2,27 @@ local input = require('input')
 local fonts = require('fonts')
 local renderer = require('helpers.renderer')
 local passive_data = require('data.passive_data')
+local item_data = require('data.item_data')
 
 local Equip = {}
 
 local Menu = nil
+local Party = nil
 local member = nil
 local slot_position = nil
-local slot_list = {}
+local slot_list = nil
 local lg = love.graphics
+local phase = nil
+local equip_position = nil
+local equip_list = nil
 
-function Equip.load(menu, member_arg)
+function Equip.load(menu, party, member_arg)
     Menu = menu
+    Party = party
     member = member_arg
     slot_position = 1
     slot_list = {'WEAPON', 'ARMOR', 'HEAD', 'OTHER'}
+    phase = 'choose_slot'
 end
 
 function Equip.draw(screen)
@@ -68,15 +75,61 @@ function Equip.draw(screen)
     t_desc.width = tr.width * 0.5 - 40
     t_desc.passive_y = tr.hz_line_y + tr.padding_y
 
-    lg.setFont(fonts.large_mono)
-    if slot_list[slot_position] == 'WEAPON' and member.weapon then
-        Equip.draw_equipment_description(t_desc, member.weapon)
-    elseif slot_list[slot_position] == 'ARMOR' and member.armor then
-        Equip.draw_equipment_description(t_desc, member.armor)
-    elseif slot_list[slot_position] == 'HEAD' and member.headgear then
-        Equip.draw_equipment_description(t_desc, member.headgear)
-    elseif slot_list[slot_position] == 'OTHER' and member.other_eq then
-        Equip.draw_equipment_description(t_desc, member.other_eq)
+    local prop_list = {'weapon', 'armor', 'headgear', 'other_eq'}
+    if member[prop_list[slot_position]] then
+        Equip.draw_equipment_description(t_desc, member[prop_list[slot_position]])
+    end
+
+    if phase == 'choose_equip' then
+
+        lg.setFont(fonts.large)
+        local br = {}
+        ----BOTTOM RIGHT----
+        br.x = tr.x
+        br.y = screen.margin_y + tr.height + 20
+        br.width = tr.width
+        br.height = tr.height
+        br.line_height = tr.line_height
+        br.padding_x = tr.padding_x
+        br.padding_y = tr.padding_y
+        br.hz_line_y = tr.hz_line_y + tr.height + 20
+        lg.rectangle('line', br.x, br.y, br.width, br.height)
+        lg.line(br.x + br.width * 0.5, br.y, br.x + br.width * 0.5, br.y + br.height)
+        lg.line(br.x + br.width * 0.5, br.hz_line_y, br.x + br.width, br.hz_line_y)
+
+        local text_x = br.x + br.padding_x
+        local text_y = br.y + br.padding_y + renderer.center_text(br.line_height)
+        local text_width = (br.width * 0.5) - br.padding_x - 20
+        if #equip_list < 1 then
+            lg.printf('No equipment available', text_x, text_y, text_width, 'left')
+        else
+            for i, eq in ipairs(equip_list) do
+                local text;
+                local text_y = text_y + (i - 1) * br.line_height
+                if eq.equipment.type == 'UNEQUIP' then
+                    text = 'Unequip'
+                    lg.printf(text, text_x, text_y, text_width, 'left')
+                else
+                    text = eq.equipment.name
+                    lg.printf(text, text_x, text_y, text_width, 'left')
+                    lg.printf('x'..eq.amount..'', text_x, text_y, text_width, 'right')
+                end
+
+                if equip_position == i then
+                    renderer.draw_option_cursor(text_x - 30, text_y, tr.line_height - 5)
+                end
+            end
+        end
+
+        local b_desc = {}
+        b_desc.x = br.x + br.width * 0.5 + 20
+        b_desc.y = br.y + br.padding_y
+        b_desc.width = br.width * 0.5 - 40
+        b_desc.passive_y = br.hz_line_y + br.padding_y
+
+        if #equip_list > 0 and equip_list[equip_position].equipment.type ~= 'UNEQUIP' then
+            Equip.draw_equipment_description(b_desc, equip_list[equip_position].equipment)
+        end
     end
 end
 
@@ -91,7 +144,7 @@ function Equip.draw_equipment_description(desc, equipment)
             i = i + 1
         end
     end
-    
+
     if equipment.passives then
         for i, passive in ipairs(equipment.passives) do
             lg.setFont(fonts.large)
@@ -106,22 +159,38 @@ function Equip.draw_equipment_description(desc, equipment)
 end
 
 function Equip.keypressed(key)
-    if key == input.back then
-        Equip.exit()
-    elseif key == input.up then
-        Equip.move_up()
-    elseif key == input.down then
-        Equip.move_down()
+    if phase == 'choose_slot' then
+        if key == input.back then
+            Equip.exit()
+        elseif key == input.up then
+            Equip.slot_up()
+        elseif key == input.down then
+            Equip.slot_down()
+        elseif key == input.confirm then
+            Equip.load_equipment_choices()
+            equip_position = 1
+            phase = 'choose_equip'
+        end
+    elseif phase == 'choose_equip' then
+        if key == input.back then
+            Equip.back()
+        elseif key == input.up then
+            Equip.equipment_up()
+        elseif key == input.down then
+            Equip.equipment_down()
+        elseif key == input.confirm then
+            Equip.switch_equipment()
+        end
     end
 end
 
-function Equip.move_up()
+function Equip.slot_up()
     if slot_position > 1 then
         slot_position = slot_position - 1
     end
 end
 
-function Equip.move_down()
+function Equip.slot_down()
     if slot_position < #slot_list then
         slot_position = slot_position + 1
     end
@@ -130,5 +199,59 @@ end
 function Equip.exit()
     Menu.switch_phase('choose_member')
 end
+
+function Equip.load_equipment_choices()
+    equip_list = {}
+    local prop_list = {'weapon', 'armor', 'headgear', 'other_eq'}
+    local type_list = {'WEAPON', 'ARMOR', 'HEADGEAR', 'OTHER_EQ'}
+
+    local current_slot = slot_list[slot_position]
+    if member[prop_list[slot_position]] then
+        table.insert(equip_list, {equipment = {type = 'UNEQUIP'}})
+    end
+    for item_ref, amount in pairs(Party.items) do
+        local equipment = item_data[item_ref]
+        if equipment.type == type_list[slot_position] and member.can_equip[equipment.class] then
+            table.insert(equip_list, {equipment = equipment, amount = amount})
+        end
+    end
+end
+
+function Equip.equipment_up()
+    if equip_position > 1 then
+        equip_position = equip_position - 1
+    end
+end
+
+function Equip.equipment_down()
+    if equip_position < #equip_list then
+        equip_position = equip_position + 1
+    end
+end
+
+function Equip.back()
+    phase = 'choose_slot'
+end
+
+function Equip.switch_equipment()
+    if #equip_list < 1 then return end
+
+    local prop_list = {'weapon', 'armor', 'headgear', 'other_eq'}
+
+    if equip_list[equip_position].equipment.type == 'UNEQUIP' then
+        Party.manage_item(member[prop_list[slot_position]].ref, 1)
+        member[prop_list[slot_position]] = nil
+    else
+        if member[prop_list[slot_position]] then
+            Party.manage_item(member[prop_list[slot_position]].ref, 1)
+            member[prop_list[slot_position]] = nil
+        end
+        Party.manage_item(equip_list[equip_position].equipment.ref, -1)
+        member[prop_list[slot_position]] = equip_list[equip_position].equipment
+    end
+
+    phase = 'choose_slot'
+end
+
 
 return Equip

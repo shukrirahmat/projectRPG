@@ -1,6 +1,6 @@
 local input = require('input')
 local fonts = require('fonts')
-local member_battler = require('entities.member_battler')
+local Member_battler = require('entities.member_battler')
 local utils = require('helpers.utils')
 local action_data = require('data.action_data')
 local passive_data = require('data.passive_data')
@@ -22,7 +22,7 @@ function Stats.load(menu, party)
 
     party_battlers = {}
     for i, member in ipairs(Party.members) do
-        table.insert(party_battlers, member_battler.new(member))
+        table.insert(party_battlers, Member_battler.new(member))
     end
 end
 

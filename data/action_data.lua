@@ -96,8 +96,8 @@ end
 local function proc_on_hit_effect(user, target, engine)
     local list = {'basher', 'mage_slayer', 'sand_master', 'toxicity', 'armor_breaker', 'crippler'}
     local status = {'STUN', 'SEAL', 'BLIND', 'POISON', 'FRAIL', 'SLOW'}
-    local base_acc = {25, 25, 25, 50, 100, 100}
-    local resist_acc = {10, 10, 10, 20, 40, 40}
+    local base_acc = {40, 25, 25, 50, 100, 100}
+    local resist_acc = {15, 10, 10, 20, 40, 40}
 
     for i = 1, #list do
         if user.passives[list[i]] then

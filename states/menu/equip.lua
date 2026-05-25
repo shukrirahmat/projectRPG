@@ -3,6 +3,7 @@ local fonts = require('fonts')
 local renderer = require('helpers.renderer')
 local passive_data = require('data.passive_data')
 local item_data = require('data.item_data')
+local Member_battler = require('entities.member_battler')
 
 local Equip = {}
 
@@ -15,6 +16,7 @@ local lg = love.graphics
 local phase = nil
 local equip_position = nil
 local equip_list = nil
+local member_battler = nil
 
 function Equip.load(menu, party, member_arg)
     Menu = menu
@@ -23,15 +25,79 @@ function Equip.load(menu, party, member_arg)
     slot_position = 1
     slot_list = {'WEAPON', 'ARMOR', 'HEAD', 'OTHER'}
     phase = 'choose_slot'
+
+    member_battler = Member_battler.new(member)
 end
 
 function Equip.draw(screen)
 
+    local sprite = member.sprite
+    local sprite_dimension = 128
+    lg.draw(sprite, screen.margin_x, screen.margin_y)
+    lg.rectangle('line', screen.margin_x, screen.margin_y, sprite_dimension, sprite_dimension)
+
+    local bl = {}
+    ----BOTTOM LEFT---
+    bl.x = screen.margin_x
+    bl.y = screen.margin_y + sprite_dimension
+    bl.width = screen.width * 0.25
+    bl.height = screen.height - sprite_dimension
+    bl.line_height = 30
+    bl.padding_x = 20
+    bl.padding_y = 20
+    lg.setColor(0, 0, 0)
+    lg.rectangle('fill', bl.x, bl.y, bl.width, bl.height)
+    lg.setColor(1, 1, 1)
+    lg.rectangle('line', bl.x, bl.y, bl.width, bl.height)
+
+    lg.setFont(fonts.bold)
+    lg.printf(member.name, bl.x + bl.padding_x, bl.y + bl.padding_y, bl.width - bl.padding_x * 2, 'left')
+    lg.printf('LVL'..member.lvl..'', bl.x + bl.padding_x, bl.y + bl.padding_y, bl.width - bl.padding_x * 2 - 10, 'right')
+
+    lg.setFont(fonts.large_mono)
+    local stat_list = {'ATK', 'DEF', '', 'STR', 'VIT', 'AGI'}
+    local stat_value = {
+        member_battler:get_atk(), 
+        member_battler:get_def(), 
+        '', 
+        member_battler:get_str(), 
+        member_battler:get_vit(), 
+        member_battler:get_agi()
+    }
+
+    for i, stat in ipairs(stat_list) do
+        local y = bl.y + bl.padding_y + 80 + (i - 1) * bl.line_height
+        lg.printf(stat, bl.x + bl.padding_x, y, (bl.width - bl.padding_x * 2) * 0.55, 'left')
+        lg.printf(stat_value[i], bl.x + bl.padding_x, y, (bl.width - bl.padding_x * 2) * 0.55, 'right')
+    end
+
+    if phase == 'choose_equip' and #equip_list > 0 then
+        local preview_stats = Equip.get_preview_stats(equip_list[equip_position].equipment)  
+        for i, new_stat in ipairs(preview_stats) do
+            if new_stat ~= stat_value[i] then
+                local x = bl.x + bl.padding_x + (bl.width - bl.padding_x * 2) * 0.6
+                local y = bl.y + bl.padding_y + 80 + (i - 1) * bl.line_height
+                
+                lg.polygon('fill', x, y + 7, x, y + 17, x + 10, y + 12)
+                
+                if new_stat > stat_value[i] then
+                    lg.setColor(0.1, 0.9, 0.1)
+                elseif new_stat < stat_value[i] then
+                    lg.setColor(1, 0.1, 0.1)
+                end
+                
+                lg.printf(new_stat, x + 20, y, (bl.width - bl.padding_x * 2) * 0.4 - 10, 'left')
+                lg.setColor(1, 1, 1)
+            end
+        end
+    end
+
+
     local tr = {}
-    ----TOP RIGHT----
-    tr.x = screen.margin_x + screen.width * 0.3
+----TOP RIGHT----
+    tr.x = screen.margin_x + bl.width + 20
     tr.y = screen.margin_y
-    tr.width = screen.width - screen.width * 0.3
+    tr.width = screen.width - bl.width - 20
     tr.height = screen.height *  0.5 - 10
     tr.line_height = 30
     tr.padding_x = 45
@@ -250,7 +316,33 @@ function Equip.switch_equipment()
         member[prop_list[slot_position]] = equip_list[equip_position].equipment
     end
 
+    member_battler = Member_battler.new(member)
     phase = 'choose_slot'
+end
+
+function Equip.get_preview_stats(equipment)
+    local prop_list = {'weapon', 'armor', 'headgear', 'other_eq'}
+    local current = member[prop_list[slot_position]]
+
+    if equipment.type == 'UNEQUIP' then
+        member[prop_list[slot_position]] = nil
+    else
+        member[prop_list[slot_position]] = equipment
+    end
+
+    local prev_battler = Member_battler.new(member)
+    local prev_stats = {
+        prev_battler:get_atk(), 
+        prev_battler:get_def(), 
+        '', 
+        prev_battler:get_str(), 
+        prev_battler:get_vit(), 
+        prev_battler:get_agi()
+    }
+    member[prop_list[slot_position]] = current
+    member_battler = Member_battler.new(member)
+
+    return prev_stats
 end
 
 

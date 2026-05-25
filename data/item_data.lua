@@ -86,7 +86,7 @@ item_data['rusty_axe'] = {
 
 item_data['iron_hammer'] = {
     name = 'Iron Hammer',
-    stat = {atk = 60},
+    stat = {atk = 6},
     type = 'WEAPON',
     class = 'HAMMER',
     passives = {'basher'}

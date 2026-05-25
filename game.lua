@@ -49,6 +49,8 @@ function game.load()
     party.manage_item('buckler', 1)
     party.manage_item('reflektor', 1)
     party.manage_item('fire_cape', 1)
+    party.manage_item('feather_greaves', 2)
+    party.manage_item('iron_knuckles', 1)
     
     party.manage_gold(200)
 

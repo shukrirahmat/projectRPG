@@ -1,76 +1,77 @@
 local item_data = {}
 
 item_data['potion'] = { 
-    id = 1, 
+    id = 101, 
     name = 'Potion', 
     desc = 'Recovers 40 HP.',
     type = 'CONSUMABLE'
 }
 
 item_data['master_potion'] = { 
-    id = 2, 
+    id = 102, 
     name = 'Master Potion', 
     desc = 'Recovers HP to full.',
     type = 'CONSUMABLE'
 }
 
 item_data['mana_potion'] = { 
-    id = 3, 
+    id = 103, 
     name = 'Mana Potion', 
     desc = 'Recovers 50 MP.',
     type = 'CONSUMABLE'
 }
 
 item_data['antidote'] = { 
-    id = 4, 
+    id = 104, 
     name = 'Antidote', 
     desc = 'Cures POISON.',
     type = 'CONSUMABLE'
 }
 
 item_data['holy_water'] = { 
-    id = 5, 
+    id = 105, 
     name = 'Holy Water', 
     desc = 'Lift CURSE.',
     type = 'CONSUMABLE'
 }
 
 item_data['bandage'] = { 
-    id = 6, 
+    id = 106, 
     name = 'Bandage', 
     desc = 'Treats WOUND.',
     type = 'CONSUMABLE'
 }
 
 item_data['excite_herb'] = { 
-    id = 7, 
+    id = 107, 
     name = 'Excite Herb', 
     desc = 'Cures PARALYSIS.',
     type = 'CONSUMABLE'
 }
 
 item_data['smelly_herb'] = { 
-    id = 8, 
+    id = 108, 
     name = 'Smelly Herb', 
     desc = 'Wake from SLEEP.',
     type = 'CONSUMABLE'
 }
 
 item_data['clarity_brew'] = { 
-    id = 9, 
+    id = 109, 
     name = 'Clarity Brew', 
     desc = 'Snaps out of CONFUSE.',
     type = 'CONSUMABLE'
 }
 
 item_data['elixir_of_life'] = { 
-    id = 10, 
+    id = 110, 
     name = 'Elixir of Life', 
     desc = 'Revive from KO.',
     type = 'CONSUMABLE'
 }
 
 item_data['bronze_sword'] = {
+    id = 301,
     name = 'Bronze Sword',
     stat = {atk = 35},
     type = 'WEAPON',
@@ -78,6 +79,7 @@ item_data['bronze_sword'] = {
 }
 
 item_data['rusty_axe'] = {
+    id = 302,
     name = 'Rusty Axe',
     stat = {atk = 50},
     type = 'WEAPON',
@@ -85,6 +87,7 @@ item_data['rusty_axe'] = {
 }
 
 item_data['iron_hammer'] = {
+    id = 303,
     name = 'Iron Hammer',
     stat = {atk = 6},
     type = 'WEAPON',
@@ -93,6 +96,7 @@ item_data['iron_hammer'] = {
 }
 
 item_data['bronze_spear'] = {
+    id = 304,
     name = 'Bronze Spear',
     stat = {atk = 35},
     type = 'WEAPON',
@@ -100,6 +104,7 @@ item_data['bronze_spear'] = {
 }
 
 item_data['iron_knuckles'] = {
+    id = 305,
     name = 'Iron Knuckles',
     stat = {atk = 15, str = 10},
     type = 'WEAPON',
@@ -107,6 +112,7 @@ item_data['iron_knuckles'] = {
 }
 
 item_data['poisoned_dagger'] = {
+    id = 306,
     name = 'Poisoned Dagger',
     stat = {atk = 10, agi = 5},
     type = 'WEAPON',
@@ -115,6 +121,7 @@ item_data['poisoned_dagger'] = {
 }
 
 item_data['iron_bow'] = {
+    id = 307,
     name = 'Iron Bow',
     stat = {atk = 25},
     type = 'WEAPON',
@@ -123,6 +130,7 @@ item_data['iron_bow'] = {
 }
 
 item_data['fire_staff'] = {
+    id = 308,
     name = 'Fire Staff',
     stat = {atk = 5},
     type = 'WEAPON',
@@ -131,6 +139,7 @@ item_data['fire_staff'] = {
 }
 
 item_data['bronze_armor'] = {
+    id = 309,
     name = 'Bronze Armor',
     stat = {def = 20},
     type = 'ARMOR',
@@ -138,6 +147,7 @@ item_data['bronze_armor'] = {
 }
 
 item_data['fighter_suit'] = {
+    id = 310,
     name = 'Fighter Suit',
     stat = {def = 15},
     type = 'ARMOR',
@@ -146,6 +156,7 @@ item_data['fighter_suit'] = {
 }
 
 item_data['fire_cape'] = {
+    id = 311,
     name = 'Fire Cape',
     stat = {def = 10},
     type = 'ARMOR',
@@ -154,6 +165,7 @@ item_data['fire_cape'] = {
 }
 
 item_data['thinking_cap'] = {
+    id = 312,
     name = 'Thinking Cap',
     stat = {def = 8},
     type = 'HEADGEAR',
@@ -162,6 +174,7 @@ item_data['thinking_cap'] = {
 }
 
 item_data['steel_helmet'] = {
+    id = 313,
     name = 'Steel Helmet',
     stat = {def = 18},
     type = 'HEADGEAR',
@@ -170,6 +183,7 @@ item_data['steel_helmet'] = {
 }
 
 item_data['buckler'] = {
+    id = 314,
     name = 'Buckler',
     stat = {def = 25},
     type = 'OTHER_EQ',
@@ -177,6 +191,7 @@ item_data['buckler'] = {
 }
 
 item_data['reflektor'] = {
+    id = 315,
     name = 'Reflektor',
     stat = {def = 85},
     type = 'OTHER_EQ',
@@ -185,6 +200,7 @@ item_data['reflektor'] = {
 }
 
 item_data['feather_greaves'] = {
+    id = 316,
     name = 'Feather Greaves',
     stat = {def = 5, agi = 15},
     type = 'OTHER_EQ',

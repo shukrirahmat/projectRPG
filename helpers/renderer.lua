@@ -19,27 +19,31 @@ function renderer.draw_option_cursor(x, y, height)
     )
 end
 
-function renderer.draw_downward_arrow(x, y, width, height)
+function renderer.draw_downward_arrow(x, y, width, height, ratio)
+    local size = ratio or 1
+    
     love.graphics.polygon(
         'fill',
-        x + width/2 - 10,
-        y + height - 10,
-        x + width/2 + 10,
-        y + height - 10,
+        x + width/2 - 10 * size,
+        y + height - 10 * size,
+        x + width/2 + 10 * size,
+        y + height - 10 * size,
         x + width/2,
-        y + height - 5
+        y + height - 5 * size
     )
 end
 
-function renderer.draw_upward_arrow(x, y, width, height)
+function renderer.draw_upward_arrow(x, y, width, height, ratio)
+    local size = ratio or 1
+    
     love.graphics.polygon(
         'fill',
-        x + width/2 - 10,
-        y + 10,
-        x + width/2 + 10,
-        y + 10,
+        x + width/2 - 10 * size,
+        y + 10 * size,
+        x + width/2 + 10 * size,
+        y + 10 * size,
         x + width/2,
-        y + 5
+        y + 5 * size
     )
 end
 

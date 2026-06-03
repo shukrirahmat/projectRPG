@@ -1,6 +1,7 @@
 local order = require('states.menu.order')
 local stats = require('states.menu.stats')
 local equip = require('states.menu.equip')
+local items = require('states.menu.items')
 local transitions = require('systems.transitions')
 local input = require('input')
 local fonts = require('fonts')
@@ -58,6 +59,8 @@ function menu.draw()
         stats.draw(screen, profile)
     elseif phase == 'equip' then
         equip.draw(screen)
+    elseif phase == 'item' then
+        items.draw(screen)
     end
 end
 
@@ -246,6 +249,8 @@ function menu.keypressed(key)
         stats.keypressed(key)
     elseif phase == 'equip' then
         equip.keypressed(key)
+    elseif phase == 'item' then
+        items.keypressed(key)
     end
 end
 
@@ -267,7 +272,10 @@ end
 
 function menu.select()
     if phase == 'main' then
-        if position == 3 then
+        if position == 2 then
+            phase = 'item'
+            items.load(menu, menu.party)
+        elseif position == 3 then
             member_index = 1
             phase = 'choose_member'
         elseif position == 4 then
